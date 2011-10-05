@@ -1,0 +1,48 @@
+<html><head>MyBackup logout</html>
+<body>
+<div id="fb-root"></div>
+<script>
+<!--
+//alert('Entering logout');
+
+  window.fbAsyncInit = function() {
+//alert('running');
+
+// Init the page
+         FB.init({ 
+            appId:'131706850230259', cookie:true, 
+            status:true, xfbml:true 
+         });
+
+//alert('Init done');
+
+// verify we are connected
+	FB.getLoginStatus(function(response) {
+		  if (response.session) {
+	FB.logout(function(response) {
+	  // user is now logged out
+		alert('Logged out successfully');
+	});
+		  } // if response
+		}); // getLogin STatus
+}; // fbAsyncInit
+
+//alert('fbAsyncInit created');
+
+// GET FB script
+
+  (function() {
+    var e = document.createElement('script'); e.async = true;
+    e.src = document.location.protocol +
+      '//connect.facebook.net/en_US/all.js';
+    document.getElementById('fb-root').appendChild(e);
+  }());
+
+//alert('fb-root loaded');
+
+// -->
+</script>
+</div>
+Logging out...
+</body>
+</html>

@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8429DD2B-4389-4D38-8973-F2CCFACD057D}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MyBackupAgents</RootNamespace>
+    <AssemblyName>MyBackupAgents</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>MyBackup.AgentTest</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>cloudservice.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Data.SQLite">
+	<HintPath>c:\Program Files\System.Data.SQLite\bin\System.Data.SQLite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AsyncReqQueue.cs" />
+    <Compile Include="DBLayer.cs" />
+    <Compile Include="DBQuery.cs" />
+    <Compile Include="DBConfig.cs" />
+    <Compile Include="FBAPI.cs" />
+    <Compile Include="MyBackupProfile.cs" />
+    <Compile Include="frmBrowser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmBrowser.Designer.cs">
+      <DependentUpon>frmBrowser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmAddAccount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAddAccount.Designer.cs">
+      <DependentUpon>frmAddAccount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLogin.Designer.cs">
+      <DependentUpon>frmLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDashboard.Designer.cs">
+      <DependentUpon>frmDashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmTest.Designer.cs">
+      <DependentUpon>frmTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FBLogin.cs" />
+    <Compile Include="FBPerson.cs" />
+    <Compile Include="FBObject.cs" />
+    <Compile Include="FBEducation.cs" />
+    <Compile Include="FBWork.cs" />
+    <Compile Include="FBMessage.cs" />
+    <Compile Include="FBPost.cs" />
+    <Compile Include="FBCollection.cs" />
+    <Compile Include="FBAlbum.cs" />
+    <Compile Include="FBPhoto.cs" />
+    <Compile Include="FBEvent.cs" />
+    <Compile Include="FBTag.cs" />
+    <Compile Include="FBLikes.cs" />
+    <Compile Include="JSONScanner.cs" />
+    <Compile Include="JSONParser.cs" />
+    <Compile Include="JSONCollection.cs" />
+    <Compile Include="SocialNetwork.cs" />
+    <Compile Include="SNAccount.cs" />
+    <Compile Include="SNProfile.cs" />
+    <Compile Include="Frequency.cs" />
+    <Compile Include="Verb.cs" />
+    <Compile Include="AgentTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="frmBrowser.resx">
+      <DependentUpon>frmBrowser.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="cloudservice.ico" />
+    <Content Include="c:\Program Files\System.Data.SQLite\bin\SQLite.Interop.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

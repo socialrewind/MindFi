@@ -5,11 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBackupBeta", "MyBackupBet
 EndProject
 Global
 	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 1
+		SccNumberOfProjects = 2
 		SccProjectUniqueName0 = MyBackupBeta.csproj
-		SccProjectName0 = \u0022$/CyberTravelWebPlanner.root/CyberTravelWebPlanner\u0022,\u0020CAAAAAAA
 		SccLocalPath0 = .
-		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
+		SccLocalPath1 = .
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86

@@ -10,11 +10,9 @@ Global
 		SccNumberOfProjects = 3
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = MBBeta1\\MBBeta1.csproj
-		SccLocalPath1 = .
-		SccProjectFilePathRelativizedFromConnection1 = MBBeta1\\
+		SccLocalPath1 = MBBeta1
 		SccProjectUniqueName2 = MBBetaAPI\\MBBetaAPI.csproj
-		SccLocalPath2 = .
-		SccProjectFilePathRelativizedFromConnection2 = MBBetaAPI\\
+		SccLocalPath2 = MBBetaAPI
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="MBBeta1.Controls.SNMessageConversationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    
+<UserControl.Resources>
+    <Style x:Key="NullTextBlock" TargetType="TextBlock">
+        <Style.Triggers>
+            <Trigger Property="Text" Value="">
+                <Setter Property="Height" Value="0"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate x:Key="MessageConversationTemplate">
+        <Grid   Margin="5,5,0,0"
+                    Width="500">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="0.75*"/>
+                <ColumnDefinition Width="0.15*"/>
+            </Grid.ColumnDefinitions>
+
+            <Image  Source="{Binding FromProfilePic}"
+                        Grid.Column="0"
+                        Width="40" Height="40" VerticalAlignment="Top"/>
+            <StackPanel Orientation="Vertical" Grid.Column="1"                           
+                            VerticalAlignment="Center">
+                <TextBlock  Text="{Binding SNFromName}"
+                                FontWeight="Bold" Foreground="CadetBlue"/>
+                <TextBlock  Text="{Binding Subject}"
+                                FontWeight="Bold"   Style="{StaticResource NullTextBlock}"/>
+                <TextBlock  Text="{Binding Path=MessageText}"
+                                MaxWidth="350"  TextWrapping="Wrap"/>
+            </StackPanel>
+            <TextBlock Text="{Binding Path=Date, StringFormat={}{0:MM/dd/yyyy}}"
+                           Grid.Column="2"
+                           VerticalAlignment="Top" HorizontalAlignment="Right"/>
+        </Grid>
+    </DataTemplate>
+
+    </UserControl.Resources>
+
+
+    <Grid>
+
+        <ItemsControl    x:Name="MessagesListBox"
+                    ItemTemplate="{StaticResource MessageConversationTemplate}">
+        </ItemsControl>
+
+
+    </Grid>
+</UserControl>

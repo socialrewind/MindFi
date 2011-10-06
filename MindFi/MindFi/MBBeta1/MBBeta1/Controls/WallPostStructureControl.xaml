@@ -1,0 +1,134 @@
+﻿<UserControl x:Class="MBBeta1.Controls.WallPostStructureControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+             mc:Ignorable="d" 
+             xmlns:controls="clr-namespace:MBBeta1.Controls"
+             d:DesignHeight="300" d:DesignWidth="300">
+    
+    <UserControl.Resources>
+
+        <DataTemplate x:Key="ChildPostTemplate">
+            <StackPanel Orientation="Horizontal" Background="Lavender" Margin="0,2,0,0">
+                <Image  VerticalAlignment="Top" 
+                        Height="30" Width="30"  
+                        Source="{Binding Path=FromPhotoPath}"/>
+                <StackPanel Orientation="Vertical" Margin="5,0,0,0">
+                    <TextBlock FontWeight="Bold" Text="{Binding Path=FromName}" />
+                    <TextBlock  Text="{Binding Path=Message}"
+                               MaxWidth="250" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Label VerticalAlignment="Center">Date:</Label>
+                        <TextBlock VerticalAlignment="Center" Text="{Binding Path=Date, StringFormat={}{0:MM/dd/yyyy}}"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <Style x:Key="NullTextBlock" TargetType="TextBlock">
+            <Style.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter Property="Height" Value="0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="NullImage" TargetType="Image">
+            <Style.Setters>
+                <Setter Property="Height" Value="50"/>
+                <Setter Property="Width" Value="50"/>
+            </Style.Setters>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=ParentPost.PictureLink}" Value="">
+                    <Setter Property="Height" Value="1"/>
+                    <Setter Property="Width" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+
+        <Style x:Key="StatusTitleStyle"  TargetType="TextBlock">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="status">
+                    <Setter Property="Text" Value=""/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="link">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta1:WPStrings:SharedLink}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="photo">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta1:WPStrings:AddedPhoto}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="comment">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta1:WPStrings:Commented}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="video">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta1:WPStrings:SharedVideo}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+
+
+        <DataTemplate x:Key="WallPostStructureTemplate">
+            
+            <StackPanel Orientation="Horizontal"
+                        Margin="10">
+                <Image Height="40" Width="40"  
+                       VerticalAlignment="Top"
+                       Source="{Binding Path=ParentPost.FromPhotoPath}"/>
+                <StackPanel Orientation="Vertical" Margin="3,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Path=ParentPost.FromName}" 
+                               FontWeight="Bold" Foreground="CadetBlue"/>
+                        <TextBlock Style="{StaticResource StatusTitleStyle}"
+                                   Margin="5,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding Path=ParentPost.Message}"
+                               Width="400"
+                               TextWrapping="Wrap" TextAlignment="Left"/>
+
+                    <ContentControl>
+                        <StackPanel Orientation="Horizontal">
+                            
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding ParentPost.Title}"
+                                           Style="{StaticResource NullTextBlock}" FontWeight="Bold"
+                                           TextWrapping="Wrap" MaxWidth="350"/>
+                                <TextBlock Text="{Binding ParentPost.Description}"
+                                           Style="{StaticResource NullTextBlock}"
+                                           TextWrapping="Wrap" MaxWidth="350"/>
+                                <TextBlock MaxWidth="350">
+                                    <Hyperlink x:Name="PostHyperLink" 
+                                               NavigateUri="{Binding ParentPost.Link}"
+                                               Click="PostHyperLink_Click" BaselineAlignment="Baseline">
+                                        <TextBlock Text="{Binding ParentPost.Link}"
+                                                   Style="{StaticResource NullTextBlock}"/>
+                                    </Hyperlink>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </ContentControl>
+                    <controls:FBLikeControl x:Name="PostLikesControl" Margin="0,5,0,0"
+                                            NumberOfLikes="{Binding Path=ParentPost.NumberOfLikes}"
+                                            LikesList="{Binding Path=ParentPost.LikesList}"/>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Path=ParentPost.Date, StringFormat={}{0:MM/dd/yyyy}}"/>
+                    <ItemsControl Margin ="40,5,0,0" ItemsSource="{Binding Path=ChildPosts}"
+                                  ItemTemplate="{StaticResource ChildPostTemplate}"/>
+                </StackPanel>
+                
+            </StackPanel>
+
+        </DataTemplate>
+        
+    </UserControl.Resources>
+    
+    <Grid>
+        <ItemsControl x:Name="WallPostStructureListIC"
+                      ItemTemplate="{StaticResource WallPostStructureTemplate}">
+            
+        </ItemsControl>
+    </Grid>
+</UserControl>

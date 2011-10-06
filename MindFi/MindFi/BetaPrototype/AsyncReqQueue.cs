@@ -535,7 +535,6 @@ namespace MyBackup
                 {
                     nFriends++;
                     AsyncReqQueue apiReq;
-                    // TODO: conditional depending on backup profile
                     apiReq = FBAPI.Profile(item.SNID, ProcessOneFriend);
                     apiReq.Priority = 400;
                     apiReq.Queue();
@@ -543,17 +542,13 @@ namespace MyBackup
                     ProfilePhotoDestinationDir + item.ID + ".jpg",
                     ProcessFriendPic, item.ID, item.SNID);
                     apiReq.Priority = 999;
+                    apiReq.Queue();                    
+                    apiReq = FBAPI.Wall(item.SNID, SIZETOGETPERPAGE, ProcessWall);
+                    apiReq.Priority = 200;
                     apiReq.Queue();
-                    /*
-                                // TODO: conditional depending on backup profile
-                                apiReq = FBAPI.Wall(item.SNID, SIZETOGETPERPAGE, ProcessWall);
-                                apiReq.Priority = 50;
-                                apiReq.Queue();
-                                // TODO: conditional depending on backup profile
-                                apiReq = FBAPI.PhotoAlbums(item.SNID, SIZETOGETPERPAGE, ProcessAlbums);
-                                apiReq.Priority = 20;
-                                apiReq.Queue();
-                    */
+                    apiReq = FBAPI.PhotoAlbums(item.SNID, SIZETOGETPERPAGE, ProcessAlbums);
+                    apiReq.Priority = 50;
+                    apiReq.Queue();
                 }
             }
             //friendsNotParsed = friends;
@@ -734,7 +729,7 @@ namespace MyBackup
 
                     //System.Windows.Forms.MessageBox.Show("sending req for photos in album " + album.SNID + " ID: " + album.ID );
                     AsyncReqQueue apiReq = FBAPI.PhotosInAlbum(album.SNID, SIZETOGETPERPAGE, ProcessPhotosInAlbum, album.ID);
-                    apiReq.Priority = 200;
+                    apiReq.Priority = 400;
                     apiReq.Queue();
                     apiReq = FBAPI.Likes(album.SNID, SIZETOGETPERPAGE, ProcessLikes, album.ID);
                     apiReq.Priority = 200;

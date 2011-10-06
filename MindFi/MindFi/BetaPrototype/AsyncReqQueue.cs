@@ -56,25 +56,51 @@ namespace MyBackup
         public static volatile int nAlbums = 0;
         public static volatile int nPhotos = 0;
 
-        public static volatile int nQueuedRequests = 0;
-        public static volatile int nSentRequests = 0;
-        public static volatile int nRetryRequests = 0;
-        public static volatile int nReceivedRequests = 0;
-        public static volatile int nParsedRequests = 0;
-        public static volatile int nNotParsedRequests = 0;
-        public static volatile int nFailedRequests = 0;
+        //private static volatile int CountPerState[QUEUED] = 0;
+        //private static volatile int CountPerState[SENT] = 0;
+        //private static volatile int nRetryRequests = 0;
+        //private static volatile int CountPerState[RECEIVED] = 0;
+        //private static volatile int CountPerState[PARSED] = 0;
+        private static volatile int nNotParsedRequests = 0;
+        private static volatile int nFailedRequests = 0;
+        private static volatile int[] CountPerState = null;
 
         #endregion
         private static volatile Object obj = new Object();
 
         public static int QueuedReqs
         {
-            get { return nQueuedRequests; }
+            get { if (CountPerState == null) { return 0; }  else return CountPerState[QUEUED]; }
         }
 
         public static int SentReqs
         {
-            get { return nSentRequests; }
+            get { if (CountPerState == null) { return 0; } else return CountPerState[SENT]; }
+        }
+
+        public static int RetryReqs
+        {
+            get { if (CountPerState == null) { return 0; } else return CountPerState[RETRY]; }
+        }
+
+        public static int ReceivedReqs
+        {
+            get { if (CountPerState == null) { return 0; } else return CountPerState[RECEIVED]; }
+        }
+
+        public static int ParsedReqs
+        {
+            get { if (CountPerState == null) { return 0; } else return CountPerState[PARSED]; }
+        }
+
+        public static int NotParsedReqs
+        {
+            get { return nNotParsedRequests; }
+        }
+
+        public static int FailedReqs
+        {
+            get { return nFailedRequests; }
         }
 
         #region "Constructors"
@@ -104,6 +130,7 @@ namespace MyBackup
             ParentSNID = parentSNID;
             methodToCall = resultCall;
             addToken = AddToken;
+            InitArray();
             Save();
         }
 
@@ -131,6 +158,7 @@ namespace MyBackup
             methodToCall = resultCall;
             Parent = parentID;
             ParentSNID = parentSNID;
+            InitArray();
             Save();
         }
 
@@ -141,6 +169,7 @@ namespace MyBackup
         {
             string ErrorMessage;
             // Call layer to get data
+            InitArray();
             if (DBLayer.GetAsyncReq(id, out ReqType, out Priority, out Parent, out ParentSNID,
             out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out ErrorMessage))
             {
@@ -156,6 +185,18 @@ namespace MyBackup
             }
         }
 
+        private void InitArray()
+        {
+            lock (obj)
+            {
+                if (CountPerState == null)
+                {
+                    CountPerState = new int[AsyncReqQueue.TODELETE + 1];
+                    for (int i = 0; i < AsyncReqQueue.TODELETE + 1; i++) CountPerState[i] = 0;
+                }
+            }
+        }
+
         #endregion
 
         #region "Per request methods"
@@ -165,7 +206,7 @@ namespace MyBackup
             {
                 lock (obj)
                 {
-                    nQueuedRequests++;
+                    CountPerState[QUEUED]++;
                 }
                 State = QUEUED;
                 // TODO: separate status?
@@ -182,8 +223,8 @@ namespace MyBackup
             {
                 lock (obj)
                 {
-                    nSentRequests++;
-                    nQueuedRequests--;
+                    CountPerState[SENT]++;
+                    CountPerState[QUEUED]--;
                 }
                 State = SENT;
                 Save();
@@ -235,41 +276,54 @@ namespace MyBackup
         /// </summary>
         public static void InitialRequests()
         {
-            // TODO: Check if there are pending requests, if so, don't send new initial requests!!!!
-            if (DBLayer.QueueRetryUpdate())
-            // DEBUG
-            //if ( !DBLayer.QueueRetryUpdate() )
+            // Update old requests for retry
+            if (!DBLayer.QueueRetryUpdate())
             {
-                AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
-                ProfilePhotoDestinationDir + FBLogin.Me.ID + ".jpg",
-                ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
-                apiReq.Priority = 100;
-                apiReq.Queue();
-                apiReq.Send();
-                apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
-                apiReq.Priority = 100;
-                apiReq.Queue();
-                apiReq.Send();
-                apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
-                apiReq.Priority = 100;
-                apiReq.Queue();
-                apiReq.Send();
-                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                apiReq.Priority = 100;
-                apiReq.Queue();
-                apiReq.Send();
-                apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                apiReq.Priority = 100;
-                apiReq.Queue();
-                apiReq.Send();
-                apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                apiReq.Priority = 100;
-                apiReq.Queue();
-                apiReq.Send();
-                apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
-                apiReq.Priority = 100;
-                apiReq.Queue();
-                apiReq.Send();
+                return;
+            }
+            string error;
+            int[] stateArray;
+            if ( DBLayer.GetNRequestsPerState(out stateArray,  out error) )
+            {
+                CountPerState = stateArray;
+                // TODO: Pending to decide what to do with QUEUED, for now ignored...
+                if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
+                {
+                    PendingRequests(out error);
+                }
+                else
+                {
+                    AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
+                        ProfilePhotoDestinationDir + FBLogin.Me.ID + ".jpg",
+                        ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
+                    apiReq.Priority = 100;
+                    apiReq.Queue();
+                    apiReq.Send();
+                    apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
+                    apiReq.Priority = 100;
+                    apiReq.Queue();
+                    apiReq.Send();
+                    apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
+                    apiReq.Priority = 100;
+                    apiReq.Queue();
+                    apiReq.Send();
+                    apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                    apiReq.Priority = 100;
+                    apiReq.Queue();
+                    apiReq.Send();
+                    apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                    apiReq.Priority = 100;
+                    apiReq.Queue();
+                    apiReq.Send();
+                    apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                    apiReq.Priority = 100;
+                    apiReq.Queue();
+                    apiReq.Send();
+                    apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
+                    apiReq.Priority = 100;
+                    apiReq.Queue();
+                    apiReq.Send();
+                }
             }
         }
 
@@ -280,10 +334,11 @@ namespace MyBackup
         {
             ErrorMessage = "";
             // Get top queued requests
-            int Limit = 10;
-            if (nSentRequests - nReceivedRequests - nFailedRequests < Limit)
+            // TODO: Check formula now that received could stay for long
+            int ConcurrentRequestLimit = 10;
+            if (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests < ConcurrentRequestLimit)
             {
-                Limit -= nSentRequests - nReceivedRequests - nFailedRequests;
+                ConcurrentRequestLimit -= CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests;
                 ArrayList queueReq = DBLayer.GetRequests(Limit, AsyncReqQueue.QUEUED, out ErrorMessage);
                 // Assigning callback appropriately
                 if (ErrorMessage != "")
@@ -361,7 +416,7 @@ namespace MyBackup
             } // if not too many requests pending...
             else
             {
-                ErrorMessage = "Waiting for " + (nSentRequests - nReceivedRequests - nFailedRequests) + " to be responded before sending more...";
+                ErrorMessage = "Waiting for " + (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests) + " to be responded before sending more...";
             }
         }
 
@@ -381,7 +436,7 @@ namespace MyBackup
         {
             if (result)
             {
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
             }
             else
             {
@@ -415,7 +470,7 @@ namespace MyBackup
             if (result)
             {
                 nFriendsPictures++;
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
                 if (parent != null)
                 {
                     if (parent != null && response.IndexOf("jpg") > 0)
@@ -452,7 +507,7 @@ namespace MyBackup
                 friends = new FBCollection(response, "FBPerson");
                 friends.Distance = 1;
                 friends.Parse();
-                nParsedRequests++;
+                CountPerState[PARSED]++;
 
                 if (friends.Next != null)
                 {
@@ -516,7 +571,7 @@ namespace MyBackup
             {
                 wall = new FBCollection(response, "FBPost");
                 wall.Parse();
-                nParsedRequests++;
+                CountPerState[PARSED]++;
 
                 string error;
                 wall.Save(out error);
@@ -558,11 +613,11 @@ namespace MyBackup
         {
             if (result)
             {
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
                 nFriendsProcessed++;
                 FBPerson currentFriend = new FBPerson(response, 1, null);
                 currentFriend.Parse();
-                nParsedRequests++;
+                CountPerState[PARSED]++;
 
                 string errorData;
                 currentFriend.Save(out errorData);
@@ -600,15 +655,11 @@ namespace MyBackup
             if (result)
             {
                 inbox = new FBCollection(response, "FBMessage");
-                //System.Windows.Forms.MessageBox.Show("about to parse Inbox");
                 inbox.Parse();
-                //System.Windows.Forms.MessageBox.Show("Inbox parsed");
-                nParsedRequests++;
+                CountPerState[PARSED]++;
 
                 string error;
-                //System.Windows.Forms.MessageBox.Show("about to save inbox");
                 inbox.Save(out error);
-                //System.Windows.Forms.MessageBox.Show("saved inbox: " + inbox.CurrentNumber);
                 nMessages += inbox.CurrentNumber;
 
                 if (error != "")
@@ -619,10 +670,8 @@ namespace MyBackup
 
                 if (inbox.Next != null)
                 {
-                    //System.Windows.Forms.MessageBox.Show("Inbox next: " + inbox.Next);
-                    //AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, SIZETOGETPERPAGE, ProcessInbox);
-                    AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, 2, ProcessInbox);
-                    apiReq.Priority = 101;
+                    AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, SIZETOGETPERPAGE, ProcessInbox);
+                    apiReq.Priority = 100;
                     apiReq.Queue();
                 }
 
@@ -647,11 +696,10 @@ namespace MyBackup
             FBCollection albums = null;
             if (result)
             {
-                //System.Windows.Forms.MessageBox.Show("about to process album");
                 albums = new FBCollection(response, "FBAlbum");
                 albums.Parse();
                 //System.Windows.Forms.MessageBox.Show("Number of albums: " + albums.CurrentNumber );
-                nParsedRequests++;
+                CountPerState[PARSED]++;
                 nAlbums += albums.CurrentNumber;
 
                 string error;
@@ -710,7 +758,7 @@ namespace MyBackup
                 photos = new FBCollection(response, "FBPhoto", parent);
                 photos.Parse();
                 //System.Windows.Forms.MessageBox.Show("Number of photos: " + photos.CurrentNumber );
-                nParsedRequests++;
+                CountPerState[PARSED]++;
                 nPhotos += photos.CurrentNumber;
 
                 string error;
@@ -765,7 +813,7 @@ namespace MyBackup
 
             if (result)
             {
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
                 if (parent != null)
                 {
                     if (parent != null && response.IndexOf("jpg") > 0)
@@ -795,13 +843,13 @@ namespace MyBackup
 
             if (result)
             {
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
                 if (parent != null)
                 {
                     // create FBLikes object
                     FBLikes likes = new FBLikes(response, parent, parentSNID);
                     likes.Parse();
-                    nParsedRequests++;
+                    CountPerState[PARSED]++;
                     likes.Save(out errorData);
                     if (errorData == "") return true;
 
@@ -826,10 +874,10 @@ namespace MyBackup
 
             if (result)
             {
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
                 FBCollection events = new FBCollection(response, "FBEvent", parent, parentSNID);
                 events.Parse();
-                nParsedRequests++;
+                CountPerState[PARSED]++;
                 events.Save(out errorData);
                 if (errorData == "") return true;
             }
@@ -852,10 +900,10 @@ namespace MyBackup
 
             if (result)
             {
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
                 FBCollection lists = new FBCollection(response, "FBFriendList", parent, parentSNID);
                 lists.Parse();
-                nParsedRequests++;
+                CountPerState[PARSED]++;
                 lists.Save(out errorData);
 
                 foreach (FBFriendList list in lists.items)
@@ -888,10 +936,10 @@ namespace MyBackup
 
             if (result)
             {
-                nReceivedRequests++;
+                CountPerState[RECEIVED]++;
                 FBCollection friends = new FBCollection(response, "FBPerson", parent, parentSNID);
                 friends.Parse();
-                nParsedRequests++;
+                CountPerState[PARSED]++;
                 friends.Save(out errorData);
                 // save the list and association
                 if (errorData == "") return true;

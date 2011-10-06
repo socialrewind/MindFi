@@ -231,11 +231,11 @@ namespace MyBackup
 			+ ". Total Photos: " + AsyncReqQueue.nPhotos;
 		this.labelStats.Text += ".\nQueued: " + AsyncReqQueue.QueuedReqs;
 		this.labelStats.Text += ". Sent: " + AsyncReqQueue.SentReqs;
-		this.labelStats.Text += ". Retry: " + AsyncReqQueue.nRetryRequests;
-	    	this.labelStats.Text += ". Received: " + AsyncReqQueue.nReceivedRequests;
-	    	this.labelStats.Text += ". Failed: " + AsyncReqQueue.nFailedRequests;
-	    	this.labelStats.Text += ". Parsed: " + AsyncReqQueue.nParsedRequests;
-	    	this.labelStats.Text += ". No need parsing: " + AsyncReqQueue.nNotParsedRequests;
+		this.labelStats.Text += ". Retry: " + AsyncReqQueue.RetryReqs;
+	    	this.labelStats.Text += ". Received: " + AsyncReqQueue.ReceivedReqs;
+	    	this.labelStats.Text += ". Failed: " + AsyncReqQueue.FailedReqs;
+	    	this.labelStats.Text += ". Parsed: " + AsyncReqQueue.ParsedReqs;
+	    	this.labelStats.Text += ". No need parsing: " + AsyncReqQueue.NotParsedReqs;
 
 	    }
 	    else

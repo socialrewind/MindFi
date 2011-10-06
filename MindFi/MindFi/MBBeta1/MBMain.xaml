@@ -1,0 +1,467 @@
+﻿<Window x:Class="MBBeta1.MBMain"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        xmlns:converters="clr-namespace:MBBeta1.Converters"
+        xmlns:controls="clr-namespace:MBBeta1.Controls"
+        xmlns:local="clr-namespace:MBBeta1"
+        Title="Social Rewind" MinHeight="600" MinWidth="800">
+    <Window.Resources>
+
+        <!--Set tabs to fill available space-->
+        <converters:TabSizeConverter x:Key="tabSizeConverter" />
+        <Style TargetType="{x:Type TabItem}">
+            <Setter Property="Width">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource tabSizeConverter}">
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor,            
+                            AncestorType={x:Type TabControl}}" />
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor,            
+                            AncestorType={x:Type TabControl}}" Path="ActualWidth" />
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--Browse Buttons Style-->
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Style.Setters>
+                <Setter Property="Width"  Value="70"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style.Setters>
+        </Style>
+
+        <!--Owner Data Template-->
+        <DataTemplate x:Key="OwnerDataTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="{Binding Path=ProfilePic}"
+                       Width="60" Height="60" VerticalAlignment="Center" Margin="10,0,0,0" />
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10,0,0,0">
+                    <TextBlock Text="{Binding Path=FirstName}" 
+                               FontSize="18" FontWeight="Bold" FontFamily="Arial Rounded MT"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding Path=LastName}"
+                               FontSize="14" FontWeight="Bold" FontFamily="Arial Rounded MT"
+                               HorizontalAlignment="Center"/>
+                    <Button    x:Name="OwnerDetailsBt" Click="OwnerDetailsBt_Click"
+                               HorizontalAlignment="Center"
+                               Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
+                               Content="{lex:LocText MBBeta1:MBStrings:ViewDetails}"/>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+        
+        <!--Friend List Data Template-->
+        <DataTemplate x:Key="FriendListDataTemplate">            
+            <StackPanel Orientation="Horizontal" Width="200" Height="60">
+                <Image Source="{Binding ProfilePic}"  Height="40" Width="40"/>
+                <StackPanel Orientation="Vertical" Margin="2,2,2,2" VerticalAlignment="Center">
+                    <CheckBox   Name="FriendSelectedCB" IsChecked="{Binding Selected}" 
+                                Unchecked="FriendSelectedCB_UnChecked"
+                                HorizontalAlignment="Left">
+                    </CheckBox>
+                    <TextBlock Text="{Binding Name}"
+                               HorizontalAlignment="Left"/>
+                </StackPanel>
+                <StackPanel.ToolTip>
+                    <ToolTip    Placement="Center">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="{Binding ProfilePic}"
+                                    HorizontalAlignment="Center"/>
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:DoubleClickTo}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:ViewDetailsOf}"  HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </ToolTip>
+                </StackPanel.ToolTip>
+            </StackPanel>
+
+        </DataTemplate>
+        
+    </Window.Resources>
+    
+    <DockPanel Background="DarkBlue">
+        
+        <!--Header-->
+        <Grid DockPanel.Dock="Top" Height="100">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="1,0">
+                    <GradientStop Color="Silver" Offset="0.0"/>
+                    <GradientStop Color="DarkBlue" Offset="0.3"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.ColumnSpan="1" Grid.RowSpan="3" CornerRadius="10"
+                        Margin="20,10,10,10"
+                        Background="White">
+                <ContentControl x:Name="OwnerCC"
+                                ContentTemplate="{StaticResource OwnerDataTemplate}"/>
+            </Border>
+            
+            <!--Temporal Connect to DB Button-->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
+                <TextBlock Text="{lex:LocText MBBeta1:MBStrings:LastUpdate}"
+                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{lex:LocText MBBeta1:MBStrings:Never}"
+                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <Button x:Name="RefreshDataBt" 
+                    HorizontalContentAlignment="Center" HorizontalAlignment="Right"
+                    Width="35" Margin="10,0,0,0">
+                    <Image Source="Images/Refresh-icon.png" Height="30"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="{lex:LocText MBBeta1:MBStrings:RefreshData}"/>
+                    </Button.ToolTip>
+                </Button>
+            </StackPanel>
+
+            <Button x:Name="BackupDataBt" Grid.Column="2" Grid.Row="1" 
+                    HorizontalContentAlignment="Center" HorizontalAlignment="Right"
+                    Width="35" Margin="0,0,10,0">
+                <Image Source="Images/Blue-Backup-icon.png" Height="30"/>
+                <Button.ToolTip>
+                    <TextBlock Text="{lex:LocText MBBeta1:MBStrings:BackupData}"/>
+                </Button.ToolTip>
+            </Button>
+
+            <Button x:Name="SetupBt" Grid.Column="2" Grid.Row="3" 
+                    HorizontalContentAlignment="Center" HorizontalAlignment="Right"
+                    Width="35" Margin="0,0,10,0">    
+                <Image Source="Images/Gear-icon.png" Height="27"/>
+                <Button.ToolTip>
+                    <TextBlock Text="{lex:LocText MBBeta1:MBStrings:Setup}" 
+                               DockPanel.Dock="Right" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                </Button.ToolTip>
+            </Button>
+
+        </Grid>
+        
+        <!--Footer-->
+        <Grid DockPanel.Dock="Bottom" Background="DarkBlue">
+            <TextBlock Text="Status Bar" Foreground="White"/>
+        </Grid>
+        
+        <!--Body-->
+        <Grid>
+            <TabControl x:Name="MainTC">
+                
+                <!--Navigate Your Network Section-->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Images/New-File-icon.png" Height="30"/>
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:NavigateNetwork}"
+                                   VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <DockPanel>
+                        <StackPanel Orientation="Vertical" DockPanel.Dock="Left" MinWidth="200"
+                                    Margin="10">
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:CurrentView}" FontWeight="Bold"/>
+                            <controls:DateFilter x:Name="NavigateDF" 
+                                                 Margin="10"/>
+                            <Button x:Name="NavigateDateFilterBt" Content="{lex:LocText MBBeta1:MBStrings:NavigateDateFilter}"
+                                    Click="NavigateDateFilterBt_Click"
+                                    Margin="10,0,10,10"/>
+                            
+                            <Separator/>
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:Statistics}" FontWeight="Bold"
+                                       Margin="10"/>
+                            <StackPanel Orientation="Horizontal" Margin="10">
+                                <TextBlock Text="{lex:LocText MBBeta1:MBStrings:Posts}"/>
+                                <TextBlock Text=": "/>
+                                <TextBlock x:Name="PostCountTB" Text="0"/>
+                            </StackPanel>
+                            
+                        </StackPanel>
+                        
+                        <ScrollViewer   DockPanel.Dock="Top" Background="White"
+                                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         Margin="10">
+                            <StackPanel Orientation="Vertical">
+                                <controls:WallPostStructureControl x:Name="PostsListWPSC"
+                                                                   HorizontalAlignment="Center">
+
+                                </controls:WallPostStructureControl>
+                                <Separator/>
+                                <Button x:Name="GetOlderPublicationsBt" Margin="0,10,0,0"
+                                        Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
+                                        HorizontalAlignment="Center"
+                                        Content="{lex:LocText MBBeta1:MBStrings:OlderPublications}"
+                                        Click="GetOlderPublicationsBt_Click" IsEnabled="False" Visibility="Hidden">
+
+                                </Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                            
+                    </DockPanel>
+                </TabItem>
+                
+                <!--Browse Your Network Section-->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Images/Network2-icon.png" Height="30"/>
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:BrowseNetwork}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    
+                    
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.50*"/>
+                            <ColumnDefinition Width="0.50*"/>
+                        </Grid.ColumnDefinitions> 
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.075*"/>
+                            <RowDefinition Height="0.925*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!--Browse Headers-->
+                        <TextBlock Text="{lex:LocText MBBeta1:MBStrings:BrowseSelectFriends}"
+                                   Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Center"
+                                   FontWeight="Bold" Foreground="DarkBlue"/>
+
+                        <TextBlock Text="{lex:LocText MBBeta1:MBStrings:BrowseSelectOptions}"
+                                   Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Center"
+                                   FontWeight="Bold" Foreground="DarkBlue"/>
+
+
+
+                        <TabControl x:Name="FriendsAndGroupsTC" Grid.Column="0" Grid.Row="1">
+                            <TabItem Header="Friends">
+                                <!--Network Friends-->
+                                <DockPanel>
+                                    <!--Filter features-->
+                                    <Expander DockPanel.Dock="Top" Header="{lex:LocText MBBeta1:MBStrings:FilterOptions}" IsExpanded="False">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="0.40*"/>
+                                                <ColumnDefinition Width="0.60*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal" 
+                                                VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                Margin="5">
+                                                <TextBlock Text="{lex:LocText MBBeta1:MBStrings:FriendFilterText}" VerticalAlignment="Center"
+                                                FontWeight="Bold"/>
+                                                <TextBox    Name="FriendFilterText"
+                                                    Width="100" MaxLength="20" Margin="5,0,0,0" VerticalAlignment="Center"
+                                                    Text="" AcceptsReturn="False" 
+                                                    TextChanged="FriendFilterText_TextChanged" 
+                                                    IsEnabled="False"/>
+                                                <Button Name="ClearFriendFilterBt" Click="ClearFriendFilterBt_Click" VerticalAlignment="Center" Height="20">
+                                                    <Image Source="Images/close_blue.png"/>
+                                                </Button>
+                                            </StackPanel>
+
+
+                                            <StackPanel Grid.Column="1" 
+                                                Orientation="Horizontal" VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Margin="5">
+                                                <StackPanel Orientation="Vertical">
+                                                    <CheckBox   Name="SelectAllCBox" Content="{lex:LocText MBBeta1:MBStrings:FriendFilterSelectAll}"
+                                                        HorizontalAlignment="Center"
+                                                        Checked="SelectAllCBox_Checked"
+                                                        Unchecked="SelectAllCBox_Unchecked">
+                                                    </CheckBox>
+                                                    <Button     Name="ClearSelectedBt" Click="ClearSelectedBt_Click"
+                                                        HorizontalAlignment="Center"
+                                                        Content="{lex:LocText MBBeta1:MBStrings:FriendFilterClearSelection}"
+                                                        Margin="5"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Vertical" Margin="10,0,5,0">
+                                                    <TextBlock  x:Name="ShowSelectedTextBox" Text="{lex:LocText MBBeta1:MBStrings:FriendFilterShow}"
+                                                        TextAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <ToggleButton   x:Name="ShowSelectedTB"
+                                                            Checked="ShowSelectedTB_Checked" Unchecked="ShowSelectedTB_Unchecked"
+                                                            Content="{lex:LocText MBBeta1:MBStrings:FriendFilterShowSelected}"
+                                                            Margin="5"/>
+                                                </StackPanel>
+
+                                            </StackPanel>
+                                        </Grid>
+                                    </Expander>
+
+
+                                    <!-- Friends Listbox-->
+                                    <ListBox x:Name="FriendsLB"
+                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                             ItemTemplate="{StaticResource FriendListDataTemplate}"
+                                             Style="{StaticResource PlainListBoxStyle}"
+                                             ItemContainerStyle="{StaticResource SelectedItemBlackText}"
+                                             IsSynchronizedWithCurrentItem="True"
+                                             MouseDoubleClick="FriendsLB_MouseDoubleClick"
+                                             Margin="5">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <local:VirtualizingWrapPanel Orientation="Horizontal" ItemWidth="200" ItemHeight="60"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ListBox>
+                                </DockPanel>                                
+
+                            </TabItem>
+                            <TabItem Header="Social Groups">
+
+                            </TabItem>
+
+                        </TabControl>
+
+                        <!--Social Networks Options-->
+
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <!--Facebook-->
+                            <Image Source="Images/f_logo.jpg" Width="50"/>
+                            <Button x:Name="FBWallBt"
+                                    Grid.Column="1" Grid.Row="0" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:FBWall}"/>
+                            <Button x:Name="FBPhotosBt"
+                                    Grid.Column="2" Grid.Row="0" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:FBPhotos}"
+                                    Click="FBPhotosBt_Click"/>
+                            <Button x:Name="FBMessagesBt"
+                                    Grid.Column="3" Grid.Row="0" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:FBMessages}"
+                                    Click="FBMessagesBt_Click"/>
+                            <Button x:Name="FBEventsBt"
+                                    Grid.Column="4" Grid.Row="0" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:FBEvents}"/>
+
+                            <!--Twitter-->
+                            <Image Source="Images/twitter_logo.png" Grid.Row="1" Width="50"/>
+                            <Button x:Name="TwTweetsBt"
+                                    Grid.Column="1" Grid.Row="1" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:TwTweets}"/>
+
+                            <Button x:Name="TwPhotosBt"
+                                    Grid.Column="2" Grid.Row="1" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:TwPhotos}"/>
+
+                            <!--Linked In-->
+                            <Image Source="Images/linkedin_logo.jpg" Grid.Row="2" Width="50"/>
+
+                            <Button x:Name="LIPostsBt"
+                                    Grid.Column="1" Grid.Row="2" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:LIPosts}"/>
+                            <Button x:Name="LIMessagesBt"
+                                    Grid.Column="2" Grid.Row="2" Style="{StaticResource ButtonStyle}"
+                                    Content="{lex:LocText MBBeta1:MBStrings:LIMessages}"/>
+
+                        </Grid>
+
+                    </Grid>
+                    
+                </TabItem>
+                
+                <!--Search Your Network Section-->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Images/Search-icon-blue.png" Height="30"/>
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:SearchNetwork}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition Width="0.5*"/>
+                        </Grid.ColumnDefinitions>
+                    
+                        <!--Search Options-->
+                        
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{lex:LocText MBBeta1:MBStrings:SearchHeader}" HorizontalAlignment="Center"/>
+                            <Border Grid.Column="0"
+                                CornerRadius="5" Background="White">
+                                <DockPanel Margin="2,2,2,2">
+                                    <Button x:Name="SearchBt" DockPanel.Dock="Right">
+                                        <Image Source="Images/search-icon.png" Width="30" Height="30"/>
+                                    </Button>
+                                    <TextBox x:Name="SearchTB" />
+                                </DockPanel>
+                            </Border>
+                            
+                            <ToggleButton x:Name="AdvancedSearchTB"
+                                          Content="{lex:LocText MBBeta1:MBStrings:EnableAdvancedSearch}"
+                                          Click="AdvancedSearchTB_Click">
+                            </ToggleButton>
+                            
+                            <Grid x:Name="AdvancedSearchGrid" IsEnabled="False" Visibility="Collapsed">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="{lex:LocText MBBeta1:MBStrings:AdvancedSearchHeader}"
+                                           Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,5,0,5"
+                                           FontWeight="Bold"/>
+                                
+                                <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1" Margin="5,10,5,5">
+                                    <Image Source="Images/f_logo.jpg" Height="30" Margin="0,5,0,5"/>
+                                    <CheckBox x:Name="FBWallSearchCB" Content="{lex:LocText MBBeta1:MBStrings:FBWall}"/>
+                                    <CheckBox x:Name="FBAlbumSearchCB" Content="{lex:LocText MBBeta1:MBStrings:FBPhotoAlbums}"/>
+                                    <CheckBox x:Name="FBPhotoSearchCB" Content="{lex:LocText MBBeta1:MBStrings:FBPhotos}"/>
+                                    <CheckBox x:Name="FBMessageSearchCB" Content="{lex:LocText MBBeta1:MBStrings:FBMessages}"/>
+                                    <CheckBox x:Name="FBEventSearchCB" Content="{lex:LocText MBBeta1:MBStrings:FBEvents}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Margin="5,10,5,5">
+                                    <Image Source="Images/twitter_logo.png" Height="30" Margin="0,5,0,5"/>
+                                    <CheckBox x:Name="TwTweetsSearchCB" Content="{lex:LocText MBBeta1:MBStrings:TwTweets}"/>
+                                    <CheckBox x:Name="TWPhotoSearchCB" Content="{lex:LocText MBBeta1:MBStrings:TwPhotos}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="1" Margin="5,10,5,5">
+                                    <Image Source="Images/linkedin_logo.jpg" Height="30" Margin="0,5,0,5"/>
+                                    <CheckBox x:Name="LIPostsSearchCB" Content="{lex:LocText MBBeta1:MBStrings:LIPosts}"/>
+                                    <CheckBox x:Name="LIMessagesSearchCB" Content="{lex:LocText MBBeta1:MBStrings:LIMessages}"/>
+                                </StackPanel>
+                                <controls:DateFilter x:Name="DateSearchFilter"
+                                                     Grid.Column="1" Grid.Row="2" Margin="0,20,0,0"/>
+
+                            </Grid>
+
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!--Search Results-->
+                    
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>
+
+    

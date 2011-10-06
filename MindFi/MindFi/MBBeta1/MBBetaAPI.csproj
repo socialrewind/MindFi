@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{79BA485C-3F6D-4CAD-9C30-369D4FB82D29}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MBBetaAPI</RootNamespace>
+    <AssemblyName>MBBetaAPI</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\..\Program Files\System.Data.SQLite\bin\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="APIError.cs" />
+    <Compile Include="DBConnector.cs" />
+    <Compile Include="LikeStructure.cs" />
+    <Compile Include="Login.cs" />
+    <Compile Include="PartialController\Activity.cs" />
+    <Compile Include="PartialController\SNLikeController.cs" />
+    <Compile Include="PartialController\SNMessageController.cs" />
+    <Compile Include="PartialController\OrganizationController.cs" />
+    <Compile Include="PartialController\PersonLightController.cs" />
+    <Compile Include="PartialController\RelatedOrganizationController.cs" />
+    <Compile Include="PartialController\SNPhotoAlbumController.cs" />
+    <Compile Include="PartialController\SNPhotoController.cs" />
+    <Compile Include="PartialController\SNPhotoTagController.cs" />
+    <Compile Include="PartialController\WallPostController.cs" />
+    <Compile Include="PartialModel\EntityModel.cs" />
+    <Compile Include="PartialModel\OrganizationModel.cs" />
+    <Compile Include="PartialModel\PersonLightModel.cs" />
+    <Compile Include="PartialModel\PersonModel.cs" />
+    <Compile Include="PartialController\PersonController.cs" />
+    <Compile Include="PartialModel\SNLikeModel.cs" />
+    <Compile Include="PartialModel\SNPhotoAlbumModel.cs" />
+    <Compile Include="PartialModel\RelatedOrganizationModel.cs" />
+    <Compile Include="PartialModel\SNMessageModel.cs" />
+    <Compile Include="PartialModel\SNPhotoModel.cs" />
+    <Compile Include="PartialModel\SNPhotoTagModel.cs" />
+    <Compile Include="PartialModel\WallPostModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SNMessageStructure.cs" />
+    <Compile Include="SocialNetwork.cs" />
+    <Compile Include="WallPostStructure.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

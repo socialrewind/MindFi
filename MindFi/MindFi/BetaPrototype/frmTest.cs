@@ -95,7 +95,7 @@ namespace MyBackup
                     currentRecord = new FBFriendList(richTextBox1.Text, "FBPerson");
                     break;*/
                 case "FBPerson":
-                    currentRecord = new FBPerson(richTextBox1.Text, 0);
+                    currentRecord = new FBPerson(richTextBox1.Text, 0, null);
                     break;
 		case "FBFriends":
                     currentRecord = new FBCollection(richTextBox1.Text, "FBPerson");

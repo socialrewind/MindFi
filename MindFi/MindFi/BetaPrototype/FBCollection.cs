@@ -8,7 +8,7 @@ namespace MyBackup
     /// Class that represents a set of Facebook objects
     /// It contains the parsing for importing a list of some specific type
     /// </summary>
-    public class FBCollection:JSONParser
+    public class FBCollection : JSONParser
     {
         #region "Properties"
         /// <summary>
@@ -23,11 +23,11 @@ namespace MyBackup
         /// Paging: link to next set in FB to parse
         /// </summary>
         public string Next { get; set; }
-	/// <summary>
+        /// <summary>
         /// Name of the children type, e.g. FBPerson, FBPost, FBMessage, ...
         /// </summary>
         public string itemType;
-	/// <summary>
+        /// <summary>
         /// Number of elements in the current collection
         /// </summary>
         public int CurrentNumber
@@ -43,22 +43,22 @@ namespace MyBackup
             }
         }
 
-	/// <summary>
+        /// <summary>
         /// Number of elements that have been saved, useful for async progress when calling Save
         /// </summary>
         public int CurrentlySaved { get; set; }
         #endregion
 
         #region "Methods"
-/*
+        /*
         /// <summary>
         /// Default constructor, with no source
         /// </summary>
         public FBCollection(string type):base("")
         {
             items = new ArrayList();
-	    itemType = type;
-	    AddParser("data", itemType, ref items);
+        itemType = type;
+        AddParser("data", itemType, ref items);
         }
 */
 
@@ -66,28 +66,28 @@ namespace MyBackup
         /// Default constructor, based on a JSON response
         /// </summary>
         /// <param name="response">JSON response to parse and build the person object</param>
-        public FBCollection(string response, string type, long? ParentID=null, string ParentSNID=null)
+        public FBCollection(string response, string type, long? ParentID = null, string ParentSNID = null)
             : base(response)
         {
             items = new ArrayList();
-	    itemType = type;
-	    parentID = ParentID;
-	    parentSNID = ParentSNID;
-	    AddParser("data", itemType, ref items);
+            itemType = type;
+            parentID = ParentID;
+            parentSNID = ParentSNID;
+            AddParser("data", itemType, ref items);
         }
 
         /// <summary>
         /// Default constructor, based on a JSON response
         /// </summary>
         /// <param name="response">JSON response to parse and build the person object</param>
-        public FBCollection(JSONScanner scanner, string type, long? ParentID=null, string ParentSNID=null)
+        public FBCollection(JSONScanner scanner, string type, long? ParentID = null, string ParentSNID = null)
             : base(scanner)
         {
             items = new ArrayList();
-	    itemType = type;
-	    parentID = ParentID;
-	    parentSNID = ParentSNID;
-	    AddParser("data", itemType, ref items);
+            itemType = type;
+            parentID = ParentID;
+            parentSNID = ParentSNID;
+            AddParser("data", itemType, ref items);
         }
 
         public override void Save(out string ErrorMessage)
@@ -95,26 +95,28 @@ namespace MyBackup
             string error = "";
             CurrentlySaved = 0;
 
-	    // save array
-	    if (items != null)
-	    {
-		try
-		{
-		    DBLayer.BeginTransaction();
-		    foreach (FBObject item in items)
-		    {
-			string error2;
-			item.Save(out error2);
-			CurrentlySaved++;
-			error += error2;
-		    }
-		    DBLayer.CommitTransaction();
-		}
-		catch (Exception ex)
-		{
-		    DBLayer.RollbackTransaction();
+            // save array
+            if (items != null)
+            {
+                try
+                {
+                    DBLayer.BeginTransaction();
+                    foreach (FBObject item in items)
+                    {
+                        string error2;
+                        item.Save(out error2);
+                        CurrentlySaved++;
+                        error += error2;
+                    }
+                    // TODO: save relationship to parent...
+
+                    DBLayer.CommitTransaction();
+                }
+                catch (Exception ex)
+                {
+                    DBLayer.RollbackTransaction();
                     error += "Error saving to the database: " + ex.ToString() + "\n";
-		}
+                }
             }
             ErrorMessage = error;
         }
@@ -134,7 +136,7 @@ namespace MyBackup
                     Next = value;
                     break;
                 default:
-                    base.AssignValue(name,value);
+                    base.AssignValue(name, value);
                     break;
             }
         }
@@ -154,7 +156,7 @@ namespace MyBackup
                 if (items == null || items.Count == 0)
                     return null;
 
-                temp = (FBObject) items[0];
+                temp = (FBObject)items[0];
                 items.Remove(temp);
             }
             return temp;
@@ -169,7 +171,7 @@ namespace MyBackup
         {
             lock (items)
             {
-                if (items == null )
+                if (items == null)
                     items = new ArrayList();
 
                 items.Add(item);
@@ -184,11 +186,11 @@ namespace MyBackup
         {
             lock (items)
             {
-                if (items == null) 
+                if (items == null)
                     return;
-                foreach ( FBObject current in items )
+                foreach (FBObject current in items)
                 {
-                    if ( current.SNID == SNID )
+                    if (current.SNID == SNID)
                     {
                         items.Remove(current);
                         return;

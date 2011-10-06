@@ -10,8 +10,8 @@ namespace MyBackup
 
     public class FBLogin
     {
-	private static volatile Object obj = new Object();
-        private const string APPID="131706850230259";
+        private static volatile Object obj = new Object();
+        private const string APPID = "131706850230259";
         private const string APPKey = "89c861c469cff95970836f3b8021d7bd";
         private const string AuthURL = "https://www.facebook.com/dialog/oauth?client_id=";
         public const string RedirURL = "http://www.sinergia.net.mx/fb/login_success.html";
@@ -19,16 +19,16 @@ namespace MyBackup
 
         private static volatile bool m_loginStatus = false;
         private static volatile string m_accessToken = "";
-	private static frmBrowser loginForm;
-	private static volatile string m_loginname;
-	private static volatile FBPerson m_me;
-	private static volatile string lastError;
+        private static frmBrowser loginForm;
+        private static volatile string m_loginname;
+        private static volatile FBPerson m_me;
+        private static volatile string lastError;
 
-	public static string LoginName
-	{
-	    get { return m_loginname; }
-	    set { lock (obj) { m_loginname = value; } }
-	}
+        public static string LoginName
+        {
+            get { return m_loginname; }
+            set { lock (obj) { m_loginname = value; } }
+        }
 
         public FBLogin()
         {
@@ -40,39 +40,39 @@ namespace MyBackup
             CallBack myCallBack = new CallBack(FBLogin.callbackLoginResult);
 
             // TODO: state parameter to prevent CSRF https://developers.facebook.com/docs/authentication/
-            loginForm = new frmBrowser(AuthURL + APPID + "&redirect_uri=" + RedirURL + "&scope=" + Permissions + "&response_type=token&popup", myCallBack );
-            loginForm.Show();            
+            loginForm = new frmBrowser(AuthURL + APPID + "&redirect_uri=" + RedirURL + "&scope=" + Permissions + "&response_type=token&popup", myCallBack);
+            loginForm.Show();
         }
 
         public static bool callbackLoginResult(int hwnd, bool result, string response, Int64? parent, string parentSNID)
         {
-	    lock ( obj )
-	    {
-		m_loginStatus = result;
-		m_accessToken = response;
-	    }
-	    AsyncReqQueue apiReq = FBAPI.Me(GetMe);
-	    apiReq.Queue();
+            lock (obj)
+            {
+                m_loginStatus = result;
+                m_accessToken = response;
+            }
+            AsyncReqQueue apiReq = FBAPI.Me(GetMe);
+            apiReq.Queue();
             apiReq.Send();
             return loggedIn;
         }
 
         public void LogOut()
         {
-	    lock ( obj )
-	    {
-		m_me = null;
-		m_loginStatus = false;
-		m_accessToken = "";
-	    }
+            lock (obj)
+            {
+                m_me = null;
+                m_loginStatus = false;
+                m_accessToken = "";
+            }
             loginForm = new frmBrowser("http://www.sinergia.net.mx/fb/logout.html", null);
             //loginForm.Logout();
-            loginForm.Show();            
-MessageBox.Show("login form should be visible");
-/*
-	    loginForm.Dispose();
-	    loginForm = null;
-*/
+            loginForm.Show();
+            MessageBox.Show("login form should be visible");
+            /*
+                    loginForm.Dispose();
+                    loginForm = null;
+            */
         }
 
         public static string token
@@ -91,7 +91,7 @@ MessageBox.Show("login form should be visible");
             }
         }
 
-	public static string LastError
+        public static string LastError
         {
             get
             {
@@ -99,41 +99,41 @@ MessageBox.Show("login form should be visible");
             }
         }
 
-	public static FBPerson Me
+        public static FBPerson Me
         {
             get
             {
-		lock ( obj )
-		{
+                lock (obj)
+                {
                     return m_me;
-		}
+                }
             }
         }
 
         public static bool GetMe(int hwnd, bool result, string response, Int64? parent, string parentSNID)
         {
-	  lock ( obj )
-	  {
-	    if (result)
+            lock (obj)
             {
-                // distance to Me: 0
-                //string error;
-                m_me = new FBPerson(response, 0);
-                m_me.Parse();
-		LoginName = m_me.Name;
-		lastError = response + "\n" + m_me.lastError;
-		string errorData = "";
-		m_me.Save(out errorData);
-		lastError += "\n" + errorData;
-		
+                if (result)
+                {
+                    // distance to Me: 0
+                    //string error;
+                    m_me = new FBPerson(response, 0, null);
+                    m_me.Parse();
+                    LoginName = m_me.Name;
+                    lastError = response + "\n" + m_me.lastError;
+                    string errorData = "";
+                    m_me.Save(out errorData);
+                    lastError += "\n" + errorData;
+
+                }
+                else
+                {
+                    lastError = "ERROR: " + response;
+                    return false;
+                }
+                return true;
             }
-            else
-            {
-                lastError = "ERROR: " + response;
-		return false;
-            }
-            return true;
-	  }
         }
 
 

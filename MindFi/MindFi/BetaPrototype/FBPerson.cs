@@ -9,7 +9,7 @@ namespace MyBackup
     ///     https://developers.facebook.com/docs/reference/api/user/
     /// It contains the logic to save to the MyBackup database (PersonIdentity, PersonData tables)
     /// </summary>
-    public class FBPerson:FBObject
+    public class FBPerson : FBObject
     {
         #region "Properties"
 
@@ -89,7 +89,7 @@ namespace MyBackup
         /// <summary>
         /// Meeting For
         /// </summary>
-        public string MeetingFor { get; set; }        
+        public string MeetingFor { get; set; }
         /// <summary>
         /// ID of the current city
         /// </summary>
@@ -166,7 +166,10 @@ namespace MyBackup
         /// Work history for the user in the social network
         /// </summary>
         public ArrayList Work;
-
+        // Data for related org
+        private decimal OrgPartitionDate;
+        private int OrgPartitionID;
+        private JSONParser relatedList;
         #endregion
 
         /// <summary>
@@ -182,13 +185,14 @@ namespace MyBackup
         /// </summary>
         /// <param name="response">JSON response to parse and build the person object</param>
         /// <param name="distance">indicates if the person is the user, a friend or other</param>
-        public FBPerson(JSONScanner temp, int distance)
+        public FBPerson(JSONScanner temp, int distance, JSONParser parent)
             : base(temp)
         {
+            relatedList = parent;
             Distance = distance;
-	    MyDataTable = "PersonData";
-	    AddParser("work", "FBWork", ref Work);
-	    AddParser("education", "FBEducation", ref Education);
+            MyDataTable = "PersonData";
+            AddParser("work", "FBWork", ref Work);
+            AddParser("education", "FBEducation", ref Education);
         }
 
         /// <summary>
@@ -196,13 +200,14 @@ namespace MyBackup
         /// </summary>
         /// <param name="response">JSON response to parse and build the person object</param>
         /// <param name="distance">indicates if the person is the user, a friend or other</param>
-        public FBPerson(string response, int distance)
+        public FBPerson(string response, int distance, JSONParser parent)
             : base(response)
         {
+            relatedList = parent;
             Distance = distance;
-	    MyDataTable = "PersonData";
-	    AddParser("work", "FBWork", ref Work);
-	    AddParser("education", "FBEducation", ref Education);
+            MyDataTable = "PersonData";
+            AddParser("work", "FBWork", ref Work);
+            AddParser("education", "FBEducation", ref Education);
         }
         #endregion
 
@@ -210,41 +215,49 @@ namespace MyBackup
         public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    //DBLayer.BeginTransaction();
-	    base.Save(out ErrorMessage);
-	    if ( Saved )
-	    {
-		Saved = false;
-	    	DBLayer.PersonDataSave(MyPartitionDate, MyPartitionID, 
-			Distance, ProfilePic, Link, FirstName, MiddleName, LastName,
-			FullBirthday, UserName, Gender, Locale, RelationshipStatus, UserTimeZone, 
-			About, Bio, Quotes, Verified, Updated,
-			out Saved, out ErrorMessage);
-                    if (Education != null)
+            //DBLayer.BeginTransaction();
+            base.Save(out ErrorMessage);
+            if (Saved)
+            {
+                Saved = false;
+                DBLayer.PersonDataSave(MyPartitionDate, MyPartitionID,
+                Distance, ProfilePic, Link, FirstName, MiddleName, LastName,
+                FullBirthday, UserName, Gender, Locale, RelationshipStatus, UserTimeZone,
+                About, Bio, Quotes, Verified, Updated,
+                out Saved, out ErrorMessage);
+                if (Education != null)
+                {
+                    foreach (FBEducation school in Education)
                     {
-                        foreach (FBEducation school in Education)
-                        {
-                            string error;
-                            school.Save(out error);
-                            ErrorMessage += error;
-                        }
+                        string error;
+                        school.Save(out error);
+                        ErrorMessage += error;
                     }
-                    if (Work != null)
+                }
+                if (Work != null)
+                {
+                    foreach (FBWork workplace in Work)
                     {
-                        foreach (FBWork workplace in Work)
-                        {
-                            string error;
-                            workplace.Save(out error);
-                            ErrorMessage += error;
-                        }
+                        string error;
+                        workplace.Save(out error);
+                        ErrorMessage += error;
                     }
+                }
+                if (relatedList != null && relatedList.ID != -1)
+                {
+                    string error;
+                    DBLayer.RelationSave(this.ID, Verb.ISPARTOF, relatedList.ID, null, null, null, null,
+                        out OrgPartitionDate, out OrgPartitionID,
+                        out Saved, out error);
+                    ErrorMessage += error;
+                }
 
-		
-	    } else
-	    {
-		// System.Windows.Forms.MessageBox.Show("didnt save person " + ID + " because of\n" + ErrorMessage);
-	    }
-	    //DBLayer.CommitTransaction();
+            }
+            else
+            {
+                // System.Windows.Forms.MessageBox.Show("didnt save person " + ID + " because of\n" + ErrorMessage);
+            }
+            //DBLayer.CommitTransaction();
         }
 
         protected override void AssignValue(string name, string value)
@@ -252,12 +265,12 @@ namespace MyBackup
             switch (name)
             {
                 case "id":
-                    switch ( parentName )
+                    switch (parentName)
                     {
                         case null:
                         case "":
                             SNID = value;
-//System.Windows.Forms.MessageBox.Show("parsed SNID: " + SNID);
+                            //System.Windows.Forms.MessageBox.Show("parsed SNID: " + SNID);
                             break;
                         case "hometown":
                             HometownID += value + ";";
@@ -289,7 +302,7 @@ namespace MyBackup
                     }
                     break;
                 case "name":
-                    switch ( parentName )
+                    switch (parentName)
                     {
                         case null:
                         case "":
@@ -387,20 +400,20 @@ namespace MyBackup
                     break;
 
                 default:
-                    base.AssignValue(name,value);
+                    base.AssignValue(name, value);
                     break;
             }
         }
 
         protected override void AssignNumericValue(string name, int intValue)
         {
-	    switch (name)
+            switch (name)
             {
-            	case "timezone":
+                case "timezone":
                     UserTimeZone = intValue;
                     break;
-		default:
-                    base.AssignNumericValue(name,intValue);
+                default:
+                    base.AssignNumericValue(name, intValue);
                     break;
             }
         }

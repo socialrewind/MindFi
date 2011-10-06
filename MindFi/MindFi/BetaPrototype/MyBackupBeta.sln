@@ -3,12 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBackupBeta", "MyBackupBeta.csproj", "{8429DD2B-4389-4D38-8973-F2CCFACD057D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBUtil", "..\DBUtil\DBUtil.csproj", "{4845D2A8-A0BA-487D-ADAE-264459D954B3}"
+EndProject
 Global
 	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 2
-		SccProjectUniqueName0 = MyBackupBeta.csproj
+		SccNumberOfProjects = 3
 		SccLocalPath0 = .
+		SccProjectUniqueName1 = MyBackupBeta.csproj
 		SccLocalPath1 = .
+		SccProjectUniqueName2 = ..\\DBUtil\\DBUtil.csproj
+		SccProjectName2 = \u0022$/MindFi/MindFi/DBUtil\u0022,\u0020MLCAAAAA
+		SccLocalPath2 = ..\\DBUtil
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +24,10 @@ Global
 		{8429DD2B-4389-4D38-8973-F2CCFACD057D}.Debug|x86.Build.0 = Debug|x86
 		{8429DD2B-4389-4D38-8973-F2CCFACD057D}.Release|x86.ActiveCfg = Release|x86
 		{8429DD2B-4389-4D38-8973-F2CCFACD057D}.Release|x86.Build.0 = Release|x86
+		{4845D2A8-A0BA-487D-ADAE-264459D954B3}.Debug|x86.ActiveCfg = Debug|x86
+		{4845D2A8-A0BA-487D-ADAE-264459D954B3}.Debug|x86.Build.0 = Debug|x86
+		{4845D2A8-A0BA-487D-ADAE-264459D954B3}.Release|x86.ActiveCfg = Release|x86
+		{4845D2A8-A0BA-487D-ADAE-264459D954B3}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -34,10 +34,10 @@ namespace MyBackup
         /// </summary>
         /// <param name="resultCall">Function that is called once the friend list is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Async Request record</returns>
-	public static AsyncReqQueue Friends(int Limit, CallBack resultCall)
+	public static AsyncReqQueue Friends(string SNID, int Limit, CallBack resultCall)
 	{
 		AsyncReqQueue me = new AsyncReqQueue("FBFriends", 
-			FBGraphAPIURL + "me/friends", Limit,
+			FBGraphAPIURL + SNID + "/friends", Limit,
 			resultCall );
 		return me;
 	}
@@ -173,7 +173,28 @@ namespace MyBackup
 		return me;
         }
 
-	/// <summary>
+        /// <summary>
+        /// Gets the friend lists for the current logged in FB user
+        /// </summary>
+        /// <param name="resultCall">Function that is called once the albums are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue FriendLists(string SNID, int Limit, CallBack resultCall, int? Parent)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBFriendLists",
+                FBGraphAPIURL + SNID + "/friendlists",
+                Limit, resultCall, true, Parent, SNID);
+            return me;
+        }
+
+        public static AsyncReqQueue Members(string SNID, int Limit, CallBack resultCall, int? Parent)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBFriendList",
+                FBGraphAPIURL + SNID + "/members",
+                Limit, resultCall, true, Parent, SNID);
+            return me;
+        }
+
+        /// <summary>
         /// Downloads the Photo to the specified file
         /// </summary>
         /// <param name="SNID">ID of the photo in Facebook</param>
@@ -295,7 +316,6 @@ namespace MyBackup
             }
             return true;
         }
-        #endregion
  	
         /// <summary>
         /// General method that implements HTTP timeout
@@ -314,6 +334,7 @@ namespace MyBackup
 		}
             }
         }
+        #endregion
 
     }
 
@@ -357,7 +378,7 @@ namespace MyBackup
                 streamResponse.Close();
                 streamRead.Close();
                 tryOne = true;
-		DBLayer.RespQueueSave(state.ID, responseString);
+                DBLayer.RespQueueSave(state.ID, responseString);
 
                 // call second level callback
 		if ( state.resultCall != null )

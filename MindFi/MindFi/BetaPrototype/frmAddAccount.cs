@@ -10,30 +10,30 @@ namespace MyBackup
     /// </summary>
     public partial class frmAddAccount : Form
     {
-	private ArrayList m_snlist;
+        private ArrayList m_snlist;
         private SocialNetwork m_sn;
         private FBLogin login;
         private bool loggedIn;
-	private string meData;
+        private string meData;
         private FBPerson me;
-	private AsyncReqQueue apiReq;
-	private bool MyDataShown = false;
-	public static MyBackupProfile currentProfile;
-	private bool success;
+        private AsyncReqQueue apiReq;
+        private bool MyDataShown = false;
+        public static MyBackupProfile currentProfile;
+        private bool success;
 
-	public frmAddAccount()
-	{
+        public frmAddAccount()
+        {
             InitializeComponent();
-	}
+        }
 
         private void frmAddAccount_Load(object sender, EventArgs e)
         {
-	    LoadDB();
-	    lblStatus.Text = "Select your social network and login on it to configure the account";
-	}
+            LoadDB();
+            lblStatus.Text = "Select your social network and login on it to configure the account";
+        }
 
-	private void LoadDB()
-	{
+        private void LoadDB()
+        {
             string err;
             m_snlist = DBLayer.GetSNList(out err);
             if (m_snlist == null)
@@ -41,53 +41,53 @@ namespace MyBackup
                 lblStatus.Text = "Error loading data: " + err;
                 return;
             }
-	    // clean list of Social Networks
-	    cmbSocialNetworks.DataSource = null;
-	    cmbSocialNetworks.Items.Clear();
+            // clean list of Social Networks
+            cmbSocialNetworks.DataSource = null;
+            cmbSocialNetworks.Items.Clear();
             cmbSocialNetworks.DataSource = m_snlist;
             if (m_snlist.Count > 0)
             {
                 cmbSocialNetworks.DisplayMember = "Name";
                 cmbSocialNetworks.ValueMember = "ID";
             }
-	    // clean list of Profiles
-	    cmbProfiles.DataSource = null;
-	    cmbProfiles.Items.Clear();
-	    // TODO: Improve SNProfile class to describe download pattern
-	    ArrayList m_pList = new ArrayList();
-	    m_pList.Add ( new SNProfile(1,"Basic") );
-	    m_pList.Add ( new SNProfile(2,"Extended") );
-	    m_pList.Add ( new SNProfile(3,"Stalker") );
-	    cmbProfiles.DataSource = m_pList;
+            // clean list of Profiles
+            cmbProfiles.DataSource = null;
+            cmbProfiles.Items.Clear();
+            // TODO: Improve SNProfile class to describe download pattern
+            ArrayList m_pList = new ArrayList();
+            m_pList.Add(new SNProfile(1, "Basic"));
+            m_pList.Add(new SNProfile(2, "Extended"));
+            m_pList.Add(new SNProfile(3, "Stalker"));
+            cmbProfiles.DataSource = m_pList;
             if (m_pList.Count > 0)
             {
                 cmbProfiles.DisplayMember = "Name";
                 cmbProfiles.ValueMember = "ID";
             }
-	    // clean list of Frequency
-	    cmbFrequency.DataSource = null;
-	    cmbFrequency.Items.Clear();
-	    // TODO: Add appropriate list of options depending on unit, change smartly
-	    // TODO: Get frequency options from Db
-	    ArrayList m_FList = new ArrayList();
-	    m_FList.Add ( new Frequency(1,"minutes", 1) );
-	    m_FList.Add ( new Frequency(2,"hours", 1) );
-	    m_FList.Add ( new Frequency(3,"days", 1) );
-	    cmbFrequency.DataSource = m_FList;
+            // clean list of Frequency
+            cmbFrequency.DataSource = null;
+            cmbFrequency.Items.Clear();
+            // TODO: Add appropriate list of options depending on unit, change smartly
+            // TODO: Get frequency options from Db
+            ArrayList m_FList = new ArrayList();
+            m_FList.Add(new Frequency(1, "minutes", 1));
+            m_FList.Add(new Frequency(2, "hours", 1));
+            m_FList.Add(new Frequency(3, "days", 1));
+            cmbFrequency.DataSource = m_FList;
             if (m_FList.Count > 0)
             {
                 cmbFrequency.DisplayMember = "Name";
                 cmbFrequency.ValueMember = "ID";
             }
-	    // clean list of Frequency values
-	    cmbFrequencyValue.DataSource = null;
-	    cmbFrequencyValue.Items.Clear();
-	    for ( int i = 1; i <= 90 ; i++ )
-	    {
-	    	cmbFrequencyValue.Items.Add( i );
-	    }
-	    cmbFrequencyValue.SelectedIndex = 4; // desired - 1
-	}
+            // clean list of Frequency values
+            cmbFrequencyValue.DataSource = null;
+            cmbFrequencyValue.Items.Clear();
+            for (int i = 1; i <= 90; i++)
+            {
+                cmbFrequencyValue.Items.Add(i);
+            }
+            cmbFrequencyValue.SelectedIndex = 4; // desired - 1
+        }
 
         private void SNUpdate()
         {
@@ -122,7 +122,7 @@ namespace MyBackup
                     login = new FBLogin();
                     step2Timer.Enabled = true;
                     step2Timer.Interval = 1000;
-		    login.Login();
+                    login.Login();
                     break;
                 default:
                     lblStatus.Text = "Login is not yet implemented for that social network";
@@ -170,15 +170,15 @@ namespace MyBackup
                 // once logged in, just poll for the data
                 // TODO: check if reenabling, depending on time for the data to come back
                 lblStatus.Text = "Logged in\nData: " + meData;
-                if (me == null || !me.Parsed )
+                if (me == null || !me.Parsed)
                 {
                     // re-enable
                     step2Timer.Enabled = true;
-                meData = meData + "waiting for parse...";
+                    meData = meData + "waiting for parse...";
                 }
                 else
                 {
-                    if (me.UserName !=null && me.UserName != "")
+                    if (me.UserName != null && me.UserName != "")
                     {
                         txtAlias.Text = me.UserName;
                     }
@@ -187,14 +187,14 @@ namespace MyBackup
                         txtAlias.Text = me.SNID;
                     }
                     txtURL.Text = me.Link;
-		    labelSNID.Text = me.SNID;
+                    labelSNID.Text = me.SNID;
                     step2Timer.Enabled = false;
-		    if ( !MyDataShown )
-		    {
-			MyDataShown = true;			
-//                        MessageBox.Show("Education history (#): " + me.Education.Count);
-//                        MessageBox.Show("Work history (#): " + me.Work.Count);
-		    }
+                    if (!MyDataShown)
+                    {
+                        MyDataShown = true;
+                        //                        MessageBox.Show("Education history (#): " + me.Education.Count);
+                        //                        MessageBox.Show("Work history (#): " + me.Work.Count);
+                    }
                 }
 
             }
@@ -202,19 +202,19 @@ namespace MyBackup
 
         public bool PaintMe(int hwnd, bool result, string response, Int64? parent, string parentSNID)
         {
-	    // TODO: Process async request object reference 
+            // TODO: Process async request object reference 
             // update object which is refreshed asynchronously
             if (result)
             {
                 // distance to Me: 0
                 //string error;
-                me = new FBPerson(response, 0);
+                me = new FBPerson(response, 0, null);
                 me.Parse();
-		meData = response + "\n" + me.lastError;
-		string errorData = "";
-//		me.Save(out errorData);
-		meData += "\n" + errorData;
-		
+                meData = response + "\n" + me.lastError;
+                string errorData = "";
+                //		me.Save(out errorData);
+                meData += "\n" + errorData;
+
             }
             else
             {
@@ -243,7 +243,7 @@ namespace MyBackup
         {
             string errorData = "";
 
-//	    me.Save(out errorData);
+            //	    me.Save(out errorData);
             meData += errorData;
             if (errorData != "")
             {
@@ -253,20 +253,20 @@ namespace MyBackup
                 }
             }
 
-	    currentProfile = new MyBackupProfile();
+            currentProfile = new MyBackupProfile();
             currentProfile.fbProfile = me;
             currentProfile.userName = txtAlias.Text;
             currentProfile.socialNetworkURL = txtURL.Text;
-	    if ( !DBLayer.SaveAccount(txtAlias.Text, me.EMail, m_sn.ID, me.SNID, me.Link, out errorData) )
-	    {
-		lblStatus.Text = errorData;
+            if (!DBLayer.SaveAccount(txtAlias.Text, me.EMail, m_sn.ID, me.SNID, me.Link, out errorData))
+            {
+                lblStatus.Text = errorData;
                 MessageBox.Show("Error while saving:\n" + errorData);
-		return;
-	    }
+                return;
+            }
             lblStatus.Text = "Data saved correctly";
             Refresh();
-	    success = true;
-	    Close();
+            success = true;
+            Close();
         }
 
         private void btnLogout_Click(object sender, EventArgs e)
@@ -287,17 +287,17 @@ namespace MyBackup
             }
         }
 
-	private void frmAddAccount_Closing(object sender, CancelEventArgs e)
-	{
-	    if (success)
-	    {
-		this.DialogResult = DialogResult.OK;
-	    }
-	    else
-	    {
-		this.DialogResult = DialogResult.Cancel;
-	    }
-	}
+        private void frmAddAccount_Closing(object sender, CancelEventArgs e)
+        {
+            if (success)
+            {
+                this.DialogResult = DialogResult.OK;
+            }
+            else
+            {
+                this.DialogResult = DialogResult.Cancel;
+            }
+        }
 
     }
 

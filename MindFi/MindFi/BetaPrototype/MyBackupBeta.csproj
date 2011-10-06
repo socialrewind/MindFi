@@ -8,8 +8,8 @@
     <ProjectGuid>{8429DD2B-4389-4D38-8973-F2CCFACD057D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyBackupAgents</RootNamespace>
-    <AssemblyName>MyBackupAgents</AssemblyName>
+    <RootNamespace>MyBackup</RootNamespace>
+    <AssemblyName>MyBackup</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -78,6 +78,7 @@
     <Compile Include="DBQuery.cs" />
     <Compile Include="DBConfig.cs" />
     <Compile Include="FBAPI.cs" />
+    <Compile Include="FBFriendList.cs" />
     <Compile Include="MyBackupProfile.cs" />
     <Compile Include="frmBrowser.cs">
       <SubType>Form</SubType>

@@ -6,7 +6,7 @@ namespace MyBackup
     /// <summary>
     /// Represents a row in the Education list (School object under Education node in FB)
     /// </summary>
-    public class FBEducation:FBObject
+    public class FBEducation : FBObject
     {
         #region "Properties"
         public string YearID { get; set; }
@@ -20,8 +20,8 @@ namespace MyBackup
 
         #region "Private members"
         private FBPerson relatedPerson;
-	private decimal YearPartitionDate;
-	private int YearPartitionID;
+        private decimal YearPartitionDate;
+        private int YearPartitionID;
         #endregion
 
         #region "Methods"
@@ -32,9 +32,9 @@ namespace MyBackup
         public FBEducation(JSONScanner temp, JSONParser parent)
             : base(temp)
         {
-	    // should throw if ever the parent is not an FBPerson
-	    relatedPerson = (FBPerson) parent;
-	    MyDataTable = "OrganizationData";
+            // should throw if ever the parent is not an FBPerson
+            relatedPerson = (FBPerson)parent;
+            MyDataTable = "OrganizationData";
         }
         #endregion
 
@@ -42,25 +42,26 @@ namespace MyBackup
         public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    base.Save(out ErrorMessage);
-	    if ( Saved )
-	    {
-		Saved = false;
-	    	DBLayer.RelationSave(relatedPerson.ID, Verb.STUDYAT, this.ID,
-			Type, (DegreeName!=null)?DegreeName + " ":""
-			    + ((ConcentrationName!=null)?ConcentrationName:""),
-			YearID, null,
-			out YearPartitionDate, out YearPartitionID,
-			out Saved, out ErrorMessage);
-	    } else
-	    {
-		// System.Windows.Forms.MessageBox.Show(ErrorMessage);
-	    }
+            base.Save(out ErrorMessage);
+            if (Saved)
+            {
+                Saved = false;
+                DBLayer.RelationSave(relatedPerson.ID, Verb.STUDYAT, this.ID,
+                    Type, (DegreeName != null) ? DegreeName + " " : ""
+                    + ((ConcentrationName != null) ? ConcentrationName : ""),
+                    YearID, null,
+                    out YearPartitionDate, out YearPartitionID,
+                    out Saved, out ErrorMessage);
+            }
+            else
+            {
+                // System.Windows.Forms.MessageBox.Show(ErrorMessage);
+            }
         }
 
         protected override void AssignValue(string name, string value)
         {
-	    switch (name)
+            switch (name)
             {
                 case "id":
                     if (parentName == "school")
@@ -86,12 +87,12 @@ namespace MyBackup
                     Type = value;
                     break;
                 default:
-		    base.AssignValue(name, value);
+                    base.AssignValue(name, value);
                     break;
             }
         }
 
-	#endregion
+        #endregion
 
     }
 }

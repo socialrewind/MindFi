@@ -22,7 +22,7 @@ namespace MyBackup
         /// Display name for the object
         /// </summary>
         public string Name { get; set; }
- 
+
         /// <summary>
         /// Reference to last error while parsing / loading / saving data for the person
         /// </summary>
@@ -35,7 +35,7 @@ namespace MyBackup
         /// Flag to indicate if the OriginalResponse has been analyzed and object initialized with corresponding values
         /// </summary>
         public bool Parsed { get; set; }
-	/// <summary>
+        /// <summary>
         /// Flag to indicate if the object has been saved to the database
         /// </summary>
         public bool Saved;
@@ -43,7 +43,7 @@ namespace MyBackup
         /// Relationship distance with the object. 0=self, 1=friend, 2=friends of friends
         /// </summary>
         public int Distance { get; set; }
-	#endregion
+        #endregion
 
         #region "Internal Variables"
         protected JSONScanner temp;
@@ -53,9 +53,9 @@ namespace MyBackup
         protected int parserState;
         protected string parentName;
         protected bool ConstructOriginalResponse;
-	protected ArrayList ChildrenParsers;
-	protected long? parentID;
-	protected string parentSNID;
+        protected ArrayList ChildrenParsers;
+        protected long? parentID;
+        protected string parentSNID;
         #endregion
 
         /// <summary>
@@ -67,12 +67,12 @@ namespace MyBackup
         {
             OriginalResponse = response;
             temp = new JSONScanner(response);
-            parserState = 0; 
+            parserState = 0;
             nestingLevel = 0;
-	    Distance = 0;
+            Distance = 0;
             Parsed = false;
             ConstructOriginalResponse = false;
-	    ID = -1; // default as not saved
+            ID = -1; // default as not saved
         }
 
         /// <summary>
@@ -89,14 +89,14 @@ namespace MyBackup
             // { was already processed...
             parserState = 1;
             nestingLevel = 1;
-	    Distance = 0;
+            Distance = 0;
             Parsed = false;
         }
 
         public virtual void Parse()
         {
-	    // DEBUG
-	    //System.Windows.Forms.MessageBox.Show("Starting parse: " + this.GetType().ToString() );
+            // DEBUG
+            //System.Windows.Forms.MessageBox.Show("Starting parse: " + this.GetType().ToString() );
             // parser states
             // 0 = Start, expecting {
             // 1 = expecting name
@@ -114,7 +114,7 @@ namespace MyBackup
             do
             {
                 tokenId = temp.Scan(out token);
-                if ( ConstructOriginalResponse )
+                if (ConstructOriginalResponse)
                 {
                     OriginalResponse += token;
                 }
@@ -252,7 +252,7 @@ namespace MyBackup
                         } while (nestingLevel != initialNesting - 1);
                         break;
                 }
-            } while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != 0) ;
+            } while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != 0);
             // if there is more, scan for the next one
             if (tokenId == JSONScanner.JSONScannerTokens.PUNCTUATOR && (token == "}" || token == "]"))
             {
@@ -262,26 +262,26 @@ namespace MyBackup
                     OriginalResponse += token;
                 }
             }
-	    Parsed = true;
-	    // DEBUG
-	    //System.Windows.Forms.MessageBox.Show("End of parse: " + this.GetType().ToString() + "\n" + OriginalResponse);
-/*
-if ( this.GetType().ToString() == "FBCollection" )
-{
-System.Windows.Forms.MessageBox.Show("end of parsing: " + this.GetType().ToString() );
-FBCollection x = this as FBCollection;
-if ( x!= null )
-System.Windows.Forms.MessageBox.Show("of type " + x.itemType );
+            Parsed = true;
+            // DEBUG
+            //System.Windows.Forms.MessageBox.Show("End of parse: " + this.GetType().ToString() + "\n" + OriginalResponse);
+            /*
+            if ( this.GetType().ToString() == "FBCollection" )
+            {
+            System.Windows.Forms.MessageBox.Show("end of parsing: " + this.GetType().ToString() );
+            FBCollection x = this as FBCollection;
+            if ( x!= null )
+            System.Windows.Forms.MessageBox.Show("of type " + x.itemType );
 
-}
-*/
+            }
+            */
 
         }
 
         public virtual void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    ID = DBLayer.EntitySave(ID, Name, this.GetType().ToString(), true, Saved, out Saved, out ErrorMessage);
+            ID = DBLayer.EntitySave(ID, Name, this.GetType().ToString(), true, Saved, out Saved, out ErrorMessage);
         }
 
         protected virtual string ParseChild(string name, JSONScanner temp, out JSONScanner.JSONScannerTokens tokenId, out string token)
@@ -412,94 +412,94 @@ System.Windows.Forms.MessageBox.Show("of type " + x.itemType );
             // ASSUMPTION: fields should not have quotes, even in the middle
             name = name.Replace("\"", "");
 
-	    // Default, should never be required
-	    token = temp.LastToken;
-	    tokenId = JSONScanner.JSONScannerTokens.EOF;
+            // Default, should never be required
+            token = temp.LastToken;
+            tokenId = JSONScanner.JSONScannerTokens.EOF;
 
-	    bool processed = false;
-	    if ( ChildrenParsers != null )
-	    {
-
-		// explore existing parsers
-		// tODO: check foreach syntax
-		foreach ( ChildrenParse parser in ChildrenParsers )
-		{
-		    if ( name == parser.Token )
-		    {
-			string currentErrors = "";
-			GetChildrenByType(parser.ReferenceList, initialNestingLevel, parser.DataType, out tokenId, out token, out currentErrors);
-			errors += currentErrors;
-			processed = true;
-		    }
-		}
-	    }
-
-	    if ( !processed )
-	    {
-            // parsing a child object, recognize which one then 
-            switch (name)
+            bool processed = false;
+            if (ChildrenParsers != null)
             {
-                case "to":
-		    //System.Windows.Forms.MessageBox.Show("Processing to");
-                    // Check: have to iterate until ] ?
-                    do
+
+                // explore existing parsers
+                // tODO: check foreach syntax
+                foreach (ChildrenParse parser in ChildrenParsers)
+                {
+                    if (name == parser.Token)
                     {
+                        string currentErrors = "";
+                        GetChildrenByType(parser.ReferenceList, initialNestingLevel, parser.DataType, out tokenId, out token, out currentErrors);
+                        errors += currentErrors;
+                        processed = true;
+                    }
+                }
+            }
+
+            if (!processed)
+            {
+                // parsing a child object, recognize which one then 
+                switch (name)
+                {
+                    case "to":
+                        //System.Windows.Forms.MessageBox.Show("Processing to");
+                        // Check: have to iterate until ] ?
+                        do
+                        {
+                            tokenId = temp.Scan(out token);
+                            if (ConstructOriginalResponse)
+                            {
+                                OriginalResponse += token;
+                            }
+
+                            if (tokenId == JSONScanner.JSONScannerTokens.PUNCTUATOR)
+                            {
+                                if (token == "[" || token == "{")
+                                {
+                                    nestingLevel++;
+                                }
+                                else if (token == "]" || token == "}")
+                                {
+                                    nestingLevel--;
+                                }
+                                else
+                                {
+                                    errors += "Unexpected punctuators found " + token + ", ignored\n";
+                                }
+                            }
+                            else if (tokenId == JSONScanner.JSONScannerTokens.LITERAL)
+                            {
+                                // reset each time, since internally ParseChild removes it when going out of an element
+                                parentName = name;
+                                // Parse Child will reduce nesting level, since it iterates until }
+                                ParseChild(token, temp, out tokenId, out token);
+                            }
+                            else
+                            {
+                                errors += "Unexpected error expecting punctuators or child name literal, found " + token + ", ignored\n";
+                            }
+
+                        }
+                        // TODO: Double check where is initialNestingLevel and where -1, this may be the reason that cuts too many posts
+                        while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != initialNestingLevel - 1);
+                        // get the comma or { after...
                         tokenId = temp.Scan(out token);
                         if (ConstructOriginalResponse)
                         {
                             OriginalResponse += token;
                         }
 
-                        if (tokenId == JSONScanner.JSONScannerTokens.PUNCTUATOR)
-                        {
-                            if (token == "["|| token == "{" )
-                            {
-                                nestingLevel++;
-                            }
-                            else if (token == "]" || token == "}")
-                            {
-                                nestingLevel--;
-                            }
-                            else
-                            {
-                                errors += "Unexpected punctuators found " + token + ", ignored\n";
-                            }
-                        }
-                        else if (tokenId == JSONScanner.JSONScannerTokens.LITERAL)
-                        {
-                            // reset each time, since internally ParseChild removes it when going out of an element
-                            parentName = name;
-                            // Parse Child will reduce nesting level, since it iterates until }
-                            ParseChild(token, temp, out tokenId, out token);
-                        }
-                        else
-                        {
-                            errors += "Unexpected error expecting punctuators or child name literal, found " + token + ", ignored\n";
-                        }
-
-                    }
-                    // TODO: Double check where is initialNestingLevel and where -1, this may be the reason that cuts too many posts
-                    while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != initialNestingLevel - 1);
-                    // get the comma or { after...
-                    tokenId = temp.Scan(out token);
-                    if (ConstructOriginalResponse)
-                    {
-                        OriginalResponse += token;
-                    }
-
-                    break;
+                        break;
+                }
+                errors += "Unknown object " + name + " ignored\n";
+                IgnoreChildren(initialNestingLevel, out tokenId, out token);
             }
-		errors += "Unknown object " + name + " ignored\n";
-		IgnoreChildren(initialNestingLevel, out tokenId, out token);
-	    }
 
             // TODO : double check how it exits
             if (nestingLevel > initialNestingLevel)
             {
-                errors += "Unexpected unbalance while parsing object " + name 
-			+ ", level: " + nestingLevel
-			+ ", initial level: " + initialNestingLevel
-			+ "\n";
+                errors += "Unexpected unbalance while parsing object " + name
+            + ", level: " + nestingLevel
+            + ", initial level: " + initialNestingLevel
+            + "\n";
             }
 
             return errors;
@@ -523,8 +523,8 @@ System.Windows.Forms.MessageBox.Show("of type " + x.itemType );
             tokenId = temp.Scan(out token);
         }
 
-	private void ProcessValue(string name, string value)
-	{
+        private void ProcessValue(string name, string value)
+        {
             // eliminate quotes
             // ASSUMPTION: fields should not have quotes, even in the middle
             name = name.Replace("\"", "");
@@ -534,150 +534,157 @@ System.Windows.Forms.MessageBox.Show("of type " + x.itemType );
             if (value.Substring(value.Length - 1) == "\"")
                 value = value.Substring(0, value.Length - 1);
 
-	    // TODO: Check all Unicode transformations - now in JSONScanner, test by removing this one
-	    // value = value.Replace("\\u0040", "@");
+            // TODO: Check all Unicode transformations - now in JSONScanner, test by removing this one
+            // value = value.Replace("\\u0040", "@");
 
-	    AssignValue(name, value);
-	}
+            AssignValue(name, value);
+        }
 
-	private void ProcessNumericValue(string name, string value)
-	{
+        private void ProcessNumericValue(string name, string value)
+        {
             // eliminate quotes
             // ASSUMPTION: fields should not have quotes, even in the middle
             name = name.Replace("\"", "");
             // ASSUMPTION: values are numberic and no quotes
             int intValue = 0;
-	    float floatValue = 0.0F;
+            float floatValue = 0.0F;
             if (int.TryParse(value, out intValue))
             {
-		AssignNumericValue(name, intValue);
-            } else
-	    if (float.TryParse(value, out floatValue))
-            {
-		AssignNumericValue(name, floatValue);
-            } 
-	}
+                AssignNumericValue(name, intValue);
+            }
+            else
+                if (float.TryParse(value, out floatValue))
+                {
+                    AssignNumericValue(name, floatValue);
+                }
+        }
 
         protected virtual void AssignValue(string name, string value)
         {
-	    // Default: Nothing to do, only log the warning
-	    lastError += "Unknown name ignored: " + name + "\n";
+            // Default: Nothing to do, only log the warning
+            lastError += "Unknown name ignored: " + name + "\n";
         }
 
         protected virtual void AssignNumericValue(string name, int intValue)
         {
-	    // Default: Nothing to do, only log the warning
-	    lastError += "Unknown name ignored: " + name + "\n";
+            // Default: Nothing to do, only log the warning
+            lastError += "Unknown name ignored: " + name + "\n";
         }
 
         protected virtual void AssignNumericValue(string name, float floatValue)
         {
-	    // Default: Nothing to do, only log the warning
-	    lastError += "Unknown name ignored: " + name + "\n";
+            // Default: Nothing to do, only log the warning
+            lastError += "Unknown name ignored: " + name + "\n";
         }
 
-	ArrayList GetChildrenByType(ArrayList list, int initialNestingLevel, 
-		string ChildrenType, out JSONScanner.JSONScannerTokens tokenId, 
-		out string token, out string errors)
-	{
-	   int nChildren = 0;
+        ArrayList GetChildrenByType(ArrayList list, int initialNestingLevel,
+            string ChildrenType, out JSONScanner.JSONScannerTokens tokenId,
+            out string token, out string errors)
+        {
+            int nChildren = 0;
 
-	   errors = "";
+            errors = "";
 
-	    // at this point, it should have got to the <name>{data:[
-	    if (temp.LastToken != "{")
-	    {
-		// move to { to get to the first comment
-		tokenId = temp.Scan(out token);
-		if (ConstructOriginalResponse)
-		{
-		    OriginalResponse += token;
-		}
-	    }
-	    if (temp.LastToken == "{")
-	    {
-		nestingLevel++;
+            // at this point, it should have got to the <name>{data:[
+            if (temp.LastToken != "{")
+            {
+                // move to { to get to the first comment
+                tokenId = temp.Scan(out token);
+                if (ConstructOriginalResponse)
+                {
+                    OriginalResponse += token;
+                }
+            }
+            if (temp.LastToken == "{")
+            {
+                nestingLevel++;
                 do
                 {
-		    JSONParser item;
-		    switch ( ChildrenType )
-		    {
-			case "FBMessage":
-			    //System.Windows.Forms.MessageBox.Show("message: " + nChildren + " at position " + temp.currentPosition );
-			    item = new FBMessage(temp, this);
+                    JSONParser item;
+                    switch (ChildrenType)
+                    {
+                        case "FBMessage":
+                            //System.Windows.Forms.MessageBox.Show("message: " + nChildren + " at position " + temp.currentPosition );
+                            item = new FBMessage(temp, this);
                             break;
-			case "FBWork":
-			    item = new FBWork(temp, this);
+                        case "FBWork":
+                            item = new FBWork(temp, this);
                             break;
-			case "FBEducation":
-			    item = new FBEducation(temp, this);
+                        case "FBEducation":
+                            item = new FBEducation(temp, this);
                             break;
-			case "FBPerson":
-			    item = new FBPerson(temp, Distance);
+                        case "FBPerson":
+                            item = new FBPerson(temp, Distance, this);
                             break;
-			case "FBPost":
-			    item = new FBPost(temp, this);
+                        case "FBPost":
+                            item = new FBPost(temp, this);
                             break;
-			case "FBAlbum":
-			    item = new FBAlbum(temp);
+                        case "FBAlbum":
+                            item = new FBAlbum(temp);
                             break;
-			case "FBPhoto":
-			    item = new FBPhoto(temp, parentID, parentSNID);
+                        case "FBPhoto":
+                            item = new FBPhoto(temp, parentID, parentSNID);
                             break;
-			case "FBTag":
-			    item = new FBTag(temp, this);
+                        case "FBTag":
+                            item = new FBTag(temp, this);
                             break;
-			case "FBEvent":
-			    item = new FBEvent(temp, this);
+                        case "FBEvent":
+                            item = new FBEvent(temp, this);
                             break;
-			case "FBCollection":
-			    item = new FBCollection(temp, "FBPerson", parentID, parentSNID);
+                        case "FBCollection":
+                            item = new FBCollection(temp, "FBPerson", parentID, parentSNID);
                             break;
-			default:
-			    errors += "don't know how to process " + ChildrenType + "\n";
-			    item = null;
+                        case "FBFriendList":
+                            // TODO: Add parent, parentSNID
+                            item = new FBFriendList(temp);
                             break;
-		    }
-		    if ( item != null )
-		    {
-			item.Parse();
-			list.Add(item);
-			nChildren ++;
-		    }
+                        default:
+                            errors += "don't know how to process " + ChildrenType + "\n";
+                            item = null;
+                            break;
+                    }
+                    if (item != null)
+                    {
+                        item.Parse();
+                        list.Add(item);
+                        nChildren++;
+                    }
 
-		    // TODO: triple check validity of list sequence
-		    tokenId = JSONScanner.JSONScannerTokens.PUNCTUATOR;
-		    token = temp.LastToken;
-		    if (token == ",")
-		    {
-			tokenId = temp.Scan(out token);
+                    // TODO: triple check validity of list sequence
+                    tokenId = JSONScanner.JSONScannerTokens.PUNCTUATOR;
+                    token = temp.LastToken;
+                    if (token == ",")
+                    {
+                        tokenId = temp.Scan(out token);
                         if (ConstructOriginalResponse)
                         {
-			    OriginalResponse += token;
-			}
-		    }
-		    if (token == "]" || token == "}")
-		    {
-			nestingLevel--;
-		    }
-		} while (tokenId != JSONScanner.JSONScannerTokens.EOF && token == "{");
-	    } else {
-		// default process
-		errors += "Unexpected error expecting {, found " + temp.LastToken + ", ignored\n";
-		IgnoreChildren(initialNestingLevel, out tokenId, out token);
-	    }
-	    return list;
-	}
+                            OriginalResponse += token;
+                        }
+                    }
+                    if (token == "]" || token == "}")
+                    {
+                        nestingLevel--;
+                    }
+                } while (tokenId != JSONScanner.JSONScannerTokens.EOF && token == "{");
+            }
+            else
+            {
+                // default process
+                errors += "Unexpected error expecting {, found " + temp.LastToken + ", ignored\n";
+                IgnoreChildren(initialNestingLevel, out tokenId, out token);
+            }
+            return list;
+        }
 
-	protected void AddParser(string token, string datatype, ref ArrayList reference)
-	{
-	    if ( ChildrenParsers == null )
-	    {
-		ChildrenParsers = new ArrayList();
-	    }
-	    ChildrenParse temp = new ChildrenParse(token, datatype, ref reference);
-	    ChildrenParsers.Add(temp);
-	}
+        protected void AddParser(string token, string datatype, ref ArrayList reference)
+        {
+            if (ChildrenParsers == null)
+            {
+                ChildrenParsers = new ArrayList();
+            }
+            ChildrenParse temp = new ChildrenParse(token, datatype, ref reference);
+            ChildrenParsers.Add(temp);
+        }
 
     }
 
@@ -687,16 +694,16 @@ System.Windows.Forms.MessageBox.Show("of type " + x.itemType );
     /// </summary>
     public class ChildrenParse
     {
-	public string Token { get; set; }
+        public string Token { get; set; }
         public string DataType { get; set; }
         public ArrayList ReferenceList { get; set; }
 
         public ChildrenParse(string token, string datatype, ref ArrayList reference)
         {
-		Token = token;
-		DataType = datatype;
-		reference = new ArrayList();
-		ReferenceList = reference;
+            Token = token;
+            DataType = datatype;
+            reference = new ArrayList();
+            ReferenceList = reference;
         }
     }
 

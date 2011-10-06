@@ -73,6 +73,10 @@ namespace MyBackup
             itemType = type;
             parentID = ParentID;
             parentSNID = ParentSNID;
+            if (ParentID != null)
+            {
+                ID = (int)ParentID;
+            }
             AddParser("data", itemType, ref items);
         }
 
@@ -87,6 +91,10 @@ namespace MyBackup
             itemType = type;
             parentID = ParentID;
             parentSNID = ParentSNID;
+            if (ParentID != null)
+            {
+                ID = (int) ParentID;
+            }
             AddParser("data", itemType, ref items);
         }
 

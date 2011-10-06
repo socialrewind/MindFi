@@ -286,13 +286,15 @@ namespace MyBackup
             if ( DBLayer.GetNRequestsPerState(out stateArray,  out error) )
             {
                 CountPerState = stateArray;
-                // TODO: Pending to decide what to do with QUEUED, for now ignored...
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
+                    // TODO: make sure received are parsed/processed by PendingRequests too
+                    CountPerState[RECEIVED] = 0;
                     PendingRequests(out error);
                 }
                 else
                 {
+                    DBLayer.StartBackup();
                     AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
                         ProfilePhotoDestinationDir + FBLogin.Me.ID + ".jpg",
                         ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
@@ -335,11 +337,11 @@ namespace MyBackup
             ErrorMessage = "";
             // Get top queued requests
             // TODO: Check formula now that received could stay for long
-            int ConcurrentRequestLimit = 10;
+            int ConcurrentRequestLimit = 25;
             if (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests < ConcurrentRequestLimit)
             {
                 ConcurrentRequestLimit -= CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests;
-                ArrayList queueReq = DBLayer.GetRequests(Limit, AsyncReqQueue.QUEUED, out ErrorMessage);
+                ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit, AsyncReqQueue.QUEUED, out ErrorMessage);
                 // Assigning callback appropriately
                 if (ErrorMessage != "")
                 {
@@ -349,7 +351,7 @@ namespace MyBackup
                 ErrorMessage = "Queued Requests to send: " + queueReq.Count + "\n";
                 if (queueReq.Count == 0)
                 {
-                    queueReq = DBLayer.GetRequests(Limit, AsyncReqQueue.RETRY, out ErrorMessage);
+                    queueReq = DBLayer.GetRequests(ConcurrentRequestLimit, AsyncReqQueue.RETRY, out ErrorMessage);
                     if (ErrorMessage != "")
                     {
                         System.Windows.Forms.MessageBox.Show("Error getting retry requests: " + ErrorMessage);
@@ -357,6 +359,10 @@ namespace MyBackup
                     }
 
                     ErrorMessage = "Retry Requests to send: " + queueReq.Count + "\n";
+                    if (queueReq.Count == 0)
+                    {
+                        DBLayer.EndBackup();
+                    }
                 }
                 foreach (int reqID in queueReq)
                 {

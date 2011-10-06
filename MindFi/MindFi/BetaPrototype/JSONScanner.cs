@@ -297,7 +297,9 @@ namespace MyBackup
 		    return '\n';
 		case 'r':
 		    return '\r';
-		case '\\':
+        case 't':
+            return '\t';
+        case '\\':
 		    return '/'; // TEST
 		case '"':
 		case '/':

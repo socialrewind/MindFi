@@ -2195,6 +2195,60 @@ namespace MyBackup
             } // lock
             return true;
         }
+
+        /// <summary>
+        /// Record the start of a backup
+        /// </summary>
+        public static bool StartBackup()
+        {
+            lock (obj)
+            {
+                try
+                {
+                    GetConn();
+                    string SQL = "insert into Backups (StartTime, Active) values (?,1)";
+                    SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pStart = new SQLiteParameter();
+                    pStart.Value = DateTime.Now;
+                    InsertCmd.Parameters.Add(pStart);
+                    InsertCmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    string ErrorMessage = "Error creating backup \n" + ex.ToString();
+                    System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return false;
+                }
+            } // lock
+            return true;
+        }
+
+        /// <summary>
+        /// Record the end of a backup
+        /// </summary>
+        public static bool EndBackup()
+        {
+            lock (obj)
+            {
+                try
+                {
+                    GetConn();
+                    string SQL = "update Backups set EndTime = ?, Active = 0 where Active = 1";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pEnd = new SQLiteParameter();
+                    pEnd.Value = DateTime.Now;
+                    UpdateCmd.Parameters.Add(pEnd);
+                    UpdateCmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    string ErrorMessage = "Error updating backup \n" + ex.ToString();
+                    System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return false;
+                }
+            } // lock
+            return true;
+        }
     }
 
 }

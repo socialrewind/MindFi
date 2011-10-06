@@ -2126,7 +2126,7 @@ namespace MyBackup
         /// <summary>
         /// Method that gets request N request IDs by state, ordered by priority
         /// </summary>
-        public static ArrayList GetRequests(int N, int State, out string ErrorMessage)
+        public static ArrayList GetRequests(int N, int State, out string ErrorMessage, int MinPriority=0)
         {
             ArrayList temp = new ArrayList();
             ErrorMessage = "";
@@ -2136,11 +2136,14 @@ namespace MyBackup
                 try
                 {
                     GetConn();
-                    string SQL = "select ID from RequestsQueue where State=? order by Priority desc, ID asc limit " + N;
+                    string SQL = "select ID from RequestsQueue where State=? and Priority>=? order by Priority desc, ID asc limit " + N;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pState = new SQLiteParameter();
                     pState.Value = State;
                     CheckCmd.Parameters.Add(pState);
+                    SQLiteParameter pPriority = new SQLiteParameter();
+                    pPriority.Value = MinPriority;
+                    CheckCmd.Parameters.Add(pPriority);
                     //MessageBox.Show("Query: " + SQL + ", State: " + State + ", N: " + N);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     while (reader.Read())

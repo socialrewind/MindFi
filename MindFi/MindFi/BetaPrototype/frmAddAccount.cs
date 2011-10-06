@@ -18,7 +18,6 @@ namespace MyBackup
         private FBPerson me;
         private AsyncReqQueue apiReq;
         private bool MyDataShown = false;
-        public static MyBackupProfile currentProfile;
         private bool success;
 
         public frmAddAccount()
@@ -55,9 +54,9 @@ namespace MyBackup
             cmbProfiles.Items.Clear();
             // TODO: Improve SNProfile class to describe download pattern
             ArrayList m_pList = new ArrayList();
-            m_pList.Add(new SNProfile(1, "Basic"));
-            m_pList.Add(new SNProfile(2, "Extended"));
-            m_pList.Add(new SNProfile(3, "Stalker"));
+            m_pList.Add(new SNProfile(MyBackupProfile.BASIC, "Basic"));
+            m_pList.Add(new SNProfile(MyBackupProfile.EXTENDED, "Extended"));
+            m_pList.Add(new SNProfile(MyBackupProfile.STALKER, "Stalker"));
             cmbProfiles.DataSource = m_pList;
             if (m_pList.Count > 0)
             {
@@ -253,10 +252,15 @@ namespace MyBackup
                 }
             }
 
-            currentProfile = new MyBackupProfile();
-            currentProfile.fbProfile = me;
-            currentProfile.userName = txtAlias.Text;
-            currentProfile.socialNetworkURL = txtURL.Text;
+            // TODO: support multiple profiles
+            frmDashboard.currentProfile = new MyBackupProfile();
+            frmDashboard.currentProfile.fbProfile = me;
+            frmDashboard.currentProfile.userName = txtAlias.Text;
+            frmDashboard.currentProfile.socialNetworkURL = txtURL.Text;
+            if (cmbProfiles.SelectedItem != null)
+            {
+                frmDashboard.currentProfile.currentBackupLevel = (int)cmbProfiles.SelectedValue;
+            }
             if (!DBLayer.SaveAccount(txtAlias.Text, me.EMail, m_sn.ID, me.SNID, me.Link, out errorData))
             {
                 lblStatus.Text = errorData;

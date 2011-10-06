@@ -249,7 +249,7 @@ namespace MyBackup
                                 lastError += "Expected } or , at position " + temp.currentPosition + ", found " + token + "\n";
                                 // TODO: return state?
                             }
-                        } while (nestingLevel != initialNesting - 1);
+                        } while ( (nestingLevel != initialNesting - 1) && tokenId != JSONScanner.JSONScannerTokens.EOF );
                         break;
                 }
             } while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != 0);
@@ -481,7 +481,10 @@ namespace MyBackup
                         // TODO: Double check where is initialNestingLevel and where -1, this may be the reason that cuts too many posts
                         while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != initialNestingLevel - 1);
                         // get the comma or { after...
-                        tokenId = temp.Scan(out token);
+                        if (tokenId != JSONScanner.JSONScannerTokens.EOF)
+                        {
+                            tokenId = temp.Scan(out token);
+                        }
                         if (ConstructOriginalResponse)
                         {
                             OriginalResponse += token;
@@ -520,7 +523,10 @@ namespace MyBackup
             }
             while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != initialNestingLevel - 1);
             // get the comma or { after...
-            tokenId = temp.Scan(out token);
+            if (tokenId != JSONScanner.JSONScannerTokens.EOF)
+            {
+                tokenId = temp.Scan(out token);
+            }
         }
 
         private void ProcessValue(string name, string value)
@@ -584,6 +590,8 @@ namespace MyBackup
             int nChildren = 0;
 
             errors = "";
+            token = "";
+            tokenId = JSONScanner.JSONScannerTokens.ERROR;
 
             // at this point, it should have got to the <name>{data:[
             if (temp.LastToken != "{")
@@ -671,7 +679,10 @@ namespace MyBackup
             {
                 // default process
                 errors += "Unexpected error expecting {, found " + temp.LastToken + ", ignored\n";
-                IgnoreChildren(initialNestingLevel, out tokenId, out token);
+                if ( temp.LastTokenId != JSONScanner.JSONScannerTokens.EOF )
+                {
+                    IgnoreChildren(initialNestingLevel, out tokenId, out token);
+                }
             }
             return list;
         }

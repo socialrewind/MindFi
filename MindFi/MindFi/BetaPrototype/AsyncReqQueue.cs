@@ -278,7 +278,7 @@ namespace MyBackup
             }
             string error;
             int[] stateArray;
-            if ( DBLayer.GetNRequestsPerState(out stateArray,  out error) )
+            if ( DBLayer.GetNRequestsPerState(MinPriority, out stateArray,  out error) )
             {
                 CountPerState = stateArray;
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)

@@ -2166,7 +2166,7 @@ namespace MyBackup
         /// <summary>
         /// Method that gets number of requests per state
         /// </summary>
-        public static bool GetNRequestsPerState(out int[] NState, out string ErrorMessage)
+        public static bool GetNRequestsPerState(int MinPriority, out int[] NState, out string ErrorMessage)
         {
             lock (obj)
             {
@@ -2177,8 +2177,11 @@ namespace MyBackup
                 try
                 {
                     GetConn();
-                    string SQL = "select State, count(*) from RequestsQueue group by State";
+                    string SQL = "select State, count(*) from RequestsQueue where Priority>=? group by State";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pPriority = new SQLiteParameter();
+                    pPriority.Value = MinPriority;
+                    CheckCmd.Parameters.Add(pPriority);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     while (reader.Read())
                     {

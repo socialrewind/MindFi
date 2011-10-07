@@ -257,7 +257,7 @@ namespace MyBackup
                     MinPriority = 999;
                     break;
                 case MyBackupProfile.EXTENDED:
-                    MinPriority = 400; // without photos for a start, should be 200
+                    MinPriority = 150;
                     break;
                 case MyBackupProfile.STALKER:
                 default:

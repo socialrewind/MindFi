@@ -544,7 +544,10 @@ namespace MyBackup
                     apiReq.Priority = 999;
                     apiReq.Queue();                    
                     apiReq = FBAPI.Wall(item.SNID, SIZETOGETPERPAGE, ProcessWall);
-                    apiReq.Priority = 200;
+                    apiReq.Priority = 400;
+                    apiReq.Queue();
+                    apiReq = FBAPI.Events(item.SNID, SIZETOGETPERPAGE, ProcessEvents);
+                    apiReq.Priority = 400;
                     apiReq.Queue();
                     apiReq = FBAPI.PhotoAlbums(item.SNID, SIZETOGETPERPAGE, ProcessAlbums);
                     apiReq.Priority = 50;
@@ -732,7 +735,7 @@ namespace MyBackup
                     apiReq.Priority = 400;
                     apiReq.Queue();
                     apiReq = FBAPI.Likes(album.SNID, SIZETOGETPERPAGE, ProcessLikes, album.ID);
-                    apiReq.Priority = 200;
+                    apiReq.Priority = 400;
                     apiReq.Queue();
                 }
 

@@ -218,6 +218,14 @@ namespace MyBackup
             UpdateForm();
         }
 
+        private void GoOffline()
+        {
+            online = false;
+            processTimer.Enabled = false;
+            btnOnline.Text = "Go Online/Login";
+            Refresh();
+        }
+
         /// <summary>
         /// Processing event for logging into Facebook
         /// </summary>
@@ -225,10 +233,7 @@ namespace MyBackup
         {
             if (online)
             {
-                online = false;
-                processTimer.Enabled = false;
-                btnOnline.Text = "Go Online/Login";
-                Refresh();
+                GoOffline();
             }
             else
             {
@@ -315,6 +320,24 @@ namespace MyBackup
             {
                 if (firstTime)
                 {
+                    FBPerson me = FBLogin.Me;
+                    if (frmDashboard.currentProfile != null)
+                    {
+                        if (frmDashboard.currentProfile.socialNetworkID != SocialNetwork.FACEBOOK ||
+                              (frmDashboard.currentProfile.userName != me.Name
+                            && frmDashboard.currentProfile.SocialNetworkAccountID != me.SNID
+                            && frmDashboard.currentProfile.socialNetworkURL != me.Link)
+                            )
+                        {
+                            FBLogin temp = new FBLogin();
+                            temp.LogOut();
+                            GoOffline();
+                            MessageBox.Show("You tried to login with a different account (" + me.Name
+                                + ") instead of the selected account (" + frmDashboard.currentProfile.userName 
+                                + "). Please correct your data; login cancelled.");
+                            return;
+                        }
+                    }
                     firstTime = false;
                     //DEBUG
                     AsyncReqQueue.InitialRequests(MinPriority);

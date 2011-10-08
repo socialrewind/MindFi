@@ -238,11 +238,27 @@ namespace MyBackup
             */
 
             // TODO: support multiple profiles
-            frmDashboard.currentProfile = new MyBackupProfile();
+            // For now, verifying only if there is no currentProfile
             FBPerson me = FBLogin.Me;
+            if (frmDashboard.currentProfile != null)
+            {
+                if (( frmDashboard.currentProfile.userName != me.Name
+                    && frmDashboard.currentProfile.SocialNetworkAccountID != me.SNID
+                    && frmDashboard.currentProfile.socialNetworkURL != me.Link ) ||
+                    frmDashboard.currentProfile.socialNetworkID != (int)cmbSocialNetworks.SelectedValue
+                    )
+                {
+                    MessageBox.Show("You tried to login with a different account (" + me.Name
+                        + ") instead of the selected account (" + frmDashboard.currentProfile.userName
+                        + "). Please correct your data; login cancelled.");
+                    return;
+                }
+            }
+
+            frmDashboard.currentProfile = new MyBackupProfile();
             frmDashboard.currentProfile.fbProfile = me;
             frmDashboard.currentProfile.userName = me.Name; // before: txtAlias.Text, check impact
-            frmDashboard.currentProfile.socialNetworkURL = txtURL.Text;
+            frmDashboard.currentProfile.socialNetworkURL = me.Link; // before: txtURL.Text
             frmDashboard.currentProfile.socialNetworkID = (int?)cmbSocialNetworks.SelectedValue;
             frmDashboard.currentProfile.SocialNetworkAccountID = me.SNID;
             if (cmbProfiles.SelectedItem != null)

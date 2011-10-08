@@ -16,6 +16,8 @@ namespace MyBackup
         /// </summary>
         public static string LoginName;
         public static MyBackupProfile currentProfile;
+        private int currentSN = 1;
+        public bool online = false;
 
         #region "Download info"
         private string BaseDir;
@@ -122,7 +124,7 @@ namespace MyBackup
         /// </summary>
         private void btnAddAccount_Click(object sender, EventArgs e)
         {
-            frmAddAccount temp = new frmAddAccount();
+            frmAddAccount temp = new frmAddAccount(currentSN);
             DialogResult res = temp.ShowDialog();
             temp.Dispose();
             if (res == DialogResult.Cancel)
@@ -148,6 +150,7 @@ namespace MyBackup
                 return;
             }
 
+            /*
             ArrayList temp = (ArrayList)this.accountsGrid.DataSource;
             if (temp != null)
             {
@@ -165,6 +168,7 @@ namespace MyBackup
             }
             // refresh data
             PopulateAccounts();
+             * */
         }
 
         /// <summary>
@@ -173,35 +177,78 @@ namespace MyBackup
         private void PopulateAccounts()
         {
             string error;
-            this.accountsGrid.DataSource = null;
-            this.accountsGrid.DataSource = DBLayer.GetAccounts(out error);
+            //this.accountsGrid.DataSource = null;
+            ArrayList currentAccounts = DBLayer.GetAccounts(out error);
+            //this.accountsGrid.DataSource = currentAccounts;
             if (error != "")
             {
                 MessageBox.Show("Error getting accounts:\n" + error);
             }
+            // Second version: instead of datasource, use radiobuttons
+            if (currentAccounts != null && currentProfile == null )
+            {
+                SNAccount first = (SNAccount) currentAccounts[0];
+                currentProfile = new MyBackupProfile();
+                currentProfile.currentBackupLevel = first.currentBackupLevel;
+                currentProfile.SocialNetworkAccountID = first.SNID;
+                currentProfile.socialNetworkID = first.SocialNetwork;
+                currentProfile.socialNetworkURL = first.URL;
+                currentProfile.userName = first.Name;
+            }
+
+            System.Windows.Forms.LinkLabel lblToAssign = null;
+            switch (currentProfile.socialNetworkID)
+            {
+                case SocialNetwork.FACEBOOK:
+                    lblToAssign = linkLabelFB1;
+                    break;
+                case SocialNetwork.TWITTER:
+                    lblToAssign = linkLabelTw1;
+                    break;
+                case SocialNetwork.LINKEDIN:
+                    lblToAssign = linkLabelLI1;
+                    break;
+            }
+            if (lblToAssign != null)
+            {
+                lblToAssign.Text = currentProfile.userName;
+            }
+
+            btnOnline.Enabled = (currentProfile != null);
             UpdateForm();
         }
 
         /// <summary>
         /// Processing event for logging into Facebook
         /// </summary>
-        private void btnLoginFB_Click(object sender, EventArgs e)
+        private void btnOnline_Click(object sender, EventArgs e)
         {
-            FBLogin login = new FBLogin();
-            login.Login();
-            processTimer.Enabled = true;
-            processTimer.Interval = 5000;
+            if (online)
+            {
+                online = false;
+                processTimer.Enabled = false;
+                btnOnline.Text = "Go Online/Login";
+                Refresh();
+            }
+            else
+            {
+                btnOnline.Enabled = false;
+                btnOnline.Text = "Logging in...";
+                Refresh();
+                online = true;
+                FBLogin login = new FBLogin();
+                login.Login();
 
-            // wait or callback?
-            UpdateForm();
-        }
+                // Verify Login result matches current account
 
-        /// <summary>
-        /// Processing event for refresh button
-        /// </summary>
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            UpdateForm();
+                processTimer.Enabled = true;
+                processTimer.Interval = 5000;
+                // TODO: wait or callback?
+                System.Threading.Thread.Sleep(10000);
+                btnOnline.Text = "Go Offline / Logout";
+                btnOnline.Enabled = true;
+                UpdateForm();
+            }
         }
 
         /// <summary>
@@ -286,6 +333,66 @@ namespace MyBackup
             // Get statistics
             UpdateStats();
             UpdateForm();
+        }
+
+        private void btnFBAcccount_Click(object sender, EventArgs e)
+        {
+            currentSN = SocialNetwork.FACEBOOK;
+            btnAddAccount_Click(sender, e);
+        }
+
+        private void btnTwitterAccount_Click_1(object sender, EventArgs e)
+        {
+            currentSN = SocialNetwork.TWITTER;
+            btnAddAccount_Click(sender, e);
+        }
+
+        private void btnLinkedInAccount_Click_1(object sender, EventArgs e)
+        {
+            currentSN = SocialNetwork.LINKEDIN;
+            btnAddAccount_Click(sender, e);
+        }
+
+        private void linkLabelFB1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (currentProfile == null || currentSN != SocialNetwork.FACEBOOK)
+            {
+                currentSN = SocialNetwork.FACEBOOK;
+                btnAddAccount_Click(sender, e);
+            }
+            else
+            {
+                // Edit account
+                MessageBox.Show("will edit the FB account " + currentProfile.userName);
+            }
+        }
+
+        private void linkLabelTw1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (currentProfile == null || currentSN != SocialNetwork.LINKEDIN)
+            {
+                currentSN = SocialNetwork.TWITTER;
+                btnAddAccount_Click(sender, e);
+            }
+            else
+            {
+                // Edit account
+                MessageBox.Show("will edit the Twitter account " + currentProfile.userName);
+            }
+        }
+
+        private void linkLabelLI1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (currentProfile == null || currentSN != SocialNetwork.TWITTER)
+            {
+                currentSN = SocialNetwork.LINKEDIN;
+                btnAddAccount_Click(sender, e);
+            }
+            else
+            {
+                // Edit account
+                MessageBox.Show("will edit the LinkedIn account " + currentProfile.userName);
+            }
         }
 
     }

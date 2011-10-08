@@ -1937,12 +1937,12 @@ namespace MyBackup
                 {
                     GetConn();
                     // try to read
-                    SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID, SocialNetwork, SNID, Name, Email, URL from SNAccounts", conn);
+                    SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID, SocialNetwork, SNID, Name, Email, URL, BackupLevel from SNAccounts", conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     while (reader.Read())
                     {
                         temp.Add(new SNAccount(reader.GetInt32(0), reader.GetInt32(1),
-                        reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5)));
+                        reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetInt16(6)));
                     }
                     reader.Close();
                     ErrorMessage = "";
@@ -2001,7 +2001,7 @@ namespace MyBackup
         /// Method that saves an account
         /// </summary>
         public static bool SaveAccount(string Name, string Email, int SocialNetwork,
-            string SNID, string URL, out string ErrorMessage)
+            string SNID, string URL, int BackupLevel, out string ErrorMessage)
         {
             ErrorMessage = "";
             bool result = false;
@@ -2027,7 +2027,7 @@ namespace MyBackup
                     }
                     reader.Close();
 
-                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL) values (?,?,?,?,?)";
+                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel) values (?,?,?,?,?,?)";
                     SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pName = new SQLiteParameter();
                     pName.Value = Name;
@@ -2040,6 +2040,9 @@ namespace MyBackup
                     SQLiteParameter pURL = new SQLiteParameter();
                     pURL.Value = URL;
                     InsertCmd.Parameters.Add(pURL);
+                    SQLiteParameter pLevel  = new SQLiteParameter();
+                    pLevel.Value = BackupLevel;
+                    InsertCmd.Parameters.Add(pLevel);
                     int outrows = InsertCmd.ExecuteNonQuery();
                     if (outrows > 0)
                     {

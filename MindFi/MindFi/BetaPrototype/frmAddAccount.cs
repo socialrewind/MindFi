@@ -19,10 +19,12 @@ namespace MyBackup
         private AsyncReqQueue apiReq;
         private bool MyDataShown = false;
         private bool success;
+        private int currentSN;
 
-        public frmAddAccount()
+        public frmAddAccount(int SN)
         {
             InitializeComponent();
+            currentSN = SN;
         }
 
         private void frmAddAccount_Load(object sender, EventArgs e)
@@ -86,6 +88,7 @@ namespace MyBackup
                 cmbFrequencyValue.Items.Add(i);
             }
             cmbFrequencyValue.SelectedIndex = 4; // desired - 1
+            cmbSocialNetworks.SelectedValue = currentSN;
         }
 
         private void SNUpdate()
@@ -255,13 +258,15 @@ namespace MyBackup
             // TODO: support multiple profiles
             frmDashboard.currentProfile = new MyBackupProfile();
             frmDashboard.currentProfile.fbProfile = me;
-            frmDashboard.currentProfile.userName = txtAlias.Text;
+            frmDashboard.currentProfile.userName = me.Name; // before: txtAlias.Text, check impact
             frmDashboard.currentProfile.socialNetworkURL = txtURL.Text;
+            frmDashboard.currentProfile.socialNetworkID = (int?)cmbSocialNetworks.SelectedValue;
+            frmDashboard.currentProfile.SocialNetworkAccountID = me.SNID;
             if (cmbProfiles.SelectedItem != null)
             {
                 frmDashboard.currentProfile.currentBackupLevel = (int)cmbProfiles.SelectedValue;
             }
-            if (!DBLayer.SaveAccount(txtAlias.Text, me.EMail, m_sn.ID, me.SNID, me.Link, out errorData))
+            if (!DBLayer.SaveAccount(me.Name, me.EMail, m_sn.ID, me.SNID, me.Link, frmDashboard.currentProfile.currentBackupLevel, out errorData))
             {
                 lblStatus.Text = errorData;
                 MessageBox.Show("Error while saving:\n" + errorData);

@@ -40,7 +40,6 @@ namespace MyBackup
             this.lblName = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.folderDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.SuspendLayout();
 
             // 
@@ -112,7 +111,7 @@ namespace MyBackup
             this.txtPwd.Name = "txtPwd";
             this.txtPwd.Size = new System.Drawing.Size(207, 20);
             this.txtPwd.TabIndex = 2;
-	    this.txtPwd.PasswordChar = '*';
+            this.txtPwd.PasswordChar = '*';
             this.txtPwd.TextChanged += new System.EventHandler(this.txtUser_TextChanged);
 
             // 
@@ -133,7 +132,7 @@ namespace MyBackup
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(320, 200);
-	    this.Controls.Add(this.lblName);
+            this.Controls.Add(this.lblName);
             this.Controls.Add(this.txtPwd);
             this.Controls.Add(this.txtUser);
             this.Controls.Add(this.btnLogin);
@@ -144,13 +143,11 @@ namespace MyBackup
             this.Name = "frmLogin";
             this.Text = "My Backup Security";
             this.Load += new System.EventHandler(this.frmLogin_Load);
-	    this.Closing += new System.ComponentModel.CancelEventHandler(this.frmLogin_Closing);
+            this.Closing += new System.ComponentModel.CancelEventHandler(this.frmLogin_Closing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
-
-        #endregion
 
         private System.Windows.Forms.Label labelLogin;
         private System.Windows.Forms.Label labelPassword;
@@ -160,9 +157,9 @@ namespace MyBackup
         private System.Windows.Forms.TextBox txtUser;
         private System.Windows.Forms.TextBox txtPwd;
         private System.Windows.Forms.Label lblName;
-	private System.Windows.Forms.OpenFileDialog openFileDialog1;
-	private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-	private System.Windows.Forms.FolderBrowserDialog folderDialog1;
-        
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        #endregion
+
     }
 }

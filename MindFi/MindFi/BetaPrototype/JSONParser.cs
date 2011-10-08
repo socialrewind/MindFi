@@ -489,9 +489,26 @@ namespace MyBackup
                         }
 
                         break;
+                    // TODO: Generalize all string arrays
+                    case "interested_in":
+                    case "meeting_for":
+                        string tempValue;
+                        tempValue = temp.LastToken.Replace("\"", "");
+                        do
+                        {
+                            tokenId = temp.Scan(out token);
+                            if (tokenId == JSONScanner.JSONScannerTokens.LITERAL)
+                            {
+                                tempValue += ", " + token.Replace("\"", "");
+                            }
+                        } while (tokenId != JSONScanner.JSONScannerTokens.EOF && token != "]");
+                        AssignValue(name, tempValue);
+                        break;
+                    default:
+                        errors += "Unknown object " + name + " ignored\n";
+                        IgnoreChildren(initialNestingLevel, out tokenId, out token);
+                        break;
                 }
-                errors += "Unknown object " + name + " ignored\n";
-                IgnoreChildren(initialNestingLevel, out tokenId, out token);
             }
 
             // TODO : double check how it exits

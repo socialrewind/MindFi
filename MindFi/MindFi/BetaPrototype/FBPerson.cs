@@ -342,23 +342,6 @@ namespace MyBackup
                         case "significant_other":
                             SignificantOtherID = value;
                             break;
-                            /*
-                        case "languages":
-                            LanguagesID += value + ";";
-                            break;
-                        case "sports":
-                            SportsID += value + ";";
-                            break;
-                        case "favorite_teams":
-                            FavoriteTeamsID += value + ";";
-                            break;
-                        case "favorite_athletes":
-                            FavoriteAthletesID += value + ";";
-                            break;
-                        case "inspirational_people":
-                            InspirationalPeopleID += value + ";";
-                            break;
-                             * */
                         default:
                             base.AssignValue(name, value);
                             break;
@@ -376,23 +359,6 @@ namespace MyBackup
                         case "significant_other":
                             SignificantOtherName = value;
                             break;
-                            /*
-                        case "languages":
-                            LanguagesName += value + ";";
-                            break;
-                        case "sports":
-                            SportsName += value + ";";
-                            break;
-                        case "favorite_teams":
-                            FavoriteTeamsName += value + ";";
-                            break;
-                        case "favorite_athletes":
-                            FavoriteAthletesName += value + ";";
-                            break;
-                        case "inspirational_people":
-                            InspirationalPeopleName += value + ";";
-                            break;
-                             * */
                         default:
                             base.AssignValue(name, value);
                             break;
@@ -458,6 +424,12 @@ namespace MyBackup
                     break;
                 case "significant_other":
                     SignificantOtherName = value;
+                    break;
+                case "interested_in":
+                    InterestedIn = value;
+                    break;
+                case "meeting_for":
+                    MeetingFor = value;
                     break;
                 default:
                     base.AssignValue(name, value);

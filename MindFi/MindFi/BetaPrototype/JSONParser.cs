@@ -419,9 +419,6 @@ namespace MyBackup
             bool processed = false;
             if (ChildrenParsers != null)
             {
-
-                // explore existing parsers
-                // tODO: check foreach syntax
                 foreach (ChildrenParse parser in ChildrenParsers)
                 {
                     if (name == parser.Token)
@@ -430,6 +427,7 @@ namespace MyBackup
                         GetChildrenByType(parser.ReferenceList, initialNestingLevel, parser.DataType, out tokenId, out token, out currentErrors);
                         errors += currentErrors;
                         processed = true;
+                        break; // stop the foreach!
                     }
                 }
             }

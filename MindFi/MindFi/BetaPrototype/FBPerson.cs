@@ -106,6 +106,7 @@ namespace MyBackup
         /// Religion the user declares in the social network
         /// </summary>
         public string Religion { get; set; }
+        /*
         /// <summary>
         /// Other interest: sports
         /// </summary>
@@ -138,6 +139,7 @@ namespace MyBackup
         /// Other interest: inspirational people
         /// </summary>
         public string InspirationalPeopleName { get; set; }
+         * */
         /// <summary>
         /// Relationship status for the user in the social network
         /// </summary>
@@ -150,16 +152,6 @@ namespace MyBackup
         /// Name of the significant other
         /// </summary>
         public string SignificantOtherName { get; set; }
-        /*
-        /// <summary>
-        /// IDs of the languages the user is fluent in
-        /// </summary>
-        public string LanguagesID { get; set; }
-        /// <summary>
-        /// Names of the languages the user is fluent in
-        /// </summary>
-        public string LanguagesName { get; set; }
-         * */
         /// <summary>
         /// User's personal website
         /// </summary>
@@ -169,9 +161,25 @@ namespace MyBackup
         /// </summary>
         public ArrayList Work;
         /// <summary>
-        /// Work history for the user in the social network
+        /// Languages spoken by the user
         /// </summary>
         public ArrayList Languages;
+        /// <summary>
+        /// Favorite sports
+        /// </summary>
+        public ArrayList Sports;
+        /// <summary>
+        /// Favorite teams
+        /// </summary>
+        public ArrayList FavoriteTeams;
+        /// <summary>
+        /// Favorite Athletes
+        /// </summary>
+        public ArrayList FavoriteAthletes;
+        /// <summary>
+        /// Inspirational people
+        /// </summary>
+        public ArrayList InspirationalPeople;
         // Data for related org
         private decimal OrgPartitionDate;
         private int OrgPartitionID;
@@ -196,10 +204,7 @@ namespace MyBackup
         {
             relatedList = parent;
             Distance = distance;
-            MyDataTable = "PersonData";
-            AddParser("work", "FBWork", ref Work);
-            AddParser("education", "FBEducation", ref Education);
-            AddParser("languages", "FBObject", ref Languages);
+            PersonInit();
         }
 
         /// <summary>
@@ -212,11 +217,21 @@ namespace MyBackup
         {
             relatedList = parent;
             Distance = distance;
+            PersonInit();
+        }
+
+        private void PersonInit()
+        {
             MyDataTable = "PersonData";
             AddParser("work", "FBWork", ref Work);
             AddParser("education", "FBEducation", ref Education);
             AddParser("languages", "FBObject", ref Languages);
+            AddParser("favorite_athletes", "FBObject", ref FavoriteAthletes);
+            AddParser("favorite_teams", "FBObject", ref FavoriteTeams);
+            AddParser("inspirational_people", "FBObject", ref InspirationalPeople);
+            AddParser("sports", "FBObject", ref Sports);
         }
+
         #endregion
 
         #region "Internal functions"
@@ -260,15 +275,20 @@ namespace MyBackup
                         int LangPartitionID;
 
                         language.Save(out error);
+                        ErrorMessage += error;
                         DBLayer.RelationSave(this.ID, Verb.SPEAK, language.ID,
                             null, null,
                             null, null,
                             out LangPartitionDate, out LangPartitionID,
-                            out Saved, out ErrorMessage);
+                            out Saved, out error);
 
                         ErrorMessage += error;
                     }
                 }
+                if (FavoriteAthletes != null) FanSave(FavoriteAthletes);
+                if (FavoriteTeams != null) FanSave(FavoriteTeams);
+                if (InspirationalPeople != null) FanSave(InspirationalPeople);
+                if (Sports != null) FanSave(Sports);
                 if (relatedList != null && relatedList.ID != -1)
                 {
                     string error;
@@ -284,6 +304,26 @@ namespace MyBackup
                 // System.Windows.Forms.MessageBox.Show("didnt save person " + ID + " because of\n" + ErrorMessage);
             }
             //DBLayer.CommitTransaction();
+        }
+
+        private void FanSave(ArrayList list)
+        {
+            foreach (FBObject interest in list)
+            {
+                string error;
+                decimal LangPartitionDate;
+                int LangPartitionID;
+
+                interest.Save(out error);
+                if (error == "")
+                {
+                    DBLayer.RelationSave(this.ID, Verb.FANOF, interest.ID,
+                        null, null,
+                        null, null,
+                        out LangPartitionDate, out LangPartitionID,
+                        out Saved, out error);
+                }
+            }
         }
 
         protected override void AssignValue(string name, string value)
@@ -306,7 +346,6 @@ namespace MyBackup
                         case "languages":
                             LanguagesID += value + ";";
                             break;
-                             * */
                         case "sports":
                             SportsID += value + ";";
                             break;
@@ -319,6 +358,7 @@ namespace MyBackup
                         case "inspirational_people":
                             InspirationalPeopleID += value + ";";
                             break;
+                             * */
                         default:
                             base.AssignValue(name, value);
                             break;
@@ -340,7 +380,6 @@ namespace MyBackup
                         case "languages":
                             LanguagesName += value + ";";
                             break;
-                             * */
                         case "sports":
                             SportsName += value + ";";
                             break;
@@ -353,6 +392,7 @@ namespace MyBackup
                         case "inspirational_people":
                             InspirationalPeopleName += value + ";";
                             break;
+                             * */
                         default:
                             base.AssignValue(name, value);
                             break;

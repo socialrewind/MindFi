@@ -24,6 +24,8 @@ namespace MyBackup
         public const int ATTENDING = 14;
         public const int MAYBEATTENDING = 15;
         public const int NOTATTENDING = 16;
+        // TODO: Consider different family relationships
+        public const int RELATIVEOF = 17;
 
         // TODO: manage time, language
         // implement a function "verbalize", that applies the pattern as stored in the 

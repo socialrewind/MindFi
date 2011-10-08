@@ -307,6 +307,10 @@ namespace MyBackup
                     apiReq.Priority = 999;
                     apiReq.Queue();
                     apiReq.Send();
+                    apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
+                    apiReq.Priority = 999;
+                    apiReq.Queue();
+                    apiReq.Send();
                     apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
                     apiReq.Priority = 999;
                     apiReq.Queue();
@@ -412,6 +416,9 @@ namespace MyBackup
                             // TODO: Consolidate
                             case "FBFriends":
                                 apiReq.methodToCall = ProcessFriends;
+                                break;
+                            case "FBFamily":
+                                apiReq.methodToCall = ProcessFamily;
                                 break;
                             case "FBFriendList":
                                 apiReq.methodToCall = ProcessList;
@@ -1113,7 +1120,7 @@ namespace MyBackup
         }
 
         /// <summary>
-        /// Process list of friendlists
+        /// Process list of friends
         /// </summary>
         /// <param name="hwnd"></param>
         /// <param name="result"></param>
@@ -1134,6 +1141,36 @@ namespace MyBackup
                 friends.Parse();
                 CountPerState[PARSED]++;
                 friends.Save(out errorData);
+                // save the list and association
+                if (errorData == "") return true;
+            }
+            nFailedRequests++;
+            return false;
+        }
+
+        /// <summary>
+        /// Process list of friends
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>        
+        public static bool ProcessFamily(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            // TODO: Consolidate with ProcessFriends, maybe with an empty name or with the default name All Friends
+            string errorData = "";
+            //System.Windows.Forms.MessageBox.Show("Processing friendlist result: " + result + "\n" + response);
+
+            if (result)
+            {
+                CountPerState[RECEIVED]++;
+                // should be null by default
+                FBCollection family = new FBCollection(response, "FBRelative", parent, parentSNID);
+                family.Parse();
+                CountPerState[PARSED]++;
+                family.Save(out errorData);
                 // save the list and association
                 if (errorData == "") return true;
             }

@@ -43,6 +43,19 @@ namespace MyBackup
         }
 
         /// <summary>
+        /// Gets the list of family members for the user
+        /// </summary>
+        /// <param name="resultCall">Function that is called once the friend list is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Async Request record</returns>
+        public static AsyncReqQueue Family(string SNID, int Limit, CallBack resultCall)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBFamily",
+                FBGraphAPIURL + SNID + "/family", Limit,
+                resultCall);
+            return me;
+        }
+
+        /// <summary>
         /// Gets FB user profile information, by alias
         /// </summary>
         /// <param name="Who">Alias of the desired user</param>

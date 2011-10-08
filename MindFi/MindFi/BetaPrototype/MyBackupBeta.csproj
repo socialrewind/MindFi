@@ -81,6 +81,7 @@
     <Compile Include="FBFriendList.cs" />
     <Compile Include="FBNote.cs" />
     <Compile Include="FBNotification.cs" />
+    <Compile Include="FBRelative.cs" />
     <Compile Include="MyBackupProfile.cs" />
     <Compile Include="frmBrowser.cs">
       <SubType>Form</SubType>

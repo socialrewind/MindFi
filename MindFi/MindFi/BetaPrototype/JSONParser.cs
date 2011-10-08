@@ -644,6 +644,9 @@ namespace MyBackup
                         case "FBPerson":
                             item = new FBPerson(temp, Distance, this);
                             break;
+                        case "FBRelative":
+                            item = new FBRelative(temp, this);
+                            break;
                         case "FBPost":
                             item = new FBPost(temp, this);
                             break;

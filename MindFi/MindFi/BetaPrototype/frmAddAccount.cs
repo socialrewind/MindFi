@@ -15,8 +15,8 @@ namespace MyBackup
         private FBLogin login;
         private bool loggedIn;
         private string meData;
-        private FBPerson me;
-        private AsyncReqQueue apiReq;
+        //private FBPerson me;
+        //private AsyncReqQueue apiReq;
         private bool MyDataShown = false;
         private bool success;
         private int currentSN;
@@ -147,10 +147,6 @@ namespace MyBackup
                             loggedIn = true;
                             lblStatus.Text = "Logged in";
                             meData = "";
-                            // call FB API to get my data
-                            apiReq = FBAPI.Me(PaintMe);
-                            apiReq.Queue();
-                            apiReq.Send();
                             step2Timer.Enabled = true;
                         }
                         else
@@ -170,8 +166,7 @@ namespace MyBackup
             else
             {
                 // once logged in, just poll for the data
-                // TODO: check if reenabling, depending on time for the data to come back
-                lblStatus.Text = "Logged in\nData: " + meData;
+                FBPerson me = FBLogin.Me;
                 if (me == null || !me.Parsed)
                 {
                     // re-enable
@@ -180,6 +175,9 @@ namespace MyBackup
                 }
                 else
                 {
+                    step2Timer.Enabled = false;
+                    meData = FBLogin.LastError;
+
                     if (me.UserName != null && me.UserName != "")
                     {
                         txtAlias.Text = me.UserName;
@@ -190,7 +188,6 @@ namespace MyBackup
                     }
                     txtURL.Text = me.Link;
                     labelSNID.Text = me.SNID;
-                    step2Timer.Enabled = false;
                     if (!MyDataShown)
                     {
                         MyDataShown = true;
@@ -198,31 +195,8 @@ namespace MyBackup
                         //                        MessageBox.Show("Work history (#): " + me.Work.Count);
                     }
                 }
-
+                lblStatus.Text = "Logged in\nData: " + meData;
             }
-        }
-
-        public bool PaintMe(int hwnd, bool result, string response, Int64? parent, string parentSNID)
-        {
-            // TODO: Process async request object reference 
-            // update object which is refreshed asynchronously
-            if (result)
-            {
-                // distance to Me: 0
-                //string error;
-                me = new FBPerson(response, 0, null);
-                me.Parse();
-                meData = response + "\n" + me.lastError;
-                string errorData = "";
-                //		me.Save(out errorData);
-                meData += "\n" + errorData;
-
-            }
-            else
-            {
-                meData = "ERROR: " + response;
-            }
-            return true;
         }
 
         private void txtAlias_TextChanged(object sender, EventArgs e)
@@ -244,7 +218,8 @@ namespace MyBackup
         private void btnSave_Click(object sender, EventArgs e)
         {
             string errorData = "";
-
+            /*
+            
             //	    me.Save(out errorData);
             meData += errorData;
             if (errorData != "")
@@ -254,9 +229,11 @@ namespace MyBackup
                     Close();
                 }
             }
+            */
 
             // TODO: support multiple profiles
             frmDashboard.currentProfile = new MyBackupProfile();
+            FBPerson me = FBLogin.Me;
             frmDashboard.currentProfile.fbProfile = me;
             frmDashboard.currentProfile.userName = me.Name; // before: txtAlias.Text, check impact
             frmDashboard.currentProfile.socialNetworkURL = txtURL.Text;
@@ -287,7 +264,7 @@ namespace MyBackup
                 txtURL.Text = "";
                 btnLoginSN.Enabled = true;
                 btnSave.Enabled = false;
-                me = null;
+                // me = null;
             }
             else
             {

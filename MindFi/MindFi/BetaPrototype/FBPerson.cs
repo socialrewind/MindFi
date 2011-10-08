@@ -150,6 +150,7 @@ namespace MyBackup
         /// Name of the significant other
         /// </summary>
         public string SignificantOtherName { get; set; }
+        /*
         /// <summary>
         /// IDs of the languages the user is fluent in
         /// </summary>
@@ -158,6 +159,7 @@ namespace MyBackup
         /// Names of the languages the user is fluent in
         /// </summary>
         public string LanguagesName { get; set; }
+         * */
         /// <summary>
         /// User's personal website
         /// </summary>
@@ -166,6 +168,10 @@ namespace MyBackup
         /// Work history for the user in the social network
         /// </summary>
         public ArrayList Work;
+        /// <summary>
+        /// Work history for the user in the social network
+        /// </summary>
+        public ArrayList Languages;
         // Data for related org
         private decimal OrgPartitionDate;
         private int OrgPartitionID;
@@ -193,6 +199,7 @@ namespace MyBackup
             MyDataTable = "PersonData";
             AddParser("work", "FBWork", ref Work);
             AddParser("education", "FBEducation", ref Education);
+            AddParser("languages", "FBObject", ref Languages);
         }
 
         /// <summary>
@@ -208,6 +215,7 @@ namespace MyBackup
             MyDataTable = "PersonData";
             AddParser("work", "FBWork", ref Work);
             AddParser("education", "FBEducation", ref Education);
+            AddParser("languages", "FBObject", ref Languages);
         }
         #endregion
 
@@ -243,6 +251,24 @@ namespace MyBackup
                         ErrorMessage += error;
                     }
                 }
+                if (Languages != null)
+                {
+                    foreach (FBObject language in Languages)
+                    {
+                        string error;
+                        decimal LangPartitionDate;
+                        int LangPartitionID;
+
+                        language.Save(out error);
+                        DBLayer.RelationSave(this.ID, Verb.SPEAK, language.ID,
+                            null, null,
+                            null, null,
+                            out LangPartitionDate, out LangPartitionID,
+                            out Saved, out ErrorMessage);
+
+                        ErrorMessage += error;
+                    }
+                }
                 if (relatedList != null && relatedList.ID != -1)
                 {
                     string error;
@@ -267,11 +293,6 @@ namespace MyBackup
                 case "id":
                     switch (parentName)
                     {
-                        case null:
-                        case "":
-                            SNID = value;
-                            //System.Windows.Forms.MessageBox.Show("parsed SNID: " + SNID);
-                            break;
                         case "hometown":
                             HometownID += value + ";";
                             break;
@@ -281,9 +302,11 @@ namespace MyBackup
                         case "significant_other":
                             SignificantOtherID = value;
                             break;
+                            /*
                         case "languages":
                             LanguagesID += value + ";";
                             break;
+                             * */
                         case "sports":
                             SportsID += value + ";";
                             break;
@@ -297,17 +320,13 @@ namespace MyBackup
                             InspirationalPeopleID += value + ";";
                             break;
                         default:
-                            lastError += "Unknown name ignored: " + parentName + name + "\n";
+                            base.AssignValue(name, value);
                             break;
                     }
                     break;
                 case "name":
                     switch (parentName)
                     {
-                        case null:
-                        case "":
-                            Name = value;
-                            break;
                         case "hometown":
                             HometownName += value + ";";
                             break;
@@ -317,9 +336,11 @@ namespace MyBackup
                         case "significant_other":
                             SignificantOtherName = value;
                             break;
+                            /*
                         case "languages":
                             LanguagesName += value + ";";
                             break;
+                             * */
                         case "sports":
                             SportsName += value + ";";
                             break;
@@ -333,7 +354,7 @@ namespace MyBackup
                             InspirationalPeopleName += value + ";";
                             break;
                         default:
-                            lastError += "Unknown name ignored: " + parentName + name + "\n";
+                            base.AssignValue(name, value);
                             break;
                     }
                     break;
@@ -398,7 +419,6 @@ namespace MyBackup
                 case "significant_other":
                     SignificantOtherName = value;
                     break;
-
                 default:
                     base.AssignValue(name, value);
                     break;

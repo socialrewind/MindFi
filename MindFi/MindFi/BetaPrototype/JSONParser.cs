@@ -645,8 +645,10 @@ namespace MyBackup
                             item = new FBCollection(temp, "FBPerson", parentID, parentSNID);
                             break;
                         case "FBFriendList":
-                            // TODO: Add parent, parentSNID
                             item = new FBFriendList(temp);
+                            break;
+                        case "FBObject":
+                            item = new FBObject(temp);
                             break;
                         default:
                             errors += "don't know how to process " + ChildrenType + "\n";

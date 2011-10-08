@@ -12,7 +12,7 @@ namespace MyBackup
     public class FBEvent : FBObject
     {
         #region "Properties"
- 
+
         #region "Standard FB Properties"
         /// <summary>
         /// Owner of the event
@@ -74,26 +74,26 @@ namespace MyBackup
         /// Is the user attending the event?
         /// </summary>
         public string RSVPStatus { get; set; }
-	/// <summary>
+        /// <summary>
         /// List of comments associated to the post
         /// </summary>
-        public ArrayList Comments 
-	{
-	    get { lock (LockObj) { return m_comments; } }
-	}
+        public ArrayList Comments
+        {
+            get { lock (LockObj) { return m_comments; } }
+        }
         /// <summary>
         /// parent reference
         /// </summary>
         public JSONParser parent { get; set; }
-	#endregion
+        #endregion
 
-	private ArrayList m_comments;	
-	private ArrayList m_to;
-	/// <summary>
+        private ArrayList m_comments;
+        private ArrayList m_to;
+        /// <summary>
         /// Internal member for keeping dates
         /// </summary>
         protected DateTime? m_StartTime;
-	/// <summary>
+        /// <summary>
         /// Internal member for keeping dates
         /// </summary>
         protected DateTime? m_EndTime;
@@ -106,9 +106,9 @@ namespace MyBackup
         public FBEvent(string response)
             : base(response)
         {
-	    MyDataTable = "EventData";
-	    AddParser("comments", "FBMessage", ref m_comments);
-	    AddParser("owner", "FBPerson", ref m_to);
+            MyDataTable = "EventData";
+            AddParser("comments", "FBMessage", ref m_comments);
+            AddParser("owner", "FBPerson", ref m_to);
         }
 
         /// <summary>
@@ -118,9 +118,9 @@ namespace MyBackup
         public FBEvent(JSONScanner scanner)
             : base(scanner)
         {
-	    MyDataTable = "EventData";
-	    AddParser("comments", "FBMessage", ref m_comments);
-	    AddParser("owner", "FBPerson", ref m_to);
+            MyDataTable = "EventData";
+            AddParser("comments", "FBMessage", ref m_comments);
+            AddParser("owner", "FBPerson", ref m_to);
         }
 
         /// <summary>
@@ -132,38 +132,38 @@ namespace MyBackup
             : base(scanner)
         {
             parent = Parent;
-	    MyDataTable = "EventData";
-	    AddParser("comments", "FBMessage", ref m_comments);
-	    AddParser("owner", "FBPerson", ref m_to);
+            MyDataTable = "EventData";
+            AddParser("comments", "FBMessage", ref m_comments);
+            AddParser("owner", "FBPerson", ref m_to);
         }
 
-	public override void Save(out string ErrorMessage)
+        public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    base.Save(out ErrorMessage);
-	    if ( Saved )
-	    {
-		Saved = false;
-		//System.Windows.Forms.MessageBox.Show("Event Date: " + MyPartitionDate + " ID:" + MyPartitionID);
-		string ParentID = null;
-		FBObject fbParent = parent as FBObject;
-		if ( fbParent != null )
-		{
-		    ParentID = fbParent.SNID;
-		}
-	    	DBLayer.EventDataSave(MyPartitionDate, MyPartitionID, 
-			Description, Location, StartTime, EndTime,
-			Created, Updated, ParentID,
-			out Saved, out ErrorMessage);
-	    	if ( !Saved )
-	    {
-		System.Windows.Forms.MessageBox.Show("didnt save event " + ID + " because of\n" + ErrorMessage);
-	    }
-		lock ( LockObj )
-		{
-                    if (m_comments != null && m_comments.Count > 0 )
+            base.Save(out ErrorMessage);
+            if (Saved)
+            {
+                Saved = false;
+                //System.Windows.Forms.MessageBox.Show("Event Date: " + MyPartitionDate + " ID:" + MyPartitionID);
+                string ParentID = null;
+                FBObject fbParent = parent as FBObject;
+                if (fbParent != null)
+                {
+                    ParentID = fbParent.SNID;
+                }
+                DBLayer.EventDataSave(MyPartitionDate, MyPartitionID,
+                Description, Location, StartTime, EndTime,
+                Created, Updated, ParentID,
+                out Saved, out ErrorMessage);
+                if (!Saved)
+                {
+                    System.Windows.Forms.MessageBox.Show("didnt save event " + ID + " because of\n" + ErrorMessage);
+                }
+                lock (LockObj)
+                {
+                    if (m_comments != null && m_comments.Count > 0)
                     {
-			// System.Windows.Forms.MessageBox.Show("saving comments for message: " + m_comments.Count );
+                        // System.Windows.Forms.MessageBox.Show("saving comments for message: " + m_comments.Count );
                         foreach (FBMessage post in m_comments)
                         {
                             string error;
@@ -171,37 +171,60 @@ namespace MyBackup
                             ErrorMessage += error;
                         }
                     }
-/*
-                    if (m_to != null && m_to.Count > 0 )
-                    {
-			//System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
-			foreach (FBPerson dest in m_to)
-                        {
-			    dest.Distance = 2; // TODO: don't update if it was already lower
-			    //System.Windows.Forms.MessageBox.Show("person: " + dest.SNID + " email: " + dest.EMail + " name: " + dest.Name);
-                            string error;
-			    // save likes relationship
-			    DBLayer.ActionDataSave( dest.SNID, SNID, Verb.SENTTO, out Saved, out error);
-			    ErrorMessage += error;
-			    dest.Save(out error);
-			    ErrorMessage += error;
-                        }
-                    }
-*/
-		}
-		    // TODO: Change parser to generate likes as user list, then save corresponding relationship	
-	    } else
-	    {
-		System.Windows.Forms.MessageBox.Show("didnt save event " + ID + " because of\n" + ErrorMessage);
-	    }
+                    /*
+                                        if (m_to != null && m_to.Count > 0 )
+                                        {
+                                //System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
+                                foreach (FBPerson dest in m_to)
+                                            {
+                                    dest.Distance = 2; // TODO: don't update if it was already lower
+                                    //System.Windows.Forms.MessageBox.Show("person: " + dest.SNID + " email: " + dest.EMail + " name: " + dest.Name);
+                                                string error;
+                                    // save likes relationship
+                                    DBLayer.ActionDataSave( dest.SNID, SNID, Verb.SENTTO, out Saved, out error);
+                                    ErrorMessage += error;
+                                    dest.Save(out error);
+                                    ErrorMessage += error;
+                                            }
+                                        }
+                    */
+                }
+                // TODO: Change parser to generate likes as user list, then save corresponding relationship	
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("didnt save event " + ID + " because of\n" + ErrorMessage);
+            }
         }
 
         protected override void AssignValue(string name, string value)
         {
-	    //System.Windows.Forms.MessageBox.Show("event assign value: " + name + " value: " + value );
-	    string error = "";
+            //System.Windows.Forms.MessageBox.Show("event assign value: " + name + " value: " + value );
+            string error = "";
             switch (name)
             {
+                case "id":
+                    switch (parentName)
+                    {
+                        case "owner":
+                            OwnerID = value;
+                            break;
+                        default:
+                            base.AssignValue(name,value);
+                            break;
+                    }
+                    break;
+                case "name":
+                    switch (parentName)
+                    {
+                        case "owner":
+                            OwnerName = value;
+                            break;
+                        default:
+                            base.AssignValue(name, value);
+                            break;
+                    }
+                    break;
                 case "description":
                     Description = value;
                     break;
@@ -216,11 +239,11 @@ namespace MyBackup
                     break;
                 case "start_time":
                     m_StartTime = DateTimeValue(value, out error);
-		    lastError += error;
+                    lastError += error;
                     break;
                 case "end_time":
                     m_EndTime = DateTimeValue(value, out error);
-		    lastError += error;
+                    lastError += error;
                     break;
                 // Venue fields
                 case "street":
@@ -245,7 +268,7 @@ namespace MyBackup
                     Longitude = value;
                     break;
                 default:
-		    base.AssignValue(name,value);
+                    base.AssignValue(name, value);
                     break;
             }
         }

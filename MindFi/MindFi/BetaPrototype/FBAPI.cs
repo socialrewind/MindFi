@@ -1,4 +1,4 @@
-	using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -102,7 +102,7 @@ namespace MyBackup
         }
 
         /// <summary>
-        /// Gets FB events, by alias
+        /// Gets multiple FB events, by user ID
         /// </summary>
         /// <param name="Who">Alias of the desired user</param>
         /// <param name="Limit">How many JSON records should be returned, max</param>
@@ -114,6 +114,21 @@ namespace MyBackup
 			FBGraphAPIURL + Who + "/events", 
 			Limit, resultCall );
 		return me;
+        }
+
+        /// <summary>
+        /// Gets multiple FB events, by user ID
+        /// </summary>
+        /// <param name="SNID">SNID of Event in Facebook</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue Event(string SNID, CallBack resultCall)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBEvent",
+                FBGraphAPIURL + SNID,
+                1, resultCall, true);
+            return me;
         }
 
         /// <summary>
@@ -186,10 +201,56 @@ namespace MyBackup
             return me;
         }
 
+        // TODO: Refactor and modularize all similar functions
         public static AsyncReqQueue Members(string SNID, int Limit, CallBack resultCall, int? Parent)
         {
             AsyncReqQueue me = new AsyncReqQueue("FBFriendList",
                 FBGraphAPIURL + SNID + "/members",
+                Limit, resultCall, true, Parent, SNID);
+            return me;
+        }
+
+        /// <summary>
+        /// Gets users attending an FB event
+        /// </summary>
+        /// <param name="SNID">Event ID</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue AttendingEvent(string SNID, int Limit, CallBack resultCall, int? Parent)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBAttending",
+                FBGraphAPIURL + SNID + "/attending",
+                Limit, resultCall, true, Parent, SNID);
+            return me;
+        }
+
+        /// <summary>
+        /// Gets users maybe attending an FB event
+        /// </summary>
+        /// <param name="SNID">Event ID</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue MaybeEvent(string SNID, int Limit, CallBack resultCall, int? Parent)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBMaybe",
+                FBGraphAPIURL + SNID + "/maybe",
+                Limit, resultCall, true, Parent, SNID);
+            return me;
+        }
+
+        /// <summary>
+        /// Gets users maybe attending an FB event
+        /// </summary>
+        /// <param name="SNID">Event ID</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue DeclinedEvent(string SNID, int Limit, CallBack resultCall, int? Parent)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBDeclined",
+                FBGraphAPIURL + SNID + "/declined",
                 Limit, resultCall, true, Parent, SNID);
             return me;
         }

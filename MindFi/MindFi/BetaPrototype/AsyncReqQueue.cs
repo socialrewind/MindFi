@@ -410,8 +410,20 @@ namespace MyBackup
                             case "FBLikes":
                                 apiReq.methodToCall = ProcessLikes;
                                 break;
+                            case "FBAttending":
+                                apiReq.methodToCall = ProcessAttending;
+                                break;
+                            case "FBMaybe":
+                                apiReq.methodToCall = ProcessMaybeAttending;
+                                break;
+                            case "FBDeclined":
+                                apiReq.methodToCall = ProcessNotAttending;
+                                break;
                             case "FBEvents":
                                 apiReq.methodToCall = ProcessEvents;
+                                break;
+                            case "FBEvent":
+                                apiReq.methodToCall = ProcessOneEvent;
                                 break;
                             default:
                                 System.Windows.Forms.MessageBox.Show("Unsupported request type: " + apiReq.ReqType);
@@ -843,15 +855,7 @@ namespace MyBackup
             return false;
         }
 
-        /// <summary>
-        /// Process likes
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessLikes(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        public static bool ProcessActions(int hwnd, bool result, string response, int verb, long? parent = null, string parentSNID = "")
         {
             string errorData = "";
             //System.Windows.Forms.MessageBox.Show("Processing likes result: " + parent + "\n" + response );
@@ -863,6 +867,7 @@ namespace MyBackup
                 {
                     // create FBLikes object
                     FBLikes likes = new FBLikes(response, parent, parentSNID);
+                    likes.Action = verb;
                     likes.Parse();
                     CountPerState[PARSED]++;
                     likes.Save(out errorData);
@@ -873,6 +878,42 @@ namespace MyBackup
             nFailedRequests++;
             return false;
         }
+
+        /// <summary>
+        /// Process likes
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool ProcessLikes(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.LIKE, parent, parentSNID);
+        }
+
+        #region "Processing event Attendance"
+        /// <summary>
+        /// Process Who is Attending Event
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool ProcessAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.ATTENDING, parent, parentSNID);
+        }
+        public static bool ProcessMaybeAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.MAYBEATTENDING, parent, parentSNID);
+        }
+        public static bool ProcessNotAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.NOTATTENDING, parent, parentSNID);
+        }
+        #endregion
 
         /// <summary>
         /// Process list of events
@@ -894,12 +935,62 @@ namespace MyBackup
                 events.Parse();
                 CountPerState[PARSED]++;
                 events.Save(out errorData);
+
+                foreach (FBEvent anEvent in events.items)
+                {
+
+                    AsyncReqQueue apiReq;
+                    apiReq = FBAPI.Event(anEvent.SNID, ProcessOneEvent);
+                    apiReq.Priority = 400;
+                    apiReq.Queue();
+                }
+
                 if (errorData == "") return true;
             }
             nFailedRequests++;
             return false;
         }
 
+        /// <summary>
+        /// Process details of a single event
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool ProcessOneEvent(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            string errorData = "";
+            //System.Windows.Forms.MessageBox.Show("Processing events result: " + result + "\n" + response );
+
+            if (result)
+            {
+                CountPerState[RECEIVED]++;
+                FBEvent anEvent = new FBEvent(response);
+                anEvent.Parse();
+                CountPerState[PARSED]++;
+                anEvent.Save(out errorData);
+
+                if (anEvent.OwnerID == frmDashboard.currentProfile.SocialNetworkAccountID)
+                {
+                    AsyncReqQueue apiReq;
+                    apiReq = FBAPI.AttendingEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessAttending, anEvent.ID);
+                    apiReq.Priority = 200;
+                    apiReq.Queue();
+                    apiReq = FBAPI.MaybeEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessMaybeAttending, anEvent.ID);
+                    apiReq.Priority = 200;
+                    apiReq.Queue();
+                    apiReq = FBAPI.DeclinedEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessNotAttending, anEvent.ID);
+                    apiReq.Priority = 200;
+                    apiReq.Queue();
+                }
+
+                if (errorData == "") return true;
+            }
+            nFailedRequests++;
+            return false;
+        }
         /// <summary>
         /// Process list of friendlists
         /// </summary>

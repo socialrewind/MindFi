@@ -21,6 +21,9 @@ namespace MyBackup
         public const int COMMENT = 11;
         public const int SENTTO = 12;
         public const int ISPARTOF = 13;
+        public const int ATTENDING = 14;
+        public const int MAYBEATTENDING = 15;
+        public const int NOTATTENDING = 16;
 
         // TODO: manage time, language
         // implement a function "verbalize", that applies the pattern as stored in the 

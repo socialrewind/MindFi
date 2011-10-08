@@ -10,6 +10,7 @@ namespace MyBackup
     /// </summary>
     public class FBLikes:FBCollection
     {
+        public int Action = Verb.LIKE;
 
         #region "Methods"
         /// <summary>
@@ -31,7 +32,7 @@ namespace MyBackup
 //System.Windows.Forms.MessageBox.Show ( "Saving " + who.SNID + " who likes " + parentSNID );
 		    string error;
 		    // save likes relationship
-		    DBLayer.ActionDataSave( who.SNID, parentSNID, Verb.LIKE, out Saved, out error);
+		    DBLayer.ActionDataSave( who.SNID, parentSNID, Action, out Saved, out error);
 		    ErrorMessage += error;
 		    who.Save(out error);
 		    ErrorMessage += error;

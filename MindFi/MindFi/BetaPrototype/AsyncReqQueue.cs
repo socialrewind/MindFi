@@ -292,7 +292,7 @@ namespace MyBackup
                     DBLayer.StartBackup();
                     // TODO: Modularize the priority/decide if send
                     AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
-                        ProfilePhotoDestinationDir + FBLogin.Me.ID + ".jpg",
+                        ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
                         ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
                     apiReq.Priority = 999;
                     apiReq.Queue();
@@ -551,7 +551,7 @@ namespace MyBackup
                     apiReq.Priority = 400;
                     apiReq.Queue();
                     apiReq = FBAPI.ProfilePic(item.SNID,
-                    ProfilePhotoDestinationDir + item.ID + ".jpg",
+                    ProfilePhotoDestinationDir + item.SNID + ".jpg",
                     ProcessFriendPic, item.ID, item.SNID);
                     apiReq.Priority = 999;
                     apiReq.Queue();                    
@@ -737,9 +737,9 @@ namespace MyBackup
 
                 foreach (FBAlbum album in albums.items)
                 {
-                    if (!System.IO.Directory.Exists(AlbumDestinationDir + "\\" + album.ID))
+                    if (!System.IO.Directory.Exists(AlbumDestinationDir + "\\" + album.SNID))
                     {
-                        System.IO.Directory.CreateDirectory(AlbumDestinationDir + "\\" + album.ID);
+                        System.IO.Directory.CreateDirectory(AlbumDestinationDir + "\\" + album.SNID);
                     }
 
                     //System.Windows.Forms.MessageBox.Show("sending req for photos in album " + album.SNID + " ID: " + album.ID );
@@ -799,8 +799,8 @@ namespace MyBackup
                 {
                     // System.Windows.Forms.MessageBox.Show("will download photo: " + photo.ID);
                     AsyncReqQueue apiReq = FBAPI.DownloadPhoto(photo.Source,
-                    AlbumDestinationDir + parent + "\\" + photo.ID + ".jpg",
-                    ProcessPhoto, photo.ID, photo.SNID);
+                        AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
+                        ProcessPhoto, photo.ID, photo.SNID);
                     // TODO: Check if it is my photo or other's
                     apiReq.Priority = 200;
                     apiReq.Queue();

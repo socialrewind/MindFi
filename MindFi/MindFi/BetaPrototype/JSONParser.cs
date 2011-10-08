@@ -629,6 +629,9 @@ namespace MyBackup
                         case "FBMessage":
                             item = new FBMessage(temp, this);
                             break;
+                        case "FBNote":
+                            item = new FBNote(temp, this);
+                            break;
                         case "FBNotification":
                             item = new FBNotification(temp, this);
                             break;

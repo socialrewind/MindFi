@@ -59,6 +59,8 @@ namespace MyBackup
         private static volatile int nNotParsedRequests = 0;
         private static volatile int nFailedRequests = 0;
         private static volatile int[] CountPerState = null;
+        private static volatile int minPriorityGlobal = 0;
+        private static volatile int nRequestsInTransit = 0;
 
         #endregion
         private static volatile Object obj = new Object();
@@ -220,6 +222,7 @@ namespace MyBackup
                 {
                     CountPerState[SENT]++;
                     CountPerState[QUEUED]--;
+                    nRequestsInTransit++;
                 }
                 State = SENT;
                 Save();
@@ -271,6 +274,7 @@ namespace MyBackup
         /// </summary>
         public static void InitialRequests(int MinPriority)
         {
+            minPriorityGlobal = MinPriority;
             // Update old requests for retry
             if (!DBLayer.QueueRetryUpdate())
             {
@@ -278,7 +282,7 @@ namespace MyBackup
             }
             string error;
             int[] stateArray;
-            if ( DBLayer.GetNRequestsPerState(MinPriority, out stateArray,  out error) )
+            if ( DBLayer.GetNRequestsPerState(minPriorityGlobal, out stateArray,  out error) )
             {
                 CountPerState = stateArray;
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
@@ -289,6 +293,7 @@ namespace MyBackup
                 }
                 else
                 {
+                    // TODO: Check if backup already exists, then leave it working
                     DBLayer.StartBackup();
                     // TODO: Modularize the priority/decide if send
                     AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
@@ -296,7 +301,7 @@ namespace MyBackup
                         ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
                     apiReq.Priority = 999;
                     apiReq.Queue();
-                    if ( apiReq.Priority >= MinPriority )
+                    if ( apiReq.Priority >= minPriorityGlobal )
                         apiReq.Send();
                     apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
                     apiReq.Priority = 999;
@@ -305,32 +310,37 @@ namespace MyBackup
                     apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
                     apiReq.Priority = 999;
                     apiReq.Queue();
-                    if (apiReq.Priority >= MinPriority)
+                    if (apiReq.Priority >= minPriorityGlobal)
                         apiReq.Send();
                     apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
                     apiReq.Priority = 999;
                     apiReq.Queue();
-                    if (apiReq.Priority >= MinPriority)
+                    if (apiReq.Priority >= minPriorityGlobal)
+                        apiReq.Send();
+                    apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                    apiReq.Priority = 999;
+                    apiReq.Queue();
+                    if (apiReq.Priority >= minPriorityGlobal)
                         apiReq.Send();
                     apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
                     apiReq.Priority = 999;
                     apiReq.Queue();
-                    if (apiReq.Priority >= MinPriority)
+                    if (apiReq.Priority >= minPriorityGlobal)
                         apiReq.Send();
                     apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
                     apiReq.Priority = 500;
                     apiReq.Queue();
-                    if (apiReq.Priority >= MinPriority)
+                    if (apiReq.Priority >= minPriorityGlobal)
                         apiReq.Send();
                     apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
                     apiReq.Priority = 500;
                     apiReq.Queue();
-                    if (apiReq.Priority >= MinPriority)
+                    if (apiReq.Priority >= minPriorityGlobal)
                         apiReq.Send();
                     apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
                     apiReq.Priority = 500;
                     apiReq.Queue();
-                    if (apiReq.Priority >= MinPriority)
+                    if (apiReq.Priority >= minPriorityGlobal)
                         apiReq.Send();
                 }
             }
@@ -341,14 +351,17 @@ namespace MyBackup
         /// </summary>
         public static void PendingRequests(int MinPriority, out string ErrorMessage)
         {
+            minPriorityGlobal = MinPriority;
             ErrorMessage = "";
             // Get top queued requests
             // TODO: Check formula now that received could stay for long
             int ConcurrentRequestLimit = 25;
-            if (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests < ConcurrentRequestLimit)
+            //if (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests < ConcurrentRequestLimit)
+            if ( nRequestsInTransit < ConcurrentRequestLimit )
             {
-                ConcurrentRequestLimit -= CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests;
-                ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit, AsyncReqQueue.QUEUED, out ErrorMessage, MinPriority);
+                //ConcurrentRequestLimit -= CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests;
+                //ConcurrentRequestLimit -= nRequestsInTransit;
+                ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.QUEUED, out ErrorMessage, minPriorityGlobal);
                 // Assigning callback appropriately
                 if (ErrorMessage != "")
                 {
@@ -358,7 +371,7 @@ namespace MyBackup
                 ErrorMessage = "Queued Requests to send: " + queueReq.Count + "\n";
                 if (queueReq.Count == 0)
                 {
-                    queueReq = DBLayer.GetRequests(ConcurrentRequestLimit, AsyncReqQueue.RETRY, out ErrorMessage, MinPriority);
+                    queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.RETRY, out ErrorMessage, minPriorityGlobal);
                     if (ErrorMessage != "")
                     {
                         System.Windows.Forms.MessageBox.Show("Error getting retry requests: " + ErrorMessage);
@@ -393,6 +406,10 @@ namespace MyBackup
                                 apiReq.methodToCall = ProcessInbox;
                                 break;
                                 // TODO: Consolidate
+                            case "FBNotes":
+                                apiReq.methodToCall = ProcessNotes;
+                                break;
+                            // TODO: Consolidate
                             case "FBFriends":
                                 apiReq.methodToCall = ProcessFriends;
                                 break;
@@ -439,14 +456,15 @@ namespace MyBackup
                         }
                         ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
                         // TODO: verify, this should be redundant since the query already filters
-                        if ( apiReq.Priority >= MinPriority )
+                        if ( apiReq.Priority >= minPriorityGlobal )
                             apiReq.Send();
                     } // if
                 } // foreach
             } // if not too many requests pending...
             else
             {
-                ErrorMessage = "Waiting for " + (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests) + " to be responded before sending more...";
+                //ErrorMessage = "Waiting for " + (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests) + " to be responded before sending more...";
+                ErrorMessage = "Waiting for " + ConcurrentRequestLimit;
             }
         }
 
@@ -493,6 +511,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessFriendPic(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             string errorData = "";
             nNotParsedRequests++;
             //System.Windows.Forms.MessageBox.Show("Processing Pic: " + result );
@@ -526,6 +545,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessFriends(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             if (!result)
             {
                 // System.Windows.Forms.MessageBox.Show("Processing friends (false): " + response );
@@ -589,6 +609,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessWall(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             //System.Windows.Forms.MessageBox.Show("Processing wall: " + response );
             if (!result)
             {
@@ -627,7 +648,8 @@ namespace MyBackup
                     //System.Windows.Forms.MessageBox.Show("Wall next: " + wall.Next);
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
                     // TODO: Check priority depending on own wall or friend wall
-                    apiReq.Priority = 999;
+                    // Alternative: Next always is the lower priority depending on backup profile
+                    apiReq.Priority = minPriorityGlobal;
                     apiReq.Queue();
                 }
             }
@@ -644,6 +666,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessOneFriend(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             if (result)
             {
                 CountPerState[RECEIVED]++;
@@ -668,7 +691,6 @@ namespace MyBackup
             return false;
         }
 
-
         /// <summary>
         /// process a round of messages
         /// </summary>
@@ -679,6 +701,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessInbox(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             //System.Windows.Forms.MessageBox.Show("Processing inbox: " + response );
             if (!result)
             {
@@ -704,12 +727,59 @@ namespace MyBackup
                 if (inbox.Next != null)
                 {
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, SIZETOGETPERPAGE, ProcessInbox);
-                    apiReq.Priority = 999;
+                    // Alternative: Next always is the lower priority depending on backup profile
+                    apiReq.Priority = minPriorityGlobal;
                     apiReq.Queue();
                 }
 
             }
             return GenericProcess(hwnd, result, response, inbox, false);
+        }
+
+        /// <summary>
+        /// process a round of notes
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        // TODO: Consolidate with ProcessInbox and similar routines
+        public static bool ProcessNotes(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            //System.Windows.Forms.MessageBox.Show("Processing inbox: " + response );
+            if (!result)
+            {
+                //System.Windows.Forms.MessageBox.Show("Processing inbox (false): " + response );
+            }
+            FBCollection notes = null;
+            if (result)
+            {
+                notes = new FBCollection(response, "FBNote");
+                notes.Parse();
+                CountPerState[PARSED]++;
+
+                string error;
+                notes.Save(out error);
+                nMessages += notes.CurrentNumber;
+
+                if (error != "")
+                {
+                    //System.Windows.Forms.MessageBox.Show("Error saving inbox " + error );
+                    return false;
+                }
+
+                if (notes.Next != null)
+                {
+                    AsyncReqQueue apiReq = FBAPI.MoreData("FBNotes", notes.Next, SIZETOGETPERPAGE, ProcessInbox);
+                    // Alternative: Next always is the lower priority depending on backup profile
+                    apiReq.Priority = minPriorityGlobal;
+                    apiReq.Queue();
+                }
+
+            }
+            return GenericProcess(hwnd, result, response, notes, false);
         }
 
         /// <summary>
@@ -722,6 +792,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessAlbums(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             if (!result)
             {
                 //System.Windows.Forms.MessageBox.Show("Processing albums (false): " + response );
@@ -764,7 +835,8 @@ namespace MyBackup
                     //System.Windows.Forms.MessageBox.Show("Albums next: " + albums.Next);
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBAlbums", albums.Next, SIZETOGETPERPAGE, ProcessAlbums);
                     // TODO: Check if they are my albums or friend's
-                    apiReq.Priority = 500;
+                    // Alternative: Next always is the lower priority depending on backup profile
+                    apiReq.Priority = minPriorityGlobal;
                     apiReq.Queue();
                 }
             }
@@ -781,6 +853,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessPhotosInAlbum(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             if (!result)
             {
                 //System.Windows.Forms.MessageBox.Show("Processing photos (false): " + response );
@@ -842,6 +915,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessPhoto(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             string errorData = "";
             nNotParsedRequests++;
             // System.Windows.Forms.MessageBox.Show("Processing Photo parentID: " + parent + "\n" + result );
@@ -865,6 +939,7 @@ namespace MyBackup
 
         public static bool ProcessActions(int hwnd, bool result, string response, int verb, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             string errorData = "";
             //System.Windows.Forms.MessageBox.Show("Processing likes result: " + parent + "\n" + response );
 
@@ -933,6 +1008,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessEvents(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             string errorData = "";
             //System.Windows.Forms.MessageBox.Show("Processing events result: " + result + "\n" + response );
 
@@ -969,6 +1045,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessOneEvent(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             string errorData = "";
             //System.Windows.Forms.MessageBox.Show("Processing events result: " + result + "\n" + response );
 
@@ -1009,6 +1086,7 @@ namespace MyBackup
         /// <returns></returns>
         public static bool ProcessFriendLists(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             string errorData = "";
             //System.Windows.Forms.MessageBox.Show("Processing friendlists result: " + result + "\n" + response );
 
@@ -1044,6 +1122,7 @@ namespace MyBackup
         /// <returns></returns>        
         public static bool ProcessList(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             // TODO: Consolidate with ProcessFriends, maybe with an empty name or with the default name All Friends
             string errorData = "";
             //System.Windows.Forms.MessageBox.Show("Processing friendlist result: " + result + "\n" + response);
@@ -1072,6 +1151,7 @@ namespace MyBackup
         /// <returns></returns>        
         public static bool ProcessNotifications(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            nRequestsInTransit--;
             string errorData = "";
             //System.Windows.Forms.MessageBox.Show("Processing notifications result: " + result + "\n" + response);
 

@@ -568,7 +568,12 @@ namespace MyBackup
                     ReferenceTable = 11;
                     Field = "NotificationID";
                     break;
+                case "NoteData":
+                    ReferenceTable = 12;
+                    Field = "NoteID";
+                    break;
                 default:
+                    // TODO: message box for easier diagnostic when not in final production
                     throw new Exception("Invalid table for DataSave: " + Table);
             }
             return ReferenceTable;
@@ -1095,6 +1100,16 @@ namespace MyBackup
             DateTime? Created, DateTime? Updated, string ParentID,
             out bool Saved, out string ErrorMessage)
         {
+            NoteDataSave(PartitionDate, PartitionID, FromID, FromName, FromEmail, ToID, ToName, ToEmail,
+                    Message, Subject, null, Created, Updated, ParentID, "MessageData", out Saved, out ErrorMessage);
+        }
+
+        public static void NoteDataSave(decimal PartitionDate, int PartitionID,
+            string FromID, string FromName, string FromEmail, string ToID, string ToName, string ToEmail,
+            string Message, string Subject, string Icon,
+            DateTime? Created, DateTime? Updated, string ParentID, string Table,
+            out bool Saved, out string ErrorMessage)
+        {
             ErrorMessage = "";
             Saved = false;
 
@@ -1104,7 +1119,7 @@ namespace MyBackup
                 {
                     GetConn();
                     // update
-                    string SQL = "Update MessageData set LastUpdate=?";
+                    string SQL = "Update " + Table + " set LastUpdate=?";
                     SQLiteParameter pLU = new SQLiteParameter();
                     SQLiteParameter pFromID = new SQLiteParameter();
                     SQLiteParameter pFromName = new SQLiteParameter();
@@ -1114,6 +1129,7 @@ namespace MyBackup
                     SQLiteParameter pToEmail = new SQLiteParameter();
                     SQLiteParameter pMessage = new SQLiteParameter();
                     SQLiteParameter pSubject = new SQLiteParameter();
+                    SQLiteParameter pIcon = new SQLiteParameter();
                     SQLiteParameter pCreated = new SQLiteParameter();
                     SQLiteParameter pUpdated = new SQLiteParameter();
                     SQLiteParameter pParentID = new SQLiteParameter();
@@ -1127,6 +1143,7 @@ namespace MyBackup
                     pToEmail.Value = ToEmail;
                     pMessage.Value = Message;
                     pSubject.Value = Subject;
+                    pIcon.Value = Icon;
                     pCreated.Value = Created;
                     pUpdated.Value = Updated;
                     pParentID.Value = ParentID;
@@ -1139,6 +1156,7 @@ namespace MyBackup
                     if (ToEmail != null) SQL += ", ToEmail=?";
                     if (Message != null) SQL += ", Message=?";
                     if (Subject != null) SQL += ", Subject=?";
+                    if (Icon != null) SQL += ", Icon=?";
                     if (Created != null) SQL += ", Created=?";
                     if (Updated != null) SQL += ", Updated=?";
                     if (ParentID != null) SQL += ", ParentID=?";
@@ -1160,6 +1178,7 @@ namespace MyBackup
                     if (ToEmail != null) UpdateCmd.Parameters.Add(pToEmail);
                     if (Message != null) UpdateCmd.Parameters.Add(pMessage);
                     if (Subject != null) UpdateCmd.Parameters.Add(pSubject);
+                    if (Icon != null) UpdateCmd.Parameters.Add(pIcon);
                     if (Created != null) UpdateCmd.Parameters.Add(pCreated);
                     if (Updated != null) UpdateCmd.Parameters.Add(pUpdated);
                     if (ParentID != null) UpdateCmd.Parameters.Add(pParentID);
@@ -1179,7 +1198,7 @@ namespace MyBackup
                 } // try
                 catch (Exception ex)
                 {
-                    ErrorMessage = "Error saving message\n" + ex.ToString();
+                    ErrorMessage = "Error saving message or note (" + Table + ")\n" + ex.ToString();
                     // DEBUG
                     System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }

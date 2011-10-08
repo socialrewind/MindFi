@@ -72,9 +72,9 @@ namespace MyBackup
         #endregion
 
         #region "Internal similar to FBNotification"
-        private ArrayList m_to;
+        protected ArrayList m_to;
         #endregion
-        private ArrayList m_comments;
+        protected ArrayList m_comments;
 
         #endregion
 

@@ -102,6 +102,21 @@ namespace MyBackup
         }
 
         /// <summary>
+        /// Gets notes, by alias
+        /// </summary>
+        /// <param name="Who">Alias of the desired user</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue Notes(string Who, int Limit, CallBack resultCall)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBNotes",
+                FBGraphAPIURL + Who + "/notes",
+                Limit, resultCall);
+            return me;
+        }
+
+        /// <summary>
         /// Gets FB user notifications, by alias
         /// </summary>
         /// <param name="Who">Alias of the desired user</param>

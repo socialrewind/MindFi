@@ -79,6 +79,7 @@
     <Compile Include="DBConfig.cs" />
     <Compile Include="FBAPI.cs" />
     <Compile Include="FBFriendList.cs" />
+    <Compile Include="FBNote.cs" />
     <Compile Include="FBNotification.cs" />
     <Compile Include="MyBackupProfile.cs" />
     <Compile Include="frmBrowser.cs">

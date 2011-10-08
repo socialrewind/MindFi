@@ -312,6 +312,11 @@ namespace MyBackup
                     apiReq.Queue();
                     if (apiReq.Priority >= MinPriority)
                         apiReq.Send();
+                    apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                    apiReq.Priority = 999;
+                    apiReq.Queue();
+                    if (apiReq.Priority >= MinPriority)
+                        apiReq.Send();
                     apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
                     apiReq.Priority = 500;
                     apiReq.Queue();
@@ -424,6 +429,9 @@ namespace MyBackup
                                 break;
                             case "FBEvent":
                                 apiReq.methodToCall = ProcessOneEvent;
+                                break;
+                            case "FBNotifications":
+                                apiReq.methodToCall = ProcessNotifications;
                                 break;
                             default:
                                 System.Windows.Forms.MessageBox.Show("Unsupported request type: " + apiReq.ReqType);
@@ -553,7 +561,7 @@ namespace MyBackup
                     apiReq = FBAPI.ProfilePic(item.SNID,
                     ProfilePhotoDestinationDir + item.SNID + ".jpg",
                     ProcessFriendPic, item.ID, item.SNID);
-                    apiReq.Priority = 999;
+                    apiReq.Priority = 750;
                     apiReq.Queue();                    
                     apiReq = FBAPI.Wall(item.SNID, SIZETOGETPERPAGE, ProcessWall);
                     apiReq.Priority = 400;
@@ -1048,6 +1056,32 @@ namespace MyBackup
                 CountPerState[PARSED]++;
                 friends.Save(out errorData);
                 // save the list and association
+                if (errorData == "") return true;
+            }
+            nFailedRequests++;
+            return false;
+        }
+
+        /// <summary>
+        /// Process user Notifications
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>        
+        public static bool ProcessNotifications(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            string errorData = "";
+            //System.Windows.Forms.MessageBox.Show("Processing notifications result: " + result + "\n" + response);
+
+            if (result)
+            {
+                CountPerState[RECEIVED]++;
+                FBCollection notifications = new FBCollection(response, "FBNotification", parent, parentSNID);
+                notifications.Parse();
+                CountPerState[PARSED]++;
+                notifications.Save(out errorData);
                 if (errorData == "") return true;
             }
             nFailedRequests++;

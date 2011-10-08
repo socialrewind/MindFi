@@ -564,6 +564,10 @@ namespace MyBackup
                     ReferenceTable = 10;
                     Field = "EventID";
                     break;
+                case "NotificationData":
+                    ReferenceTable = 11;
+                    Field = "NotificationID";
+                    break;
                 default:
                     throw new Exception("Invalid table for DataSave: " + Table);
             }
@@ -1156,6 +1160,112 @@ namespace MyBackup
                     if (ToEmail != null) UpdateCmd.Parameters.Add(pToEmail);
                     if (Message != null) UpdateCmd.Parameters.Add(pMessage);
                     if (Subject != null) UpdateCmd.Parameters.Add(pSubject);
+                    if (Created != null) UpdateCmd.Parameters.Add(pCreated);
+                    if (Updated != null) UpdateCmd.Parameters.Add(pUpdated);
+                    if (ParentID != null) UpdateCmd.Parameters.Add(pParentID);
+
+                    UpdateCmd.Parameters.Add(pPartitionDate);
+                    UpdateCmd.Parameters.Add(pPartitionID);
+
+                    int outrows = UpdateCmd.ExecuteNonQuery();
+                    // DEBUG
+                    //System.Windows.Forms.MessageBox.Show("SQL: " + SQL);
+                    //System.Windows.Forms.MessageBox.Show("saved " + outrows + " messages");
+                    if (outrows > 0)
+                    {
+                        Saved = true;
+                    }
+                    ErrorMessage = "";
+                } // try
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error saving message\n" + ex.ToString();
+                    // DEBUG
+                    System.Windows.Forms.MessageBox.Show(ErrorMessage);
+                }
+            } // lock
+            return;
+        }
+
+        public static void NotificationDataSave(decimal PartitionDate, int PartitionID,
+            string FromID, string FromName, string FromEmail, string ToID, string ToName, string ToEmail,
+            string Title, string Link, string AppName, int Unread,
+            DateTime? Created, DateTime? Updated, string ParentID,
+            out bool Saved, out string ErrorMessage)
+        {
+            ErrorMessage = "";
+            Saved = false;
+
+            lock (obj)
+            {
+                try
+                {
+                    GetConn();
+                    // update
+                    string SQL = "Update NotificationData set LastUpdate=?";
+                    SQLiteParameter pLU = new SQLiteParameter();
+                    SQLiteParameter pFromID = new SQLiteParameter();
+                    SQLiteParameter pFromName = new SQLiteParameter();
+                    SQLiteParameter pFromEmail = new SQLiteParameter();
+                    SQLiteParameter pToID = new SQLiteParameter();
+                    SQLiteParameter pToName = new SQLiteParameter();
+                    SQLiteParameter pToEmail = new SQLiteParameter();
+                    SQLiteParameter pTitle = new SQLiteParameter();
+                    SQLiteParameter pLink = new SQLiteParameter();
+                    SQLiteParameter pAppName = new SQLiteParameter();
+                    SQLiteParameter pUnread = new SQLiteParameter();
+                    SQLiteParameter pCreated = new SQLiteParameter();
+                    SQLiteParameter pUpdated = new SQLiteParameter();
+                    SQLiteParameter pParentID = new SQLiteParameter();
+
+                    pLU.Value = DateTime.Now;
+                    pFromID.Value = FromID;
+                    pFromName.Value = FromName;
+                    pFromEmail.Value = FromEmail;
+                    pToID.Value = ToID;
+                    pToName.Value = ToName;
+                    pToEmail.Value = ToEmail;
+                    pTitle.Value = Title;
+                    pLink.Value = Link;
+                    pAppName.Value = AppName;
+                    pUnread.Value = Unread;
+                    pCreated.Value = Created;
+                    pUpdated.Value = Updated;
+                    pParentID.Value = ParentID;
+
+                    if (FromID != null) SQL += ", FromID=?";
+                    if (FromName != null) SQL += ", FromName=?";
+                    if (FromEmail != null) SQL += ", FromEmail=?";
+                    if (ToID != null) SQL += ", ToID=?";
+                    if (ToName != null) SQL += ", ToName=?";
+                    if (ToEmail != null) SQL += ", ToEmail=?";
+                    if (Title != null) SQL += ", Title=?";
+                    if (Link != null) SQL += ", Link=?";
+                    if (AppName != null) SQL += ", AppName=?";
+                    if (Unread != null) SQL += ", Unread =?";
+                    if (Created != null) SQL += ", Created=?";
+                    if (Updated != null) SQL += ", Updated=?";
+                    if (ParentID != null) SQL += ", ParentID=?";
+
+                    SQL += " where PartitionDate=? and PartitionID=?";
+                    SQLiteParameter pPartitionDate = new SQLiteParameter();
+                    pPartitionDate.Value = PartitionDate;
+                    SQLiteParameter pPartitionID = new SQLiteParameter();
+                    pPartitionID.Value = PartitionID;
+
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+
+                    UpdateCmd.Parameters.Add(pLU);
+                    if (FromID != null) UpdateCmd.Parameters.Add(pFromID);
+                    if (FromName != null) UpdateCmd.Parameters.Add(pFromName);
+                    if (FromEmail != null) UpdateCmd.Parameters.Add(pFromEmail);
+                    if (ToID != null) UpdateCmd.Parameters.Add(pToID);
+                    if (ToName != null) UpdateCmd.Parameters.Add(pToName);
+                    if (ToEmail != null) UpdateCmd.Parameters.Add(pToEmail);
+                    if (Title != null) UpdateCmd.Parameters.Add(pTitle);
+                    if (Link != null) UpdateCmd.Parameters.Add(pLink);
+                    if (AppName != null) UpdateCmd.Parameters.Add(pAppName);
+                    if (Unread != null) UpdateCmd.Parameters.Add(pUnread);
                     if (Created != null) UpdateCmd.Parameters.Add(pCreated);
                     if (Updated != null) UpdateCmd.Parameters.Add(pUpdated);
                     if (ParentID != null) UpdateCmd.Parameters.Add(pParentID);

@@ -612,8 +612,10 @@ namespace MyBackup
                     switch (ChildrenType)
                     {
                         case "FBMessage":
-                            //System.Windows.Forms.MessageBox.Show("message: " + nChildren + " at position " + temp.currentPosition );
                             item = new FBMessage(temp, this);
+                            break;
+                        case "FBNotification":
+                            item = new FBNotification(temp, this);
                             break;
                         case "FBWork":
                             item = new FBWork(temp, this);

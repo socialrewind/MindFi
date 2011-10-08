@@ -31,6 +31,7 @@ namespace MyBackup
         {
             LoadDB();
             lblStatus.Text = "Select your social network and login on it to configure the account";
+            DoLogin();
         }
 
         private void LoadDB()
@@ -110,6 +111,11 @@ namespace MyBackup
         }
 
         private void btnLoginSN_Click(object sender, EventArgs e)
+        {
+            DoLogin();
+        }
+
+        private void DoLogin()
         {
             txtURL.Text = "";
             txtAlias.Text = "";

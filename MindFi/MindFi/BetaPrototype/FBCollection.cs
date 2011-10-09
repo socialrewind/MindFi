@@ -47,6 +47,7 @@ namespace MyBackup
         /// Number of elements that have been saved, useful for async progress when calling Save
         /// </summary>
         public int CurrentlySaved { get; set; }
+        public string ParentSNID { get { return parentSNID; } }
         #endregion
 
         #region "Methods"

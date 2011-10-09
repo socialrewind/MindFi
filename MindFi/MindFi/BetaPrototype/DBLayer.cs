@@ -763,7 +763,7 @@ namespace MyBackup
             int Distance, string ProfilePic, string Link,
             string FirstName, string MiddleName, string LastName,
             string FullBirthday, string UserName, string Gender, string Locale,
-            string RelStatus,
+            string RelStatus, string Religion, string Political, 
             int? UserTimeZone, string About, string Bio, string Quotes, string Verified,
             DateTime? Updated,
             out bool Saved, out string ErrorMessage)
@@ -809,6 +809,8 @@ namespace MyBackup
                     SQLiteParameter pGender = new SQLiteParameter();
                     SQLiteParameter pLocale = new SQLiteParameter();
                     SQLiteParameter pRelStatus = new SQLiteParameter();
+                    SQLiteParameter pReligion = new SQLiteParameter();
+                    SQLiteParameter pPolitical = new SQLiteParameter();
                     SQLiteParameter pUserTimeZone = new SQLiteParameter();
                     SQLiteParameter pAbout = new SQLiteParameter();
                     SQLiteParameter pBio = new SQLiteParameter();
@@ -829,6 +831,8 @@ namespace MyBackup
                     pGender.Value = Gender;
                     pLocale.Value = Locale;
                     pRelStatus.Value = RelStatus;
+                    pReligion.Value = Religion;
+                    pPolitical.Value = Political;
                     pUserTimeZone.Value = UserTimeZone;
                     pAbout.Value = About;
                     pBio.Value = Bio;
@@ -850,6 +854,8 @@ namespace MyBackup
                     if (Gender != null) SQL += ", Gender=?";
                     if (Locale != null) SQL += ", Locale=?";
                     if (RelStatus != null) SQL += ", RelationshipStatus=?";
+                    if (Religion != null) SQL += ", Religion=?";
+                    if (Political != null) SQL += ", Political=?";
                     if (UserTimeZone != null) SQL += ", UserTimeZone=?";
                     if (About != null) SQL += ", About=?";
                     if (Bio != null) SQL += ", Bio=?";
@@ -881,6 +887,8 @@ namespace MyBackup
                     if (Gender != null) UpdateCmd.Parameters.Add(pGender);
                     if (Locale != null) UpdateCmd.Parameters.Add(pLocale);
                     if (RelStatus != null) UpdateCmd.Parameters.Add(pRelStatus);
+                    if (Religion != null) UpdateCmd.Parameters.Add(pReligion);
+                    if (Political != null) UpdateCmd.Parameters.Add(pPolitical);
                     if (UserTimeZone != null) UpdateCmd.Parameters.Add(pUserTimeZone);
                     if (About != null) UpdateCmd.Parameters.Add(pAbout);
                     if (Bio != null) UpdateCmd.Parameters.Add(pBio);
@@ -1908,7 +1916,8 @@ namespace MyBackup
         public static void ActionDataSave(
             string WhoSNID, string WhatSNID,
             int Verb,
-            out bool Saved, out string ErrorMessage)
+            out bool Saved, out string ErrorMessage,
+            string Adverb=null)
         {
             decimal PartitionDate;
             int PartitionID = -1;
@@ -1980,9 +1989,9 @@ namespace MyBackup
                         FreeIDCmd.Parameters.Add(pRefTable);
                         FreeIDCmd.ExecuteNonQuery();
 
-                        SQL = "Insert into ActionData (SocialNetwork, WhoSNID, WhatSNID, ActionID, Active, "
+                        SQL = "Insert into ActionData (SocialNetwork, WhoSNID, WhatSNID, ActionID, Adverb, Active, "
                             + "LastUpdate, PartitionDate, PartitionID)"
-                            + " values (?,?,?,?,1,?,?,?)";
+                            + " values (?,?,?,?,?,1,?,?,?)";
                         SQLiteParameter pLU = new SQLiteParameter();
                         SQLiteParameter pPartitionDate = new SQLiteParameter();
                         SQLiteParameter pPartitionID = new SQLiteParameter();
@@ -1997,6 +2006,9 @@ namespace MyBackup
                         UpdateCmd.Parameters.Add(pWhoSNID);
                         UpdateCmd.Parameters.Add(pWhatSNID);
                         UpdateCmd.Parameters.Add(pVerb);
+                        SQLiteParameter pAdverb = new SQLiteParameter();
+                        pAdverb.Value = Adverb;
+                        UpdateCmd.Parameters.Add(pAdverb);
                         UpdateCmd.Parameters.Add(pLU);
                         UpdateCmd.Parameters.Add(pPartitionDate);
                         UpdateCmd.Parameters.Add(pPartitionID);

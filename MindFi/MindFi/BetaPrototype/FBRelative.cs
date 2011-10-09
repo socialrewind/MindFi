@@ -56,13 +56,24 @@ namespace MyBackup
             int RelPartitionID;
             string error = "";
             int tempID = -1;
-            if (parent != null)
-                tempID = parent.ID;
-            DBLayer.RelationSave(this.ID, Verb.RELATIVEOF, tempID, 
-                Relationship, null,
-                null, null,
-                out RelPartitionDate, out RelPartitionID,
-                out Saved, out error);
+            // TODO: Check if ParentSNID 
+            FBCollection myparent = parent as FBCollection;
+            if ( myparent != null)
+            {
+                // TODO: how to get the ID for the current User in a safer, less cohesive way
+                DBLayer.ActionDataSave(this.SNID, myparent.ParentSNID, Verb.RELATIVEOF, out Saved, out error, Relationship);
+            }
+                /*
+            else
+            {
+                // TODO: how to get the ID for the current User
+                DBLayer.RelationSave(this.ID, Verb.RELATIVEOF, tempID, 
+                    Relationship, null,
+                    null, null,
+                    out RelPartitionDate, out RelPartitionID,
+                    out Saved, out error);
+            }
+                 * */
             ErrorMessage += error;
         }
 

@@ -306,7 +306,7 @@ namespace MyBackup
             switch (currentProfile.currentBackupLevel)
             {
                 case MyBackupProfile.BASIC:
-                    MinPriority = 999;
+                    MinPriority = 750;
                     break;
                 case MyBackupProfile.EXTENDED:
                     MinPriority = 150;

@@ -213,10 +213,11 @@ namespace MyBackup
             {
                 Saved = false;
                 DBLayer.PersonDataSave(MyPartitionDate, MyPartitionID,
-                Distance, ProfilePic, Link, FirstName, MiddleName, LastName,
-                FullBirthday, UserName, Gender, Locale, RelationshipStatus, UserTimeZone,
-                About, Bio, Quotes, Verified, Updated,
-                out Saved, out ErrorMessage);
+                    Distance, ProfilePic, Link, FirstName, MiddleName, LastName,
+                    FullBirthday, UserName, Gender, Locale, RelationshipStatus, 
+                    Religion, Political, UserTimeZone, About, Bio, Quotes, 
+                    Verified, Updated,
+                    out Saved, out ErrorMessage);
                 if (Education != null)
                 {
                     foreach (FBEducation school in Education)

@@ -583,13 +583,16 @@ namespace MyBackup
                     nFriends++;
                     AsyncReqQueue apiReq;
                     apiReq = FBAPI.Profile(item.SNID, ProcessOneFriend);
-                    apiReq.Priority = 400;
+                    apiReq.Priority = 750;
                     apiReq.Queue();
                     apiReq = FBAPI.ProfilePic(item.SNID,
                     ProfilePhotoDestinationDir + item.SNID + ".jpg",
                     ProcessFriendPic, item.ID, item.SNID);
                     apiReq.Priority = 750;
-                    apiReq.Queue();                    
+                    apiReq.Queue();
+                    apiReq = FBAPI.Family(item.SNID, SIZETOGETPERPAGE, ProcessFamily);
+                    apiReq.Priority = 400;
+                    apiReq.Queue();
                     apiReq = FBAPI.Wall(item.SNID, SIZETOGETPERPAGE, ProcessWall);
                     apiReq.Priority = 400;
                     apiReq.Queue();
@@ -1171,7 +1174,7 @@ namespace MyBackup
                 family.Parse();
                 CountPerState[PARSED]++;
                 family.Save(out errorData);
-                // save the list and association
+                // TODO: Check if there are more data to process
                 if (errorData == "") return true;
             }
             nFailedRequests++;

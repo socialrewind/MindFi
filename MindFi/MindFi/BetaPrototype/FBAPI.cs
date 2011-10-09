@@ -51,7 +51,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBFamily",
                 FBGraphAPIURL + SNID + "/family", Limit,
-                resultCall);
+                resultCall, true, null, SNID);
             return me;
         }
 
@@ -509,10 +509,14 @@ namespace MyBackup
                     {
                         state.resultCall(0, false, "\n" + ex.ToString() + "\nRequest: " + state.request.RequestUri.ToString(), state.parentID, state.parentSNID);
                     }
+                    else
+                    {
+                        System.Windows.Forms.MessageBox.Show("Error when processing request (with no callback) " + state.ID + "\n" + ex.ToString());
+                    }
                 }
                 else
                 {
-                    System.Windows.Forms.MessageBox.Show("don't have a callblack for ID: " + state.ID + "\nParent: " + state.parentID + "\nResponse: " + responseString);
+                    System.Windows.Forms.MessageBox.Show("Error when processing request " + state.ID + "\n" + ex.ToString());
                 }
             }
         }

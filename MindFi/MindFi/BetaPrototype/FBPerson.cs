@@ -106,44 +106,11 @@ namespace MyBackup
         /// Religion the user declares in the social network
         /// </summary>
         public string Religion { get; set; }
-        /*
-        /// <summary>
-        /// Other interest: sports
-        /// </summary>
-        public string SportsID { get; set; }
-        /// <summary>
-        /// Other interest: sports
-        /// </summary>
-        public string SportsName { get; set; }
-        /// <summary>
-        /// Other interest: favorite teams
-        /// </summary>
-        public string FavoriteTeamsID { get; set; }
-        /// <summary>
-        /// Other interest: favorite teams
-        /// </summary>
-        public string FavoriteTeamsName { get; set; }
-        /// <summary>
-        /// Other interest: favorite athletes
-        /// </summary>
-        public string FavoriteAthletesID { get; set; }
-        /// <summary>
-        /// Other interest: favorite athletes
-        /// </summary>
-        public string FavoriteAthletesName { get; set; }
-        /// <summary>
-        /// Other interest: inspirational people
-        /// </summary>
-        public string InspirationalPeopleID { get; set; }
-        /// <summary>
-        /// Other interest: inspirational people
-        /// </summary>
-        public string InspirationalPeopleName { get; set; }
-         * */
         /// <summary>
         /// Relationship status for the user in the social network
         /// </summary>
         public string RelationshipStatus { get; set; }
+        /*
         /// <summary>
         /// ID of the significant other
         /// </summary>
@@ -152,6 +119,8 @@ namespace MyBackup
         /// Name of the significant other
         /// </summary>
         public string SignificantOtherName { get; set; }
+         */
+        public FBObject SignificantOther { get; set; }
         /// <summary>
         /// User's personal website
         /// </summary>
@@ -297,6 +266,22 @@ namespace MyBackup
                         out Saved, out error);
                     ErrorMessage += error;
                 }
+                if (SignificantOther != null)
+                {
+                    string error;
+                    decimal SOPartitionDate;
+                    int SOPartitionID;
+
+                    SignificantOther.Save(out error);
+                    ErrorMessage += error;
+                    DBLayer.RelationSave(this.ID, Verb.SIGNIFICANTOTHERWITH, SignificantOther.ID,
+                        RelationshipStatus, null,
+                        null, null,
+                        out SOPartitionDate, out SOPartitionID,
+                        out Saved, out error);
+
+                    ErrorMessage += error;
+                }
 
             }
             else
@@ -340,7 +325,14 @@ namespace MyBackup
                             LocationID += value + ";";
                             break;
                         case "significant_other":
-                            SignificantOtherID = value;
+                            if (SignificantOther == null)
+                            {
+                                SignificantOther = new FBObject(value, "");
+                            }
+                            else
+                            {
+                                SignificantOther.SNID = value;
+                            }
                             break;
                         default:
                             base.AssignValue(name, value);
@@ -357,7 +349,14 @@ namespace MyBackup
                             LocationName += value + ";";
                             break;
                         case "significant_other":
-                            SignificantOtherName = value;
+                            if (SignificantOther == null)
+                            {
+                                SignificantOther = new FBObject("", value);
+                            }
+                            else
+                            {
+                                SignificantOther.Name = value;
+                            }
                             break;
                         default:
                             base.AssignValue(name, value);
@@ -423,7 +422,14 @@ namespace MyBackup
                     LocationID += value + ";";
                     break;
                 case "significant_other":
-                    SignificantOtherName = value;
+                    if (SignificantOther == null)
+                    {
+                        SignificantOther = new FBObject("", value);
+                    }
+                    else
+                    {
+                        SignificantOther.Name = value;
+                    }
                     break;
                 case "interested_in":
                     InterestedIn = value;

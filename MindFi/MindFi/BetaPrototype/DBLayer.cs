@@ -1261,7 +1261,7 @@ namespace MyBackup
                     if (Title != null) SQL += ", Title=?";
                     if (Link != null) SQL += ", Link=?";
                     if (AppName != null) SQL += ", AppName=?";
-                    if (Unread != null) SQL += ", Unread =?";
+                    SQL += ", Unread =?";
                     if (Created != null) SQL += ", Created=?";
                     if (Updated != null) SQL += ", Updated=?";
                     if (ParentID != null) SQL += ", ParentID=?";
@@ -1284,7 +1284,7 @@ namespace MyBackup
                     if (Title != null) UpdateCmd.Parameters.Add(pTitle);
                     if (Link != null) UpdateCmd.Parameters.Add(pLink);
                     if (AppName != null) UpdateCmd.Parameters.Add(pAppName);
-                    if (Unread != null) UpdateCmd.Parameters.Add(pUnread);
+                    UpdateCmd.Parameters.Add(pUnread);
                     if (Created != null) UpdateCmd.Parameters.Add(pCreated);
                     if (Updated != null) UpdateCmd.Parameters.Add(pUpdated);
                     if (ParentID != null) UpdateCmd.Parameters.Add(pParentID);

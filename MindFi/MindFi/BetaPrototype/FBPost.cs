@@ -125,8 +125,8 @@ namespace MyBackup
 
 	private ArrayList m_comments;
 	private ArrayList m_likes;
-	private ArrayList m_from;
-	private ArrayList m_to;
+	//private ArrayList m_from;
+	//private ArrayList m_to;
 	
         #endregion
 

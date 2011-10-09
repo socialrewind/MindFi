@@ -14,6 +14,7 @@ namespace MyBackup
         #region "Properties"
 
         #region "Standard FB Properties"
+        /*
         /// <summary>
         /// List of friends associated to the friendlist
         /// </summary>
@@ -22,7 +23,7 @@ namespace MyBackup
             get { lock (LockObj) { return m_friends; } }
         }
         private ArrayList m_friends;
-
+        */
         #endregion
 
         #endregion

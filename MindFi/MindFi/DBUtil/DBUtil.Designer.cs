@@ -28,11 +28,8 @@ namespace DBUtil
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.ClientSize = new System.Drawing.Size(640, 480);
-
             this.lblDBName = new System.Windows.Forms.Label();
-	    this.btnBrowse = new System.Windows.Forms.Button();
+            this.btnBrowse = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.lblPwd = new System.Windows.Forms.Label();
             this.txtPwd = new System.Windows.Forms.TextBox();
@@ -41,11 +38,9 @@ namespace DBUtil
             this.btnDoQuery = new System.Windows.Forms.Button();
             this.txtResults = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
-
             // 
             // lblDBName
             // 
-            this.lblDBName.AutoSize = false;
             this.lblDBName.Location = new System.Drawing.Point(16, 16);
             this.lblDBName.Name = "lblDBName";
             this.lblDBName.Size = new System.Drawing.Size(450, 16);
@@ -54,7 +49,6 @@ namespace DBUtil
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Enabled = true;
             this.btnBrowse.Location = new System.Drawing.Point(480, 16);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(288, 24);
@@ -65,7 +59,6 @@ namespace DBUtil
             // 
             // lblPwd
             // 
-            this.lblPwd.AutoSize = false;
             this.lblPwd.Location = new System.Drawing.Point(16, 64);
             this.lblPwd.Name = "lblPwd";
             this.lblPwd.Size = new System.Drawing.Size(64, 16);
@@ -76,14 +69,12 @@ namespace DBUtil
             // 
             this.txtPwd.Location = new System.Drawing.Point(96, 64);
             this.txtPwd.Name = "txtPwd";
+            this.txtPwd.PasswordChar = '*';
             this.txtPwd.Size = new System.Drawing.Size(207, 20);
             this.txtPwd.TabIndex = 2;
-	    this.txtPwd.PasswordChar = '*';
-            // this.txtPwd.TextChanged += new System.EventHandler(this.txtUser_TextChanged);
             // 
             // btnOpenDB
             // 
-            this.btnOpenDB.Enabled = true;
             this.btnOpenDB.Location = new System.Drawing.Point(320, 64);
             this.btnOpenDB.Name = "btnOpenDB";
             this.btnOpenDB.Size = new System.Drawing.Size(288, 24);
@@ -95,14 +86,13 @@ namespace DBUtil
             // txtSQL
             // 
             this.txtSQL.Location = new System.Drawing.Point(96, 112);
+            this.txtSQL.Multiline = true;
             this.txtSQL.Name = "txtSQL";
             this.txtSQL.Size = new System.Drawing.Size(600, 64);
             this.txtSQL.TabIndex = 4;
-	    this.txtSQL.Multiline = true;
             // 
             // btnDoQuery
             // 
-            this.btnDoQuery.Enabled = true;
             this.btnDoQuery.Location = new System.Drawing.Point(96, 196);
             this.btnDoQuery.Name = "btnDoQuery";
             this.btnDoQuery.Size = new System.Drawing.Size(288, 24);
@@ -110,17 +100,18 @@ namespace DBUtil
             this.btnDoQuery.Text = "Query";
             this.btnDoQuery.UseVisualStyleBackColor = true;
             this.btnDoQuery.Click += new System.EventHandler(this.btnDoQuery_Click);
-	    // 
+            // 
             // txtResults
             // 
             this.txtResults.Location = new System.Drawing.Point(96, 228);
+            this.txtResults.Multiline = true;
             this.txtResults.Name = "txtResults";
             this.txtResults.Size = new System.Drawing.Size(600, 300);
             this.txtResults.TabIndex = 6;
-	    this.txtResults.Multiline = true;
-            
-
-	    // DBUtil
+            // 
+            // DBUtil
+            // 
+            this.ClientSize = new System.Drawing.Size(640, 480);
             this.Controls.Add(this.lblDBName);
             this.Controls.Add(this.btnBrowse);
             this.Controls.Add(this.lblPwd);
@@ -131,10 +122,9 @@ namespace DBUtil
             this.Controls.Add(this.txtResults);
             this.Name = "DBUtil";
             this.Text = "DB Util";
-            // this.Load += new System.EventHandler(this.DBUtil_Load);
-
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         private System.Windows.Forms.Label lblDBName;

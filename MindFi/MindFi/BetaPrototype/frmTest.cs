@@ -12,10 +12,10 @@ namespace MyBackup
 {
     public partial class frmTest : Form
     {
-	const string file = "C:\\Users\\Bruno\\Documents\\MyBackupTests\\20110928\\20110928.db";
         const string password = "hola";
-	string connString = "Data Source=" + file + ";Password=" + password;
-		
+        string connString;
+        bool firstTime = true;
+
         string SQL;
         SQLiteCommand command;
         SQLiteConnection conn;
@@ -25,18 +25,22 @@ namespace MyBackup
         public frmTest()
         {
             InitializeComponent();
-            conn = new SQLiteConnection(connString);
         }
 
         private void frmTest_Load(object sender, EventArgs e)
         {
-            conn.Open();
-            DoQuery();
         }
 
         private void DoQuery()
         {
-		// TODO: add state selection
+            if (firstTime)
+            {
+                connString = "Data Source=" + openFileDialog1.FileName + ";Password=" + txtPwd.Text;
+                conn = new SQLiteConnection(connString);
+                conn.Open();
+                firstTime = false;
+            }
+            // TODO: add state selection
             SQL = "select [ID],[RequestType],[ResponseValue] from RequestsQueue";
             command = new SQLiteCommand(SQL, conn);
             reader = command.ExecuteReader();
@@ -50,7 +54,14 @@ namespace MyBackup
         private void FillData()
         {
             lblRecordType.Text = reader.GetString(1);
-            richTextBox1.Text = reader.GetString(2);
+            if ( !reader.IsDBNull(2))
+            {
+                richTextBox1.Text = reader.GetString(2);
+            }
+            else
+            {
+                richTextBox1.Text = "";
+            }
         }
 
         private void frmTest_FormClosed(object sender, FormClosedEventArgs e)
@@ -61,6 +72,10 @@ namespace MyBackup
 
         private void btnGet_Click(object sender, EventArgs e)
         {
+            if (firstTime)
+            {
+                DoQuery();
+            }
             if (reader.Read())
             {
                 FillData();
@@ -97,27 +112,27 @@ namespace MyBackup
                 case "FBPerson":
                     currentRecord = new FBPerson(richTextBox1.Text, 0, null);
                     break;
-		case "FBFriends":
+                case "FBFriends":
                     currentRecord = new FBCollection(richTextBox1.Text, "FBPerson");
-                    break;                
-		case "FBInbox":
+                    break;
+                case "FBInbox":
                     currentRecord = new FBCollection(richTextBox1.Text, "FBMessage");
-                    break;                
-		case "FBWall":
+                    break;
+                case "FBWall":
                     currentRecord = new FBCollection(richTextBox1.Text, "FBPost");
-                    break;                
-		case "FBAlbums":
+                    break;
+                case "FBAlbums":
                     currentRecord = new FBCollection(richTextBox1.Text, "FBAlbum");
-                    break;                
-		case "FBPhotos":
+                    break;
+                case "FBPhotos":
                     currentRecord = new FBCollection(richTextBox1.Text, "FBPhoto");
-                    break;                
-		case "FBLikes":
+                    break;
+                case "FBLikes":
                     currentRecord = new FBLikes(richTextBox1.Text);
-                    break;                
-		case "FBEvents":
+                    break;
+                case "FBEvents":
                     currentRecord = new FBCollection(richTextBox1.Text, "FBEvent");
-                    break;                
+                    break;
             }
 
             if (currentRecord != null)
@@ -127,81 +142,115 @@ namespace MyBackup
             }
         }
 
-/*
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            if (currentRecord != null)
-            {
-                string error = "Disabled";
-                reader.Close();
-                // currentRecord.Save(conn, out error);
-                DoQuery();
-                lblError.Text = "Saved: " + error;
-            }
+        /*
+                private void btnSave_Click(object sender, EventArgs e)
+                {
+                    if (currentRecord != null)
+                    {
+                        string error = "Disabled";
+                        reader.Close();
+                        // currentRecord.Save(conn, out error);
+                        DoQuery();
+                        lblError.Text = "Saved: " + error;
+                    }
 
-        }
-*/
+                }
+        */
 
         private void btnWatch_Click(object sender, EventArgs e)
         {
-	    if ( currentRecord == null )
-		return;
+            if (currentRecord == null)
+                return;
 
-	    string Info = ObjectInfo(currentRecord);
-	    FBCollection children = currentRecord as FBCollection;
-	    if ( children != null )
-	    {
-		foreach (FBObject item in children.items )
-		{
-		    Info += "\nChild: " + FBInfo(item);
-		}
-	    }
-	    MessageBox.Show(Info);
+            string Info = ObjectInfo(currentRecord);
+            FBCollection children = currentRecord as FBCollection;
+            if (children != null)
+            {
+                foreach (FBObject item in children.items)
+                {
+                    Info += "\nChild: " + FBInfo(item);
+                }
+            }
+            MessageBox.Show(Info);
 
         }
 
-	private string ObjectInfo(object obj)
-	{
+        private string ObjectInfo(object obj)
+        {
             FieldInfo[] myFieldInfo;
-	    //Type myType = typeof(currentRecord);
-	    Type myType = obj.GetType();
-	    myFieldInfo = myType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance
-            | BindingFlags.Public);
+            //Type myType = typeof(currentRecord);
+            Type myType = obj.GetType();
+            myFieldInfo = myType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance
+                | BindingFlags.Public);
 
-	    string Info = "";
+            string Info = "";
             Info = "The fields of " + "FieldInfoClass are \n";
 
-	    for(int i = 0; i < myFieldInfo.Length; i++)
-	    {
-		Object valueObj = myFieldInfo[i].GetValue(obj);
-		string value;
-		if ( valueObj != null )
-			value = valueObj.ToString();
-		else
-			value = "";
+            for (int i = 0; i < myFieldInfo.Length; i++)
+            {
+                Object valueObj = myFieldInfo[i].GetValue(obj);
+                string value;
+                if (valueObj != null)
+                    value = valueObj.ToString();
+                else
+                    value = "";
 
-		if ( value != "" )
-		{
-		Info += " Name            : " + myFieldInfo[i].Name;
-/*
-		Info += "Declaring Type  : " + myFieldInfo[i].DeclaringType;
-		Info += "IsPublic        : " + myFieldInfo[i].IsPublic;
-		Info += "MemberType      : " + myFieldInfo[i].MemberType;
-		Info += "FieldType       : " + myFieldInfo[i].FieldType;
-		Info += "IsFamily        : " + myFieldInfo[i].IsFamily;
-*/
-		Info += " Value            : " + value; // myFieldInfo[i].GetValue(obj);
-		}
-	    }
-	    return Info;
-	}
+                if (value != "")
+                {
+                    Info += " Name            : " + myFieldInfo[i].Name;
+                    /*
+                            Info += "Declaring Type  : " + myFieldInfo[i].DeclaringType;
+                            Info += "IsPublic        : " + myFieldInfo[i].IsPublic;
+                            Info += "MemberType      : " + myFieldInfo[i].MemberType;
+                            Info += "FieldType       : " + myFieldInfo[i].FieldType;
+                            Info += "IsFamily        : " + myFieldInfo[i].IsFamily;
+                    */
+                    Info += " Value            : " + value; // myFieldInfo[i].GetValue(obj);
+                }
+            }
+            return Info;
+        }
 
-	private string FBInfo(FBObject obj)
-	{
-		string Info = " - Name: " + obj.Name;
-		Info += " - SNID: " + obj.SNID;
-		return Info;	
-	}
+        private string FBInfo(FBObject obj)
+        {
+            string Info = " - Name: " + obj.Name;
+            Info += " - SNID: " + obj.SNID;
+            return Info;
+        }
+
+        /// <summary>
+        /// User interface for opening an existing database
+        /// </summary>
+        private void btnBrowse_Click(object sender, EventArgs e)
+        {
+            this.openFileDialog1.Title = "Select the name of the existing database";
+            openFileDialog1.Filter = "Database files (*.db)|*.db|All files (*.*)|*.*";
+            openFileDialog1.FilterIndex = 1;
+
+            DialogResult res = this.openFileDialog1.ShowDialog();
+            if (res == DialogResult.Cancel)
+            {
+                return;
+            }
+            lblDBName.Text = openFileDialog1.FileName;
+        }
+
+        /// <summary>
+        /// Establish DB connection
+        /// </summary>
+        private void btnOpenDB_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                conn = new SQLiteConnection("Data Source=" + lblDBName.Text + ";Password=" + txtPwd.Text);
+                conn.Open();
+                this.richTextBox1.Text = "Database opened successfully";
+            }
+            catch (Exception ex)
+            {
+                this.richTextBox1.Text = ex.ToString();
+            }
+        }
 
     }
 }

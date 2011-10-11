@@ -74,7 +74,7 @@ namespace MyBackup
                     out Saved, out ErrorMessage);
                 if (!Saved)
                 {
-                    System.Windows.Forms.MessageBox.Show("didnt save note " + ID + " because of\n" + ErrorMessage);
+                    System.Windows.Forms.MessageBox.Show("didnt save note " + ID + "-" + MyPartitionDate + "-" + MyPartitionID + " because of error\n" + ErrorMessage);
                 }
                 lock (LockObj)
                 {

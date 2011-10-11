@@ -47,6 +47,8 @@ namespace MyBackup
             this.cmbProfiles = new System.Windows.Forms.ComboBox();
             this.cmbFrequency = new System.Windows.Forms.ComboBox();
             this.cmbFrequencyValue = new System.Windows.Forms.ComboBox();
+            this.dateTimeBackupRangeStart = new System.Windows.Forms.DateTimePicker();
+            this.lblBackupStartTime = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // labelSN
@@ -88,7 +90,7 @@ namespace MyBackup
             // btnSave
             // 
             this.btnSave.Enabled = false;
-            this.btnSave.Location = new System.Drawing.Point(48, 264);
+            this.btnSave.Location = new System.Drawing.Point(48, 345);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 9;
@@ -151,11 +153,12 @@ namespace MyBackup
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(13, 312);
+            this.lblStatus.Location = new System.Drawing.Point(13, 393);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(47, 13);
             this.lblStatus.TabIndex = 10;
             this.lblStatus.Text = "lblStatus";
+            this.lblStatus.Click += new System.EventHandler(this.lblStatus_Click);
             // 
             // lblProfiles
             // 
@@ -209,12 +212,30 @@ namespace MyBackup
             this.cmbFrequencyValue.Size = new System.Drawing.Size(32, 21);
             this.cmbFrequencyValue.TabIndex = 7;
             // 
+            // dateTimeBackupRangeStart
+            // 
+            this.dateTimeBackupRangeStart.Location = new System.Drawing.Point(120, 279);
+            this.dateTimeBackupRangeStart.Name = "dateTimeBackupRangeStart";
+            this.dateTimeBackupRangeStart.Size = new System.Drawing.Size(200, 20);
+            this.dateTimeBackupRangeStart.TabIndex = 11;
+            // 
+            // lblBackupStartTime
+            // 
+            this.lblBackupStartTime.AutoSize = true;
+            this.lblBackupStartTime.Location = new System.Drawing.Point(13, 279);
+            this.lblBackupStartTime.Name = "lblBackupStartTime";
+            this.lblBackupStartTime.Size = new System.Drawing.Size(108, 13);
+            this.lblBackupStartTime.TabIndex = 12;
+            this.lblBackupStartTime.Text = "Backup data starting:";
+            // 
             // frmAddAccount
             // 
             this.AcceptButton = this.btnSave;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(640, 480);
+            this.Controls.Add(this.lblBackupStartTime);
+            this.Controls.Add(this.dateTimeBackupRangeStart);
             this.Controls.Add(this.btnLogout);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblProfiles);
@@ -261,6 +282,8 @@ namespace MyBackup
         private System.Windows.Forms.Label lblProfiles;
         private System.Windows.Forms.Label lblFrequency;
         private System.Windows.Forms.Button btnLogout;
+        private System.Windows.Forms.DateTimePicker dateTimeBackupRangeStart;
+        private System.Windows.Forms.Label lblBackupStartTime;
         
     }
 }

@@ -12,8 +12,33 @@ namespace MyBackup
     {
         private const string FBGraphAPIURL = "https://graph.facebook.com/";
         public const int DEFAULT_TIMEOUT = 30000; // 30 sec timeout
+        private static string InitialTime; // +0000 - needs to be encoded before adding the +
+        private static string EndTime;
+        private static volatile Object obj = new Object();
 
         #region "Methods"
+        private static string DateISO8601(DateTime date)
+        {
+            string temp = date.Year + "-";
+            if (date.Month < 10)
+                temp += 0;
+            temp += date.Month + "-";
+            if (date.Day < 10)
+                temp += 0;
+            // TODO: Add timezone and consider time in the process
+            temp += date.Day + "-T00:00:00";
+            return temp;
+        }
+
+        public static void SetTimeRange(DateTime start, DateTime end)
+        {
+            lock (obj)
+            {
+                InitialTime = DateISO8601(start);
+                // next day, to make sure today info is included
+                EndTime = DateISO8601(end.AddDays(1));
+            }
+        }
 
         /// <summary>
         /// Gets the basic current logged in FB user information
@@ -51,7 +76,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBFamily",
                 FBGraphAPIURL + SNID + "/family", Limit,
-                resultCall, true, null, SNID);
+                resultCall, true, false, null, SNID);
             return me;
         }
 
@@ -110,7 +135,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBWall",
                 FBGraphAPIURL + Who + "/feed",
-                Limit, resultCall);
+                Limit, resultCall, true, true );
             return me;
         }
 
@@ -170,7 +195,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBEvent",
                 FBGraphAPIURL + SNID,
-                1, resultCall, true);
+                1, resultCall, true, true );
             return me;
         }
 
@@ -184,7 +209,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBInbox",
                 FBGraphAPIURL + Who + "/inbox",
-                Limit, resultCall);
+                Limit, resultCall, true, true);
             return me;
         }
 
@@ -199,7 +224,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBAlbums",
                 FBGraphAPIURL + Who + "/albums",
-                Limit, resultCall);
+                Limit, resultCall, true, true);
             return me;
         }
 
@@ -213,7 +238,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBPhotos",
                 FBGraphAPIURL + Album + "/photos",
-                Limit, resultCall, true, Parent, Album);
+                Limit, resultCall, true, false, Parent, Album);
             return me;
         }
 
@@ -227,7 +252,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBLikes",
                 FBGraphAPIURL + SNID + "/likes",
-                Limit, resultCall, true, Parent, SNID);
+                Limit, resultCall, true, false, Parent, SNID);
             return me;
         }
 
@@ -240,7 +265,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBFriendLists",
                 FBGraphAPIURL + SNID + "/friendlists",
-                Limit, resultCall, true, Parent, SNID);
+                Limit, resultCall, true, false, Parent, SNID);
             return me;
         }
 
@@ -249,7 +274,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBFriendList",
                 FBGraphAPIURL + SNID + "/members",
-                Limit, resultCall, true, Parent, SNID);
+                Limit, resultCall, true, false, Parent, SNID);
             return me;
         }
 
@@ -264,7 +289,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBAttending",
                 FBGraphAPIURL + SNID + "/attending",
-                Limit, resultCall, true, Parent, SNID);
+                Limit, resultCall, true, false, Parent, SNID);
             return me;
         }
 
@@ -279,7 +304,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBMaybe",
                 FBGraphAPIURL + SNID + "/maybe",
-                Limit, resultCall, true, Parent, SNID);
+                Limit, resultCall, true, false, Parent, SNID);
             return me;
         }
 
@@ -294,7 +319,7 @@ namespace MyBackup
         {
             AsyncReqQueue me = new AsyncReqQueue("FBDeclined",
                 FBGraphAPIURL + SNID + "/declined",
-                Limit, resultCall, true, Parent, SNID);
+                Limit, resultCall, true, false, Parent, SNID);
             return me;
         }
 
@@ -322,8 +347,7 @@ namespace MyBackup
         public static AsyncReqQueue MoreData(string dataType, string URL, int Limit, CallBack resultCall)
         {
             AsyncReqQueue me = new AsyncReqQueue(dataType,
-                URL,
-                Limit, resultCall, false);
+                URL, Limit, resultCall, false);
             return me;
         }
 
@@ -339,14 +363,20 @@ namespace MyBackup
         /// <param name="resultCall">Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success or failure</returns>
         /// TODO: Private?
-        public static bool CallGraphAPI(string GraphAPIURL, int Limit, CallBack resultCall, long AsyncID, long? parent, string parentSNID, bool addToken)
+        public static bool CallGraphAPI(string GraphAPIURL, int Limit, CallBack resultCall, long AsyncID, long? parent, string parentSNID, bool addToken, bool addDateRange=false)
         {
             try
             {
                 string URLToGet = GraphAPIURL;
                 if (addToken)
+                {
                     URLToGet += "?access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
-
+                    // TODO: how to add in a more smart way the since / until
+                    if (addDateRange)
+                    {
+                        URLToGet += "&since=" + InitialTime + "&until=" + EndTime;
+                    }
+                }
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URLToGet);
 
                 JSONResultCallback state = new JSONResultCallback(request, resultCall, AsyncID, parent, parentSNID);

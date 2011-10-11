@@ -51,12 +51,12 @@ namespace MyBackup
         {
             ErrorMessage = "";
             base.Save(out ErrorMessage);
-            // TODO: save relationship
+            // TODO: review relationship
+            /*
             decimal RelPartitionDate;
             int RelPartitionID;
+             */
             string error = "";
-            int tempID = -1;
-            // TODO: Check if ParentSNID 
             FBCollection myparent = parent as FBCollection;
             if ( myparent != null)
             {

@@ -44,6 +44,7 @@ namespace MyBackup
 
         private static volatile int NextID = -1;
         public bool addToken = true;
+        public bool addDateRange = false;
         public bool Saved = false;
         public string ErrorMessage;
 
@@ -104,7 +105,7 @@ namespace MyBackup
 
         #region "Constructors"
 
-        public AsyncReqQueue(string type, string URL, int limit, CallBack resultCall, bool AddToken = true, long? parentID = null, string parentSNID = "")
+        public AsyncReqQueue(string type, string URL, int limit, CallBack resultCall, bool AddToken = true, bool AddDateRange = false, long? parentID = null, string parentSNID = "")
         {
             lock (obj)
             {
@@ -129,6 +130,7 @@ namespace MyBackup
             ParentSNID = parentSNID;
             methodToCall = resultCall;
             addToken = AddToken;
+            addDateRange = AddDateRange;
             InitArray();
             Save();
         }
@@ -170,7 +172,7 @@ namespace MyBackup
             // Call layer to get data
             InitArray();
             if (DBLayer.GetAsyncReq(id, out ReqType, out Priority, out Parent, out ParentSNID,
-            out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out ErrorMessage))
+            out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out ErrorMessage))
             {
                 ID = id;
                 Saved = true; // to make sure it asks for update later
@@ -258,7 +260,7 @@ namespace MyBackup
                     //System.Windows.Forms.MessageBox.Show("Ready to call graph api: " + ReqURL + "\nID: " +ID);
                 }
 
-                result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken);
+                result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken, addDateRange);
             }
             else
             {
@@ -295,7 +297,7 @@ namespace MyBackup
         {
             Updated = DateTime.Now;
             // TODO: Save limit, update when response comes back...
-            Saved = DBLayer.ReqQueueSave(ID, ReqType, Priority, Parent, ParentSNID, Created, Updated, ReqURL, State, FileName, addToken, Saved, out ErrorMessage);
+            Saved = DBLayer.ReqQueueSave(ID, ReqType, Priority, Parent, ParentSNID, Created, Updated, ReqURL, State, FileName, addToken, addDateRange, Saved, out ErrorMessage);
             if (!Saved)
             {
                 System.Windows.Forms.MessageBox.Show("Failed to save request: " + ID + " error: " + ErrorMessage);
@@ -328,9 +330,11 @@ namespace MyBackup
                 }
                 else
                 {
-                    // TODO: Check if backup already exists, then leave it working
-                    DBLayer.StartBackup(out currentBackupNumber);
-                    // TODO: Modularize the priority/decide if send
+                    int currentBackup;
+                    DBLayer.StartBackup(out currentBackup);
+                    // Set basic data
+                    FBAPI.SetTimeRange(frmDashboard.currentProfile.backupStartDate, DateTime.UtcNow);
+                    currentBackupNumber = currentBackup;
                     AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
                         ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
                         ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);

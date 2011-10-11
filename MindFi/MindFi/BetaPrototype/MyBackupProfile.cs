@@ -16,6 +16,7 @@ namespace MyBackup
         public int? socialNetworkID { get; set; }
         public string socialNetworkURL { get; set; }
         public int currentBackupLevel { get; set; }
+        public DateTime backupStartDate { get; set; }
 
         // information in social networks
         // TODO: abstract profile for different SNs

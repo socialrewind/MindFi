@@ -174,7 +174,8 @@ namespace MyBackup
         public static bool ReqQueueSave(long ID, string ReqType, int Priority,
             long? ParentID, string ParentSNID,
             DateTime Created, DateTime Updated, string ReqURL,
-            int State, string Filename, bool AddToken, bool Saved, out string ErrorMessage)
+            int State, string Filename, bool AddToken, bool AddDateRange,
+            bool Saved, out string ErrorMessage)
         {
 
 
@@ -189,7 +190,7 @@ namespace MyBackup
                         // insert
                         SQLiteCommand InsertCmd = new SQLiteCommand(
                         "insert into RequestsQueue(ID,RequestType,Priority,ParentID,ParentSNID,Created," +
-                        "RequestString,State,Filename,AddToken) values (?,?,?,?,?,?,?,?,?,?)"
+                        "RequestString,State,Filename,AddToken, AddDateRange) values (?,?,?,?,?,?,?,?,?,?,?)"
                         , conn);
                         SQLiteParameter pId = new SQLiteParameter();
                         pId.Value = ID;
@@ -219,8 +220,11 @@ namespace MyBackup
                         pFilename.Value = Filename;
                         InsertCmd.Parameters.Add(pFilename);
                         SQLiteParameter pToken = new SQLiteParameter();
-                        pToken.Value = Filename;
+                        pToken.Value = AddToken;
                         InsertCmd.Parameters.Add(pToken);
+                        SQLiteParameter pDateR = new SQLiteParameter();
+                        pDateR.Value = AddDateRange;
+                        InsertCmd.Parameters.Add(pDateR);
                         InsertCmd.ExecuteNonQuery();
                         Saved = true;
                     }
@@ -229,7 +233,7 @@ namespace MyBackup
                         // update
                         SQLiteCommand UpdateCmd = new SQLiteCommand(
                         "Update RequestsQueue set RequestType=?,Priority=?,ParentID=?,ParentSNID=?," +
-                        "Updated=?,RequestString=?,State=?,Filename=?,AddToken=? where ID=?"
+                        "Updated=?,RequestString=?,State=?,Filename=?,AddToken=?,AddDateRange=? where ID=?"
                         , conn);
                         SQLiteParameter pUType = new SQLiteParameter();
                         pUType.Value = ReqType;
@@ -258,6 +262,9 @@ namespace MyBackup
                         SQLiteParameter pUToken = new SQLiteParameter();
                         pUToken.Value = AddToken;
                         UpdateCmd.Parameters.Add(pUToken);
+                        SQLiteParameter pUDateR = new SQLiteParameter();
+                        pUDateR.Value = AddDateRange;
+                        UpdateCmd.Parameters.Add(pUDateR);
                         SQLiteParameter pUId = new SQLiteParameter();
                         pUId.Value = ID;
                         UpdateCmd.Parameters.Add(pUId);
@@ -1201,8 +1208,12 @@ namespace MyBackup
                     if (outrows > 0)
                     {
                         Saved = true;
+                        ErrorMessage = "";
                     }
-                    ErrorMessage = "";
+                    else
+                    {
+                        ErrorMessage = "0 rows saved on table " + Table;
+                    }
                 } // try
                 catch (Exception ex)
                 {
@@ -2142,7 +2153,7 @@ namespace MyBackup
         /// Method that saves an account
         /// </summary>
         public static bool SaveAccount(int PersonID, string Name, string Email, int SocialNetwork,
-            string SNID, string URL, int BackupLevel, out string ErrorMessage)
+            string SNID, string URL, int BackupLevel, DateTime BackupStartTime, out string ErrorMessage)
         {
             ErrorMessage = "";
             bool result = false;
@@ -2168,7 +2179,7 @@ namespace MyBackup
                     }
                     reader.Close();
 
-                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel, PersonID) values (?,?,?,?,?,?, ?)";
+                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel, BackupStartTime, PersonID) values (?,?,?,?,?,?,?,?)";
                     SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pName = new SQLiteParameter();
                     pName.Value = Name;
@@ -2184,6 +2195,9 @@ namespace MyBackup
                     SQLiteParameter pLevel  = new SQLiteParameter();
                     pLevel.Value = BackupLevel;
                     InsertCmd.Parameters.Add(pLevel);
+                    SQLiteParameter pBackupStartTime = new SQLiteParameter();
+                    pBackupStartTime.Value = BackupStartTime;
+                    InsertCmd.Parameters.Add(pBackupStartTime);
                     SQLiteParameter pID = new SQLiteParameter();
                     pID.Value = PersonID;
                     InsertCmd.Parameters.Add(pID);
@@ -2212,7 +2226,8 @@ namespace MyBackup
         public static bool GetAsyncReq(int id, out string ReqType, out int Priority,
             out long? ParentID, out string ParentSNID,
             out DateTime Created, out DateTime Updated,
-            out string ReqURL, out int State, out string Filename, out bool AddToken,
+            out string ReqURL, out int State, out string Filename, 
+            out bool AddToken, out bool AddDateRange,
             out string ErrorMessage)
         {
             ErrorMessage = "";
@@ -2226,6 +2241,7 @@ namespace MyBackup
             Filename = "";
             State = 0;
             AddToken = false;
+            AddDateRange = false;
 
             lock (obj)
             {
@@ -2233,7 +2249,7 @@ namespace MyBackup
                 {
                     GetConn();
                     // try to read
-                    SQLiteCommand CheckCmd = new SQLiteCommand("select RequestType, RequestString, Priority, ParentID, ParentSNID, Created, Updated, State, Filename, AddToken from RequestsQueue where ID=?", conn);
+                    SQLiteCommand CheckCmd = new SQLiteCommand("select RequestType, RequestString, Priority, ParentID, ParentSNID, Created, Updated, State, Filename, AddToken, AddDateRange from RequestsQueue where ID=?", conn);
                     SQLiteParameter pID = new SQLiteParameter();
                     pID.Value = id;
                     CheckCmd.Parameters.Add(pID);
@@ -2257,6 +2273,7 @@ namespace MyBackup
                         State = reader.GetInt32(7);
                         Filename = reader.GetString(8);
                         AddToken = reader.GetBoolean(9);
+                        AddDateRange = reader.GetBoolean(10);
                     }
                     reader.Close();
                     ErrorMessage = "";

@@ -29,6 +29,9 @@ namespace MyBackup
 
         private void frmAddAccount_Load(object sender, EventArgs e)
         {
+            // default: 1 month back
+            DateTime initialDate = DateTime.UtcNow.AddMonths(-1);
+            dateTimeBackupRangeStart.Value = initialDate;
             LoadDB();
             lblStatus.Text = "Select your social network and login on it to configure the account";
             DoLogin();
@@ -252,6 +255,7 @@ namespace MyBackup
                 }
             }
             frmDashboard.currentProfile = new MyBackupProfile();
+            frmDashboard.currentProfile.backupStartDate = dateTimeBackupRangeStart.Value;
             frmDashboard.currentProfile.fbProfile = me;
             frmDashboard.currentProfile.userName = me.Name; // before: txtAlias.Text, check impact
             frmDashboard.currentProfile.socialNetworkURL = me.Link; // before: txtURL.Text
@@ -265,7 +269,10 @@ namespace MyBackup
             {
                 frmDashboard.currentProfile.currentBackupLevel = (int)cmbProfiles.SelectedValue;
             }
-            if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, currentSN, me.SNID, me.Link, frmDashboard.currentProfile.currentBackupLevel, out errorData))
+            if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, currentSN, me.SNID, me.Link, 
+                   frmDashboard.currentProfile.currentBackupLevel, 
+                   frmDashboard.currentProfile.backupStartDate,
+                   out errorData))
             {
                 lblStatus.Text = errorData;
                 MessageBox.Show("Error while saving account:\n" + errorData);
@@ -305,6 +312,11 @@ namespace MyBackup
             {
                 this.DialogResult = DialogResult.Cancel;
             }
+        }
+
+        private void lblStatus_Click(object sender, EventArgs e)
+        {
+
         }
 
     }

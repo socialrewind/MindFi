@@ -347,8 +347,12 @@ namespace MyBackup
                 else
                 {
                     string ErrorMessage;
-                    AsyncReqQueue.PendingRequests(MinPriority, out ErrorMessage);
+                    bool inProgress = AsyncReqQueue.PendingRequests(MinPriority, out ErrorMessage);
                     this.labelInfo.Text = ErrorMessage;
+                    if (!inProgress)
+                    {
+                        GoOffline();
+                    }
                 }
             }
 

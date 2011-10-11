@@ -2349,8 +2349,10 @@ namespace MyBackup
         /// <summary>
         /// Record the start of a backup
         /// </summary>
-        public static bool StartBackup()
+        public static bool StartBackup(out int BackupNo)
         {
+            BackupNo = 0;
+
             lock (obj)
             {
                 try
@@ -2362,6 +2364,15 @@ namespace MyBackup
                     pStart.Value = DateTime.Now;
                     InsertCmd.Parameters.Add(pStart);
                     InsertCmd.ExecuteNonQuery();
+                    SQL = "select ID from Backups where StartTime=?";
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    CheckCmd.Parameters.Add(pStart);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        BackupNo = reader.GetInt32(0);
+                    }
+                    reader.Close();
                 }
                 catch (Exception ex)
                 {

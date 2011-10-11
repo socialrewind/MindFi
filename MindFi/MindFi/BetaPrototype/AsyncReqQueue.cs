@@ -60,6 +60,8 @@ namespace MyBackup
         private static volatile int nFailedRequests = 0;
         private static volatile int[] CountPerState = null;
         private static volatile int minPriorityGlobal = 0;
+        private static volatile int currentPriorityGlobal = 999;
+        private static volatile int currentBackupNumber = 0;
         private static volatile int nRequestsInTransit = 0;
 
         #endregion
@@ -214,6 +216,20 @@ namespace MyBackup
             return false;
         }
 
+        private bool Queue(int priority)
+        {
+            bool success = true;
+            Priority = priority;
+            if (priority >= minPriorityGlobal)
+            {
+                success = Queue();
+                if (priority < currentPriorityGlobal)
+                {
+                    currentPriorityGlobal = priority;
+                }
+            }
+            return success;
+        }
         public bool Send()
         {
             if (State == QUEUED || State == RETRY)
@@ -256,6 +272,25 @@ namespace MyBackup
             return result;
         }
 
+        private bool QueueAndSend(int priority)
+        {
+            bool success = true;
+            Priority = priority;
+            if (priority >= minPriorityGlobal)
+            {
+                success = Queue();
+                if (success)
+                {
+                    Send();
+                }
+                if (priority < currentPriorityGlobal)
+                {
+                    currentPriorityGlobal = priority;
+                }
+            }
+            return success;
+        }
+
         public void Save()
         {
             Updated = DateTime.Now;
@@ -294,58 +329,30 @@ namespace MyBackup
                 else
                 {
                     // TODO: Check if backup already exists, then leave it working
-                    DBLayer.StartBackup();
+                    DBLayer.StartBackup(out currentBackupNumber);
                     // TODO: Modularize the priority/decide if send
                     AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
                         ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
                         ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    if ( apiReq.Priority >= minPriorityGlobal )
-                        apiReq.Send();
+                    apiReq.QueueAndSend(999);
                     apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    apiReq.Send();
+                    apiReq.QueueAndSend(999);
                     apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    apiReq.Send();
+                    apiReq.QueueAndSend(999);
                     apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    if (apiReq.Priority >= minPriorityGlobal)
-                        apiReq.Send();
+                    apiReq.QueueAndSend(999);
                     apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    if (apiReq.Priority >= minPriorityGlobal)
-                        apiReq.Send();
+                    apiReq.QueueAndSend(999);
                     apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    if (apiReq.Priority >= minPriorityGlobal)
-                        apiReq.Send();
+                    apiReq.QueueAndSend(999);
                     apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    if (apiReq.Priority >= minPriorityGlobal)
-                        apiReq.Send();
+                    apiReq.QueueAndSend(999);
                     apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                    apiReq.Priority = 500;
-                    apiReq.Queue();
-                    if (apiReq.Priority >= minPriorityGlobal)
-                        apiReq.Send();
+                    apiReq.QueueAndSend(500);
                     apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                    apiReq.Priority = 500;
-                    apiReq.Queue();
-                    if (apiReq.Priority >= minPriorityGlobal)
-                        apiReq.Send();
+                    apiReq.QueueAndSend(500);
                     apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
-                    apiReq.Priority = 500;
-                    apiReq.Queue();
-                    if (apiReq.Priority >= minPriorityGlobal)
-                        apiReq.Send();
+                    apiReq.QueueAndSend(500);
                 }
             }
         }
@@ -353,15 +360,17 @@ namespace MyBackup
         /// <summary>
         /// Follows up on pending requests
         /// </summary>
-        public static void PendingRequests(int MinPriority, out string ErrorMessage)
+        public static bool PendingRequests(int MinPriority, out string ErrorMessage)
         {
+            bool backupInProgress = true;
+
             minPriorityGlobal = MinPriority;
             ErrorMessage = "";
             // Get top queued requests
             // TODO: Check formula now that received could stay for long
             int ConcurrentRequestLimit = 25;
             //if (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests < ConcurrentRequestLimit)
-            if ( nRequestsInTransit < ConcurrentRequestLimit )
+            if (nRequestsInTransit < ConcurrentRequestLimit)
             {
                 //ConcurrentRequestLimit -= CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests;
                 //ConcurrentRequestLimit -= nRequestsInTransit;
@@ -370,7 +379,7 @@ namespace MyBackup
                 if (ErrorMessage != "")
                 {
                     System.Windows.Forms.MessageBox.Show("Error getting queued requests: " + ErrorMessage);
-                    return;
+                    return false;
                 }
                 ErrorMessage = "Queued Requests to send: " + queueReq.Count + "\n";
                 if (queueReq.Count == 0)
@@ -379,100 +388,110 @@ namespace MyBackup
                     if (ErrorMessage != "")
                     {
                         System.Windows.Forms.MessageBox.Show("Error getting retry requests: " + ErrorMessage);
-                        return;
+                        return false;
                     }
 
                     ErrorMessage = "Retry Requests to send: " + queueReq.Count + "\n";
                     if (queueReq.Count == 0)
                     {
                         DBLayer.EndBackup();
+                        backupInProgress = false;
                     }
                 }
-                foreach (int reqID in queueReq)
+                if (backupInProgress)
                 {
-                    //System.Windows.Forms.MessageBox.Show("id" + reqID);
-                    AsyncReqQueue apiReq = new AsyncReqQueue(reqID);
-                    // special case: ID is not the requested, the request is not there any longer?
-                    if (apiReq.ID != -1)
+                    ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal + "\n";
+                    foreach (int reqID in queueReq)
                     {
-                        switch (apiReq.ReqType)
+                        //System.Windows.Forms.MessageBox.Show("id" + reqID);
+                        AsyncReqQueue apiReq = new AsyncReqQueue(reqID);
+                        // special case: ID is not the requested, the request is not there any longer?
+                        if (apiReq.ID != -1)
                         {
-                            case "FBPerson": // Friend info processing callback
-                                apiReq.methodToCall = ProcessOneFriend;
-                                break;
-                            case "FBWall":
-                                apiReq.methodToCall = ProcessWall;
-                                break;
-                            case "FBAlbums":
-                                apiReq.methodToCall = ProcessAlbums;
-                                break;
-                            case "FBInbox":
-                                apiReq.methodToCall = ProcessInbox;
-                                break;
+                            switch (apiReq.ReqType)
+                            {
+                                case "FBPerson": // Friend info processing callback
+                                    apiReq.methodToCall = ProcessOneFriend;
+                                    break;
+                                case "FBWall":
+                                    apiReq.methodToCall = ProcessWall;
+                                    break;
+                                case "FBAlbums":
+                                    apiReq.methodToCall = ProcessAlbums;
+                                    break;
+                                case "FBInbox":
+                                    apiReq.methodToCall = ProcessInbox;
+                                    break;
                                 // TODO: Consolidate
-                            case "FBNotes":
-                                apiReq.methodToCall = ProcessNotes;
-                                break;
-                            // TODO: Consolidate
-                            case "FBFriends":
-                                apiReq.methodToCall = ProcessFriends;
-                                break;
-                            case "FBFamily":
-                                apiReq.methodToCall = ProcessFamily;
-                                break;
-                            case "FBFriendList":
-                                apiReq.methodToCall = ProcessList;
-                                break;
+                                case "FBNotes":
+                                    apiReq.methodToCall = ProcessNotes;
+                                    break;
+                                // TODO: Consolidate
+                                case "FBFriends":
+                                    apiReq.methodToCall = ProcessFriends;
+                                    break;
+                                case "FBFamily":
+                                    apiReq.methodToCall = ProcessFamily;
+                                    break;
+                                case "FBFriendList":
+                                    apiReq.methodToCall = ProcessList;
+                                    break;
                                 // END TODO
-                            case "FBFriendLists":
-                                apiReq.methodToCall = ProcessFriendLists;
-                                break;
-                            case "FBProfilePic":
-                                apiReq.methodToCall = ProcessFriendPic;
-                                break;
-                            case "FBPhotos":
-                                apiReq.methodToCall = ProcessPhotosInAlbum;
-                                break;
-                            case "FBPhoto":
-                                apiReq.methodToCall = ProcessPhoto;
-                                break;
-                            case "FBLikes":
-                                apiReq.methodToCall = ProcessLikes;
-                                break;
-                            case "FBAttending":
-                                apiReq.methodToCall = ProcessAttending;
-                                break;
-                            case "FBMaybe":
-                                apiReq.methodToCall = ProcessMaybeAttending;
-                                break;
-                            case "FBDeclined":
-                                apiReq.methodToCall = ProcessNotAttending;
-                                break;
-                            case "FBEvents":
-                                apiReq.methodToCall = ProcessEvents;
-                                break;
-                            case "FBEvent":
-                                apiReq.methodToCall = ProcessOneEvent;
-                                break;
-                            case "FBNotifications":
-                                apiReq.methodToCall = ProcessNotifications;
-                                break;
-                            default:
-                                System.Windows.Forms.MessageBox.Show("Unsupported request type: " + apiReq.ReqType);
-                                break;
-                        }
-                        ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
-                        // TODO: verify, this should be redundant since the query already filters
-                        if ( apiReq.Priority >= minPriorityGlobal )
-                            apiReq.Send();
-                    } // if
-                } // foreach
+                                case "FBFriendLists":
+                                    apiReq.methodToCall = ProcessFriendLists;
+                                    break;
+                                case "FBProfilePic":
+                                    apiReq.methodToCall = ProcessFriendPic;
+                                    break;
+                                case "FBPhotos":
+                                    apiReq.methodToCall = ProcessPhotosInAlbum;
+                                    break;
+                                case "FBPhoto":
+                                    apiReq.methodToCall = ProcessPhoto;
+                                    break;
+                                case "FBLikes":
+                                    apiReq.methodToCall = ProcessLikes;
+                                    break;
+                                case "FBAttending":
+                                    apiReq.methodToCall = ProcessAttending;
+                                    break;
+                                case "FBMaybe":
+                                    apiReq.methodToCall = ProcessMaybeAttending;
+                                    break;
+                                case "FBDeclined":
+                                    apiReq.methodToCall = ProcessNotAttending;
+                                    break;
+                                case "FBEvents":
+                                    apiReq.methodToCall = ProcessEvents;
+                                    break;
+                                case "FBEvent":
+                                    apiReq.methodToCall = ProcessOneEvent;
+                                    break;
+                                case "FBNotifications":
+                                    apiReq.methodToCall = ProcessNotifications;
+                                    break;
+                                default:
+                                    System.Windows.Forms.MessageBox.Show("Unsupported request type: " + apiReq.ReqType);
+                                    break;
+                            }
+                            ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
+                            // TODO: verify, this should be redundant since the query already filters
+                            if (apiReq.Priority >= minPriorityGlobal)
+                                apiReq.Send();
+                        } // if
+                    } // foreach
+                }
+                else
+                {
+                    ErrorMessage += "Current Backup " + currentBackupNumber + " done\n";
+                }
             } // if not too many requests pending...
             else
             {
                 //ErrorMessage = "Waiting for " + (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests) + " to be responded before sending more...";
                 ErrorMessage = "Waiting for " + ConcurrentRequestLimit;
             }
+            return backupInProgress;
         }
 
         #endregion
@@ -568,11 +587,8 @@ namespace MyBackup
 
                 if (friends.Next != null)
                 {
-                    //System.Windows.Forms.MessageBox.Show("friends next: " + friends.Next);
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBFriends", friends.Next, SIZETOGETPERPAGE, ProcessFriends);
-                    apiReq.Priority = 999;
-                    apiReq.Queue();
-                    //System.Windows.Forms.MessageBox.Show("apiReq URL: " + apiReq.ReqURL);
+                    apiReq.Queue(999);
                 }
 
                 // save all children...
@@ -583,25 +599,19 @@ namespace MyBackup
                     nFriends++;
                     AsyncReqQueue apiReq;
                     apiReq = FBAPI.Profile(item.SNID, ProcessOneFriend);
-                    apiReq.Priority = 750;
-                    apiReq.Queue();
+                    apiReq.Queue(750);
                     apiReq = FBAPI.ProfilePic(item.SNID,
-                    ProfilePhotoDestinationDir + item.SNID + ".jpg",
-                    ProcessFriendPic, item.ID, item.SNID);
-                    apiReq.Priority = 750;
-                    apiReq.Queue();
+                        ProfilePhotoDestinationDir + item.SNID + ".jpg",
+                        ProcessFriendPic, item.ID, item.SNID);
+                    apiReq.Queue(750);
                     apiReq = FBAPI.Family(item.SNID, SIZETOGETPERPAGE, ProcessFamily);
-                    apiReq.Priority = 400;
-                    apiReq.Queue();
+                    apiReq.Queue(400);
                     apiReq = FBAPI.Wall(item.SNID, SIZETOGETPERPAGE, ProcessWall);
-                    apiReq.Priority = 400;
-                    apiReq.Queue();
+                    apiReq.Queue(400);
                     apiReq = FBAPI.Events(item.SNID, SIZETOGETPERPAGE, ProcessEvents);
-                    apiReq.Priority = 400;
-                    apiReq.Queue();
+                    apiReq.Queue(400);
                     apiReq = FBAPI.PhotoAlbums(item.SNID, SIZETOGETPERPAGE, ProcessAlbums);
-                    apiReq.Priority = 50;
-                    apiReq.Queue();
+                    apiReq.Queue(50);
                 }
             }
             //friendsNotParsed = friends;
@@ -646,9 +656,7 @@ namespace MyBackup
                     if (post.LikesCount > 0)
                     {
                         AsyncReqQueue apiReq = FBAPI.Likes(post.SNID, SIZETOGETPERPAGE, ProcessLikes, post.ID);
-                        // TODO: Check priority depending on own wall or friend wall
-                        apiReq.Priority = 200;
-                        apiReq.Queue();
+                        apiReq.Queue(200);
                     }
                 }
 
@@ -659,8 +667,7 @@ namespace MyBackup
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
                     // TODO: Check priority depending on own wall or friend wall
                     // Alternative: Next always is the lower priority depending on backup profile
-                    apiReq.Priority = minPriorityGlobal;
-                    apiReq.Queue();
+                    apiReq.Queue(minPriorityGlobal);
                 }
             }
             return GenericProcess(hwnd, result, response, wall, false);
@@ -738,8 +745,7 @@ namespace MyBackup
                 {
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, SIZETOGETPERPAGE, ProcessInbox);
                     // Alternative: Next always is the lower priority depending on backup profile
-                    apiReq.Priority = minPriorityGlobal;
-                    apiReq.Queue();
+                    apiReq.Queue(minPriorityGlobal);
                 }
 
             }
@@ -784,8 +790,7 @@ namespace MyBackup
                 {
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBNotes", notes.Next, SIZETOGETPERPAGE, ProcessInbox);
                     // Alternative: Next always is the lower priority depending on backup profile
-                    apiReq.Priority = minPriorityGlobal;
-                    apiReq.Queue();
+                    apiReq.Queue(minPriorityGlobal);
                 }
 
             }
@@ -833,11 +838,9 @@ namespace MyBackup
 
                     //System.Windows.Forms.MessageBox.Show("sending req for photos in album " + album.SNID + " ID: " + album.ID );
                     AsyncReqQueue apiReq = FBAPI.PhotosInAlbum(album.SNID, SIZETOGETPERPAGE, ProcessPhotosInAlbum, album.ID);
-                    apiReq.Priority = 400;
-                    apiReq.Queue();
+                    apiReq.Queue(400);
                     apiReq = FBAPI.Likes(album.SNID, SIZETOGETPERPAGE, ProcessLikes, album.ID);
-                    apiReq.Priority = 400;
-                    apiReq.Queue();
+                    apiReq.Queue(400);
                 }
 
                 if (albums.CurrentNumber > 0 && albums.Next != null)
@@ -846,8 +849,7 @@ namespace MyBackup
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBAlbums", albums.Next, SIZETOGETPERPAGE, ProcessAlbums);
                     // TODO: Check if they are my albums or friend's
                     // Alternative: Next always is the lower priority depending on backup profile
-                    apiReq.Priority = minPriorityGlobal;
-                    apiReq.Queue();
+                    apiReq.Queue(minPriorityGlobal);
                 }
             }
             return GenericProcess(hwnd, result, response, albums, false);
@@ -893,11 +895,9 @@ namespace MyBackup
                         AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
                         ProcessPhoto, photo.ID, photo.SNID);
                     // TODO: Check if it is my photo or other's
-                    apiReq.Priority = 200;
-                    apiReq.Queue();
+                    apiReq.Queue(200);
                     apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
-                    apiReq.Priority = 150;
-                    apiReq.Queue();
+                    apiReq.Queue(150);
                 }
 
                 // Next is not null, but it should since we get all accepted photos on the first round... 
@@ -907,8 +907,7 @@ namespace MyBackup
                 {
                     System.Windows.Forms.MessageBox.Show("Photos next: " + photos.Next);
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBPhotos", photos.Next, SIZETOGETPERPAGE, ProcessPhotosInAlbum);
-                    apiReq.Priority = 50;
-                    apiReq.Queue();
+                    apiReq.Queue(50);
                 }
                 */
             }
@@ -1035,8 +1034,7 @@ namespace MyBackup
 
                     AsyncReqQueue apiReq;
                     apiReq = FBAPI.Event(anEvent.SNID, ProcessOneEvent);
-                    apiReq.Priority = 400;
-                    apiReq.Queue();
+                    apiReq.Queue(400);
                 }
 
                 if (errorData == "") return true;
@@ -1071,14 +1069,11 @@ namespace MyBackup
                 {
                     AsyncReqQueue apiReq;
                     apiReq = FBAPI.AttendingEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessAttending, anEvent.ID);
-                    apiReq.Priority = 200;
-                    apiReq.Queue();
+                    apiReq.Queue(200);
                     apiReq = FBAPI.MaybeEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessMaybeAttending, anEvent.ID);
-                    apiReq.Priority = 200;
-                    apiReq.Queue();
+                    apiReq.Queue(200);
                     apiReq = FBAPI.DeclinedEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessNotAttending, anEvent.ID);
-                    apiReq.Priority = 200;
-                    apiReq.Queue();
+                    apiReq.Queue(200);
                 }
 
                 if (errorData == "") return true;
@@ -1111,8 +1106,7 @@ namespace MyBackup
                 foreach (FBFriendList list in lists.items)
                 {
                     AsyncReqQueue apiReq = FBAPI.Members(list.SNID, SIZETOGETPERPAGE, ProcessList, list.ID);
-                    apiReq.Priority = 400;
-                    apiReq.Queue();
+                    apiReq.Queue(400);
                 }
 
                 if (errorData == "") return true;

@@ -26,7 +26,7 @@ namespace MyBackup
             if (date.Day < 10)
                 temp += 0;
             // TODO: Add timezone and consider time in the process
-            temp += date.Day + "-T00:00:00";
+            temp += date.Day + "T00:00:00";
             return temp;
         }
 

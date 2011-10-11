@@ -223,20 +223,6 @@ namespace MyBackup
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            string errorData = "";
-            /*
-            
-            //	    me.Save(out errorData);
-            meData += errorData;
-            if (errorData != "")
-            {
-                if (MessageBox.Show(errorData, "Error while saving, are you sure to exit?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
-                {
-                    Close();
-                }
-            }
-            */
-
             // TODO: support multiple profiles
             // For now, verifying only if there is no currentProfile
             FBPerson me = FBLogin.Me;
@@ -255,20 +241,34 @@ namespace MyBackup
                 }
             }
 
+            string errorData = "";
+            me.Save(out errorData);
+            meData += errorData;
+            if (errorData != "")
+            {
+                if (MessageBox.Show(errorData, "Error while saving your data, cancel Add Account?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+                {
+                    Close();
+                }
+            }
             frmDashboard.currentProfile = new MyBackupProfile();
             frmDashboard.currentProfile.fbProfile = me;
             frmDashboard.currentProfile.userName = me.Name; // before: txtAlias.Text, check impact
             frmDashboard.currentProfile.socialNetworkURL = me.Link; // before: txtURL.Text
-            frmDashboard.currentProfile.socialNetworkID = (int?)cmbSocialNetworks.SelectedValue;
+            if (cmbSocialNetworks.SelectedValue != null)
+            {
+                currentSN = (int)cmbSocialNetworks.SelectedValue;
+                frmDashboard.currentProfile.socialNetworkID = (int?)cmbSocialNetworks.SelectedValue;
+            }
             frmDashboard.currentProfile.SocialNetworkAccountID = me.SNID;
             if (cmbProfiles.SelectedItem != null)
             {
                 frmDashboard.currentProfile.currentBackupLevel = (int)cmbProfiles.SelectedValue;
             }
-            if (!DBLayer.SaveAccount(me.Name, me.EMail, m_sn.ID, me.SNID, me.Link, frmDashboard.currentProfile.currentBackupLevel, out errorData))
+            if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, currentSN, me.SNID, me.Link, frmDashboard.currentProfile.currentBackupLevel, out errorData))
             {
                 lblStatus.Text = errorData;
-                MessageBox.Show("Error while saving:\n" + errorData);
+                MessageBox.Show("Error while saving account:\n" + errorData);
                 return;
             }
             lblStatus.Text = "Data saved correctly";

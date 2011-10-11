@@ -844,7 +844,7 @@ namespace MyBackup
                     pVerified.Value = isVerified;
                     pUpdated.Value = Updated;
 
-                    SQL += ", Distance=?";
+                    SQL += ", Distance=min(Distance,?)";
                     if (ProfilePic != null) SQL += ", ProfilePic=?";
                     if (Link != null) SQL += ", Link=?";
                     if (FirstName != null) SQL += ", FirstName=?";
@@ -1312,7 +1312,7 @@ namespace MyBackup
                 } // try
                 catch (Exception ex)
                 {
-                    ErrorMessage = "Error saving message\n" + ex.ToString();
+                    ErrorMessage = "Error saving notification\n" + ex.ToString();
                     // DEBUG
                     System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
@@ -2141,7 +2141,7 @@ namespace MyBackup
         /// <summary>
         /// Method that saves an account
         /// </summary>
-        public static bool SaveAccount(string Name, string Email, int SocialNetwork,
+        public static bool SaveAccount(int PersonID, string Name, string Email, int SocialNetwork,
             string SNID, string URL, int BackupLevel, out string ErrorMessage)
         {
             ErrorMessage = "";
@@ -2168,7 +2168,7 @@ namespace MyBackup
                     }
                     reader.Close();
 
-                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel) values (?,?,?,?,?,?)";
+                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel, PersonID) values (?,?,?,?,?,?, ?)";
                     SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pName = new SQLiteParameter();
                     pName.Value = Name;
@@ -2184,6 +2184,9 @@ namespace MyBackup
                     SQLiteParameter pLevel  = new SQLiteParameter();
                     pLevel.Value = BackupLevel;
                     InsertCmd.Parameters.Add(pLevel);
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = PersonID;
+                    InsertCmd.Parameters.Add(pID);
                     int outrows = InsertCmd.ExecuteNonQuery();
                     if (outrows > 0)
                     {

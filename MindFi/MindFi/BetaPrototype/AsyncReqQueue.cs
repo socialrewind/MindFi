@@ -226,10 +226,6 @@ namespace MyBackup
             if (priority >= minPriorityGlobal)
             {
                 success = Queue();
-                if (priority < currentPriorityGlobal)
-                {
-                    currentPriorityGlobal = priority;
-                }
             }
             return success;
         }
@@ -286,10 +282,7 @@ namespace MyBackup
                 {
                     Send();
                 }
-                if (priority < currentPriorityGlobal)
-                {
-                    currentPriorityGlobal = priority;
-                }
+                currentPriorityGlobal = priority;
             }
             return success;
         }
@@ -334,7 +327,7 @@ namespace MyBackup
                     int currentBackup;
                     DBLayer.StartBackup(out currentBackup);
                     // Set basic data
-                    FBAPI.SetTimeRange(frmDashboard.currentProfile.backupStartDate, DateTime.UtcNow);
+                    FBAPI.SetTimeRange(frmDashboard.currentProfile.backupStartDate, DateTime.UtcNow.AddMonths(1));
                     currentBackupNumber = currentBackup;
                     AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
                         ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",

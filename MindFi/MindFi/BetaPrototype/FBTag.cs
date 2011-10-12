@@ -33,7 +33,7 @@ namespace MyBackup
         public FBTag(string response, FBPhoto photo)
             : base(response)
         {
-	    MyDataTable = "TagData";
+            MyDataTable = "TagData";
             parent = photo;
         }
 
@@ -44,7 +44,7 @@ namespace MyBackup
         public FBTag(JSONScanner scanner, JSONParser photo)
             : base(scanner)
         {
-	    MyDataTable = "TagData";
+            MyDataTable = "TagData";
             parent = photo as FBPhoto;
         }
 
@@ -52,31 +52,37 @@ namespace MyBackup
         public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    //System.Windows.Forms.MessageBox.Show("saving tag: person " + SNID + " PhotoID:" + parent.SNID);
-	    	
-	    Saved = false;
-	    DBLayer.TagDataSave(this.SNID, parent.SNID, X, Y,
-			Created, Updated,
-			out Saved, out ErrorMessage);
+            //System.Windows.Forms.MessageBox.Show("saving tag: person " + SNID + " PhotoID:" + parent.SNID);
+
+            Saved = false;
+            FBObject person = new FBObject(SNID, Name);
+            person.Save(out ErrorMessage);
+            if (person.Saved)
+            {
+                Saved = false;
+                DBLayer.TagDataSave(this.SNID, parent.SNID, X, Y,
+                    Created, Updated,
+                    out Saved, out ErrorMessage);
+            }
         }
 
         protected override void AssignNumericValue(string name, float floatValue)
         {
-	    switch (name)
-	    {
-		case "x":
-		    X = floatValue;
-		    break;
-		case "y":
-		    Y = floatValue;
-		    break;
-		default:
-                    base.AssignNumericValue(name,floatValue);
+            switch (name)
+            {
+                case "x":
+                    X = floatValue;
+                    break;
+                case "y":
+                    Y = floatValue;
+                    break;
+                default:
+                    base.AssignNumericValue(name, floatValue);
                     break;
             }
         }
 
-	#endregion
+        #endregion
 
     }
 }

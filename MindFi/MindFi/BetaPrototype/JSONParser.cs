@@ -583,19 +583,19 @@ namespace MyBackup
         protected virtual void AssignValue(string name, string value)
         {
             // Default: Nothing to do, only log the warning
-            lastError += "Unknown name ignored: " + name + "\n";
+            lastError += "Unknown name ignored: " + parentName + " " + name + "\n";
         }
 
         protected virtual void AssignNumericValue(string name, int intValue)
         {
             // Default: Nothing to do, only log the warning
-            lastError += "Unknown name ignored: " + name + "\n";
+            lastError += "Unknown name ignored: " + parentName + " " + name + "\n";
         }
 
         protected virtual void AssignNumericValue(string name, float floatValue)
         {
             // Default: Nothing to do, only log the warning
-            lastError += "Unknown name ignored: " + name + "\n";
+            lastError += "Unknown name ignored: " + parentName + " " + name + "\n";
         }
 
         ArrayList GetChildrenByType(ArrayList list, int initialNestingLevel,

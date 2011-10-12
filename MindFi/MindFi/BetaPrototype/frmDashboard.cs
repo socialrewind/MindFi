@@ -339,10 +339,8 @@ namespace MyBackup
                         }
                     }
                     firstTime = false;
-                    //DEBUG
+                    processTimer.Interval = 1000;
                     AsyncReqQueue.InitialRequests(MinPriority);
-                    // DEBUG
-                    //processTimer.Interval = 20000;
                 }
                 else
                 {

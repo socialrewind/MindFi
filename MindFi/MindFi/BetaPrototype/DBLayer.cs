@@ -232,8 +232,8 @@ namespace MyBackup
                     {
                         // update
                         SQLiteCommand UpdateCmd = new SQLiteCommand(
-                        "Update RequestsQueue set RequestType=?,Priority=?,ParentID=?,ParentSNID=?," +
-                        "Updated=?,RequestString=?,State=?,Filename=?,AddToken=?,AddDateRange=? where ID=?"
+                            "Update RequestsQueue set RequestType=?,Priority=?,ParentID=?,ParentSNID=?," +
+                            "Updated=?,RequestString=?,State=?,Filename=?,AddToken=?,AddDateRange=? where ID=?"
                         , conn);
                         SQLiteParameter pUType = new SQLiteParameter();
                         pUType.Value = ReqType;

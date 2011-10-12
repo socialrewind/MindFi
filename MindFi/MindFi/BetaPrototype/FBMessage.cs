@@ -156,7 +156,7 @@ namespace MyBackup
                         //System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
                         foreach (FBPerson dest in m_to)
                         {
-                            dest.Distance = 2; // TODO: don't update if it was already lower
+                            dest.Distance = 2;
                             //System.Windows.Forms.MessageBox.Show("person: " + dest.SNID + " email: " + dest.EMail + " name: " + dest.Name);
                             string error;
                             // save likes relationship

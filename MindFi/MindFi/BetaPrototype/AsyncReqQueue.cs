@@ -11,7 +11,7 @@ namespace MyBackup
     public class AsyncReqQueue
     {
         // USE 1 for debugging issues that are not related to concurrency
-        const int SIZETOGETPERPAGE = 200;
+        const int SIZETOGETPERPAGE = 50;
         //const int SIZETOGETPERPAGE = 1; // debug
 
         #region "Properties"
@@ -64,6 +64,7 @@ namespace MyBackup
         private static volatile int currentPriorityGlobal = 999;
         private static volatile int currentBackupNumber = 0;
         private static volatile int nRequestsInTransit = 0;
+        private static volatile bool RecoveringPendingReqs = false;
 
         #endregion
         private static volatile Object obj = new Object();
@@ -172,7 +173,7 @@ namespace MyBackup
             // Call layer to get data
             InitArray();
             if (DBLayer.GetAsyncReq(id, out ReqType, out Priority, out Parent, out ParentSNID,
-            out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out ErrorMessage))
+                out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out ErrorMessage))
             {
                 ID = id;
                 Saved = true; // to make sure it asks for update later
@@ -366,23 +367,30 @@ namespace MyBackup
         /// </summary>
         public static bool PendingRequests(int MinPriority, out string ErrorMessage)
         {
+            ErrorMessage = "";
+            lock (obj)
+            {
+                if (RecoveringPendingReqs)
+                    return true;
+                RecoveringPendingReqs = true;
+            }
             bool backupInProgress = true;
 
             minPriorityGlobal = MinPriority;
-            ErrorMessage = "";
             // Get top queued requests
             // TODO: Check formula now that received could stay for long
-            int ConcurrentRequestLimit = 25;
-            //if (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests < ConcurrentRequestLimit)
+            int ConcurrentRequestLimit = 10;
             if (nRequestsInTransit < ConcurrentRequestLimit)
             {
-                //ConcurrentRequestLimit -= CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests;
-                //ConcurrentRequestLimit -= nRequestsInTransit;
                 ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.QUEUED, out ErrorMessage, minPriorityGlobal);
                 // Assigning callback appropriately
                 if (ErrorMessage != "")
                 {
                     System.Windows.Forms.MessageBox.Show("Error getting queued requests: " + ErrorMessage);
+                    lock (obj)
+                    {
+                        RecoveringPendingReqs = false;
+                    }
                     return false;
                 }
                 ErrorMessage = "Queued Requests to send: " + queueReq.Count + "\n";
@@ -392,6 +400,10 @@ namespace MyBackup
                     if (ErrorMessage != "")
                     {
                         System.Windows.Forms.MessageBox.Show("Error getting retry requests: " + ErrorMessage);
+                        lock (obj)
+                        {
+                            RecoveringPendingReqs = false;
+                        }
                         return false;
                     }
 
@@ -471,6 +483,9 @@ namespace MyBackup
                                 case "FBEvent":
                                     apiReq.methodToCall = ProcessOneEvent;
                                     break;
+                                case "FBPost":
+                                    apiReq.methodToCall = ProcessOnePost;
+                                    break;
                                 case "FBNotifications":
                                     apiReq.methodToCall = ProcessNotifications;
                                     break;
@@ -492,8 +507,11 @@ namespace MyBackup
             } // if not too many requests pending...
             else
             {
-                //ErrorMessage = "Waiting for " + (CountPerState[SENT] - CountPerState[RECEIVED] - nFailedRequests) + " to be responded before sending more...";
                 ErrorMessage = "Waiting for " + ConcurrentRequestLimit;
+            }
+            lock (obj)
+            {
+                RecoveringPendingReqs = false;
             }
             return backupInProgress;
         }
@@ -660,6 +678,11 @@ namespace MyBackup
                     if (post.LikesCount > 0)
                     {
                         AsyncReqQueue apiReq = FBAPI.Likes(post.SNID, SIZETOGETPERPAGE, ProcessLikes, post.ID);
+                        apiReq.Queue(200);
+                    }
+                    if (post.CommentCount > post.Comments.Count)
+                    {
+                        AsyncReqQueue apiReq = FBAPI.Post(post.SNID, ProcessOnePost);
                         apiReq.Queue(200);
                     }
                 }
@@ -1085,6 +1108,42 @@ namespace MyBackup
             nFailedRequests++;
             return false;
         }
+
+        /// <summary>
+        /// Process details of a single event
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool ProcessOnePost(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            string errorData = "";
+            //System.Windows.Forms.MessageBox.Show("Processing events result: " + result + "\n" + response );
+
+            if (result)
+            {
+                CountPerState[RECEIVED]++;
+                FBPost aPost = new FBPost(response);
+                aPost.Parse();
+                CountPerState[PARSED]++;
+                aPost.Save(out errorData);
+
+                if (aPost.LikesCount > 0 )
+                {
+                    AsyncReqQueue apiReq;
+                    apiReq = FBAPI.Likes(aPost.SNID, SIZETOGETPERPAGE, ProcessLikes, aPost.ID);
+                    apiReq.Queue(200);
+                }
+
+                if (errorData == "") return true;
+            }
+            nFailedRequests++;
+            return false;
+        }
+
         /// <summary>
         /// Process list of friendlists
         /// </summary>

@@ -12,7 +12,7 @@ namespace MyBackup
     public class FBAlbum : FBObject
     {
         #region "Properties"
-        
+
         #region "Standard FB Properties"
         /// <summary>
         /// Social network ID of the user who published the album
@@ -53,10 +53,10 @@ namespace MyBackup
         /// <summary>
         /// List of comments associated to the album
         /// </summary>
-        public ArrayList Comments 
-	{
-	    get { lock (LockObj) { return m_comments; } }
-	}
+        public ArrayList Comments
+        {
+            get { lock (LockObj) { return m_comments; } }
+        }
         /// <summary>
         /// Cover Photo
         /// </summary>
@@ -65,8 +65,8 @@ namespace MyBackup
         /// Album Type
         /// </summary>
         private string AlbumType;
-	private ArrayList m_comments;
-	
+        private ArrayList m_comments;
+
         #endregion
 
         #endregion
@@ -79,8 +79,8 @@ namespace MyBackup
         public FBAlbum(string response)
             : base(response)
         {
-	    MyDataTable = "AlbumData";
-	    AddParser("comments", "FBPost", ref m_comments);
+            MyDataTable = "AlbumData";
+            AddParser("comments", "FBPost", ref m_comments);
         }
 
         /// <summary>
@@ -90,51 +90,46 @@ namespace MyBackup
         public FBAlbum(JSONScanner scanner)
             : base(scanner)
         {
-	    MyDataTable = "AlbumData";
-	    AddParser("comments", "FBPost", ref m_comments);
+            MyDataTable = "AlbumData";
+            AddParser("comments", "FBPost", ref m_comments);
         }
 
-// TODO: Verify constructors are needed
+        // TODO: Verify constructors are needed
         public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    base.Save(out ErrorMessage);
-	    if ( Saved )
-	    {
-		Saved = false;
-		//System.Windows.Forms.MessageBox.Show("saving album: " + MyPartitionDate + " ID:" + MyPartitionID + " Path: " + Path);
-	    	DBLayer.AlbumDataSave(MyPartitionDate, MyPartitionID, 
-			FromID, FromName, Description,
-			Location, Link, Count, Privacy, PrivacyValue,
-			Created, Updated, Path, CoverPicture, AlbumType,
-			out Saved, out ErrorMessage);
-		lock ( LockObj )
-		{
-                    if (m_comments != null && m_comments.Count > 0 )
+            base.Save(out ErrorMessage);
+            if (Saved)
+            {
+                Saved = false;
+                //System.Windows.Forms.MessageBox.Show("saving album: " + MyPartitionDate + " ID:" + MyPartitionID + " Path: " + Path);
+                DBLayer.AlbumDataSave(MyPartitionDate, MyPartitionID,
+                FromID, FromName, Description,
+                Location, Link, Count, Privacy, PrivacyValue,
+                Created, Updated, Path, CoverPicture, AlbumType,
+                out Saved, out ErrorMessage);
+                lock (LockObj)
+                {
+                    if (m_comments != null && m_comments.Count > 0)
                     {
-			// System.Windows.Forms.MessageBox.Show("saving comments for album: " + m_comments.Count );
-
                         foreach (FBPost post in m_comments)
                         {
                             string error;
-				/*
-				System.Windows.Forms.MessageBox.Show("saving comment: " + post.SNID 
-				+ " parent: " + ((post.parent != null)?((FBObject)(post.parent)).SNID:"---") );
-				*/
                             post.Save(out error);
                             ErrorMessage += error;
-			    if ( error != "" )
-			    {
-				System.Windows.Forms.MessageBox.Show("error saving comment: " + error );
-			    }
+                            if (error != "")
+                            {
+                                System.Windows.Forms.MessageBox.Show("error saving comment: " + error);
+                            }
                         }
                     }
-		}
-		    // TODO: Change parser to generate likes as user list, then save corresponding relationship	
-	    } else
-	    {
-		System.Windows.Forms.MessageBox.Show("didnt save album " + ID + " because of\n" + ErrorMessage);
-	    }
+                }
+                // TODO: Change parser to generate likes as user list, then save corresponding relationship	
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("didnt save album " + ID + " because of\n" + ErrorMessage);
+            }
         }
 
         protected override void AssignValue(string name, string value)
@@ -142,39 +137,43 @@ namespace MyBackup
             switch (name)
             {
                 case "id":
-                    switch ( parentName )
+                    switch (parentName)
                     {
-                        case null:
-                        case "":
-                            SNID = value;
-                            break;
+                        /*
+                    case null:
+                    case "":
+                        SNID = value;
+                        break;
+                         */
                         case "from":
                             FromID = value;
                             break;
                         default:
-                            lastError += "Unknown name ignored: " + parentName + name + "\n";
+                            base.AssignValue(name, value);
                             break;
                     }
                     break;
                 case "name":
-                    switch ( parentName )
+                    switch (parentName)
                     {
-                        case null:
-                        case "":
-                            Name = value;
+                        /*
+                    case null:
+                    case "":
+                        Name = value;
 //MessageBox.Show("Parsing Album Name:" + Name);
-                            break;
+                        break;
+                         */
                         case "from":
                             FromName = value;
                             break;
                         default:
-                            lastError += "Unknown name ignored: " + parentName + name + "\n";
+                            base.AssignValue(name, value);
                             break;
                     }
                     break;
                 case "message":
                 case "description":
-                    switch ( parentName )
+                    switch (parentName)
                     {
                         case null:
                         case "":
@@ -191,7 +190,7 @@ namespace MyBackup
                     break;
                 case "link":
                     Link = value;
-//MessageBox.Show("Parsing Album Link:" + Link);
+                    //MessageBox.Show("Parsing Album Link:" + Link);
                     break;
                 case "type":
                     AlbumType = value;
@@ -204,7 +203,7 @@ namespace MyBackup
                     }
                     else
                     {
-                        lastError += "Unknown name ignored: " + name + "\n";
+                        base.AssignValue(name, value);
                     }
                     break;
                 case "deny":
@@ -214,45 +213,47 @@ namespace MyBackup
                     }
                     else
                     {
-                        lastError += "Unknown name ignored: " + name + "\n";
+                        base.AssignValue(name, value);
                     }
                     break;
                 default:
-                    base.AssignValue(name,value);
+                    base.AssignValue(name, value);
                     break;
             }
         }
 
         protected override void AssignNumericValue(string name, int intValue)
         {
-	    switch (name)
-	    {
-		case "count":
-		    Count = intValue;
-		break;
-		case "id":
-		    switch (parentName)
-		    {
-			case null:
-			case "":
-			    SNID = intValue.ToString();
-//MessageBox.Show("Parsing Album SNID:" + SNID);
-			    break;
-			case "from":
-			    FromID = intValue.ToString();
-			    break;
-			default:
-			    lastError += "Unknown name ignored: " + parentName + name + "\n";
-			    break;
-                        }
-                        break;
-		default:
-                    base.AssignNumericValue(name,intValue);
+            switch (name)
+            {
+                case "count":
+                    Count = intValue;
+                    break;
+                case "id":
+                    switch (parentName)
+                    {
+                        /*
+                                    case null:
+                                    case "":
+                                        SNID = intValue.ToString();
+                        //MessageBox.Show("Parsing Album SNID:" + SNID);
+                                        break;
+                                    case "from":
+                                        FromID = intValue.ToString();
+                                        break;
+                         */
+                        default:
+                            base.AssignNumericValue(name, intValue);
+                            break;
+                    }
+                    break;
+                default:
+                    base.AssignNumericValue(name, intValue);
                     break;
             }
         }
 
-	#endregion
+        #endregion
 
     }
 }

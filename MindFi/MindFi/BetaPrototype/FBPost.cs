@@ -12,7 +12,7 @@ namespace MyBackup
     public class FBPost : FBObject
     {
         #region "Properties"
-        
+
         #region "Standard FB Properties"
         /// <summary>
         /// Social network ID of the user who posts
@@ -97,10 +97,17 @@ namespace MyBackup
         /// <summary>
         /// List of comments associated to the post
         /// </summary>
-        public ArrayList Comments 
-	{
-	    get { lock (LockObj) { return m_comments; } }
-	}
+        public ArrayList Comments
+        {
+            get { lock (LockObj) { return m_comments; } }
+        }
+        /// <summary>
+        /// List of comments associated to the post
+        /// </summary>
+        public ArrayList To
+        {
+            get { lock (LockObj) { return m_to; } }
+        }
         /// <summary>
         /// count of comments associated to the post
         /// </summary>
@@ -110,24 +117,15 @@ namespace MyBackup
         /// </summary>
         public int? LikesCount { get; set; }
         /// <summary>
-        /// Names of people that like the post
-        /// </summary>
-        public string LikesName { get; set; }
-        /// <summary>
-        /// IDs of people that like the post
-        /// </summary>
-        public string LikesID { get; set; }
-        /// <summary>
         /// parent reference
         /// </summary>
         public JSONParser parent { get; set; }
         #endregion
 
-	private ArrayList m_comments;
-	private ArrayList m_likes;
-	//private ArrayList m_from;
-	//private ArrayList m_to;
-	
+        private ArrayList m_comments;
+        private ArrayList m_likes;
+        private ArrayList m_to;
+
         #endregion
 
         #region "Methods"
@@ -138,7 +136,7 @@ namespace MyBackup
         public FBPost(string response)
             : base(response)
         {
-	    PostInit();
+            PostInit();
         }
 
         /// <summary>
@@ -148,7 +146,7 @@ namespace MyBackup
         public FBPost(JSONScanner scanner)
             : base(scanner)
         {
-	    PostInit();
+            PostInit();
         }
 
         /// <summary>
@@ -160,46 +158,46 @@ namespace MyBackup
             : base(scanner)
         {
             parent = Parent;
-	    PostInit();
+            PostInit();
         }
 
-	private void PostInit()
-	{
-	    MyDataTable = "PostData";
-	    AddParser("comments", "FBPost", ref m_comments);
-	    //AddParser("from", "FBPerson", ref m_from);
-	    AddParser("likes", "FBPerson", ref m_likes);
-	}
+        private void PostInit()
+        {
+            MyDataTable = "PostData";
+            AddParser("comments", "FBPost", ref m_comments);
+            AddParser("to", "FBPerson", ref m_to);
+            AddParser("likes", "FBPerson", ref m_likes);
+        }
 
-	public override void Save(out string ErrorMessage)
+        public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    base.Save(out ErrorMessage);
-	    if ( Saved )
-	    {
-		Saved = false;
-		// System.Windows.Forms.MessageBox.Show("Date: " + MyPartitionDate + " ID:" + MyPartitionID);
-		string ParentID = null;
-		FBObject fbParent = parent as FBObject;
-		if ( fbParent != null )
-		{
-		    ParentID = fbParent.SNID;
-		}
-		// System.Windows.Forms.MessageBox.Show("saving post created: " + Created + " updated: " + Updated);
+            base.Save(out ErrorMessage);
+            if (Saved)
+            {
+                Saved = false;
+                // System.Windows.Forms.MessageBox.Show("Date: " + MyPartitionDate + " ID:" + MyPartitionID);
+                string ParentID = null;
+                FBObject fbParent = parent as FBObject;
+                if (fbParent != null)
+                {
+                    ParentID = fbParent.SNID;
+                }
+                // System.Windows.Forms.MessageBox.Show("saving post created: " + Created + " updated: " + Updated);
 
-	    	DBLayer.PostDataSave(MyPartitionDate, MyPartitionID, 
-			FromID, FromName, ToID, ToName, Message,
-			Picture, Link, Caption, Description,
-			Source, Icon, Attribution, Privacy, PrivacyValue,
-			m_created, m_updated,
-			ActionsID, ActionsName, ApplicationID, ApplicationName,
-			PostType, ParentID, CommentCount, LikesCount, 
-			out Saved, out ErrorMessage);
-		lock ( LockObj )
-		{
-                    if (m_comments != null && m_comments.Count > 0 )
+                DBLayer.PostDataSave(MyPartitionDate, MyPartitionID,
+                    FromID, FromName, ToID, ToName, Message,
+                    Picture, Link, Caption, Description,
+                    Source, Icon, Attribution, Privacy, PrivacyValue,
+                    m_created, m_updated,
+                    ActionsID, ActionsName, ApplicationID, ApplicationName,
+                    PostType, ParentID, CommentCount, LikesCount,
+                    out Saved, out ErrorMessage);
+                lock (LockObj)
+                {
+                    if (m_comments != null && m_comments.Count > 0)
                     {
-			// System.Windows.Forms.MessageBox.Show("saving comments for post: " + m_comments.Count );
+                        // System.Windows.Forms.MessageBox.Show("saving comments for post: " + m_comments.Count );
                         foreach (FBPost post in m_comments)
                         {
                             string error;
@@ -207,12 +205,40 @@ namespace MyBackup
                             ErrorMessage += error;
                         }
                     }
-		}
-		    // TODO: Change parser to generate likes as user list, then save corresponding relationship	
-	    } else
-	    {
-		System.Windows.Forms.MessageBox.Show("didnt save post " + ID + " because of\n" + ErrorMessage);
-	    }
+                    if (m_likes != null && m_likes.Count > 0)
+                    {
+                        foreach (FBPerson who in m_likes)
+                        {
+                            //System.Windows.Forms.MessageBox.Show ( "Saving " + who.SNID + " who likes " + parentSNID );
+                            string error;
+                            // save likes relationship
+                            DBLayer.ActionDataSave(who.SNID, SNID, Verb.LIKE, out Saved, out error);
+                            ErrorMessage += error;
+                            who.Save(out error);
+                            ErrorMessage += error;
+                        }
+                    }
+                    if (m_to != null && m_to.Count > 0)
+                    {
+                        //System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
+                        foreach (FBPerson dest in m_to)
+                        {
+                            dest.Distance = 2;
+                            string error;
+                            // save likes relationship
+                            DBLayer.ActionDataSave(dest.SNID, SNID, Verb.SENTTO, out Saved, out error);
+                            ErrorMessage += error;
+                            dest.Save(out error);
+                            ErrorMessage += error;
+                        }
+                    }
+                }
+                // TODO: Change parser to generate likes as user list, then save corresponding relationship	
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("didnt save post " + ID + " because of\n" + ErrorMessage);
+            }
         }
 
         protected override void AssignValue(string name, string value)
@@ -222,19 +248,23 @@ namespace MyBackup
                 case "id":
                     switch ( parentName )
                     {
+                            /*
                         case null:
                         case "":
                             SNID = value;
                             break;
+                             */
                         case "from":
                             FromID = value;
                             break;
+                            /*
                         case "to":
                             ToID = value;
                             break;
                         case "likes":
                             LikesID += value + ";";
                             break;
+                             */
                         case "application":
                             ApplicationID = value;
                             break;
@@ -242,26 +272,30 @@ namespace MyBackup
                             ActionsID += value;
                             break;
                         default:
-                            lastError += "Unknown name ignored: " + parentName + name + "\n";
+                            base.AssignValue(name,value);
                             break;
                     }
                     break;
                 case "name":
                     switch ( parentName )
                     {
+                            /*
                         case null:
                         case "":
                             Name = value;
                             break;
+                             */
                         case "from":
                             FromName = value;
                             break;
+                            /*
                         case "to":
                             ToName = value;
                             break;
                         case "likes":
                             LikesName += value + ";";
                             break;
+                             */
                         case "application":
                             ApplicationName = value;
                             break;
@@ -269,7 +303,7 @@ namespace MyBackup
                             ActionsName += value;
                             break;
                         default:
-                            lastError += "Unknown name ignored: " + parentName + name + "\n";
+                            base.AssignValue(name, value);
                             break;
                     }
                     break;
@@ -323,7 +357,7 @@ namespace MyBackup
                     }
                     else
                     {
-                        lastError += "Unknown name ignored: " + name + "\n";
+                        base.AssignValue(name,value);
                     }
                     break;
                 case "deny":
@@ -333,7 +367,7 @@ namespace MyBackup
                     }
                     else
                     {
-                        lastError += "Unknown name ignored: " + name + "\n";
+                        base.AssignValue(name, value);
                     }
                     break;
                 case "user_likes":
@@ -350,52 +384,23 @@ namespace MyBackup
 
         protected override void AssignNumericValue(string name, int intValue)
         {
-	    switch (name)
-	    {
-		case "likes":
-		    LikesCount = intValue;
-		break;
-		case "count":
-		    if (parentName == "comments")
-		    {
-			CommentCount = intValue;
-		    }
-		    else
-		    {
-			lastError += "Unknown name ignored: " + name + "\n";
-		    }
-		break;
-/*
-		case "id":
-		    switch (parentName)
-		    {
-			case null:
-			case "":
-			    SNID = intValue.ToString();
-			    break;
-			case "from":
-			    FromID = intValue.ToString();
-			    break;
-			case "to":
-			    ToID = intValue.ToString();
-			    break;
-			case "likes":
-			    LikesID += intValue + ";";
-			    break;
-			case "application":
-			    ApplicationID = intValue.ToString();
-			    break;
-			case "actions":
-			    ActionsID += intValue;
-			    break;
-			default:
-			    lastError += "Unknown name ignored: " + parentName + name + "\n";
-			    break;
-                        }
-                        break;
-*/
-		default:
-                    base.AssignNumericValue(name,intValue);
+            switch (name)
+            {
+                case "likes":
+                    LikesCount = intValue;
+                    break;
+                case "count":
+                    if (parentName == "comments")
+                    {
+                        CommentCount = intValue;
+                    }
+                    else
+                    {
+                        base.AssignNumericValue(name, intValue);
+                    }
+                    break;
+                default:
+                    base.AssignNumericValue(name, intValue);
                     break;
             }
         }

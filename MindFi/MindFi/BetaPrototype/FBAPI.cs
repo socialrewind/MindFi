@@ -185,17 +185,32 @@ namespace MyBackup
         }
 
         /// <summary>
-        /// Gets multiple FB events, by user ID
+        /// Gets an specific FB event, by SNID
         /// </summary>
         /// <param name="SNID">SNID of Event in Facebook</param>
         /// <param name="Limit">How many JSON records should be returned, max</param>
-        /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <param name="resultCall">Function that is called for parsing the event. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success/Failure</returns>
         public static AsyncReqQueue Event(string SNID, CallBack resultCall)
         {
             AsyncReqQueue me = new AsyncReqQueue("FBEvent",
                 FBGraphAPIURL + SNID,
-                1, resultCall, true, true );
+                1, resultCall, true, false );
+            return me;
+        }
+
+        /// <summary>
+        /// Gets an specific FB post, by SNID
+        /// </summary>
+        /// <param name="SNID">SNID of post in Facebook</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called for parsing the post. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue Post(string SNID, CallBack resultCall)
+        {
+            AsyncReqQueue me = new AsyncReqQueue("FBPost",
+                FBGraphAPIURL + SNID,
+                1, resultCall, true, false );
             return me;
         }
 

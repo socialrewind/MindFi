@@ -10,11 +10,9 @@ namespace MyBackup
 
     public class AsyncReqQueue
     {
-        // USE 1 for debugging issues that are not related to concurrency
-        const int SIZETOGETPERPAGE = 50;
-        //const int SIZETOGETPERPAGE = 1; // debug
+        const int SIZETOGETPERPAGE = 50; // USE 1 for debugging issues that are not related to concurrency
 
-        #region "Properties"
+        #region "Public Properties"
         public long ID;
         public string ReqType;
         public string ReqURL;
@@ -31,8 +29,11 @@ namespace MyBackup
 
         public static string ProfilePhotoDestinationDir;
         public static string AlbumDestinationDir;
+
+        public string ErrorMessage;
         #endregion
 
+        #region "Constants"
         public const int POTENTIAL = 0;
         public const int QUEUED = 1;
         public const int SENT = 2;
@@ -41,12 +42,7 @@ namespace MyBackup
         public const int PARSED = 5;
         public const int PROCESSED = 6;
         public const int TODELETE = 7;
-
-        private static volatile int NextID = -1;
-        public bool addToken = true;
-        public bool addDateRange = false;
-        public bool Saved = false;
-        public string ErrorMessage;
+        #endregion
 
         #region "Statistics"
         public static volatile int nFriends = 0;
@@ -66,12 +62,10 @@ namespace MyBackup
         private static volatile int nRequestsInTransit = 0;
         private static volatile bool RecoveringPendingReqs = false;
 
-        #endregion
-        private static volatile Object obj = new Object();
-
+        #region "Statistic properties"
         public static int QueuedReqs
         {
-            get { if (CountPerState == null) { return 0; }  else return CountPerState[QUEUED]; }
+            get { if (CountPerState == null) { return 0; } else return CountPerState[QUEUED]; }
         }
 
         public static int SentReqs
@@ -103,9 +97,30 @@ namespace MyBackup
         {
             get { return nFailedRequests; }
         }
+        #endregion
+        #endregion
+
+        #region "Internal variables"
+        private static volatile int NextID = -1;
+        private bool addToken = true;
+        private bool addDateRange = false;
+        private bool Saved = false;
+        private static volatile Object obj = new Object();
+        #endregion
 
         #region "Constructors"
 
+        /// <summary>
+        /// Construct a JSON request based on most information
+        /// </summary>
+        /// <param name="type">Identifier for the expected return type</param>
+        /// <param name="URL">Server URL that will be called to get the JSON result</param>
+        /// <param name="limit">Number of JSON records to be returned</param>
+        /// <param name="resultCall">Method to process/parse the response</param>
+        /// <param name="AddToken">Indicates if the URL requires the authentication parameter</param>
+        /// <param name="AddDateRange">Indicates if the URL requires the date limit parameter</param>
+        /// <param name="parentID">Database ID for the parent object to which the result needs to be associated</param>
+        /// <param name="parentSNID">Social Network ID for the parent object to which the result needs to be associated</param>
         public AsyncReqQueue(string type, string URL, int limit, CallBack resultCall, bool AddToken = true, bool AddDateRange = false, long? parentID = null, string parentSNID = "")
         {
             lock (obj)
@@ -136,6 +151,16 @@ namespace MyBackup
             Save();
         }
 
+        /// <summary>
+        /// Construct a file request based on appropriate information
+        /// </summary>
+        /// <param name="type">Identifier for the expected return type</param>
+        /// <param name="URL">Server URL that will be called to get the file</param>
+        /// <param name="filename">Name of the file to write the response to</param>
+        /// <param name="limit">Number of JSON records to be returned</param>
+        /// <param name="resultCall">Method to process/parse the response</param>
+        /// <param name="parentID">Database ID for the parent object to which the result needs to be associated</param>
+        /// <param name="parentSNID">Social Network ID for the parent object to which the result needs to be associated</param>
         public AsyncReqQueue(string type, string URL, string filename, int limit, CallBack resultCall, long? parentID, string parentSNID)
         {
             lock (obj)
@@ -167,6 +192,7 @@ namespace MyBackup
         /// <summary>
         /// Constructor that creates an AsyncReqQueue object from the RequestsQueue table in the database
         /// </summary>
+        /// <param name="id">Identifier in the database to query the request</param>
         public AsyncReqQueue(int id)
         {
             string ErrorMessage;
@@ -176,6 +202,7 @@ namespace MyBackup
                 out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out ErrorMessage))
             {
                 ID = id;
+                SetCallBackFunction();
                 Saved = true; // to make sure it asks for update later
                 return;
             }
@@ -187,6 +214,9 @@ namespace MyBackup
             }
         }
 
+        /// <summary>
+        /// Function used by the multiple constructors to cleanup the state count array
+        /// </summary>
         private void InitArray()
         {
             lock (obj)
@@ -199,9 +229,88 @@ namespace MyBackup
             }
         }
 
+        /// <summary>
+        /// Assigns the Callback on recovery
+        /// </summary>
+        private void SetCallBackFunction()
+        {
+            switch (ReqType)
+            {
+                case "FBPerson": // Friend info processing callback
+                    methodToCall = ProcessOneFriend;
+                    break;
+                case "FBWall":
+                    methodToCall = ProcessWall;
+                    break;
+                case "FBAlbums":
+                    methodToCall = ProcessAlbums;
+                    break;
+                case "FBInbox":
+                    methodToCall = ProcessInbox;
+                    break;
+                // TODO: Consolidate
+                case "FBNotes":
+                    methodToCall = ProcessNotes;
+                    break;
+                // TODO: Consolidate
+                case "FBFriends":
+                    methodToCall = ProcessFriends;
+                    break;
+                case "FBFamily":
+                    methodToCall = ProcessFamily;
+                    break;
+                case "FBFriendList":
+                    methodToCall = ProcessList;
+                    break;
+                // END TODO
+                case "FBFriendLists":
+                    methodToCall = ProcessFriendLists;
+                    break;
+                case "FBProfilePic":
+                    methodToCall = ProcessFriendPic;
+                    break;
+                case "FBPhotos":
+                    methodToCall = ProcessPhotosInAlbum;
+                    break;
+                case "FBPhoto":
+                    methodToCall = ProcessPhoto;
+                    break;
+                case "FBLikes":
+                    methodToCall = ProcessLikes;
+                    break;
+                case "FBAttending":
+                    methodToCall = ProcessAttending;
+                    break;
+                case "FBMaybe":
+                    methodToCall = ProcessMaybeAttending;
+                    break;
+                case "FBDeclined":
+                    methodToCall = ProcessNotAttending;
+                    break;
+                case "FBEvents":
+                    methodToCall = ProcessEvents;
+                    break;
+                case "FBEvent":
+                    methodToCall = ProcessOneEvent;
+                    break;
+                case "FBPost":
+                    methodToCall = ProcessOnePost;
+                    break;
+                case "FBNotifications":
+                    methodToCall = ProcessNotifications;
+                    break;
+                default:
+                    System.Windows.Forms.MessageBox.Show("Unsupported request type: " + ReqType);
+                    break;
+            }
+        }
         #endregion
 
-        #region "Per request methods"
+        #region "Per request Queue management methods"
+        /// <summary>
+        /// Saves and moves the current object, which should be in the POTENTIAL state, to QUEUE state
+        /// </summary>
+        /// <returns>Success on queuing the object</returns>
         public bool Queue()
         {
             if (State == POTENTIAL)
@@ -219,6 +328,11 @@ namespace MyBackup
             return false;
         }
 
+        /// <summary>
+        /// Internal variant that specifies priority for the request and decides accordingly if it should be queued or not
+        /// </summary>
+        /// <param name="priority">Higher (using 999), the first to be consumed from the queue</param>
+        /// <returns></returns>
         private bool Queue(int priority)
         {
             bool success = true;
@@ -229,6 +343,11 @@ namespace MyBackup
             }
             return success;
         }
+
+        /// <summary>
+        /// Saves and moves the current object, which should be in the QUEUE state, to SENT state, then submits the request to the server asynchronously
+        /// </summary>
+        /// <returns>Success on sending the request</returns>
         public bool Send()
         {
             if (State == QUEUED || State == RETRY)
@@ -248,29 +367,22 @@ namespace MyBackup
                 return false;
             }
             bool result = false;
-            // TODO: Evaluate appropriate data type, pass a limit that is not 1, paging
             if (FileName == "")
             {
-                // DEBUG
-                if (!addToken)
-                {
-                    //System.Windows.Forms.MessageBox.Show("Ready to call graph api: " + ReqURL + "\nID: " +ID);
-                }
-
                 result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken, addDateRange);
             }
             else
             {
-                // DEBUG
-                if (!addToken)
-                {
-                    //System.Windows.Forms.MessageBox.Show("Ready to call graph api: " + ReqURL + "\nID: " +ID);
-                }
                 result = FBAPI.CallGraphAPI(ReqURL, FileName, methodToCall, ID, Parent, ParentSNID);
             }
             return result;
         }
 
+        /// <summary>
+        /// Internal variant that combines Queue and Send, specifies priority for the request and decides accordingly if it should be queued and send or not
+        /// </summary>
+        /// <param name="priority">Higher (using 999), the first to be consumed from the queue</param>
+        /// <returns></returns>
         private bool QueueAndSend(int priority)
         {
             bool success = true;
@@ -287,6 +399,9 @@ namespace MyBackup
             return success;
         }
 
+        /// <summary>
+        /// Persists the request in the database
+        /// </summary>
         public void Save()
         {
             Updated = DateTime.Now;
@@ -297,12 +412,14 @@ namespace MyBackup
                 System.Windows.Forms.MessageBox.Show("Failed to save request: " + ID + " error: " + ErrorMessage);
             }
         }
+
         #endregion
 
         #region "Static externally used methods"
         /// <summary>
-        /// Create the first, basic requests for the first time logged in
+        /// Create the first, basic requests for a new backup
         /// </summary>
+        /// TODO: Possibly force a new full backup
         public static void InitialRequests(int MinPriority)
         {
             minPriorityGlobal = MinPriority;
@@ -318,8 +435,6 @@ namespace MyBackup
                 CountPerState = stateArray;
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
-                    // TODO: make sure received are parsed/processed by PendingRequests too
-                    CountPerState[RECEIVED] = 0;
                     PendingRequests(MinPriority, out error);
                 }
                 else
@@ -355,11 +470,25 @@ namespace MyBackup
             }
         }
 
-        /// <summary>
-        /// Follows up on pending requests
-        /// </summary>
-        public static bool PendingRequests(int MinPriority, out string ErrorMessage)
+        
+        private static void ExitPendingWithError(string ErrorMessage)
         {
+            System.Windows.Forms.MessageBox.Show(ErrorMessage);
+            lock (obj)
+            {
+                RecoveringPendingReqs = false;
+            }
+        }
+
+        /// <summary>
+        /// Follows up on pending requests, sending them by priority until exhausted to end the backup
+        /// </summary>
+        /// <param name="MinPriority"></param>
+        /// <param name="ErrorMessage"></param>
+        /// <returns></returns>
+        public static bool PendingRequests(int MinPriority, out string ErrorMessage)
+        {        
+            #region "Init"
             ErrorMessage = "";
             lock (obj)
             {
@@ -370,20 +499,16 @@ namespace MyBackup
             bool backupInProgress = true;
 
             minPriorityGlobal = MinPriority;
-            // Get top queued requests
-            // TODO: Check formula now that received could stay for long
+            #endregion
+
+            // TODO: calculate how many requests were processed in the last time unit, and increase / decrease dynamically the number of requests to go
             int ConcurrentRequestLimit = 10;
             if (nRequestsInTransit < ConcurrentRequestLimit)
             {
                 ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.QUEUED, out ErrorMessage, minPriorityGlobal);
-                // Assigning callback appropriately
                 if (ErrorMessage != "")
                 {
-                    System.Windows.Forms.MessageBox.Show("Error getting queued requests: " + ErrorMessage);
-                    lock (obj)
-                    {
-                        RecoveringPendingReqs = false;
-                    }
+                    ExitPendingWithError("Error getting queued requests: " + ErrorMessage);
                     return false;
                 }
                 ErrorMessage = "Queued Requests to send: " + queueReq.Count + "\n";
@@ -392,11 +517,7 @@ namespace MyBackup
                     queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.RETRY, out ErrorMessage, minPriorityGlobal);
                     if (ErrorMessage != "")
                     {
-                        System.Windows.Forms.MessageBox.Show("Error getting retry requests: " + ErrorMessage);
-                        lock (obj)
-                        {
-                            RecoveringPendingReqs = false;
-                        }
+                        ExitPendingWithError("Error getting retry requests: " + ErrorMessage);
                         return false;
                     }
 
@@ -412,84 +533,17 @@ namespace MyBackup
                     ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal + "\n";
                     foreach (int reqID in queueReq)
                     {
-                        //System.Windows.Forms.MessageBox.Show("id" + reqID);
                         AsyncReqQueue apiReq = new AsyncReqQueue(reqID);
                         // special case: ID is not the requested, the request is not there any longer?
                         if (apiReq.ID != -1)
                         {
-                            switch (apiReq.ReqType)
-                            {
-                                case "FBPerson": // Friend info processing callback
-                                    apiReq.methodToCall = ProcessOneFriend;
-                                    break;
-                                case "FBWall":
-                                    apiReq.methodToCall = ProcessWall;
-                                    break;
-                                case "FBAlbums":
-                                    apiReq.methodToCall = ProcessAlbums;
-                                    break;
-                                case "FBInbox":
-                                    apiReq.methodToCall = ProcessInbox;
-                                    break;
-                                // TODO: Consolidate
-                                case "FBNotes":
-                                    apiReq.methodToCall = ProcessNotes;
-                                    break;
-                                // TODO: Consolidate
-                                case "FBFriends":
-                                    apiReq.methodToCall = ProcessFriends;
-                                    break;
-                                case "FBFamily":
-                                    apiReq.methodToCall = ProcessFamily;
-                                    break;
-                                case "FBFriendList":
-                                    apiReq.methodToCall = ProcessList;
-                                    break;
-                                // END TODO
-                                case "FBFriendLists":
-                                    apiReq.methodToCall = ProcessFriendLists;
-                                    break;
-                                case "FBProfilePic":
-                                    apiReq.methodToCall = ProcessFriendPic;
-                                    break;
-                                case "FBPhotos":
-                                    apiReq.methodToCall = ProcessPhotosInAlbum;
-                                    break;
-                                case "FBPhoto":
-                                    apiReq.methodToCall = ProcessPhoto;
-                                    break;
-                                case "FBLikes":
-                                    apiReq.methodToCall = ProcessLikes;
-                                    break;
-                                case "FBAttending":
-                                    apiReq.methodToCall = ProcessAttending;
-                                    break;
-                                case "FBMaybe":
-                                    apiReq.methodToCall = ProcessMaybeAttending;
-                                    break;
-                                case "FBDeclined":
-                                    apiReq.methodToCall = ProcessNotAttending;
-                                    break;
-                                case "FBEvents":
-                                    apiReq.methodToCall = ProcessEvents;
-                                    break;
-                                case "FBEvent":
-                                    apiReq.methodToCall = ProcessOneEvent;
-                                    break;
-                                case "FBPost":
-                                    apiReq.methodToCall = ProcessOnePost;
-                                    break;
-                                case "FBNotifications":
-                                    apiReq.methodToCall = ProcessNotifications;
-                                    break;
-                                default:
-                                    System.Windows.Forms.MessageBox.Show("Unsupported request type: " + apiReq.ReqType);
-                                    break;
-                            }
                             ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
-                            // TODO: verify, this should be redundant since the query already filters
-                            if (apiReq.Priority >= minPriorityGlobal)
-                                apiReq.Send();
+                            // DEBUG to confirm validation is redundant
+                            if (apiReq.Priority < minPriorityGlobal)
+                                System.Windows.Forms.MessageBox.Show("Unexpected low priority request, ID: "
+                                    + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n");
+
+                            apiReq.Send();
                         } // if
                     } // foreach
                 }
@@ -500,7 +554,7 @@ namespace MyBackup
             } // if not too many requests pending...
             else
             {
-                ErrorMessage = "Waiting for " + ConcurrentRequestLimit;
+                ErrorMessage = "Waiting for " + nRequestsInTransit + " requests to be processed";
             }
             lock (obj)
             {
@@ -526,10 +580,12 @@ namespace MyBackup
             if (result)
             {
                 CountPerState[RECEIVED]++;
+                CountPerState[SENT]--;
             }
             else
             {
                 nFailedRequests++;
+                CountPerState[SENT]--;
             }
             if (result)
             {
@@ -542,20 +598,22 @@ namespace MyBackup
             return true;
         }
 
+        #region "File processing methods"
         /// <summary>
         /// Process a profile picture
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">Filename</param>
+        /// <param name="parent">Reference to the friend database ID</param>
+        /// <param name="parentSNID">Reference to the friend social network ID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessFriendPic(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
             string errorData = "";
+            nRequestsInTransit--;
             nNotParsedRequests++;
-            //System.Windows.Forms.MessageBox.Show("Processing Pic: " + result );
+            CountPerState[SENT]--;
 
             if (result)
             {
@@ -572,26 +630,56 @@ namespace MyBackup
             }
             // fails to process the pic, probably because of an exception
             nFailedRequests++;
-            // TODO: check if changing requests to Retry
             return false;
         }
 
         /// <summary>
+        /// Process a photo from an album
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON photo data</param>
+        /// <param name="parent">CHECK: Reference to the album ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the album SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public static bool ProcessPhoto(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            string errorData = "";
+            nNotParsedRequests++;
+            if (result)
+            {
+                CountPerState[RECEIVED]++;
+                if (parent != null)
+                {
+                    if (parent != null && response.IndexOf("jpg") > 0)
+                    {
+                        //  TODO: Check if can be consolidated with profile pic
+                        DBLayer.UpdatePhoto((long)parent, response, out errorData);
+                        if (errorData == "") return true;
+                    }
+                }
+            }
+            // fails to process the pic, probably because of an exception
+            nFailedRequests++;
+            return false;
+        }
+
+        #endregion
+
+        #region "Collection processing methods"
+        /// <summary>
         /// Get friend list
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of person data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessFriends(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
-            if (!result)
-            {
-                // System.Windows.Forms.MessageBox.Show("Processing friends (false): " + response );
-            }
-
             FBCollection friends = null;
             if (result)
             {
@@ -599,6 +687,7 @@ namespace MyBackup
                 friends.Distance = 1;
                 friends.Parse();
                 CountPerState[PARSED]++;
+                CountPerState[RECEIVED]--;
 
                 if (friends.Next != null)
                 {
@@ -629,42 +718,32 @@ namespace MyBackup
                     apiReq.Queue(50);
                 }
             }
-            //friendsNotParsed = friends;
-            //NumFriends = friends.CurrentNumber;
             return GenericProcess(hwnd, result, response, friends, false);
         }
 
         /// <summary>
         /// process a round of posts
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of Posts</param>
+        /// <param name="parent">Reference to the user database ID</param>
+        /// <param name="parentSNID">Reference to the user social network ID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessWall(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
-            //System.Windows.Forms.MessageBox.Show("Processing wall: " + response );
-            if (!result)
-            {
-                //System.Windows.Forms.MessageBox.Show("Processing wall (false): " + response );
-            }
             FBCollection wall = null;
             if (result)
             {
                 wall = new FBCollection(response, "FBPost");
                 wall.Parse();
                 CountPerState[PARSED]++;
+                CountPerState[RECEIVED]--;
 
                 string error;
                 wall.Save(out error);
                 nPosts += wall.CurrentNumber;
-
-                if (error != "")
-                {
-                    //System.Windows.Forms.MessageBox.Show ( "Error saving wall for parent " + parent + "\n" + error );
-                }
 
                 foreach (FBPost post in wall.items)
                 {
@@ -683,10 +762,7 @@ namespace MyBackup
 
                 if (wall.Next != null)
                 {
-                    //System.Windows.Forms.MessageBox.Show("Wall next: " + wall.Next);
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
-                    // TODO: Check priority depending on own wall or friend wall
-                    // Alternative: Next always is the lower priority depending on backup profile
                     apiReq.Queue(minPriorityGlobal);
                 }
             }
@@ -694,62 +770,24 @@ namespace MyBackup
         }
 
         /// <summary>
-        /// process one friend profile
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessOneFriend(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            nRequestsInTransit--;
-            if (result)
-            {
-                CountPerState[RECEIVED]++;
-                nFriendsProcessed++;
-                FBPerson currentFriend = new FBPerson(response, 1, null);
-                currentFriend.Parse();
-                CountPerState[PARSED]++;
-
-                string errorData;
-                currentFriend.Save(out errorData);
-                if (errorData != "")
-                {
-                    //System.Windows.Forms.MessageBox.Show("Error saving friend: " + errorData);
-                    return false;
-                }
-                return true;
-            }
-            else
-            {
-                nFailedRequests++;
-            }
-            return false;
-        }
-
-        /// <summary>
         /// process a round of messages
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of threads</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessInbox(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
-            //System.Windows.Forms.MessageBox.Show("Processing inbox: " + response );
-            if (!result)
-            {
-                //System.Windows.Forms.MessageBox.Show("Processing inbox (false): " + response );
-            }
             FBCollection inbox = null;
             if (result)
             {
                 inbox = new FBCollection(response, "FBMessage");
                 inbox.Parse();
                 CountPerState[PARSED]++;
+                CountPerState[RECEIVED]--;
 
                 string error;
                 inbox.Save(out error);
@@ -757,17 +795,14 @@ namespace MyBackup
 
                 if (error != "")
                 {
-                    //System.Windows.Forms.MessageBox.Show("Error saving inbox " + error );
                     return false;
                 }
 
                 if (inbox.Next != null)
                 {
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, SIZETOGETPERPAGE, ProcessInbox);
-                    // Alternative: Next always is the lower priority depending on backup profile
                     apiReq.Queue(minPriorityGlobal);
                 }
-
             }
             return GenericProcess(hwnd, result, response, inbox, false);
         }
@@ -775,26 +810,23 @@ namespace MyBackup
         /// <summary>
         /// process a round of notes
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of notes</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         // TODO: Consolidate with ProcessInbox and similar routines
         public static bool ProcessNotes(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
-            //System.Windows.Forms.MessageBox.Show("Processing inbox: " + response );
-            if (!result)
-            {
-                //System.Windows.Forms.MessageBox.Show("Processing inbox (false): " + response );
-            }
             FBCollection notes = null;
             if (result)
             {
                 notes = new FBCollection(response, "FBNote");
                 notes.Parse();
                 CountPerState[PARSED]++;
+                CountPerState[RECEIVED]--;
 
                 string error;
                 notes.Save(out error);
@@ -802,14 +834,12 @@ namespace MyBackup
 
                 if (error != "")
                 {
-                    //System.Windows.Forms.MessageBox.Show("Error saving inbox " + error );
                     return false;
                 }
 
                 if (notes.Next != null)
                 {
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBNotes", notes.Next, SIZETOGETPERPAGE, ProcessInbox);
-                    // Alternative: Next always is the lower priority depending on backup profile
                     apiReq.Queue(minPriorityGlobal);
                 }
 
@@ -820,32 +850,28 @@ namespace MyBackup
         /// <summary>
         /// process a round of albums
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of notes</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessAlbums(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
-            if (!result)
-            {
-                //System.Windows.Forms.MessageBox.Show("Processing albums (false): " + response );
-            }
             FBCollection albums = null;
             if (result)
             {
                 albums = new FBCollection(response, "FBAlbum");
                 albums.Parse();
-                //System.Windows.Forms.MessageBox.Show("Number of albums: " + albums.CurrentNumber );
                 CountPerState[PARSED]++;
+                CountPerState[RECEIVED]--;
                 nAlbums += albums.CurrentNumber;
 
                 string error;
                 albums.Save(out error);
                 if (error != "")
                 {
-                    //System.Windows.Forms.MessageBox.Show("Error saving albums " + error );
                     return false;
                 }
 
@@ -865,10 +891,7 @@ namespace MyBackup
 
                 if (albums.CurrentNumber > 0 && albums.Next != null)
                 {
-                    //System.Windows.Forms.MessageBox.Show("Albums next: " + albums.Next);
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBAlbums", albums.Next, SIZETOGETPERPAGE, ProcessAlbums);
-                    // TODO: Check if they are my albums or friend's
-                    // Alternative: Next always is the lower priority depending on backup profile
                     apiReq.Queue(minPriorityGlobal);
                 }
             }
@@ -876,174 +899,21 @@ namespace MyBackup
         }
 
         /// <summary>
-        /// process a set of photos
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessPhotosInAlbum(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            nRequestsInTransit--;
-            if (!result)
-            {
-                //System.Windows.Forms.MessageBox.Show("Processing photos (false): " + response );
-            }
-            FBCollection photos = null;
-            if (result)
-            {
-                // TODO: Check how to pass parent SNID all around
-                photos = new FBCollection(response, "FBPhoto", parent);
-                photos.Parse();
-                //System.Windows.Forms.MessageBox.Show("Number of photos: " + photos.CurrentNumber );
-                CountPerState[PARSED]++;
-                nPhotos += photos.CurrentNumber;
-
-                string error;
-                photos.Save(out error);
-                if (error != "")
-                {
-                    System.Windows.Forms.MessageBox.Show("Error saving photos " + error);
-                    return false;
-                }
-
-                foreach (FBPhoto photo in photos.items)
-                {
-                    // System.Windows.Forms.MessageBox.Show("will download photo: " + photo.ID);
-                    AsyncReqQueue apiReq = FBAPI.DownloadPhoto(photo.Source,
-                        AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
-                        ProcessPhoto, photo.ID, photo.SNID);
-                    // TODO: Check if it is my photo or other's
-                    apiReq.Queue(200);
-                    apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
-                    apiReq.Queue(150);
-                }
-
-                // Next is not null, but it should since we get all accepted photos on the first round... 
-                // TODO: Analyze how to use Next appropriately
-                /*
-                if (photos.Next != null)
-                {
-                    System.Windows.Forms.MessageBox.Show("Photos next: " + photos.Next);
-                    AsyncReqQueue apiReq = FBAPI.MoreData("FBPhotos", photos.Next, SIZETOGETPERPAGE, ProcessPhotosInAlbum);
-                    apiReq.Queue(50);
-                }
-                */
-            }
-            return GenericProcess(hwnd, result, response, photos, false);
-        }
-
-        /// <summary>
-        /// Process a photo
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessPhoto(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            nRequestsInTransit--;
-            string errorData = "";
-            nNotParsedRequests++;
-            // System.Windows.Forms.MessageBox.Show("Processing Photo parentID: " + parent + "\n" + result );
-
-            if (result)
-            {
-                CountPerState[RECEIVED]++;
-                if (parent != null)
-                {
-                    if (parent != null && response.IndexOf("jpg") > 0)
-                    {
-                        DBLayer.UpdatePhoto((long)parent, response, out errorData);
-                        if (errorData == "") return true;
-                    }
-                }
-            }
-            // fails to process the pic, probably because of an exception
-            nFailedRequests++;
-            return false;
-        }
-
-        public static bool ProcessActions(int hwnd, bool result, string response, int verb, long? parent = null, string parentSNID = "")
-        {
-            nRequestsInTransit--;
-            string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing likes result: " + parent + "\n" + response );
-
-            if (result)
-            {
-                CountPerState[RECEIVED]++;
-                if (parent != null)
-                {
-                    // create FBLikes object
-                    FBLikes likes = new FBLikes(response, parent, parentSNID);
-                    likes.Action = verb;
-                    likes.Parse();
-                    CountPerState[PARSED]++;
-                    likes.Save(out errorData);
-                    if (errorData == "") return true;
-
-                }
-            }
-            nFailedRequests++;
-            return false;
-        }
-
-        /// <summary>
-        /// Process likes
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessLikes(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            return ProcessActions(hwnd, result, response, Verb.LIKE, parent, parentSNID);
-        }
-
-        #region "Processing event Attendance"
-        /// <summary>
-        /// Process Who is Attending Event
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            return ProcessActions(hwnd, result, response, Verb.ATTENDING, parent, parentSNID);
-        }
-        public static bool ProcessMaybeAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            return ProcessActions(hwnd, result, response, Verb.MAYBEATTENDING, parent, parentSNID);
-        }
-        public static bool ProcessNotAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            return ProcessActions(hwnd, result, response, Verb.NOTATTENDING, parent, parentSNID);
-        }
-        #endregion
-
-        /// <summary>
         /// Process list of events
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of events</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessEvents(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
             string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing events result: " + result + "\n" + response );
 
             if (result)
             {
-                CountPerState[RECEIVED]++;
                 FBCollection events = new FBCollection(response, "FBEvent", parent, parentSNID);
                 events.Parse();
                 CountPerState[PARSED]++;
@@ -1064,96 +934,22 @@ namespace MyBackup
         }
 
         /// <summary>
-        /// Process details of a single event
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessOneEvent(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            nRequestsInTransit--;
-            string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing events result: " + result + "\n" + response );
-
-            if (result)
-            {
-                CountPerState[RECEIVED]++;
-                FBEvent anEvent = new FBEvent(response);
-                anEvent.Parse();
-                CountPerState[PARSED]++;
-                anEvent.Save(out errorData);
-
-                if (anEvent.OwnerID == frmDashboard.currentProfile.SocialNetworkAccountID)
-                {
-                    AsyncReqQueue apiReq;
-                    apiReq = FBAPI.AttendingEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessAttending, anEvent.ID);
-                    apiReq.Queue(200);
-                    apiReq = FBAPI.MaybeEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessMaybeAttending, anEvent.ID);
-                    apiReq.Queue(200);
-                    apiReq = FBAPI.DeclinedEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessNotAttending, anEvent.ID);
-                    apiReq.Queue(200);
-                }
-
-                if (errorData == "") return true;
-            }
-            nFailedRequests++;
-            return false;
-        }
-
-        /// <summary>
-        /// Process details of a single event
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static bool ProcessOnePost(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            nRequestsInTransit--;
-            string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing events result: " + result + "\n" + response );
-
-            if (result)
-            {
-                CountPerState[RECEIVED]++;
-                FBPost aPost = new FBPost(response);
-                aPost.Parse();
-                CountPerState[PARSED]++;
-                aPost.Save(out errorData);
-
-                if (aPost.LikesCount > 0 )
-                {
-                    AsyncReqQueue apiReq;
-                    apiReq = FBAPI.Likes(aPost.SNID, SIZETOGETPERPAGE, ProcessLikes, aPost.ID);
-                    apiReq.Queue(200);
-                }
-
-                if (errorData == "") return true;
-            }
-            nFailedRequests++;
-            return false;
-        }
-
-        /// <summary>
         /// Process list of friendlists
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of friendlist IDs/titles</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessFriendLists(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
+            CountPerState[SENT]--;
             string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing friendlists result: " + result + "\n" + response );
 
             if (result)
             {
-                CountPerState[RECEIVED]++;
                 FBCollection lists = new FBCollection(response, "FBFriendList", parent, parentSNID);
                 lists.Parse();
                 CountPerState[PARSED]++;
@@ -1175,21 +971,20 @@ namespace MyBackup
         /// <summary>
         /// Process list of friends
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>        
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of notes</param>
+        /// <param name="parent">CHECK: Reference to the friendlist ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the friendlist SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessList(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
+            CountPerState[SENT]--;
             // TODO: Consolidate with ProcessFriends, maybe with an empty name or with the default name All Friends
             string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing friendlist result: " + result + "\n" + response);
-
             if (result)
             {
-                CountPerState[RECEIVED]++;
                 FBCollection friends = new FBCollection(response, "FBPerson", parent, parentSNID);
                 friends.Parse();
                 CountPerState[PARSED]++;
@@ -1202,23 +997,23 @@ namespace MyBackup
         }
 
         /// <summary>
-        /// Process list of friends
+        /// Process list of family
         /// </summary>
-        /// <param name="hwnd"></param>
-        /// <param name="result"></param>
-        /// <param name="response"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>        
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of notes</param>
+        /// <param name="parent">CHECK: Reference to the person ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the person SNID</param>
+        /// <returns>Request vas processed true/false</returns>
         public static bool ProcessFamily(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
+            CountPerState[SENT]--;
             // TODO: Consolidate with ProcessFriends, maybe with an empty name or with the default name All Friends
             string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing friendlist result: " + result + "\n" + response);
 
             if (result)
             {
-                CountPerState[RECEIVED]++;
                 // should be null by default
                 FBCollection family = new FBCollection(response, "FBRelative", parent, parentSNID);
                 family.Parse();
@@ -1242,12 +1037,11 @@ namespace MyBackup
         public static bool ProcessNotifications(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             nRequestsInTransit--;
+            CountPerState[SENT]--;
             string errorData = "";
-            //System.Windows.Forms.MessageBox.Show("Processing notifications result: " + result + "\n" + response);
 
             if (result)
             {
-                CountPerState[RECEIVED]++;
                 FBCollection notifications = new FBCollection(response, "FBNotification", parent, parentSNID);
                 notifications.Parse();
                 CountPerState[PARSED]++;
@@ -1257,6 +1051,258 @@ namespace MyBackup
             nFailedRequests++;
             return false;
         }
+
+        /// <summary>
+        /// process a set of photos
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="result"></param>
+        /// <param name="response"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool ProcessPhotosInAlbum(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            FBCollection photos = null;
+            if (result)
+            {
+                photos = new FBCollection(response, "FBPhoto", parent, parentSNID);
+                photos.Parse();
+                CountPerState[PARSED]++;
+                CountPerState[RECEIVED]--;
+                nPhotos += photos.CurrentNumber;
+
+                string error;
+                photos.Save(out error);
+                if (error != "")
+                {
+                    System.Windows.Forms.MessageBox.Show("Error saving photos " + error);
+                    return false;
+                }
+
+                foreach (FBPhoto photo in photos.items)
+                {
+                    AsyncReqQueue apiReq = FBAPI.DownloadPhoto(photo.Source,
+                        AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
+                        ProcessPhoto, photo.ID, photo.SNID);
+                    apiReq.Queue(200);
+                    apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
+                    apiReq.Queue(150);
+                }
+
+                // Next is not null, but it should since we get all accepted photos on the first round... 
+                // TODO: Analyze how to use Next appropriately
+                /*
+                if (photos.Next != null)
+                {
+                    System.Windows.Forms.MessageBox.Show("Photos next: " + photos.Next);
+                    AsyncReqQueue apiReq = FBAPI.MoreData("FBPhotos", photos.Next, SIZETOGETPERPAGE, ProcessPhotosInAlbum);
+                    apiReq.Queue(50);
+                }
+                */
+            }
+            return GenericProcess(hwnd, result, response, photos, false);
+        }
+
+        /// <summary>
+        /// Process a list of people associated with an action - TODO: Document and name better
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="verb">Action to be associated</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public static bool ProcessActions(int hwnd, bool result, string response, int verb, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            CountPerState[SENT]--;
+            string errorData = "";
+
+            if (result)
+            {
+                CountPerState[RECEIVED]++;
+                if (parent != null)
+                {
+                    // create FBLikes object
+                    FBLikes likes = new FBLikes(response, parent, parentSNID);
+                    likes.Action = verb;
+                    likes.Parse();
+                    CountPerState[PARSED]++;
+                    likes.Save(out errorData);
+                    if (errorData == "") return true;
+
+                }
+            }
+            nFailedRequests++;
+            return false;
+        }
+
+        /// <summary>
+        /// Process likes
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the object ID that is liked</param>
+        /// <param name="parentSNID">CHECK: Reference to the object SNID</param>
+        public static bool ProcessLikes(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.LIKE, parent, parentSNID);
+        }
+        #region "Processing event Attendance"
+        /// <summary>
+        /// Process Who is Attending Event
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the event ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the event SNID</param>
+        public static bool ProcessAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.ATTENDING, parent, parentSNID);
+        }
+        /// <summary>
+        /// Process Who is Maybe Attending Event
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the event ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the event SNID</param>
+        public static bool ProcessMaybeAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.MAYBEATTENDING, parent, parentSNID);
+        }
+        /// <summary>
+        /// Process Who is Not Attending Event
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the event ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the event SNID</param>
+        public static bool ProcessNotAttending(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessActions(hwnd, result, response, Verb.NOTATTENDING, parent, parentSNID);
+        }
+        #endregion
+
+        #endregion
+
+        #region "Single item processing methods"
+        /// <summary>
+        /// process one friend profile
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public static bool ProcessOneFriend(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            CountPerState[SENT]--;
+            if (result)
+            {
+                nFriendsProcessed++;
+                FBPerson currentFriend = new FBPerson(response, 1, null);
+                currentFriend.Parse();
+                CountPerState[PARSED]++;
+
+                string errorData;
+                currentFriend.Save(out errorData);
+                if (errorData != "")
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                nFailedRequests++;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Process details of a single event
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON event data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public static bool ProcessOneEvent(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            CountPerState[SENT]--;
+            string errorData = "";
+
+            if (result)
+            {
+                FBEvent anEvent = new FBEvent(response);
+                anEvent.Parse();
+                CountPerState[PARSED]++;
+                anEvent.Save(out errorData);
+
+                if (anEvent.OwnerID == frmDashboard.currentProfile.SocialNetworkAccountID)
+                {
+                    AsyncReqQueue apiReq;
+                    apiReq = FBAPI.AttendingEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessAttending, anEvent.ID);
+                    apiReq.Queue(200);
+                    apiReq = FBAPI.MaybeEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessMaybeAttending, anEvent.ID);
+                    apiReq.Queue(200);
+                    apiReq = FBAPI.DeclinedEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessNotAttending, anEvent.ID);
+                    apiReq.Queue(200);
+                }
+
+                if (errorData == "") return true;
+            }
+            nFailedRequests++;
+            return false;
+        }
+
+        /// <summary>
+        /// Process details of a single post
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON post data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public static bool ProcessOnePost(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            nRequestsInTransit--;
+            string errorData = "";
+
+            if (result)
+            {
+                FBPost aPost = new FBPost(response);
+                aPost.Parse();
+                CountPerState[PARSED]++;
+                aPost.Save(out errorData);
+
+                if (aPost.LikesCount > 0 )
+                {
+                    AsyncReqQueue apiReq;
+                    apiReq = FBAPI.Likes(aPost.SNID, SIZETOGETPERPAGE, ProcessLikes, aPost.ID);
+                    apiReq.Queue(200);
+                }
+
+                if (errorData == "") return true;
+            }
+            nFailedRequests++;
+            return false;
+        }
+
+        #endregion
+
         #endregion
 
     }

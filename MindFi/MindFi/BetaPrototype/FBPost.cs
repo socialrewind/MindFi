@@ -184,6 +184,11 @@ namespace MyBackup
                     ParentID = fbParent.SNID;
                 }
                 // System.Windows.Forms.MessageBox.Show("saving post created: " + Created + " updated: " + Updated);
+                // TODO: Review if comments / messages need a different type
+                if (PostType == null || PostType == "")
+                {
+                    PostType = "comment";
+                }
 
                 DBLayer.PostDataSave(MyPartitionDate, MyPartitionID,
                     FromID, FromName, ToID, ToName, Message,

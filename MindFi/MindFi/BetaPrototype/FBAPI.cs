@@ -185,6 +185,21 @@ namespace MyBackup
         }
 
         /// <summary>
+        /// Gets an specific object, by SNID
+        /// </summary>
+        /// <param name="SNID">SNID of Event in Facebook</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called for parsing the event. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        private static AsyncReqQueue FBObject(string SNID, string ObjType, CallBack resultCall)
+        {
+            AsyncReqQueue me = new AsyncReqQueue(ObjType,
+                FBGraphAPIURL + SNID,
+                1, resultCall, true, false);
+            return me;
+        }
+
+        /// <summary>
         /// Gets an specific FB event, by SNID
         /// </summary>
         /// <param name="SNID">SNID of Event in Facebook</param>
@@ -193,10 +208,7 @@ namespace MyBackup
         /// <returns>Success/Failure</returns>
         public static AsyncReqQueue Event(string SNID, CallBack resultCall)
         {
-            AsyncReqQueue me = new AsyncReqQueue("FBEvent",
-                FBGraphAPIURL + SNID,
-                1, resultCall, true, false );
-            return me;
+            return FBObject(SNID, "FBEvent", resultCall);
         }
 
         /// <summary>
@@ -208,10 +220,19 @@ namespace MyBackup
         /// <returns>Success/Failure</returns>
         public static AsyncReqQueue Post(string SNID, CallBack resultCall)
         {
-            AsyncReqQueue me = new AsyncReqQueue("FBPost",
-                FBGraphAPIURL + SNID,
-                1, resultCall, true, false );
-            return me;
+            return FBObject(SNID, "FBPost", resultCall);
+        }
+
+        /// <summary>
+        /// Gets an specific FB message thread, by SNID
+        /// </summary>
+        /// <param name="SNID">SNID of thread in Facebook</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called for parsing the post. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue Thread(string SNID, CallBack resultCall)
+        {
+            return FBObject(SNID, "FBThread", resultCall);
         }
 
         /// <summary>

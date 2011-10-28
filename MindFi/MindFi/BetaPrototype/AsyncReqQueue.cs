@@ -248,6 +248,9 @@ namespace MyBackup
                 case "FBInbox":
                     methodToCall = ProcessInbox;
                     break;
+                case "FBThread":
+                    methodToCall = ProcessInbox;
+                    break;
                 // TODO: Consolidate
                 case "FBNotes":
                     methodToCall = ProcessNotes;
@@ -755,7 +758,7 @@ namespace MyBackup
                     if (post.CommentCount > post.Comments.Count)
                     {
                         AsyncReqQueue apiReq = FBAPI.Post(post.SNID, ProcessOnePost);
-                        apiReq.Queue(200);
+                        apiReq.Queue(minPriorityGlobal);
                     }
                 }
 
@@ -796,6 +799,12 @@ namespace MyBackup
                 if (error != "")
                 {
                     return false;
+                }
+
+                foreach (FBMessage message in inbox.items)
+                {
+                    AsyncReqQueue apiReq = FBAPI.Thread(message.SNID, ProcessInbox);
+                    apiReq.Queue(minPriorityGlobal);
                 }
 
                 if (inbox.Next != null)

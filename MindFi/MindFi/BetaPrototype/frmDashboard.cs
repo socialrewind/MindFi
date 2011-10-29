@@ -138,54 +138,33 @@ namespace MyBackup
             PopulateAccounts();
         }
 
-        /// <summary>
-        /// Processing event for removing social network accounts
-        /// </summary>
-        private void btnDeleteAccount_Click(object sender, EventArgs e)
-        {
-            DialogResult res = MessageBox.Show("Are you sure to delete the selected accounts?",
-            "Confirm delete", MessageBoxButtons.YesNo);
-            if (res != DialogResult.Yes)
-            {
-                return;
-            }
-
-            /*
-            ArrayList temp = (ArrayList)this.accountsGrid.DataSource;
-            if (temp != null)
-            {
-                foreach (SNAccount account in temp)
-                {
-                    if (account.Remove)
-                    {
-                        string error;
-                        if (!DBLayer.DeleteAccount(account.ID, out error))
-                        {
-                            MessageBox.Show("Error deleting account: " + error);
-                        }
-                    }
-                }
-            }
-            // refresh data
-            PopulateAccounts();
-             * */
-        }
+        ///// <summary>
+        ///// Processing event for removing social network accounts
+        ///// </summary>
+        //private void btnDeleteAccount_Click(object sender, EventArgs e)
+        //{
+        //    DialogResult res = MessageBox.Show("Are you sure to delete the selected accounts?",
+        //    "Confirm delete", MessageBoxButtons.YesNo);
+        //    if (res != DialogResult.Yes)
+        //    {
+        //        return;
+        //    }
+        //    // TODO: Delete an account
+        //}
 
         /// <summary>
-        /// Fills the data grid with the list of accounts in the database
+        /// Fills the data from the list of accounts in the database
         /// </summary>
         private void PopulateAccounts()
         {
             string error;
-            //this.accountsGrid.DataSource = null;
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
-            //this.accountsGrid.DataSource = currentAccounts;
             if (error != "")
             {
                 MessageBox.Show("Error getting accounts:\n" + error);
             }
-            // Second version: instead of datasource, use radiobuttons
-            if (currentAccounts != null && currentProfile == null )
+            // TODO: Review how it can be empty and not null
+            if (currentAccounts != null && currentProfile == null && currentAccounts.Count > 0)
             {
                 SNAccount first = (SNAccount) currentAccounts[0];
                 currentProfile = new MyBackupProfile();

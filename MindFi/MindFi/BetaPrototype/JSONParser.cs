@@ -69,7 +69,7 @@ namespace MyBackup
             temp = new JSONScanner(response);
             parserState = 0;
             nestingLevel = 0;
-            Distance = 0;
+            Distance = 99;
             Parsed = false;
             ConstructOriginalResponse = false;
             ID = -1; // default as not saved
@@ -89,7 +89,7 @@ namespace MyBackup
             // { was already processed...
             parserState = 1;
             nestingLevel = 1;
-            Distance = 0;
+            Distance = 99;
             Parsed = false;
         }
 

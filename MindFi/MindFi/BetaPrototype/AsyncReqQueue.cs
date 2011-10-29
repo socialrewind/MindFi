@@ -249,9 +249,8 @@ namespace MyBackup
                     methodToCall = ProcessInbox;
                     break;
                 case "FBThread":
-                    methodToCall = ProcessInbox;
+                    methodToCall = ProcessThread;
                     break;
-                // TODO: Consolidate
                 case "FBNotes":
                     methodToCall = ProcessNotes;
                     break;
@@ -687,7 +686,7 @@ namespace MyBackup
             if (result)
             {
                 friends = new FBCollection(response, "FBPerson");
-                friends.Distance = 1;
+                friends.Distance = 2;
                 friends.Parse();
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
@@ -781,7 +780,12 @@ namespace MyBackup
         /// <param name="parent">CHECK: Reference to the user ID</param>
         /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
         /// <returns>Request vas processed true/false</returns>
-        public static bool ProcessInbox(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        public static bool ProcessThread(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessThread(hwnd, result, response, parent, parentSNID, false);
+        }
+
+        public static bool ProcessThread(int hwnd, bool result, string response, long? parent = null, string parentSNID = "", bool processChildren=false)
         {
             nRequestsInTransit--;
             FBCollection inbox = null;
@@ -801,19 +805,36 @@ namespace MyBackup
                     return false;
                 }
 
-                foreach (FBMessage message in inbox.items)
+                if (processChildren)
                 {
-                    AsyncReqQueue apiReq = FBAPI.Thread(message.SNID, ProcessInbox);
-                    apiReq.Queue(minPriorityGlobal);
-                }
+                    foreach (FBMessage message in inbox.items)
+                    {
+                        AsyncReqQueue apiReq = FBAPI.Thread(message.SNID, ProcessInbox);
+                        apiReq.Queue(minPriorityGlobal);
+                    }
 
-                if (inbox.Next != null)
-                {
-                    AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, SIZETOGETPERPAGE, ProcessInbox);
-                    apiReq.Queue(minPriorityGlobal);
+                    if (inbox.Next != null)
+                    {
+                        AsyncReqQueue apiReq = FBAPI.MoreData("FBInbox", inbox.Next, SIZETOGETPERPAGE, ProcessInbox);
+                        apiReq.Queue(minPriorityGlobal);
+                    }
                 }
             }
             return GenericProcess(hwnd, result, response, inbox, false);
+        }
+
+        /// <summary>
+        /// process a round of messages
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON array of threads</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public static bool ProcessInbox(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            return ProcessThread(hwnd, result, response, parent, parentSNID, true);
         }
 
         /// <summary>

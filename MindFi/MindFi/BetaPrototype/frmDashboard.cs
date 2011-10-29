@@ -164,33 +164,36 @@ namespace MyBackup
                 MessageBox.Show("Error getting accounts:\n" + error);
             }
             // TODO: Review how it can be empty and not null
-            if (currentAccounts != null && currentProfile == null && currentAccounts.Count > 0)
+            if (currentAccounts != null && currentAccounts.Count > 0)
             {
-                SNAccount first = (SNAccount) currentAccounts[0];
-                currentProfile = new MyBackupProfile();
-                currentProfile.currentBackupLevel = first.currentBackupLevel;
-                currentProfile.SocialNetworkAccountID = first.SNID;
-                currentProfile.socialNetworkID = first.SocialNetwork;
-                currentProfile.socialNetworkURL = first.URL;
-                currentProfile.userName = first.Name;
-            }
+                if (currentAccounts != null && currentProfile == null)
+                {
+                    SNAccount first = (SNAccount)currentAccounts[0];
+                    currentProfile = new MyBackupProfile();
+                    currentProfile.currentBackupLevel = first.currentBackupLevel;
+                    currentProfile.SocialNetworkAccountID = first.SNID;
+                    currentProfile.socialNetworkID = first.SocialNetwork;
+                    currentProfile.socialNetworkURL = first.URL;
+                    currentProfile.userName = first.Name;
+                }
 
-            System.Windows.Forms.LinkLabel lblToAssign = null;
-            switch (currentProfile.socialNetworkID)
-            {
-                case SocialNetwork.FACEBOOK:
-                    lblToAssign = linkLabelFB1;
-                    break;
-                case SocialNetwork.TWITTER:
-                    lblToAssign = linkLabelTw1;
-                    break;
-                case SocialNetwork.LINKEDIN:
-                    lblToAssign = linkLabelLI1;
-                    break;
-            }
-            if (lblToAssign != null)
-            {
-                lblToAssign.Text = currentProfile.userName;
+                System.Windows.Forms.LinkLabel lblToAssign = null;
+                switch (currentProfile.socialNetworkID)
+                {
+                    case SocialNetwork.FACEBOOK:
+                        lblToAssign = linkLabelFB1;
+                        break;
+                    case SocialNetwork.TWITTER:
+                        lblToAssign = linkLabelTw1;
+                        break;
+                    case SocialNetwork.LINKEDIN:
+                        lblToAssign = linkLabelLI1;
+                        break;
+                }
+                if (lblToAssign != null)
+                {
+                    lblToAssign.Text = currentProfile.userName;
+                }
             }
 
             btnOnline.Enabled = (currentProfile != null);

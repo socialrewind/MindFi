@@ -1097,6 +1097,17 @@ namespace MyBackup
                     if (outrows > 0)
                     {
                         Saved = true;
+                        // Adding FTS records
+                        SQL = "insert into FTSPostData (PostID,Message,Description,Created) select PostID,Message, Description, Created from PostData where PartitionDate=? and PartitionID=?;";
+                        SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
+                        FTSCmd.Parameters.Add(pPartitionDate);
+                        FTSCmd.Parameters.Add(pPartitionID);
+
+                        outrows = FTSCmd.ExecuteNonQuery();
+                        if (outrows == 0)
+                        {
+                            System.Windows.Forms.MessageBox.Show("error inserting FTS PostData");
+                        }
                     }
                     ErrorMessage = "";
                 } // try
@@ -1209,6 +1220,20 @@ namespace MyBackup
                     {
                         Saved = true;
                         ErrorMessage = "";
+                        // Adding FTS records
+                        if (Table == "MessageData")
+                        {
+                            SQL = "insert into FTSMessageData (MessageID, Message, Created) select MessageID, Message, Created from MessageData where PartitionDate=? and PartitionID=?;";
+                            SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
+                            FTSCmd.Parameters.Add(pPartitionDate);
+                            FTSCmd.Parameters.Add(pPartitionID);
+
+                            outrows = FTSCmd.ExecuteNonQuery();
+                            if (outrows == 0)
+                            {
+                                System.Windows.Forms.MessageBox.Show("error inserting FTS MessageData");
+                            }
+                        }
                     }
                     else
                     {
@@ -1399,6 +1424,18 @@ namespace MyBackup
                     if (outrows > 0)
                     {
                         Saved = true;
+                        // Adding FTS records
+                        SQL = "insert into FTSEventDAta (EventID, Description, Location, EventDate) select EventID, Description, Location, StartTime from EventData where PartitionDate=? and PartitionID=?;";
+                        SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
+                        FTSCmd.Parameters.Add(pPartitionDate);
+                        FTSCmd.Parameters.Add(pPartitionID);
+
+                        outrows = FTSCmd.ExecuteNonQuery();
+                        if (outrows == 0)
+                        {
+                            System.Windows.Forms.MessageBox.Show("error inserting FTS EventData");
+                        }
+
                     }
                     ErrorMessage = "";
                 } // try
@@ -1672,6 +1709,17 @@ namespace MyBackup
                     if (outrows > 0)
                     {
                         Saved = true;
+                        // Adding FTS records
+                        SQL = "insert into FTSAlbumData (AlbumID,Name,Description,Created) select B.AlbumID,A.Name,B.Description, B.Created from Entities A, AlbumData B where A.ID = B.AlbumID and PartitionDate=? and PartitionID=?;";
+                        SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
+                        FTSCmd.Parameters.Add(pPartitionDate);
+                        FTSCmd.Parameters.Add(pPartitionID);
+
+                        outrows = FTSCmd.ExecuteNonQuery();
+                        if (outrows == 0)
+                        {
+                            System.Windows.Forms.MessageBox.Show("error inserting FTS AlbumData");
+                        }
                     }
                     ErrorMessage = "";
                 } // try
@@ -1771,6 +1819,17 @@ namespace MyBackup
                     if (outrows > 0)
                     {
                         Saved = true;
+                        // Adding FTS records
+                        SQL = "insert into FTSPhotoData (PhotoID,Name,Created) select B.PhotoID,A.Name, B.Created from Entities A, PhotoData B where A.ID = B.PhotoID and PartitionDate=? and PartitionID=?;";
+                        SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
+                        FTSCmd.Parameters.Add(pPartitionDate);
+                        FTSCmd.Parameters.Add(pPartitionID);
+
+                        outrows = FTSCmd.ExecuteNonQuery();
+                        if (outrows == 0)
+                        {
+                            System.Windows.Forms.MessageBox.Show("error inserting FTS AlbumData");
+                        }
                     }
                     else
                     {

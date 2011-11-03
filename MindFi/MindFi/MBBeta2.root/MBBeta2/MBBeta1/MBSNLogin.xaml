@@ -1,0 +1,15 @@
+﻿<Window x:Class="MBBeta2.MBSNLogin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MBSNLogin" Height="480" Width="640">
+    <Grid>
+        <StackPanel>
+            <WebBrowser x:Name="LoginBrowser" MinHeight="350" LoadCompleted="LoginBrowser_LoadCompleted">
+            
+            </WebBrowser>
+            <TextBox x:Name="URLBox"/>
+            <Button Content="Go to Web..." Click="Button_Click"/>
+            <TextBox x:Name="ResultTB"/>
+        </StackPanel>
+    </Grid>
+</Window>

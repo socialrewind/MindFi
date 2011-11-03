@@ -1,0 +1,167 @@
+﻿<Window x:Class="MBBeta2.DetailCard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+      xmlns:local="clr-namespace:MBBeta2"
+      MinWidth="640" MinHeight="480"
+	  Title="DetailCard"
+      WindowStyle="None" AllowsTransparency="True" BorderBrush="Black" BorderThickness="1"
+      WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+
+        <local:MonthConverter x:Key="monthConverter"/>
+
+        <LinearGradientBrush x:Key="SilverBlue" StartPoint="1,0">
+            <GradientStop Color="Silver" Offset=".05"/>
+            <GradientStop Color="WhiteSmoke" Offset="0.25"/>
+            <GradientStop Color="WhiteSmoke" Offset="0.8"/>
+            <GradientStop Color="Silver" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <Style x:Key="RelationshipStatusStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="">
+                    <Setter Property="Text" Value=""/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="Single">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:Single}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="Engaged">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:Engaged}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="Married">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:Married}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="In a relationship">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:InARelationship}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <DataTemplate x:Key="OrganizationDataTemplate">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="{Binding Name}"
+                           FontSize="14" Foreground="Navy"/>
+                <TextBlock Text="{Binding Adverb}"
+                           Foreground="Gray"/>
+                <TextBlock Text="{Binding IndirectObject}"/>
+            </StackPanel>
+        </DataTemplate>
+
+        
+
+    </Window.Resources>
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition   Width="0.25*"/>
+            <ColumnDefinition   Width="0.70*"/>
+            <ColumnDefinition   Width="0.05*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.05*"/>
+            <RowDefinition Height="0.95*"/>
+        </Grid.RowDefinitions>
+
+        <Rectangle Fill="{StaticResource SilverBlue}" Grid.RowSpan="2" Grid.ColumnSpan="3" >
+
+        </Rectangle>
+
+        <Button Grid.Column="2" VerticalAlignment="Top" Width="20"
+                x:Name="CloseBt" Click="CloseBt_Click">
+            <Image Source="Images\close_blue.png"/>
+        </Button>
+
+        <StackPanel Grid.Column="0" Grid.Row="1"
+                    Orientation="Vertical">
+
+            <Grid>
+                <Rectangle Width="100" Height="100" RadiusX="10" RadiusY="10" Fill="White"/>
+                <Image Source="{Binding ProfilePic}" Width="80" Height="80"/>
+            </Grid>
+
+            <StackPanel Orientation="Vertical" Margin="0,20,0,0">
+                <TextBlock Text="{Binding FirstName}"
+                           FontSize="15" FontWeight="Bold"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding LastName}"
+                           FontWeight="Bold" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Rectangle Grid.Column="1" Grid.Row="1" 
+                   Fill="White" RadiusX="10" RadiusY="10" Margin="0,0,0,10"/>
+
+        <ScrollViewer Grid.Column="1" Grid.Row="1" Margin="10,10,10,20" VerticalScrollBarVisibility="Auto">
+
+            <StackPanel Orientation="Vertical">
+
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{lex:LocText MBBeta2:DCStrings:PersonalData}"
+                           FontWeight="Bold"/>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,0,0">
+                        <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:Birthday}"/>
+                        <TextBlock  Text=": "/>
+                        <TextBlock  Text="{Binding BirthMonth, Converter={StaticResource monthConverter}, StringFormat={}{0:MMM}}"/>
+                        <TextBlock  Text=" "/>
+                        <TextBlock Text="{Binding BirthDay}"/>
+                    </StackPanel>
+                </StackPanel>
+
+
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                    <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:Relationship}"
+                        FontWeight="Bold"/>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,0,0">
+                        <TextBlock Style="{StaticResource RelationshipStatusStyle}"/>
+                        <TextBlock Text=" "/>
+                        <TextBlock Text="{Binding Path=SignificantOther.Name}"/>
+                    </StackPanel>
+
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                    <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:Education}"
+                        FontWeight="Bold"/>
+                    <ItemsControl   x:Name="EducationItemsControl" Margin="5,5,0,0"
+                                    ItemTemplate="{StaticResource OrganizationDataTemplate}"
+                                    ItemsSource="{Binding Path=SchoolsList}">                        
+                    </ItemsControl>                    
+                </StackPanel>
+                
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                    <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:Work}"
+                        FontWeight="Bold"/>
+                    <ItemsControl   x:Name="WorkItemsControl" Margin="5,5,0,0"
+                                    ItemTemplate="{StaticResource OrganizationDataTemplate}"
+                                ItemsSource="{Binding Path=CompaniesList}">
+                    </ItemsControl>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding FirstName}"
+                            FontWeight="Bold"/>
+                        <TextBlock Text=" "/>
+                        <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:AndYou}"
+                            FontWeight="Bold"/>
+                    </StackPanel>
+                    <Button x:Name="FriendshipBt" Click="FriendshipBt_Click"
+                        Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
+                        Content="{lex:LocText MBBeta2:DCStrings:SearchDetails}"
+                        Margin="5,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,10,0,0">
+                    <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:Stats}"
+                        FontWeight="Bold"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</Window>

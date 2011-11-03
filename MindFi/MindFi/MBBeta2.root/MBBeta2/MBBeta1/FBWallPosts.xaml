@@ -1,0 +1,66 @@
+﻿<Window x:Class="MBBeta2.FBWallPosts"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:MBBeta2.Controls"
+        xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        Title="FBWallPosts" 
+        MinHeight="480" MinWidth="640" WindowStyle="None" AllowsTransparency="True" BorderBrush="Gray" BorderThickness="1"
+        WindowStartupLocation="CenterOwner">
+    
+    <Grid>
+        <DockPanel Background="WhiteSmoke">
+            <StackPanel DockPanel.Dock="Bottom">
+                <StatusBar>
+                    STATUS
+                </StatusBar>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Top">
+                <Grid>
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="DarkBlue" Offset="0.0"/>
+                            <GradientStop Color="Silver" Offset="0.8"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <TextBlock Text="{lex:LocText MBBeta2:WPStrings:FBWall}" 
+                               Foreground="White" FontWeight="Bold" VerticalAlignment="Center"
+                               Margin="10"/>
+                    <Button x:Name="CloseBt" HorizontalAlignment="Right" Click="CloseBt_Click"
+                            Height="20">
+                        <Image Source="Images/close_blue.png"/>
+                    </Button>
+                </Grid>
+            </StackPanel>
+            <Grid DockPanel.Dock="Left">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width=".25*"/>
+                    <ColumnDefinition Width=".75*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0"
+                            Orientation="Vertical" Margin="10">
+                    <TextBlock Text="{lex:LocText MBBeta2:MBStrings:CurrentView}" FontWeight="Bold"/>
+                    <controls:DateFilter x:Name="PostsDF"
+                                         Margin="10"/>
+                    <Button x:Name="DateFilterBt" Content="{lex:LocText MBBeta2:MsgCtrlStrings:ApplyDateFilter}"
+                                Click="DateFilterBt_Click"
+                            Margin="10,0,10,10"/>
+                    <!--Statistics ZONE-->
+                    <Separator Height="20"/>
+                    <StackPanel>
+                        <Label VerticalAlignment="Center" Content="{lex:LocText MBBeta2:MsgCtrlStrings:Statistics}"
+                               FontWeight="Bold"/>
+                    </StackPanel>
+                </StackPanel>
+                <!--Posts Scroll Viewer-->
+                <ScrollViewer   Grid.Column ="1" 
+                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                Margin="10" Background="White">
+                    <controls:WallPostStructureControl x:Name="BrowsePostsCtrl"/>    
+
+                </ScrollViewer>
+
+                
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

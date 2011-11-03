@@ -1,0 +1,415 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FCBE08B9-4F69-40D8-9665-96E8CA688249}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MBBeta2</RootNamespace>
+    <AssemblyName>MBBeta2</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WPFLocalizeExtension, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\WPFLocalizeExtension.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommonCode.cs" />
+    <Compile Include="Controls\AlbumControl.xaml.cs">
+      <DependentUpon>AlbumControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AlbumListControl.xaml.cs">
+      <DependentUpon>AlbumListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EventDetailsControl.xaml.cs">
+      <DependentUpon>EventDetailsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EventsControl.xaml.cs">
+      <DependentUpon>EventsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FBLikeControl.xaml.cs">
+      <DependentUpon>FBLikeControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SNMessageControl.xaml.cs">
+      <DependentUpon>SNMessageControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SNMessageConversationControl.xaml.cs">
+      <DependentUpon>SNMessageConversationControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\WallPostStructureControl.xaml.cs">
+      <DependentUpon>WallPostStructureControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\MonthConverter.cs" />
+    <Compile Include="FBEvents.xaml.cs">
+      <DependentUpon>FBEvents.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FBPhotos.xaml.cs">
+      <DependentUpon>FBPhotos.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DetailCard.xaml.cs">
+      <DependentUpon>DetailCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FBWallPosts.xaml.cs">
+      <DependentUpon>FBWallPosts.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="InitialSetup.xaml.cs">
+      <DependentUpon>InitialSetup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MBAccountSetup.xaml.cs">
+      <DependentUpon>MBAccountSetup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MBError.cs" />
+    <Compile Include="MBLogin.xaml.cs">
+      <DependentUpon>MBLogin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MBSetup.xaml.cs">
+      <DependentUpon>MBSetup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MBSNLogin.xaml.cs">
+      <DependentUpon>MBSNLogin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\MBStrings.es.Designer.cs">
+      <DependentUpon>MBStrings.es.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Resources\EventStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EventStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\FBPhotoStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FBPhotoStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\LoginStrings.es.Designer.cs">
+      <DependentUpon>LoginStrings.es.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Resources\DCStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DCStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\LoginStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LoginStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\MBStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MBStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\MsgCtrlStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MsgCtrlStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\SetupStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SetupStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\WPStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>WPStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SNMessages.xaml.cs">
+      <DependentUpon>SNMessages.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="VirtualizingWrapPannel.cs" />
+    <Page Include="Controls\AlbumControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AlbumListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\DateFilter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EventDetailsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EventsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\FBLikeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SNMessageControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SNMessageConversationControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\WallPostStructureControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FBEvents.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FBPhotos.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DetailCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FBWallPosts.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InitialSetup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MBAccountSetup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MBLogin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MBMain.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MBSetup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MBSNLogin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SNMessages.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\DateFilter.xaml.cs">
+      <DependentUpon>DateFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\TabSizeConverter.cs" />
+    <Compile Include="MBMain.xaml.cs">
+      <DependentUpon>MBMain.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\MBStrings.es.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MBStrings.es.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\EventStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EventStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\FBPhotoStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>FBPhotoStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\LoginStrings.es.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LoginStrings.es.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\DCStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DCStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\LoginStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LoginStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\MBStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MBStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\MsgCtrlStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MsgCtrlStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\SetupStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SetupStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\WPStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>WPStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\New-File-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Network-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Search-icon-blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Network2-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Refresh-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Gear-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\f_logo.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\linkedin_logo.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\twitter_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\close_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Blue-Backup-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\search-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MBBetaAPI\MBBetaAPI.csproj">
+      <Project>{79BA485C-3F6D-4CAD-9C30-369D4FB82D29}</Project>
+      <Name>MBBetaAPI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\nophoto.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\left arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\right arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Controls\Images\like.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Controls\Images\nophoto.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Controls\Images\calendar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\system_help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="System.Data.SQLite.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WPFLocalizeExtension.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

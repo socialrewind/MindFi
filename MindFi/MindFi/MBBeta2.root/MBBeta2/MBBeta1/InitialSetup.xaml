@@ -1,0 +1,59 @@
+﻿<Window x:Class="MBBeta2.InitialSetup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        Title="Setup" Height="300" Width="500"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Closing="Window_Closing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="0.6*"/>
+            <RowDefinition Height="0.3*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:InitialSetup}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontSize="16" FontWeight="Bold"/>
+        </StackPanel>
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.25*"/>
+                <RowDefinition Height="0.25*"/>
+                <RowDefinition Height="0.25*"/>
+                <RowDefinition Height="0.25*"/>
+            </Grid.RowDefinitions>
+            <Button x:Name="SelectFileBt" Click="SelectFileBt_Click"
+                    Content="{lex:LocText MBBeta2:LoginStrings:SelectFile}"
+                    Grid.Row="0" Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
+                    VerticalAlignment="Center"/>
+            <TextBlock x:Name="BackupFileTB"
+                     Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Margin="10,2,5,2"/>
+            <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:User}"
+                       Grid.Row="1" VerticalAlignment="Center"/>
+            <TextBox x:Name="UserTB"
+                     Grid.Column="1" Grid.Row="1" Margin="10,2,5,2" MaxLength="15"/>
+            <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:Password}"
+                       Grid.Row="2" VerticalAlignment="Center"/>
+            <PasswordBox x:Name="PasswordPB"
+                     Grid.Column="1" Grid.Row="2" Margin="10,2,5,2" MaxLength="15"/>
+            <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:ReEnterPassword}"
+                       Grid.Row="3" VerticalAlignment="Center"/>
+            <PasswordBox x:Name="PasswordVerificationPB"
+                     Grid.Column="1" Grid.Row="3" Margin="10,2,5,2" MaxLength="15"/>
+        </Grid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10" HorizontalAlignment="Center">
+            <Button x:Name="CreateBt" Click="CreateBt_Click"
+                    Content="{lex:LocText MBBeta2:LoginStrings:Create}"
+                    VerticalAlignment="Center" Margin="10"  Width="100"/>
+            <Button x:Name="CancelBt" Click="CancelBt_Click"
+                    Content="{lex:LocText MBBeta2:LoginStrings:Cancel}"
+                    VerticalAlignment="Center" Margin="10" Width="100"/>
+        </StackPanel>
+    </Grid>
+</Window>

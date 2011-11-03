@@ -1,0 +1,101 @@
+﻿<Window x:Class="MBBeta2.MBLogin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        Title="Login" Height="300" Width="300"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.25*"/>
+            <RowDefinition Height="0.40*"/>
+            <RowDefinition Height="0.35*"/>
+        </Grid.RowDefinitions>
+        <Rectangle Grid.RowSpan="3">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="1,0">
+                    <GradientStop Color="Silver" Offset="0.0"/>
+                    <GradientStop Color="DarkBlue" Offset="0.2"/>
+                    <GradientStop Color="DarkBlue" Offset="0.8"/>
+                    <GradientStop Color="Silver" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <TextBlock Text="Social Rewind"
+                   FontFamily="Arial Rounded MT" FontSize="20" Foreground="WhiteSmoke"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+        <!--User and password-->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="0.4*"/>
+                <ColumnDefinition Width="0.4*"/>
+                <ColumnDefinition Width="0.1*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:User}" 
+                       Grid.Column="1" VerticalAlignment="Center"
+                       Foreground="White" FontFamily="Arial Rounded MT" FontWeight="Bold"/>
+            <TextBox   x:Name="UserLoginTB"
+                       Grid.Column="2" KeyDown="Enter_KeyDown" Margin="2"/>
+            <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:Password}"
+                       Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"
+                       Foreground="White" FontFamily="Arial Rounded MT" FontWeight="Bold"/>
+            <PasswordBox x:Name="PasswordLoginTB"
+                         Grid.Column="2" Grid.Row="1" Margin="2"
+                         KeyDown="PasswordLoginTB_KeyDown"/>
+            <Button x:Name="LoginBt" Click="LoginBt_Click"
+                    Grid.Column="2" Grid.Row="2" Margin="2"
+                    Content="{lex:LocText MBBeta2:LoginStrings:Login_Button}"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="3"  Grid.ColumnSpan="4"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock x:Name="ErrorMessageTB"
+                           Foreground="White" FontFamily="Arial Rounded MT" FontWeight="Bold"/>
+                <TextBlock x:Name="LoginAttemptsTB"
+                           Margin="10,0,0,0"
+                           Foreground="White" FontFamily="Arial Rounded MT" FontWeight="Bold"/>
+            </StackPanel>
+        </Grid>
+
+        <!--Language Selection-->
+        <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Center">   
+            <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+                <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:BackupFile}"
+                           Foreground="White" FontFamily="Arial Rounded MT" FontWeight="Bold"/>
+                <TextBlock x:Name="BackupFileTB" Text=""
+                           Foreground="Silver" FontFamily="Arial Rounded MT"
+                           Margin="10,0,0,0"/>
+                <Button x:Name="ChangeFileBt" Content="{lex:LocText MBBeta2:LoginStrings:ChangeFile}"
+                        Margin="20,0,0,0"
+                        Click="ChangeFileBt_Click"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="30,5,0,0">
+                <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:Language}"
+                           Foreground="White" FontFamily="Arial Rounded MT" FontWeight="Bold"/>
+                <ComboBox x:Name="LanguageSelectionCB" SelectionChanged="LanguageSelectionCB_SelectionChanged"
+                          Margin="10,0,0,0" SelectedIndex="0">
+                    <ComboBoxItem Content="English"/>
+                    <ComboBoxItem Content="Español"/>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                <Button x:Name="SetupBt" 
+                    HorizontalContentAlignment="Center" HorizontalAlignment="Right"
+                    Width="25" Height="25" Click="SetupBt_Click">
+                    <Image Source="Images/Gear-icon.png" Height="22"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="{lex:LocText MBBeta2:MBStrings:Setup}" 
+                               DockPanel.Dock="Right" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    </Button.ToolTip>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

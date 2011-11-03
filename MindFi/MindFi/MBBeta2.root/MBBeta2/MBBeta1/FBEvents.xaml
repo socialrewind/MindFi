@@ -1,0 +1,100 @@
+﻿<Window x:Class="MBBeta2.FBEvents"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        xmlns:controls="clr-namespace:MBBeta2.Controls"
+        Title="Facebook Events"
+        MinWidth="640" MinHeight="480"
+        WindowStyle="None" AllowsTransparency="True" Background="White" BorderBrush="Gray" BorderThickness="1">
+    <Grid PreviewKeyDown="Grid_PreviewKeyDown">
+        <DockPanel Background="WhiteSmoke">
+            <StackPanel DockPanel.Dock="Bottom">
+                <StatusBar>
+                    STATUS
+                </StatusBar>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Top">
+                <Grid>
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="DarkBlue" Offset="0.0"/>
+                            <GradientStop Color="Silver" Offset="0.8"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <TextBlock Text="{lex:LocText MBBeta2:EventStrings:FBEvents}" 
+                               Foreground="White" FontWeight="Bold" VerticalAlignment="Center"
+                               Margin="10"/>
+                    <Button x:Name="CloseBt" HorizontalAlignment="Right" Click="CloseBt_Click"
+                            Height="20">
+                        <Image Source="Images/close_blue.png"/>
+                    </Button>
+                </Grid>
+            </StackPanel>
+            <Grid DockPanel.Dock="Left">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width=".25*"/>
+                    <ColumnDefinition Width=".75*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0"
+                            Orientation="Vertical" Margin="10">
+                    <TextBlock Text="{lex:LocText MBBeta2:MBStrings:CurrentView}" FontWeight="Bold"/>
+                    <controls:DateFilter x:Name="EventsDF"
+                                         Margin="10"/>
+                    <Button x:Name="DateFilterBt" Content="{lex:LocText MBBeta2:EventStrings:ApplyDateFilter}"
+                                Click="DateFilterBt_Click"
+                            Margin="10,0,10,10"/>
+                    <!--Statistics ZONE-->
+                    <Separator Height="20"/>
+                    <StackPanel>
+                        <Label VerticalAlignment="Center" Content="{lex:LocText MBBeta2:EventStrings:Statistics}"
+                               FontWeight="Bold"/>
+                    </StackPanel>
+                </StackPanel>
+                <ScrollViewer   Grid.Column ="1" 
+                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                Margin="10" Background="White">
+                    
+                    <controls:EventsControl x:Name="EventsListCtrl"
+                                            MouseDoubleClick="EventsListCtrl_MouseDoubleClick"/>
+                    
+                    <ScrollViewer.ToolTip>
+                        <ToolTip>
+                            <TextBlock Text="{lex:LocText MBBeta2:EventStrings:DoubleClickDetails}"/>
+                        </ToolTip>
+                    </ScrollViewer.ToolTip>
+
+                </ScrollViewer>
+
+                <!--Grid for showing Events-->
+                <Grid   x:Name="EventDetailGrid"
+                            Grid.Column="1" Margin="10"
+                            IsEnabled="False" Visibility="Hidden"
+                            Background="White">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.90*"/>
+                        <ColumnDefinition Width="0.10*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.1*"/>
+                        <RowDefinition Height="0.9*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{lex:LocText MBBeta2:EventStrings:EventDetails}"
+                               FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"
+                               Margin="10"/>
+                    <ScrollViewer   x:Name="EventDetailScroll"
+                                    Grid.Column="0" Grid.Row="1" 
+                                    VerticalScrollBarVisibility="Auto">
+                        <!--HEre goes the detials control-->
+                        <controls:EventDetailsControl x:Name="EventDetailsCtrl"/>
+                    </ScrollViewer>
+                    <Button x:Name="CloseEventDetailsBt"
+                                Grid.Column="1"
+                                Height="22" VerticalAlignment="Top" Width="22"
+                                Click="CloseEventDetailsBt_Click">
+                        <Image Source="Images/close_blue.png" Width="20"/>
+                    </Button>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

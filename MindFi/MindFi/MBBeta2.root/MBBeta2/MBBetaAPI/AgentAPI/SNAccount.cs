@@ -3,7 +3,7 @@
 namespace MBBetaAPI.AgentAPI
 {
     /// <summary>
-    /// Simple class that allows to abstract the Social Network accounts
+    /// Simple class that allows to abstract the Social Network accounts and keep Profile data
     /// </summary>
     public class SNAccount
     {
@@ -20,6 +20,9 @@ namespace MBBetaAPI.AgentAPI
         public string URL { get; set; }
         public int currentBackupLevel { get; set; }
 
+        private static volatile Object obj = new Object();
+        private static SNAccount m_current = null;
+
         public SNAccount(int id, int sn, string snid, string name, string email, string url, int level)
         {
             ID = id;
@@ -30,6 +33,19 @@ namespace MBBetaAPI.AgentAPI
             URL = url;
             currentBackupLevel = level;
             Remove = false;
+        }
+
+        public static SNAccount CurrentProfile
+        {
+            get { return m_current; }
+        }
+
+        public static void UpdateCurrent(SNAccount current)
+        {
+            lock (obj)
+            {
+                m_current = current;
+            }
         }
     }
 }

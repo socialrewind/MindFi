@@ -13,7 +13,9 @@ namespace MBBetaAPI.AgentAPI
         private const string APPID = "131706850230259";
         private const string APPKey = "89c861c469cff95970836f3b8021d7bd";
         private const string AuthURL = "https://www.facebook.com/dialog/oauth?client_id=";
-        public const string RedirURL = "http://www.sinergia.net.mx/fb/login_success.html";
+        //private const string RedirURL = "http://www.sinergia.net.mx/fb/login_success.html";
+        private const string RedirURL = "http://www.sinergia.net.mx/socialrewind/fblogin_success.aspx";
+        private const string ErrorURL = "http://www.sinergia.net.mx/fb/login_failure.html";
         private const string Permissions = "user_about_me,friends_about_me,user_birthday,friends_birthday,user_education_history,friends_education_history,user_events,friends_events,user_groups,friends_groups,user_hometown,friends_hometown,user_interests,friends_interests,user_likes,friends_likes,user_location,friends_location,user_notes,friends_notes,user_photos,friends_photos,user_photo_video_tags,friends_photo_video_tags,user_relationships,friends_relationships,user_relationship_details,friends_relationship_details,user_religion_politics,friends_religion_politics,user_status,friends_status,user_website,friends_website,user_work_history,friends_work_history,email,read_friendlists,read_mailbox,read_stream"; // ,user_address,user_mobile_phone";
 
         private static volatile bool m_loginStatus = false;
@@ -22,6 +24,7 @@ namespace MBBetaAPI.AgentAPI
         private static volatile string m_loginname;
         private static volatile FBPerson m_me;
         private static volatile string lastError;
+        private static volatile int expires;
 
         public static string LoginName
         {
@@ -29,19 +32,57 @@ namespace MBBetaAPI.AgentAPI
             set { lock (obj) { m_loginname = value; } }
         }
 
-        public FBLogin()
-        {
-        }
-
-        public void Login()
+        public static void Login(out string URL, out CallBack myCallBack)
         {
             // get OAUTH page
-            CallBack myCallBack = new CallBack(FBLogin.callbackLoginResult);
+            myCallBack = new CallBack(FBLogin.callbackLoginResult);
 
             // TODO: state parameter to prevent CSRF https://developers.facebook.com/docs/authentication/
             // TODO: login form
             //loginForm = new frmBrowser(AuthURL + APPID + "&redirect_uri=" + RedirURL + "&scope=" + Permissions + "&response_type=token&popup", myCallBack);
+            URL = AuthURL + APPID + "&redirect_uri=" + RedirURL + "&scope=" + Permissions + "&response_type=token&popup";
             //loginForm.Show();
+        }
+
+        public static bool CheckCallback(string URL)
+        {
+            int start = URL.IndexOf(RedirURL) ;
+            if (start == 0)
+            {
+                // successful
+                // parse the code
+                // Server code code=...
+                // accessCode = Check.Substring(start + successURL.Length + 6);
+                // Client code #access_token=...
+                const string SaccessToken = "#access_token=";
+                m_accessToken = URL.Substring(start + FBLogin.RedirURL.Length + SaccessToken.Length);
+                const string expiresToken = "&expires_in=";
+
+                int expiresIndex = m_accessToken.IndexOf(expiresToken);
+                if (expiresIndex >= 0)
+                {
+                    if (!int.TryParse(m_accessToken.Substring(expiresIndex + expiresToken.Length), out expires))
+                    {
+                        expires = 0; // default
+                    }
+                    m_accessToken = m_accessToken.Substring(0, expiresIndex);
+                }
+                if (m_accessToken != "")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool CheckErrorPage(string URL)
+        {
+            int start = URL.IndexOf(ErrorURL);
+            if (start == 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public static bool callbackLoginResult(int hwnd, bool result, string response, Int64? parent, string parentSNID)

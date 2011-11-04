@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Windows;
+/*
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -10,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-
+*/
 namespace MBBeta2
 {
     /// <summary>
@@ -18,10 +19,11 @@ namespace MBBeta2
     /// </summary>
     public partial class MBAccountSetup : Window
     {
-        public MBAccountSetup()
+        public MBAccountSetup(int SocialNetworkID)
         {
             InitializeComponent();
 
+            SNTB.Text = SocialNetworkID.ToString();
             fillAmmountCB();
             BackupDateDP.SelectedDate = System.DateTime.Today.AddDays(-30);
         }

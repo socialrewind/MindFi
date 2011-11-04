@@ -4,7 +4,7 @@
         Title="MBSNLogin" Height="480" Width="640">
     <Grid>
         <StackPanel>
-            <WebBrowser x:Name="LoginBrowser" MinHeight="350" LoadCompleted="LoginBrowser_LoadCompleted">
+            <WebBrowser x:Name="LoginBrowser" MinHeight="350" LoadCompleted="LoginBrowser_LoadCompleted" Loaded="LoginBrowser_Loaded" Navigating="LoginBrowser_Navigating" Navigated="LoginBrowser_Navigated">
             
             </WebBrowser>
             <TextBox x:Name="URLBox"/>

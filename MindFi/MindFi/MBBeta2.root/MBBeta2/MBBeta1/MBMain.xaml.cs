@@ -77,6 +77,13 @@ namespace MBBeta2
                 FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value);
             }
             this.Cursor = Cursors.Arrow;
+            // check
+            this.Show();
+            // TODO: Make sure CurrentProfile is assigned when logging in successfuly
+            if (MBBetaAPI.AgentAPI.SNAccount.CurrentProfile == null)
+            {
+                OpenSetupWindow();
+            }
 
         }
 
@@ -279,10 +286,13 @@ namespace MBBeta2
 
         private void SetupBt_Click(object sender, RoutedEventArgs e)
         {
-            
+            OpenSetupWindow();
+        }
+
+        private void OpenSetupWindow()
+        {
             var MBSetupWindow = new MBSetup(db);
             CC.PositionNewWindow(this, MBSetupWindow);
-
         }
 
         private void Enter_KeyDown(object sender, KeyEventArgs e)

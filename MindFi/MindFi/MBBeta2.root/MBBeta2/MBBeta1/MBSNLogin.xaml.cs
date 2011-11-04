@@ -15,10 +15,17 @@ namespace MBBeta2
         string URL;
         bool success = false;
 
-        public MBSNLogin()
+        public MBSNLogin(bool InOrOut)
         {
             InitializeComponent();
-            FBLogin.Login(out URL, out myCallback);
+            if (InOrOut)
+            {
+                FBLogin.Login(out URL, out myCallback);
+            }
+            else
+            {
+                FBLogin.LogOut(out URL);
+            }
             Uri uri = new Uri(URL, UriKind.RelativeOrAbsolute);
             this.LoginBrowser.Navigate(uri);
         }
@@ -34,6 +41,7 @@ namespace MBBeta2
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
                 dispatcherTimer.Start();
             }
+                // TODO: seems this is not really in use, consider Logout case
             else if (FBLogin.CheckErrorPage(this.LoginBrowser.Document.Url.ToString()))
             {
                 // TODO: Error message
@@ -51,7 +59,10 @@ namespace MBBeta2
         {
             if (!success)
             {
-                FBLogin.LogOut();
+                string URL;
+                FBLogin.LogOut(out URL);
+                Uri uri = new Uri(URL, UriKind.RelativeOrAbsolute);
+                this.LoginBrowser.Navigate(uri);
             }
             // callback?
             if (myCallback != null)

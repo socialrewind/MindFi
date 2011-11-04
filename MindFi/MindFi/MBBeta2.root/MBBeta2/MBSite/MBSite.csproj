@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FBlogin_success.aspx" />
+    <Content Include="FBLogout.aspx" />
     <Content Include="Styles\Site.css" />
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
@@ -83,6 +84,13 @@
     </Compile>
     <Compile Include="FBlogin_success.aspx.designer.cs">
       <DependentUpon>FBlogin_success.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="FBLogout.aspx.cs">
+      <DependentUpon>FBLogout.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FBLogout.aspx.designer.cs">
+      <DependentUpon>FBLogout.aspx</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

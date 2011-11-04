@@ -14,8 +14,9 @@ namespace MBBetaAPI.AgentAPI
         private const string APPKey = "89c861c469cff95970836f3b8021d7bd";
         private const string AuthURL = "https://www.facebook.com/dialog/oauth?client_id=";
         //private const string RedirURL = "http://www.sinergia.net.mx/fb/login_success.html";
-        private const string RedirURL = "http://www.sinergia.net.mx/socialrewind/fblogin_success.aspx";
+        private const string RedirURL = "http://www.sinergia.net.mx/socialrewind/FBlogin_success.aspx";
         private const string ErrorURL = "http://www.sinergia.net.mx/fb/login_failure.html";
+        private const string LogoutURL = "http://www.sinergia.net.mx/socialrewind/FBLogout.aspx";
         private const string Permissions = "user_about_me,friends_about_me,user_birthday,friends_birthday,user_education_history,friends_education_history,user_events,friends_events,user_groups,friends_groups,user_hometown,friends_hometown,user_interests,friends_interests,user_likes,friends_likes,user_location,friends_location,user_notes,friends_notes,user_photos,friends_photos,user_photo_video_tags,friends_photo_video_tags,user_relationships,friends_relationships,user_relationship_details,friends_relationship_details,user_religion_politics,friends_religion_politics,user_status,friends_status,user_website,friends_website,user_work_history,friends_work_history,email,read_friendlists,read_mailbox,read_stream"; // ,user_address,user_mobile_phone";
 
         private static volatile bool m_loginStatus = false;
@@ -84,13 +85,16 @@ namespace MBBetaAPI.AgentAPI
                 m_loginStatus = result;
                 m_accessToken = response;
             }
-            AsyncReqQueue apiReq = FBAPI.Me(GetMe);
-            apiReq.Queue();
-            apiReq.Send();
+            if (result)
+            {
+                AsyncReqQueue apiReq = FBAPI.Me(GetMe);
+                apiReq.Queue();
+                apiReq.Send();
+            }
             return loggedIn;
         }
 
-        public static void LogOut()
+        public static void LogOut(out string URL)
         {
             lock (obj)
             {
@@ -98,6 +102,7 @@ namespace MBBetaAPI.AgentAPI
                 m_loginStatus = false;
                 m_accessToken = "";
             }
+            URL = LogoutURL;
         }
 
         public static string token

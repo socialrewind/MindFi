@@ -17,7 +17,7 @@ namespace MBSite
             if (this.Request.UrlReferrer != null)
             {
                 string Referrer = this.Request.UrlReferrer.ToString();
-                //this.lblAccessToken.Text = this.Request.UrlReferrer.ToString();
+                this.lblAccessToken.Text = "Ref: " + this.Request.UrlReferrer.ToString();
                 if (Referrer.IndexOf(FBBase) == 0)
                 {
                     Success = true;

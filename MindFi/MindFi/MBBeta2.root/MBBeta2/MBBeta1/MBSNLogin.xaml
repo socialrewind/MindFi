@@ -4,11 +4,7 @@
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
         Title="MBSNLogin" Height="480" Width="640" Closing="Window_Closing">
-    <Grid>
-        <StackPanel>
             <wfi:WindowsFormsHost>
                 <wf:WebBrowser DocumentCompleted="LoginBrowser_DocumentCompleted" x:Name="LoginBrowser"/>
-            </wfi:WindowsFormsHost>
-        </StackPanel>
-    </Grid>
+            </wfi:WindowsFormsHost>    
 </Window>

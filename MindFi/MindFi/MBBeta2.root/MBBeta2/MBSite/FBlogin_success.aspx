@@ -19,11 +19,6 @@
 <asp:Label ID="lblExpires" runat="server"></asp:Label>
 </font>
 </div>
-<script type="text/javascript" language="javascript">
-<!--
-    alert("url:" + document.URL);
-// -->
-</script>
     </form>
 </body>
 </html>

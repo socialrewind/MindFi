@@ -4,8 +4,8 @@ using System.Threading;
 
 namespace MBBetaAPI.AgentAPI
 {
-    // TODO: Refactor, particularly locking
-    // TODO: Progressive permissions
+    // TODO: Refactor, particularly locking and generalizing for Twitter, LinkedIn etc.
+    // TODO: Progressive permissions according to the backup type
 
     public class FBLogin
     {
@@ -20,7 +20,6 @@ namespace MBBetaAPI.AgentAPI
 
         private static volatile bool m_loginStatus = false;
         private static volatile string m_accessToken = "";
-        //private static frmBrowser loginForm;
         private static volatile string m_loginname;
         private static volatile FBPerson m_me;
         private static volatile string lastError;
@@ -38,10 +37,7 @@ namespace MBBetaAPI.AgentAPI
             myCallBack = new CallBack(FBLogin.callbackLoginResult);
 
             // TODO: state parameter to prevent CSRF https://developers.facebook.com/docs/authentication/
-            // TODO: login form
-            //loginForm = new frmBrowser(AuthURL + APPID + "&redirect_uri=" + RedirURL + "&scope=" + Permissions + "&response_type=token&popup", myCallBack);
             URL = AuthURL + APPID + "&redirect_uri=" + RedirURL + "&scope=" + Permissions + "&response_type=token&popup";
-            //loginForm.Show();
         }
 
         public static bool CheckCallback(string URL)
@@ -49,10 +45,6 @@ namespace MBBetaAPI.AgentAPI
             int start = URL.IndexOf(RedirURL) ;
             if (start == 0)
             {
-                // successful
-                // parse the code
-                // Server code code=...
-                // accessCode = Check.Substring(start + successURL.Length + 6);
                 // Client code #access_token=...
                 const string SaccessToken = "#access_token=";
                 m_accessToken = URL.Substring(start + FBLogin.RedirURL.Length + SaccessToken.Length);
@@ -98,7 +90,7 @@ namespace MBBetaAPI.AgentAPI
             return loggedIn;
         }
 
-        public void LogOut()
+        public static void LogOut()
         {
             lock (obj)
             {
@@ -106,15 +98,6 @@ namespace MBBetaAPI.AgentAPI
                 m_loginStatus = false;
                 m_accessToken = "";
             }
-            // TODO: LoginForm
-            //loginForm = new frmBrowser("http://www.sinergia.net.mx/fb/logout.html", null);
-            //loginForm.Logout();
-            //loginForm.Show();
-            //MessageBox.Show("login form should be visible");
-            /*
-                    loginForm.Dispose();
-                    loginForm = null;
-            */
         }
 
         public static string token

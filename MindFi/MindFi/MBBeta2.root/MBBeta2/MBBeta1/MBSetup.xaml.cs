@@ -1,18 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Windows;
-/*
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
- * */
 //Internal API
 using MBBetaAPI;
 using MBBetaAPI.AgentAPI;
@@ -88,7 +76,12 @@ namespace MBBeta2
         private void FBAccountSetupBt_Click(object sender, RoutedEventArgs e)
         {
             var AccountSetupWindow = new MBAccountSetup(SocialNetwork.FACEBOOK);
-            AccountSetupWindow.Show();
+            bool? result = AccountSetupWindow.ShowDialog();
+            if ( result != null && !(bool)result )
+            {
+                MessageBox.Show("Account was not added");
+                return;
+            }
         }
     }
 }

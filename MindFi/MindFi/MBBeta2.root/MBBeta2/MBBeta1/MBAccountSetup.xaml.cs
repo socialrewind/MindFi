@@ -11,12 +11,34 @@ namespace MBBeta2
     public partial class MBAccountSetup : Window
     {
         DispatcherTimer dispatcherTimer;
+        int SN;
+        bool success;
 
         public MBAccountSetup(int SocialNetworkID)
         {
             InitializeComponent();
 
-            SNTB.Text = SocialNetworkID.ToString();
+            SN = SocialNetworkID;
+            // TODO: Get names from disk, localize
+            switch (SocialNetworkID)
+            {
+                case SocialNetwork.FACEBOOK:
+                    SNTB.Text = "Facebook";
+                    break;
+                case SocialNetwork.TWITTER:
+                    SNTB.Text = "Twitter";
+                    break;
+                case SocialNetwork.LINKEDIN:
+                    SNTB.Text = "LinkedIn";
+                    break;
+                case SocialNetwork.GOOGLE_PLUS:
+                    SNTB.Text = "Google +";
+                    break;
+                default:
+                    SNTB.Text = "Unknown SN";
+                    break;
+            }
+            
             fillAmmountCB();
             BackupDateDP.SelectedDate = System.DateTime.Today.AddDays(-30);
         }
@@ -92,7 +114,53 @@ namespace MBBeta2
 
         private void SaveBt_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: support multiple profiles
+            // For now, verifying only if there is no currentProfile
+            FBPerson me = FBLogin.Me;
+            if ( SNAccount.CurrentProfile != null)
+            {
+                if ((SNAccount.CurrentProfile.Name != me.Name
+                    && SNAccount.CurrentProfile.SNID != me.SNID
+                    && SNAccount.CurrentProfile.URL != me.Link) ||
+                    SNAccount.CurrentProfile.SocialNetwork != SN
+                    )
+                {
+                    MessageBox.Show("You tried to login with a different account (" + me.Name
+                        + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
+                        + "). Please correct your data; login cancelled.");
+                    return;
+                }
+            }
 
+            string errorData = "";
+            me.Save(out errorData);
+            if (errorData != "")
+            {
+                if (MessageBox.Show(errorData, "Error while saving your data, cancel Add Account?", MessageBoxButton.YesNo) == System.Windows.MessageBoxResult.Yes)
+                {
+                    Close();
+                }
+            }
+            SNAccount.UpdateCurrent(new SNAccount(-1, SN, me.SNID, me.Name, me.EMail, me.Link, this.BackupTypeCB.SelectedIndex + 1));
+            SNAccount.CurrentProfile.BackupStartDate = BackupDateDP.SelectedDate.Value;
+            
+            if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, SN, me.SNID, me.Link,
+                   SNAccount.CurrentProfile.currentBackupLevel,
+                   SNAccount.CurrentProfile.BackupStartDate,
+                   out errorData))
+            {
+                MessageBox.Show("Error while saving account:\n" + errorData);
+                return;
+            }
+            MessageBox.Show("Data saved correctly");
+            success = true;
+            Close();
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.DialogResult = success;
+        }
+
     }
 }

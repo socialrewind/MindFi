@@ -11,7 +11,7 @@ namespace MBBetaAPI.AgentAPI
         public const int EXTENDED = 2;
         public const int STALKER = 3;
 
-        public bool Remove { get; set; }
+        //public bool Remove { get; set; }
         public int ID { get; set; }
         public int SocialNetwork { get; set; }
         public string SNID { get; set; }
@@ -19,6 +19,8 @@ namespace MBBetaAPI.AgentAPI
         public string Email { get; set; }
         public string URL { get; set; }
         public int currentBackupLevel { get; set; }
+        public DateTime BackupStartDate { get; set; }
+        public DateTime BackupEndDate { get; set; }
 
         private static volatile Object obj = new Object();
         private static SNAccount m_current = null;
@@ -32,7 +34,7 @@ namespace MBBetaAPI.AgentAPI
             Email = email;
             URL = url;
             currentBackupLevel = level;
-            Remove = false;
+            //Remove = false;
         }
 
         public static SNAccount CurrentProfile

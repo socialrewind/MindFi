@@ -544,8 +544,7 @@ namespace MBBetaAPI.AgentAPI
                         {
                             ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
                             // DEBUG to confirm validation is redundant
-                            if (apiReq.Priority < minPriorityGlobal)
-                                //System.Windows.Forms.MessageBox.Show("Unexpected low priority request, ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n");
+                            //if (apiReq.Priority < minPriorityGlobal) MessageBox.Show("Unexpected low priority request, ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n");
 
                             apiReq.Send();
                         } // if

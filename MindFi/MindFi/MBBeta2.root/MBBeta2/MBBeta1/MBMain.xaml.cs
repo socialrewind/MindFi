@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 //Other Projects
 using MBBetaAPI;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBeta2
 {
@@ -80,7 +81,15 @@ namespace MBBeta2
             // check
             this.Show();
             // TODO: Make sure CurrentProfile is assigned when logging in successfuly
-            if (MBBetaAPI.AgentAPI.SNAccount.CurrentProfile == null)
+            DBLayer.ConnString = db.ConnString;
+            string error;
+            ArrayList currentAccounts = DBLayer.GetAccounts(out error);
+            if (error != "")
+            {
+                MessageBox.Show("Error getting accounts from the database:\n" + error);
+            }
+            // TODO: Review how it can be empty and not null
+            if (currentAccounts == null || currentAccounts.Count == 0)
             {
                 OpenSetupWindow();
             }

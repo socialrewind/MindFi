@@ -9,9 +9,10 @@
             <ColumnDefinition Width="0.65*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="0.2*"/>
+            <RowDefinition Height="0.2*"/>
+            <RowDefinition Height="0.2*"/>
             <RowDefinition Height="0.1*"/>
-            <RowDefinition Height="0.3*"/>
-            <RowDefinition Height="0.3*"/>
             <RowDefinition Height="0.3*"/>
         </Grid.RowDefinitions>
         <ToggleButton x:Name="FBLoginBt" Grid.Row="1" 
@@ -23,6 +24,8 @@
         <Border Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>
         <Border Grid.Row="2" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>
         <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>
+        <Border Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>
+        <Border Grid.Row="5" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>
         <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center">
             <Button x:Name="FBAccountSetupBt"
                     Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}" FontSize="16" FontWeight="Bold"
@@ -39,8 +42,18 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="3">
                 <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:LoggedIn}"/>
-                <TextBlock x:Name="FBLogedIn" />
+                <TextBlock x:Name="FBLoggedIn" />
             </StackPanel>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center">
+            <Button x:Name="OnlineBt"
+                    HorizontalAlignment="Center" Margin="5"
+                    Content="{lex:LocText MBBeta2:SetupStrings:Online}"
+                    Click="OnlineBt_Click"/>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="5" VerticalAlignment="Center">
+            <TextBlock Text="" x:Name="InfoTB" />
+            <TextBlock Text="" x:Name="StatsTB" />
         </StackPanel>
     </Grid>
 </Window>

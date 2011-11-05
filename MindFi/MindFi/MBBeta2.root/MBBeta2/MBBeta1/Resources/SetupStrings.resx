@@ -162,4 +162,7 @@
   <data name="SocialNetwork" xml:space="preserve">
     <value>Social Network</value>
   </data>
+  <data name="Online" xml:space="preserve">
+    <value>Go Online/Login</value>
+  </data>
 </root>

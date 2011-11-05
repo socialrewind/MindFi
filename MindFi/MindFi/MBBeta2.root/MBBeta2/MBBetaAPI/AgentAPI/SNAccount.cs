@@ -21,6 +21,7 @@ namespace MBBetaAPI.AgentAPI
         public int currentBackupLevel { get; set; }
         public DateTime BackupStartDate { get; set; }
         public DateTime BackupEndDate { get; set; }
+        public string BackupFrequency { get; set; }
 
         private static volatile Object obj = new Object();
         private static SNAccount m_current = null;

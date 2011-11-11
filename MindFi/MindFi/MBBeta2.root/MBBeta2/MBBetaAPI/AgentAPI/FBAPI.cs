@@ -12,6 +12,7 @@ namespace MBBetaAPI.AgentAPI
     {
         private const string FBGraphAPIURL = "https://graph.facebook.com/";
         public const int DEFAULT_TIMEOUT = 30000; // 30 sec timeout
+        public const int DEFAULT_LIMIT = 200;
         private static string InitialTime; // +0000 - needs to be encoded before adding the +
         private static string EndTime;
         private static volatile Object obj = new Object();
@@ -406,6 +407,10 @@ namespace MBBetaAPI.AgentAPI
                 string URLToGet = GraphAPIURL;
                 if (addToken)
                 {
+                    if (Limit == 0)
+                    {
+                        Limit = DEFAULT_LIMIT;
+                    }
                     URLToGet += "?access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
                     // TODO: how to add in a more smart way the since / until
                     if (addDateRange)

@@ -569,7 +569,11 @@ namespace MBBetaAPI.AgentAPI
                 }
                 if (backupInProgress)
                 {
-                    ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal + "\n";
+                    ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal 
+                        + " from " +SNAccount.CurrentProfile.CurrentPeriodStart 
+                        + " to " +SNAccount.CurrentProfile.CurrentPeriodEnd 
+                        + "\n";
+                            
                     foreach (int reqID in queueReq)
                     {
                         AsyncReqQueue apiReq = new AsyncReqQueue(reqID);

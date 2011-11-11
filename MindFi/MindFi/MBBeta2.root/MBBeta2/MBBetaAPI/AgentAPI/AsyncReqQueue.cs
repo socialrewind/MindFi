@@ -442,35 +442,45 @@ namespace MBBetaAPI.AgentAPI
                 else
                 {
                     int currentBackup;
-                    DBLayer.StartBackup(out currentBackup);
-                    // Set basic data
+                    DateTime currentPeriodStart, currentPeriodEnd;
 
-                    // TODO: TIME RANGE
-
-                    //FBAPI.SetTimeRange(frmDashboard.currentProfile.backupStartDate, DateTime.UtcNow.AddMonths(1));
-                    currentBackupNumber = currentBackup;
-                    AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
-                        ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
-                        ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                    apiReq.QueueAndSend(500);
-                    apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                    apiReq.QueueAndSend(500);
-                    apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
-                    apiReq.QueueAndSend(500);
+                    DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
+                            out currentBackup, out currentPeriodStart, out currentPeriodEnd );
+                    if (currentBackup != 0)
+                    {
+                        // Calculate dates for first iteration - TODO make sure they are recalculated until done
+                        FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
+                        SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
+                        SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
+                        currentBackupNumber = currentBackup;
+                        AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
+                            ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
+                            ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                        apiReq.QueueAndSend(500);
+                        apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                        apiReq.QueueAndSend(500);
+                        apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
+                        apiReq.QueueAndSend(500);
+                    }
+                    else
+                    {
+                        // TODO: Localize, return to interface
+                        error = "Backup couldn't be created";   
+                    }
                 }
             }
         }
@@ -529,8 +539,32 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Retry Requests to send: " + queueReq.Count + "\n";
                     if (queueReq.Count == 0)
                     {
-                        DBLayer.EndBackup();
-                        backupInProgress = false;
+                        if (SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart)
+                        {
+                            DBLayer.EndBackup();
+                            backupInProgress = false;
+                        }
+                        else
+                        {
+                            // Go to the previous week
+                            // TODO: Show which week is being processed
+                            SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
+                            SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-7);
+                            FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                            // TODO: Verify which requests are really affected by periods
+                            AsyncReqQueue apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                            apiReq.QueueAndSend(500);
+                            apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                            apiReq.QueueAndSend(500);
+                        }
                     }
                 }
                 if (backupInProgress)

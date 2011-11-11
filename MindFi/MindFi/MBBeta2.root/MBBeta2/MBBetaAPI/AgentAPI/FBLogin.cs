@@ -54,9 +54,15 @@ namespace MBBetaAPI.AgentAPI
                 int expiresIndex = m_accessToken.IndexOf(expiresToken);
                 if (expiresIndex >= 0)
                 {
-                    if (!int.TryParse(m_accessToken.Substring(expiresIndex + expiresToken.Length), out expires))
+                    int temp;
+
+                    if (!int.TryParse(m_accessToken.Substring(expiresIndex + expiresToken.Length), out temp))
                     {
                         expires = 0; // default
+                    }
+                    else
+                    {
+                        expires = temp;
                     }
                     m_accessToken = m_accessToken.Substring(0, expiresIndex);
                 }

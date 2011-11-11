@@ -212,7 +212,7 @@ namespace MBBeta2
                         MBConfig.Save(ConfigurationSaveMode.Modified);
                         ConfigurationManager.RefreshSection("appSettings");
                         //Open main with loaded info
-                        MainWindow = new MBMain(CurrentCulture, UserLoginTB.Text, conn, result);
+                        MainWindow = new MBMain(CurrentCulture, UserLoginTB.Text, DBPath, conn, result);
                         MainWindow.Show();
                         this.Close();
                         break;

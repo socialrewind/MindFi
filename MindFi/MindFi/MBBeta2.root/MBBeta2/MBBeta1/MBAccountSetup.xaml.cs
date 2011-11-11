@@ -141,12 +141,14 @@ namespace MBBeta2
                     Close();
                 }
             }
-            SNAccount.UpdateCurrent(new SNAccount(-1, SN, me.SNID, me.Name, me.EMail, me.Link, this.BackupTypeCB.SelectedIndex + 1));
-            SNAccount.CurrentProfile.BackupStartDate = BackupDateDP.SelectedDate.Value;
-            
+            SNAccount.UpdateCurrent(new SNAccount(-1, SN, me.SNID, me.Name, me.EMail, me.Link, 
+                this.BackupTypeCB.SelectedIndex + 1, 
+                BackupDateDP.SelectedDate.Value, DateTime.UtcNow.AddMonths(1) ));
+
             if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, SN, me.SNID, me.Link,
                    SNAccount.CurrentProfile.currentBackupLevel,
-                   SNAccount.CurrentProfile.BackupStartDate,
+                   SNAccount.CurrentProfile.BackupPeriodStart,
+                   SNAccount.CurrentProfile.BackupPeriodEnd,
                    out errorData))
             {
                 MessageBox.Show("Error while saving account:\n" + errorData);

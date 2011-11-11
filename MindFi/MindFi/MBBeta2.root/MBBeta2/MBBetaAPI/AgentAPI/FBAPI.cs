@@ -150,7 +150,7 @@ namespace MBBetaAPI.AgentAPI
         {
             AsyncReqQueue me = new AsyncReqQueue("FBNotes",
                 FBGraphAPIURL + Who + "/notes",
-                Limit, resultCall);
+                Limit, resultCall, true, true);
             return me;
         }
 
@@ -165,7 +165,7 @@ namespace MBBetaAPI.AgentAPI
         {
             AsyncReqQueue me = new AsyncReqQueue("FBNotifications",
                 FBGraphAPIURL + Who + "/notifications",
-                Limit, resultCall);
+                Limit, resultCall, true, true);
             return me;
         }
 
@@ -180,7 +180,7 @@ namespace MBBetaAPI.AgentAPI
         {
             AsyncReqQueue me = new AsyncReqQueue("FBEvents",
                 FBGraphAPIURL + Who + "/events",
-                Limit, resultCall);
+                Limit, resultCall, true, true);
             return me;
         }
 

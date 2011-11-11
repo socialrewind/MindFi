@@ -33,6 +33,8 @@ namespace MBBeta2
     /// </summary>
     public partial class MBMain : Window
     {
+        private string BasePath;
+
         public MBMain()
         {
             InitializeComponent();
@@ -54,7 +56,7 @@ namespace MBBeta2
         /// <param name="user"></param>
         /// <param name="conn_param"></param>
         /// <param name="level"> 2:No SN Accounts, 3: At least one SN Account</param>
-        public MBMain(string culture, string user, string conn_param, int level)
+        public MBMain(string culture, string user, string basePathparam, string conn_param, int level)
         {
             this.Cursor = Cursors.Wait;
 
@@ -64,6 +66,7 @@ namespace MBBeta2
             InitializeComponent();
 
             conn = conn_param;
+            BasePath = basePathparam;
             CreateDBConnection();
 
             //Initialize Common Code
@@ -300,7 +303,7 @@ namespace MBBeta2
 
         private void OpenSetupWindow()
         {
-            var MBSetupWindow = new MBSetup(db);
+            var MBSetupWindow = new MBSetup(db, BasePath);
             CC.PositionNewWindow(this, MBSetupWindow);
         }
 

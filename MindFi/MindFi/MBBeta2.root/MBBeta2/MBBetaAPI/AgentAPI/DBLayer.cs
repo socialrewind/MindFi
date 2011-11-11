@@ -2148,12 +2148,15 @@ namespace MBBetaAPI.AgentAPI
                 {
                     GetConn();
                     // try to read
-                    SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID, SocialNetwork, SNID, Name, Email, URL, BackupLevel from SNAccounts", conn);
+                    SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID, SocialNetwork, SNID, Name, Email, URL, BackupLevel, BackupPeriodStart, BackupPeriodEnd from SNAccounts", conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     while (reader.Read())
                     {
                         temp.Add(new SNAccount(reader.GetInt32(0), reader.GetInt32(1),
-                        reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetInt16(6)));
+                            reader.GetString(2), reader.GetString(3), reader.GetString(4), 
+                            reader.GetString(5), reader.GetInt16(6),
+                            reader.GetDateTime(7), reader.GetDateTime(8) 
+                            ));
                     }
                     reader.Close();
                     ErrorMessage = "";
@@ -2212,7 +2215,7 @@ namespace MBBetaAPI.AgentAPI
         /// Method that saves an account
         /// </summary>
         public static bool SaveAccount(int PersonID, string Name, string Email, int SocialNetwork,
-            string SNID, string URL, int BackupLevel, DateTime BackupStartTime, out string ErrorMessage)
+            string SNID, string URL, int BackupLevel, DateTime BackupPeriodStart, DateTime BackupPeriodEnd, out string ErrorMessage)
         {
             ErrorMessage = "";
             bool result = false;
@@ -2238,7 +2241,7 @@ namespace MBBetaAPI.AgentAPI
                     }
                     reader.Close();
 
-                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel, BackupStartTime, PersonID) values (?,?,?,?,?,?,?,?)";
+                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel, BackupPeriodStart, BackupPeriodEnd, PersonID) values (?,?,?,?,?,?,?,?,?)";
                     SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pName = new SQLiteParameter();
                     pName.Value = Name;
@@ -2254,9 +2257,12 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pLevel = new SQLiteParameter();
                     pLevel.Value = BackupLevel;
                     InsertCmd.Parameters.Add(pLevel);
-                    SQLiteParameter pBackupStartTime = new SQLiteParameter();
-                    pBackupStartTime.Value = BackupStartTime;
-                    InsertCmd.Parameters.Add(pBackupStartTime);
+                    SQLiteParameter pBackupPeriodStart = new SQLiteParameter();
+                    pBackupPeriodStart.Value = BackupPeriodStart;
+                    InsertCmd.Parameters.Add(pBackupPeriodStart);
+                    SQLiteParameter pBackupPeriodEnd = new SQLiteParameter();
+                    pBackupPeriodEnd.Value = BackupPeriodEnd;
+                    InsertCmd.Parameters.Add(pBackupPeriodEnd);
                     SQLiteParameter pID = new SQLiteParameter();
                     pID.Value = PersonID;
                     InsertCmd.Parameters.Add(pID);
@@ -2428,36 +2434,81 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Record the start of a backup
         /// </summary>
-        public static bool StartBackup(out int BackupNo)
+        public static bool StartBackup(DateTime startPeriod, DateTime endPeriod,
+            out int BackupNo, out DateTime currentPeriodStart, out DateTime currentPeriodEnd)
         {
             BackupNo = 0;
+            // allows for detection, if not set, they are equal
+            currentPeriodStart = DateTime.UtcNow;
+            currentPeriodEnd = currentPeriodStart;
 
             lock (obj)
             {
                 try
                 {
                     GetConn();
-                    string SQL = "insert into Backups (StartTime, Active) values (?,1)";
-                    SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
-                    SQLiteParameter pStart = new SQLiteParameter();
-                    pStart.Value = DateTime.Now;
-                    InsertCmd.Parameters.Add(pStart);
-                    InsertCmd.ExecuteNonQuery();
-                    SQL = "select ID from Backups where StartTime=?";
+                    BeginTransaction();
+                    // check first if there is an active Backup
+                    string SQL = "select ID, CurrentStartTime, CurrentEndTime from Backups where Active = 1";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
-                    CheckCmd.Parameters.Add(pStart);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     if (reader.Read())
                     {
                         BackupNo = reader.GetInt32(0);
+                        currentPeriodStart = reader.GetDateTime(1);
+                        currentPeriodEnd = reader.GetDateTime(2);
+                        reader.Close();
+                        // TODO: update target period if necessary?
                     }
-                    reader.Close();
+                    else
+                    {
+                        reader.Close();
+                        // No active backup, insert it
+                        SQL = "insert into Backups (StartTime, PeriodStartTime, PeriodEndTime, CurrentStartTime, CurrentEndTime, Active) values (?,?,?,?,?,1)";
+                        SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
+                        SQLiteParameter pStart = new SQLiteParameter();
+                        pStart.Value = DateTime.Now;
+                        InsertCmd.Parameters.Add(pStart);
+                        SQLiteParameter pStartP = new SQLiteParameter();
+                        pStartP.Value = startPeriod;
+                        InsertCmd.Parameters.Add(pStartP);
+                        SQLiteParameter pendP = new SQLiteParameter();
+                        pendP.Value = endPeriod;
+                        InsertCmd.Parameters.Add(pendP);
+                        // Calculation
+                        currentPeriodEnd = endPeriod;
+                        // TODO: Check general behavior, now go back week by week unless it is the one pointing to the future from now
+                        DateTime temp1 = DateTime.UtcNow;
+                        DateTime temp2 = endPeriod.AddDays(-7);
+                        currentPeriodStart = ( temp1 < temp2 ) ? temp1 : temp2;
+                        SQLiteParameter pstartC = new SQLiteParameter();
+                        SQLiteParameter pendC = new SQLiteParameter();
+                        pendC.Value = currentPeriodEnd;
+                        pstartC.Value = currentPeriodStart;
+                        InsertCmd.Parameters.Add(pstartC);
+                        InsertCmd.Parameters.Add(pendC);
+                        InsertCmd.ExecuteNonQuery();
+                        SQL = "select ID from Backups where StartTime=?";
+                        CheckCmd = new SQLiteCommand(SQL, conn);
+                        CheckCmd.Parameters.Add(pStart);
+                        reader = CheckCmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            BackupNo = reader.GetInt32(0);
+                        }
+                        reader.Close();
+                    }
                 }
                 catch (Exception ex)
                 {
                     string ErrorMessage = "Error creating backup \n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
                     return false;
+                }
+                finally
+                {
+                    // TODO: Make sure it doesn't fail on double transaction...
+                    CommitTransaction();
                 }
             } // lock
             return true;
@@ -2473,6 +2524,9 @@ namespace MBBetaAPI.AgentAPI
                 try
                 {
                     GetConn();
+                    // make sure only one active at the time
+                    // TODO: Algorithm to check if time is completed
+                    BeginTransaction();
                     string SQL = "update Backups set EndTime = ?, Active = 0 where Active = 1";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pEnd = new SQLiteParameter();
@@ -2485,6 +2539,10 @@ namespace MBBetaAPI.AgentAPI
                     string ErrorMessage = "Error updating backup \n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
                     return false;
+                }
+                finally
+                {
+                    CommitTransaction();
                 }
             } // lock
             return true;

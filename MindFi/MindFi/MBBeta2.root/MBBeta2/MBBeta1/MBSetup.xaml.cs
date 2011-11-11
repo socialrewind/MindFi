@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Windows;
 using System.Windows.Threading;
+using System.IO;
 //Internal API
 using MBBetaAPI;
 using MBBetaAPI.AgentAPI;
@@ -25,10 +26,23 @@ namespace MBBeta2
         private int MinPriority;
         #endregion
 
-        public MBSetup(DBConnector dbParam)
+        public MBSetup(DBConnector dbParam, string basedirparam)
         {
             InitializeComponent();
             db = dbParam;
+            BaseDir = basedirparam;
+            AsyncReqQueue.ProfilePhotoDestinationDir = BaseDir + "\\fb\\ProfilePics\\";
+            AsyncReqQueue.AlbumDestinationDir = BaseDir + "\\fb\\Albums\\";
+            // TODO: Save directory to database
+            if (!Directory.Exists(AsyncReqQueue.ProfilePhotoDestinationDir))
+            {
+                Directory.CreateDirectory(AsyncReqQueue.ProfilePhotoDestinationDir);
+            }
+            if (!Directory.Exists(AsyncReqQueue.AlbumDestinationDir))
+            {
+                Directory.CreateDirectory(AsyncReqQueue.AlbumDestinationDir);
+            }
+
             GetSNAccounts(db);
         }
 
@@ -95,7 +109,8 @@ namespace MBBeta2
                         break;
                 }
                 FBLoggedIn.Text = FBLogin.loggedIn.ToString();
-                FBFrequency.Text = SNAccount.CurrentProfile.BackupFrequency;
+                // TODO: Review
+                FBFrequency.Text = SNAccount.CurrentProfile.BackupFrequency.ToString() ;
             }
 
             OnlineBt.IsEnabled = (SNAccount.CurrentProfile != null);

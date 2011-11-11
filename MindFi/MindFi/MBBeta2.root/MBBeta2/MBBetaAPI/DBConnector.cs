@@ -49,7 +49,7 @@ namespace MBBetaAPI
                 {
                     conn.Open();
                     //Distance 1 = Friend
-                    SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MyBackup.FBPerson' and B.Distance < 2 and A.ID = B.PersonID ", conn);
+                    SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and B.Distance < 2 and A.ID = B.PersonID ", conn);
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -77,7 +77,7 @@ namespace MBBetaAPI
                 try
                 {
                     conn.Open();
-                    SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MyBackup.FBPerson' and B.Distance=2 and A.ID = B.PersonID ", conn);
+                    SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and B.Distance=2 and A.ID = B.PersonID ", conn);
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {

@@ -128,6 +128,8 @@ namespace MBBeta2
                 MessageBox.Show("Account was not added");
                 return;
             }
+            // Check if refresh works
+            GetSNAccounts(db);
         }
 
         private void OnlineBt_Click(object sender, RoutedEventArgs e)

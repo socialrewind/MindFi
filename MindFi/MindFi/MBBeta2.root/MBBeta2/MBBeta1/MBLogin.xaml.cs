@@ -55,6 +55,15 @@ namespace MBBeta2
             conn = "Data Source=" + FileLocation + ";" + "Password =" + PasswordLoginTB.Password;
             BackupFileTB.Text = DBName;
 
+            conn_prefix = "Data Source=" + DBPath + "\\" + DBName;
+
+            //Check if file exists
+            if (System.IO.File.Exists(FileLocation))
+            {
+                conn_prefix = conn_prefix + ";";              //Prepare for password append
+                BackupFileTB.Text = DBName;
+            }
+
         }
 
         //*********** Attributes
@@ -94,7 +103,7 @@ namespace MBBeta2
                 DBPath = ConfigurationManager.AppSettings["DBPath"];
                 FileLocation = DBPath + DBName;
 
-                conn_prefix = "Data Source=" + DBPath + DBName;
+                conn_prefix = "Data Source=" + DBPath + "\\" + DBName;
 
                 //Check if file exists
                 if (System.IO.File.Exists(FileLocation))
@@ -164,7 +173,7 @@ namespace MBBeta2
             {
                 //if user is OK, login and proceed
                 result = ValidateUser();
-                MessageBox.Show("Result: " + result.ToString());
+                //MessageBox.Show("Result: " + result.ToString());
                 switch (result)
                 {
                     //level (0 - wrong File or Passwd, 1 - wrong user , 2 - no SNAccount, 3 - SNAccount)

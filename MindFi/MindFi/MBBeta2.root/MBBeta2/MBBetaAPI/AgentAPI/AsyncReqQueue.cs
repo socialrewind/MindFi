@@ -425,16 +425,22 @@ namespace MBBetaAPI.AgentAPI
         public static void InitialRequests(int MinPriority)
         {
             minPriorityGlobal = MinPriority;
-            // Update old requests for retry
-            if (!DBLayer.QueueRetryUpdate())
-            {
-                return;
-            }
             string error;
             int[] stateArray;
             if (DBLayer.GetNRequestsPerState(minPriorityGlobal, out stateArray, out error))
             {
                 CountPerState = stateArray;
+                // Update old requests for retry
+                if (!DBLayer.QueueRetryUpdate())
+                {
+                    return;
+                }
+                else
+                {
+                    // verify this is working correctly
+                    CountPerState[QUEUED] += CountPerState[RETRY];
+                    CountPerState[RETRY] = 0;
+                }
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
                     PendingRequests(MinPriority, out error);

@@ -76,7 +76,7 @@ namespace MBBetaAPI
                     }
                     conn.Close();
                 }
-                catch
+                catch ( Exception ex )
                 {
                     level = 0;
                 }

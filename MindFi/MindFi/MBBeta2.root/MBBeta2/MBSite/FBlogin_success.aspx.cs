@@ -12,18 +12,17 @@ namespace MBSite
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            bool Success = false;
+            bool Success = true; // false;
 
-            if (this.Request.UrlReferrer != null)
-            {
-                string Referrer = this.Request.UrlReferrer.ToString();
-                this.lblAccessToken.Text = "Ref: " + this.Request.UrlReferrer.ToString();
-                if (Referrer.IndexOf(FBBase) == 0)
-                {
-                    Success = true;
-                }
-            }
-            // interpret the Access token
+            //if (this.Request.UrlReferrer != null)
+            //{
+            //    string Referrer = this.Request.UrlReferrer.ToString();
+            //    this.lblAccessToken.Text = "Ref: " + this.Request.UrlReferrer.ToString();
+            //    if (Referrer.IndexOf(FBBase) == 0)
+            //    {
+            //        Success = true;
+            //    }
+            //}
             if (!Success)
             {
                 this.lblResult.Text = "Login failed, this is not coming from Facebook";

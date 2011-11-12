@@ -408,7 +408,10 @@ namespace MBBetaAPI.AgentAPI
         {
             Updated = DateTime.Now;
             // TODO: Save limit, update when response comes back...
-            Saved = DBLayer.ReqQueueSave(ID, ReqType, Priority, Parent, ParentSNID, Created, Updated, ReqURL, State, FileName, addToken, addDateRange, Saved, out ErrorMessage);
+            DateTime? start = ((SNAccount.CurrentProfile == null) ? (DateTime?)null : SNAccount.CurrentProfile.CurrentPeriodStart);
+            DateTime? end = ((SNAccount.CurrentProfile == null) ? (DateTime?)null : SNAccount.CurrentProfile.CurrentPeriodEnd);
+            Saved = DBLayer.ReqQueueSave(ID, ReqType, Priority, Parent, ParentSNID, Created, Updated, ReqURL, State, FileName, addToken, addDateRange, 
+                start, end, Saved, out ErrorMessage);
             if (!Saved)
             {
                 //System.Windows.Forms.MessageBox.Show("Failed to save request: " + ID + " error: " + ErrorMessage);

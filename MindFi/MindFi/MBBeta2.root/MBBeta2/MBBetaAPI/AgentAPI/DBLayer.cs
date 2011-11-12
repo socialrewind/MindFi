@@ -175,6 +175,7 @@ namespace MBBetaAPI.AgentAPI
             long? ParentID, string ParentSNID,
             DateTime Created, DateTime Updated, string ReqURL,
             int State, string Filename, bool AddToken, bool AddDateRange,
+            DateTime? startDateRange, DateTime? endDateRange, 
             bool Saved, out string ErrorMessage)
         {
 
@@ -190,7 +191,7 @@ namespace MBBetaAPI.AgentAPI
                         // insert
                         SQLiteCommand InsertCmd = new SQLiteCommand(
                         "insert into RequestsQueue(ID,RequestType,Priority,ParentID,ParentSNID,Created," +
-                        "RequestString,State,Filename,AddToken, AddDateRange) values (?,?,?,?,?,?,?,?,?,?,?)"
+                        "RequestString,StartDate,EndDate,State,Filename,AddToken, AddDateRange) values (?,?,?,?,?,?,?,?,?,?,?,?,?)"
                         , conn);
                         SQLiteParameter pId = new SQLiteParameter();
                         pId.Value = ID;
@@ -213,6 +214,12 @@ namespace MBBetaAPI.AgentAPI
                         SQLiteParameter pURL = new SQLiteParameter();
                         pURL.Value = ReqURL;
                         InsertCmd.Parameters.Add(pURL);
+                        SQLiteParameter pStart = new SQLiteParameter();
+                        pStart.Value = startDateRange;
+                        InsertCmd.Parameters.Add(pStart);
+                        SQLiteParameter pEnd = new SQLiteParameter();
+                        pEnd.Value = endDateRange;
+                        InsertCmd.Parameters.Add(pEnd);
                         SQLiteParameter pState = new SQLiteParameter();
                         pState.Value = State;
                         InsertCmd.Parameters.Add(pState);
@@ -233,7 +240,7 @@ namespace MBBetaAPI.AgentAPI
                         // update
                         SQLiteCommand UpdateCmd = new SQLiteCommand(
                             "Update RequestsQueue set RequestType=?,Priority=?,ParentID=?,ParentSNID=?," +
-                            "Updated=?,RequestString=?,State=?,Filename=?,AddToken=?,AddDateRange=? where ID=?"
+                            "Updated=?,RequestString=?,StartDate=?,EndDate=?,State=?,Filename=?,AddToken=?,AddDateRange=? where ID=?"
                         , conn);
                         SQLiteParameter pUType = new SQLiteParameter();
                         pUType.Value = ReqType;
@@ -253,6 +260,12 @@ namespace MBBetaAPI.AgentAPI
                         SQLiteParameter pUURL = new SQLiteParameter();
                         pUURL.Value = ReqURL;
                         UpdateCmd.Parameters.Add(pUURL);
+                        SQLiteParameter pStart = new SQLiteParameter();
+                        pStart.Value = startDateRange;
+                        UpdateCmd.Parameters.Add(pStart);
+                        SQLiteParameter pEnd = new SQLiteParameter();
+                        pEnd.Value = endDateRange;
+                        UpdateCmd.Parameters.Add(pEnd);
                         SQLiteParameter pUState = new SQLiteParameter();
                         pUState.Value = State;
                         UpdateCmd.Parameters.Add(pUState);
@@ -2437,6 +2450,8 @@ namespace MBBetaAPI.AgentAPI
         public static bool StartBackup(DateTime startPeriod, DateTime endPeriod,
             out int BackupNo, out DateTime currentPeriodStart, out DateTime currentPeriodEnd)
         {
+            bool inTransaction = false;
+
             BackupNo = 0;
             // allows for detection, if not set, they are equal
             currentPeriodStart = DateTime.UtcNow;
@@ -2448,6 +2463,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     GetConn();
                     BeginTransaction();
+                    inTransaction = true;
                     // check first if there is an active Backup
                     string SQL = "select ID, CurrentStartTime, CurrentEndTime from Backups where Active = 1";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
@@ -2501,14 +2517,22 @@ namespace MBBetaAPI.AgentAPI
                 }
                 catch (Exception ex)
                 {
+                    if (inTransaction)
+                    {
+                        RollbackTransaction();
+                        inTransaction = false;
+                    }
                     string ErrorMessage = "Error creating backup \n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
                     return false;
                 }
                 finally
                 {
-                    // TODO: Make sure it doesn't fail on double transaction...
-                    CommitTransaction();
+                    if (inTransaction)
+                    {
+                        // TODO: Make sure it doesn't fail on double transaction...
+                        CommitTransaction();
+                    }
                 }
             } // lock
             return true;
@@ -2526,7 +2550,8 @@ namespace MBBetaAPI.AgentAPI
                     GetConn();
                     // make sure only one active at the time
                     // TODO: Algorithm to check if time is completed
-                    BeginTransaction();
+                    // TODO: Review transactions if necessary
+                    // BeginTransaction();
                     string SQL = "update Backups set EndTime = ?, Active = 0 where Active = 1";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pEnd = new SQLiteParameter();
@@ -2542,7 +2567,7 @@ namespace MBBetaAPI.AgentAPI
                 }
                 finally
                 {
-                    CommitTransaction();
+                    //CommitTransaction();
                 }
             } // lock
             return true;

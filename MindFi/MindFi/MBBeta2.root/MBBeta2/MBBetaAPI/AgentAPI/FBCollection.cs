@@ -102,27 +102,35 @@ namespace MBBetaAPI.AgentAPI
         {
             string error = "";
             CurrentlySaved = 0;
+            bool inTransaction = false;
 
             // save array
             if (items != null)
             {
                 try
                 {
-                    DBLayer.BeginTransaction();
-                    foreach (FBObject item in items)
+                    // basic efficiency improvement: Do not lock if nothing to save
+                    if (items.Count > 0)
                     {
-                        string error2;
-                        item.Save(out error2);
-                        CurrentlySaved++;
-                        error += error2;
+                        DBLayer.BeginTransaction();
+                        inTransaction = true;
+                        foreach (FBObject item in items)
+                        {
+                            string error2;
+                            item.Save(out error2);
+                            CurrentlySaved++;
+                            error += error2;
+                        }
+                        // TODO: save relationship to parent...
+                        DBLayer.CommitTransaction();
                     }
-                    // TODO: save relationship to parent...
-
-                    DBLayer.CommitTransaction();
                 }
                 catch (Exception ex)
                 {
-                    DBLayer.RollbackTransaction();
+                    if (inTransaction)
+                    {
+                        DBLayer.RollbackTransaction();
+                    }
                     error += "Error saving to the database: " + ex.ToString() + "\n";
                 }
             }

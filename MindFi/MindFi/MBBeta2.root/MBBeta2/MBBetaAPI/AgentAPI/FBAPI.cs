@@ -15,7 +15,29 @@ namespace MBBetaAPI.AgentAPI
         public const int DEFAULT_LIMIT = 200;
         private static string InitialTime; // +0000 - needs to be encoded before adding the +
         private static string EndTime;
+        private static volatile int inFlight=0;
         private static volatile Object obj = new Object();
+
+        public static int InFlight
+        {
+            get { lock (obj) { return inFlight; } }
+        }
+
+        public static void IncInFlight()
+        {
+            lock(obj)
+            {
+                inFlight++;
+            }
+        }
+
+        public static void DecInFlight()
+        {
+            lock (obj)
+            {
+                inFlight--;
+            }
+        }
 
         #region "Methods"
         private static string DateISO8601(DateTime date)
@@ -421,6 +443,8 @@ namespace MBBetaAPI.AgentAPI
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URLToGet);
 
                 JSONResultCallback state = new JSONResultCallback(request, resultCall, AsyncID, parent, parentSNID);
+
+                IncInFlight();
                 IAsyncResult res = request.BeginGetResponse(new AsyncCallback(JSONResultCallback.JSONResponseProcess), state);
                 ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
                     request, DEFAULT_TIMEOUT, true);
@@ -449,9 +473,10 @@ namespace MBBetaAPI.AgentAPI
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(GraphAPIURL);
                 // Start the asynchronous operation.    
                 FileResultCallback state = new FileResultCallback(request, FileName, resultCall, AsyncID, parent, parentSNID);
+                IncInFlight();
                 IAsyncResult res = request.BeginGetResponse(new AsyncCallback(FileResultCallback.FileResponseProcess), state);
                 ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
-            request, DEFAULT_TIMEOUT, true);
+                    request, DEFAULT_TIMEOUT, true);
             }
             catch (Exception ex)
             {
@@ -479,9 +504,10 @@ namespace MBBetaAPI.AgentAPI
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Link);
                 // Start the asynchronous operation.    
                 FileResultCallback state = new FileResultCallback(request, FileName, resultCall, AsyncID, parent, parentSNID);
+                IncInFlight();                
                 IAsyncResult res = request.BeginGetResponse(new AsyncCallback(FileResultCallback.FileResponseProcess), state);
                 ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
-            request, DEFAULT_TIMEOUT, true);
+                    request, DEFAULT_TIMEOUT, true);
             }
             catch (Exception ex)
             {
@@ -502,6 +528,7 @@ namespace MBBetaAPI.AgentAPI
             // TODO: call callback with appropriate failure
             if (timedOut)
             {
+                DecInFlight();
                 HttpWebRequest request = state as HttpWebRequest;
                 if (request != null)
                 {
@@ -537,6 +564,8 @@ namespace MBBetaAPI.AgentAPI
 
         public static void JSONResponseProcess(IAsyncResult result)
         {
+            FBAPI.DecInFlight();                
+    
             bool tryOne = false;
             string responseString = "";
             JSONResultCallback state = (JSONResultCallback)result.AsyncState;
@@ -614,6 +643,8 @@ namespace MBBetaAPI.AgentAPI
 
         public static void FileResponseProcess(IAsyncResult result)
         {
+            FBAPI.DecInFlight();
+
             bool tryOne = false;
 
             FileResultCallback state = (FileResultCallback)result.AsyncState;

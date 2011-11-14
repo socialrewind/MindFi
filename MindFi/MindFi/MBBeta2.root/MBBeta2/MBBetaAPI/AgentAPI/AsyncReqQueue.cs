@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections;
 using System.Data.SQLite;
 
@@ -54,6 +54,8 @@ namespace MBBetaAPI.AgentAPI
         public static volatile int nPhotos = 0;
 
         private static volatile int nNotParsedRequests = 0;
+        private static volatile int nInParseRequests = 0;
+        private static volatile int nInSaveRequests = 0;
         private static volatile int nFailedRequests = 0;
         private static volatile int[] CountPerState = null;
         private static volatile int minPriorityGlobal = 0;
@@ -527,7 +529,8 @@ namespace MBBetaAPI.AgentAPI
 
             // TODO: calculate how many requests were processed in the last time unit, and increase / decrease dynamically the number of requests to go
             int ConcurrentRequestLimit = 10;
-            if (nRequestsInTransit < ConcurrentRequestLimit)
+            // TESTING: stop sending while Parse ( and save database ) is in progress
+            if (nRequestsInTransit < ConcurrentRequestLimit && nInParseRequests <= 0 && nInSaveRequests <=0 )
             {
                 ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.QUEUED, out ErrorMessage, minPriorityGlobal);
                 if (ErrorMessage != "")
@@ -548,13 +551,15 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Retry Requests to send: " + queueReq.Count + "\n";
                     if (queueReq.Count == 0)
                     {
-                        if (SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart)
+                        if ( (SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart )
+                            && nInParseRequests <= 0
+                            && nInSaveRequests <= 0
+                            && FBAPI.InFlight <= 0
+                            )
                         {
                             // TODO: Make sure no pending threads before closing the backup
-                            /*
                             DBLayer.EndBackup();
                             backupInProgress = false;
-                             * */
                         }
                         else
                         {
@@ -583,7 +588,10 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal 
                         + " from " +SNAccount.CurrentProfile.CurrentPeriodStart 
-                        + " to " +SNAccount.CurrentProfile.CurrentPeriodEnd 
+                        + " to " +SNAccount.CurrentProfile.CurrentPeriodEnd
+                        + "\nRequests in flight: " + FBAPI.InFlight
+                        + " requests in save: " + nInSaveRequests
+                        + " requests in parse: " + nInParseRequests
                         + "\n";
                             
                     foreach (int reqID in queueReq)
@@ -607,7 +615,14 @@ namespace MBBetaAPI.AgentAPI
             } // if not too many requests pending...
             else
             {
-                ErrorMessage = "Waiting for " + nRequestsInTransit + " requests to be processed";
+                ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal
+                    + " from " + SNAccount.CurrentProfile.CurrentPeriodStart
+                    + " to " + SNAccount.CurrentProfile.CurrentPeriodEnd
+                    + "\nRequests in flight: " + FBAPI.InFlight
+                    + " requests in save: " + nInSaveRequests
+                    + " requests in parse: " + nInParseRequests
+                    + "\n";
+                ErrorMessage += "Waiting for " + nRequestsInTransit + " requests to be processed";
             }
             lock (obj)
             {
@@ -645,7 +660,9 @@ namespace MBBetaAPI.AgentAPI
                 string error;
                 if (save)
                 {
+                    nInSaveRequests++;
                     temp.Save(out error);
+                    nInSaveRequests--;
                 }
             }
             return true;
@@ -742,7 +759,9 @@ namespace MBBetaAPI.AgentAPI
             {
                 friends = new FBCollection(response, "FBPerson");
                 friends.Distance = 2;
+                nInParseRequests++;
                 friends.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
 
@@ -754,7 +773,9 @@ namespace MBBetaAPI.AgentAPI
 
                 // save all children...
                 string error;
+                nInSaveRequests++;
                 friends.Save(out error);
+                nInSaveRequests--;
                 foreach (FBPerson item in friends.items)
                 {
                     nFriends++;
@@ -794,12 +815,16 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 wall = new FBCollection(response, "FBPost");
+                nInParseRequests++;
                 wall.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
 
                 string error;
+                nInSaveRequests++;
                 wall.Save(out error);
+                nInSaveRequests--;
                 nPosts += wall.CurrentNumber;
 
                 foreach (FBPost post in wall.items)
@@ -847,12 +872,16 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 inbox = new FBCollection(response, "FBMessage");
+                nInParseRequests++;
                 inbox.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
 
                 string error;
+                nInSaveRequests++;
                 inbox.Save(out error);
+                nInSaveRequests--;
                 nMessages += inbox.CurrentNumber;
 
                 if (error != "")
@@ -909,12 +938,16 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 notes = new FBCollection(response, "FBNote");
+                nInParseRequests++;
                 notes.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
 
                 string error;
+                nInSaveRequests++;
                 notes.Save(out error);
+                nInSaveRequests--;
                 nMessages += notes.CurrentNumber;
 
                 if (error != "")
@@ -948,13 +981,18 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 albums = new FBCollection(response, "FBAlbum");
+                nInParseRequests++;
                 albums.Parse();
+                nInParseRequests--;
+                
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
                 nAlbums += albums.CurrentNumber;
 
                 string error;
+                nInSaveRequests++;
                 albums.Save(out error);
+                nInSaveRequests--;
                 if (error != "")
                 {
                     return false;
@@ -1000,9 +1038,13 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 FBCollection events = new FBCollection(response, "FBEvent", parent, parentSNID);
+                nInParseRequests++;
                 events.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
+                nInSaveRequests++;
                 events.Save(out errorData);
+                nInSaveRequests--;
 
                 foreach (FBEvent anEvent in events.items)
                 {
@@ -1038,9 +1080,13 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 FBCollection lists = new FBCollection(response, "FBFriendList", parent, parentSNID);
+                nInParseRequests++;
                 lists.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
+                nInSaveRequests++;
                 lists.Save(out errorData);
+                nInSaveRequests--;
 
                 foreach (FBFriendList list in lists.items)
                 {
@@ -1074,9 +1120,13 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 FBCollection friends = new FBCollection(response, "FBPerson", parent, parentSNID);
+                nInParseRequests++;                
                 friends.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
+                nInSaveRequests++;
                 friends.Save(out errorData);
+                nInSaveRequests--;
                 // save the list and association
                 if (errorData == "") return true;
                 // corrected bug: return an error without mark as failed
@@ -1106,9 +1156,13 @@ namespace MBBetaAPI.AgentAPI
             {
                 // should be null by default
                 FBCollection family = new FBCollection(response, "FBRelative", parent, parentSNID);
+                nInParseRequests++;                
                 family.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
+                nInSaveRequests++;
                 family.Save(out errorData);
+                nInSaveRequests--;
                 // TODO: Check if there are more data to process
                 if (errorData == "") return true;
                 // corrected bug: return an error without mark as failed
@@ -1135,9 +1189,14 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 FBCollection notifications = new FBCollection(response, "FBNotification", parent, parentSNID);
+                nInParseRequests++;                
                 notifications.Parse();
+                nInParseRequests--;
+                
                 CountPerState[PARSED]++;
+                nInSaveRequests++;
                 notifications.Save(out errorData);
+                nInSaveRequests--;
                 if (errorData == "") return true;
                 // corrected bug: return an error without mark as failed
                 return false;
@@ -1161,13 +1220,17 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 photos = new FBCollection(response, "FBPhoto", parent, parentSNID);
+                nInParseRequests++;
                 photos.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
                 nPhotos += photos.CurrentNumber;
 
                 string error;
+                nInSaveRequests++;
                 photos.Save(out error);
+                nInSaveRequests--;
                 if (error != "")
                 {
                     //System.Windows.Forms.MessageBox.Show("Error saving photos " + error);
@@ -1222,9 +1285,13 @@ namespace MBBetaAPI.AgentAPI
                     // create FBLikes object
                     FBLikes likes = new FBLikes(response, parent, parentSNID);
                     likes.Action = verb;
+                    nInParseRequests++;
                     likes.Parse();
+                    nInParseRequests--;
                     CountPerState[PARSED]++;
+                    nInSaveRequests++;
                     likes.Save(out errorData);
+                    nInSaveRequests--;
                     if (errorData == "") return true;
                     // corrected bug: return an error without mark as failed
                     return false; 
@@ -1305,11 +1372,15 @@ namespace MBBetaAPI.AgentAPI
             {
                 nFriendsProcessed++;
                 FBPerson currentFriend = new FBPerson(response, 1, null);
+                nInParseRequests++;
                 currentFriend.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
 
                 string errorData;
+                nInSaveRequests++;
                 currentFriend.Save(out errorData);
+                nInSaveRequests--;
                 if (errorData != "")
                 {
                     return false;
@@ -1341,9 +1412,13 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 FBEvent anEvent = new FBEvent(response);
+                nInParseRequests++;
                 anEvent.Parse();
+                nInParseRequests--;
                 CountPerState[PARSED]++;
+                nInSaveRequests++;
                 anEvent.Save(out errorData);
+                nInSaveRequests--;
 
                 if (anEvent.OwnerID == SNAccount.CurrentProfile.SNID)
                 {
@@ -1381,8 +1456,12 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 FBPost aPost = new FBPost(response);
+                nInParseRequests++;
                 aPost.Parse();
+                nInParseRequests--;
+                nInSaveRequests++;
                 aPost.Save(out errorData);
+                nInSaveRequests--;
 
                 if (aPost.LikesCount > 0)
                 {

@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections;
 using System.Data.SQLite;
 
@@ -550,8 +550,11 @@ namespace MBBetaAPI.AgentAPI
                     {
                         if (SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart)
                         {
+                            // TODO: Make sure no pending threads before closing the backup
+                            /*
                             DBLayer.EndBackup();
                             backupInProgress = false;
+                             * */
                         }
                         else
                         {
@@ -677,6 +680,8 @@ namespace MBBetaAPI.AgentAPI
                         if (errorData == "") return true;
                     }
                 }
+                // corrected bug: return an error without mark as failed
+                return false;
             }
             // fails to process the pic, probably because of an exception
             nFailedRequests++;
@@ -709,6 +714,8 @@ namespace MBBetaAPI.AgentAPI
                         if (errorData == "") return true;
                     }
                 }
+                // corrected bug: return an error without mark as failed
+                return false;
             }
             // fails to process the pic, probably because of an exception
             nFailedRequests++;
@@ -1006,6 +1013,8 @@ namespace MBBetaAPI.AgentAPI
                 }
 
                 if (errorData == "") return true;
+                // corrected bug: return an error without mark as failed
+                return false;
             }
             nFailedRequests++;
             return false;
@@ -1040,7 +1049,8 @@ namespace MBBetaAPI.AgentAPI
                 }
 
                 if (errorData == "") return true;
-
+                // corrected bug: return an error without mark as failed
+                return false; 
             }
             nFailedRequests++;
             return false;
@@ -1069,6 +1079,8 @@ namespace MBBetaAPI.AgentAPI
                 friends.Save(out errorData);
                 // save the list and association
                 if (errorData == "") return true;
+                // corrected bug: return an error without mark as failed
+                return false;
             }
             nFailedRequests++;
             return false;
@@ -1099,6 +1111,8 @@ namespace MBBetaAPI.AgentAPI
                 family.Save(out errorData);
                 // TODO: Check if there are more data to process
                 if (errorData == "") return true;
+                // corrected bug: return an error without mark as failed
+                return false;
             }
             nFailedRequests++;
             return false;
@@ -1125,6 +1139,8 @@ namespace MBBetaAPI.AgentAPI
                 CountPerState[PARSED]++;
                 notifications.Save(out errorData);
                 if (errorData == "") return true;
+                // corrected bug: return an error without mark as failed
+                return false;
             }
             nFailedRequests++;
             return false;
@@ -1210,7 +1226,8 @@ namespace MBBetaAPI.AgentAPI
                     CountPerState[PARSED]++;
                     likes.Save(out errorData);
                     if (errorData == "") return true;
-
+                    // corrected bug: return an error without mark as failed
+                    return false; 
                 }
             }
             nFailedRequests++;
@@ -1328,19 +1345,20 @@ namespace MBBetaAPI.AgentAPI
                 CountPerState[PARSED]++;
                 anEvent.Save(out errorData);
 
-                // TODO: Check OWNER
-                //if (anEvent.OwnerID == frmDashboard.currentProfile.SocialNetworkAccountID)
-                //{
-                //    AsyncReqQueue apiReq;
-                //    apiReq = FBAPI.AttendingEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessAttending, anEvent.ID);
-                //    apiReq.Queue(200);
-                //    apiReq = FBAPI.MaybeEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessMaybeAttending, anEvent.ID);
-                //    apiReq.Queue(200);
-                //    apiReq = FBAPI.DeclinedEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessNotAttending, anEvent.ID);
-                //    apiReq.Queue(200);
-                //}
+                if (anEvent.OwnerID == SNAccount.CurrentProfile.SNID)
+                {
+                    AsyncReqQueue apiReq;
+                    apiReq = FBAPI.AttendingEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessAttending, anEvent.ID);
+                    apiReq.Queue(200);
+                    apiReq = FBAPI.MaybeEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessMaybeAttending, anEvent.ID);
+                    apiReq.Queue(200);
+                    apiReq = FBAPI.DeclinedEvent(anEvent.SNID, SIZETOGETPERPAGE, ProcessNotAttending, anEvent.ID);
+                    apiReq.Queue(200);
+                }
 
                 if (errorData == "") return true;
+                // corrected bug: return an error without mark as failed
+                return false;
             }
             nFailedRequests++;
             return false;
@@ -1364,7 +1382,6 @@ namespace MBBetaAPI.AgentAPI
             {
                 FBPost aPost = new FBPost(response);
                 aPost.Parse();
-                CountPerState[PARSED]++;
                 aPost.Save(out errorData);
 
                 if (aPost.LikesCount > 0)
@@ -1374,7 +1391,13 @@ namespace MBBetaAPI.AgentAPI
                     apiReq.Queue(200);
                 }
 
-                if (errorData == "") return true;
+                if (errorData == "")
+                {                    
+                    CountPerState[PARSED]++;
+                    return true;
+                }
+                // corrected bug: return an error without mark as failed
+                return false; 
             }
             nFailedRequests++;
             return false;

@@ -168,7 +168,7 @@ namespace MBBeta2
         /// </summary>
         private void processTimer_Tick(object sender, EventArgs e)
         {
-            if (FBLogin.loggedIn)
+            if (FBLogin.loggedIn && FBLogin.Me != null)
             {
                 if (firstTime)
                 {            

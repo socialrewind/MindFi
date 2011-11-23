@@ -2448,7 +2448,10 @@ namespace MBBetaAPI.AgentAPI
         /// Record the start of a backup
         /// </summary>
         public static bool StartBackup(DateTime startPeriod, DateTime endPeriod,
-            out int BackupNo, out DateTime currentPeriodStart, out DateTime currentPeriodEnd, out bool isIncremental)
+            out DateTime currentBackupStart, out DateTime currentBackupEnd,
+            out int BackupNo, 
+            out DateTime currentPeriodStart, out DateTime currentPeriodEnd,
+            out bool isIncremental)
         {
             bool inTransaction = false;
 
@@ -2457,6 +2460,8 @@ namespace MBBetaAPI.AgentAPI
             // allows for detection, if not set, they are equal
             currentPeriodStart = DateTime.UtcNow;
             currentPeriodEnd = currentPeriodStart;
+            currentBackupStart = startPeriod;
+            currentBackupEnd = endPeriod;
 
             lock (obj)
             {
@@ -2466,7 +2471,7 @@ namespace MBBetaAPI.AgentAPI
                     BeginTransaction();
                     inTransaction = true;
                     // check first if there is an active Backup
-                    string SQL = "select ID, CurrentStartTime, CurrentEndTime from Backups where Active = 1";
+                    string SQL = "select ID, CurrentStartTime, CurrentEndTime, PeriodStartTime, PeriodEndTime from Backups where Active = 1";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     if (reader.Read())
@@ -2474,6 +2479,10 @@ namespace MBBetaAPI.AgentAPI
                         BackupNo = reader.GetInt32(0);
                         currentPeriodStart = reader.GetDateTime(1);
                         currentPeriodEnd = reader.GetDateTime(2);
+                        DateTime tempPeriodStart = reader.GetDateTime(3);
+                        currentBackupStart = tempPeriodStart;
+                        DateTime tempPeriodEnd = reader.GetDateTime(4);
+                        currentBackupEnd = tempPeriodEnd;
                         reader.Close();
                         // TODO: update target period if necessary?
                     }
@@ -2490,13 +2499,13 @@ namespace MBBetaAPI.AgentAPI
                             DateTime tempPeriodStart = reader.GetDateTime(2);
                             DateTime tempPeriodEnd = reader.GetDateTime(3);
                             // Logic for incremental: if period start is similar to existing, complete backup, only go forward; else, full backup needed
-                            if (tempPeriodStart <= startPeriod)
+                            if (tempPeriodStart <= currentBackupStart)
                             {
-                                startPeriod = tempStart;
-                                endPeriod = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
+                                currentBackupStart = tempStart;
+                                currentBackupEnd = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
                                 if (DateTime.UtcNow.AddMonths(1) > endPeriod)
                                 {
-                                    endPeriod = DateTime.UtcNow.AddMonths(1);
+                                    currentBackupEnd = DateTime.UtcNow.AddMonths(1);
                                 }
                                 isIncremental = true;
                             }
@@ -2510,10 +2519,10 @@ namespace MBBetaAPI.AgentAPI
                         pStart.Value = DateTime.UtcNow;
                         InsertCmd.Parameters.Add(pStart);
                         SQLiteParameter pStartP = new SQLiteParameter();
-                        pStartP.Value = startPeriod;
+                        pStartP.Value = currentBackupStart;
                         InsertCmd.Parameters.Add(pStartP);
                         SQLiteParameter pendP = new SQLiteParameter();
-                        pendP.Value = endPeriod;
+                        pendP.Value = currentBackupEnd;
                         InsertCmd.Parameters.Add(pendP);
                         // Calculation
                         currentPeriodEnd = endPeriod;

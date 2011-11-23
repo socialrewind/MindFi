@@ -35,7 +35,10 @@ namespace MBBetaAPI.AgentAPI
         {
             lock (obj)
             {
-                inFlight--;
+                if (inFlight > 0)
+                {
+                    inFlight--;
+                }
             }
         }
 
@@ -563,9 +566,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         public static void JSONResponseProcess(IAsyncResult result)
-        {
-            FBAPI.DecInFlight();                
-    
+        {    
             bool tryOne = false;
             string responseString = "";
             JSONResultCallback state = (JSONResultCallback)result.AsyncState;
@@ -575,6 +576,8 @@ namespace MBBetaAPI.AgentAPI
             try
             {
                 HttpWebResponse response = (HttpWebResponse)state.request.EndGetResponse(result);
+                // only decrement if passed EndGetResponse, so to prevent double decrement on timeout
+                FBAPI.DecInFlight();
                 Stream streamResponse = response.GetResponseStream();
                 StreamReader streamRead = new StreamReader(streamResponse);
                 responseString = streamRead.ReadToEnd();
@@ -643,15 +646,17 @@ namespace MBBetaAPI.AgentAPI
 
         public static void FileResponseProcess(IAsyncResult result)
         {
-            FBAPI.DecInFlight();
-
             bool tryOne = false;
+            bool inFlightwasDecremented = false;
 
             FileResultCallback state = (FileResultCallback)result.AsyncState;
             // get response
             try
             {
                 HttpWebResponse response = (HttpWebResponse)state.request.EndGetResponse(result);
+                // only decrement if passed EndGetResponse, so to prevent double decrement on timeout
+                FBAPI.DecInFlight();
+                inFlightwasDecremented = true;
                 Stream streamResponse = response.GetResponseStream();
                 FileStream output = new FileStream(state.filename, FileMode.Create);
                 byte[] buffer = new byte[1000];
@@ -687,7 +692,12 @@ namespace MBBetaAPI.AgentAPI
             catch (Exception ex)
             {
                 //System.Windows.Forms.MessageBox.Show("Error2 on file callblack for:\n" + state.ID + "Error:\n" + ex.ToString());
-                //DBLayer.RespQueueSave(state.ID, ex.ToString(), AsyncReqQueue.RETRY);
+                // Not just a timeout; example case was to update profile pictures when they are in use
+                if (!inFlightwasDecremented)
+                {
+                    FBAPI.DecInFlight();
+                }
+                DBLayer.RespQueueSave(state.ID, ex.ToString(), AsyncReqQueue.FAILED);
                 // prevent probable double call when failure is in the specific function, and not really an error in fileresponseprocess...
                 if (!tryOne)
                 {

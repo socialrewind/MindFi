@@ -42,6 +42,7 @@ namespace MBBetaAPI.AgentAPI
         public const int PARSED = 5;
         public const int PROCESSED = 6;
         public const int TODELETE = 7;
+        public const int FAILED = 8;
         #endregion
 
         #region "Statistics"
@@ -451,14 +452,17 @@ namespace MBBetaAPI.AgentAPI
                 }
                 // starts or finds existing backup to continue
                 int currentBackup;
-                DateTime currentPeriodStart, currentPeriodEnd;
+                DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
                 bool isIncremental;
                 
                 // TODO: Check if backup was completed, to decide if incremental case should go forward
                 DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
+                        out currentBackupStart, out currentBackupEnd,
                         out currentBackup, out currentPeriodStart, out currentPeriodEnd, out isIncremental);
                 SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
+                SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
+                SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
                 currentBackupNumber = currentBackup;
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
@@ -596,24 +600,32 @@ namespace MBBetaAPI.AgentAPI
                         }
                         else
                         {
-                            // Go to the previous week
-                            // TODO: Show which week is being processed
-                            SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
-                            SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
-                            FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
-                            // TODO: Verify which requests are really affected by periods
-                            AsyncReqQueue apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
-                            apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                            apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                            apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-                            apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                            apiReq.QueueAndSend(500);
-                            apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                            apiReq.QueueAndSend(500);
+                            if ((SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart))
+                            {
+                                // Go to the previous week
+                                // TODO: Show which week is being processed
+                                SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
+                                SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
+                                FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                                // TODO: Verify which requests are really affected by periods
+                                AsyncReqQueue apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
+                                apiReq.QueueAndSend(999);
+                                apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                                apiReq.QueueAndSend(999);
+                                apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                                apiReq.QueueAndSend(999);
+                                apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                                apiReq.QueueAndSend(999);
+                                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                                apiReq.QueueAndSend(500);
+                                apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                                apiReq.QueueAndSend(500);
+                            }
+                            else
+                            {
+                                // 
+                                ErrorMessage += "only waiting for last requests in flight to complete backup";
+                            }
                         }
                     }
                 }

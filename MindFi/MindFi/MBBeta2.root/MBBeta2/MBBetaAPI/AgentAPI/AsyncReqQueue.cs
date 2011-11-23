@@ -64,6 +64,9 @@ namespace MBBetaAPI.AgentAPI
         private static volatile int nRequestsInTransit = 0;
         private static volatile bool RecoveringPendingReqs = false;
 
+        private static string backupCase = "Starting new backup";
+        private static bool firstCase = false;
+
         #region "Statistic properties"
         public static int QueuedReqs
         {
@@ -449,19 +452,41 @@ namespace MBBetaAPI.AgentAPI
                 // starts or finds existing backup to continue
                 int currentBackup;
                 DateTime currentPeriodStart, currentPeriodEnd;
+                bool isIncremental;
                 
+                // TODO: Check if backup was completed, to decide if incremental case should go forward
                 DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
-                        out currentBackup, out currentPeriodStart, out currentPeriodEnd);
+                        out currentBackup, out currentPeriodStart, out currentPeriodEnd, out isIncremental);
                 SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                 currentBackupNumber = currentBackup;
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
+                    if (!firstCase)
+                    {
+                        if (isIncremental)
+                        {
+                            backupCase = "Updating backup with new stuff";
+                        }
+                        else
+                        {
+                            backupCase = "Continuing backup started earlier";
+                        }
+                    }
                     PendingRequests(MinPriority, out error);
                 }
                 else
                 {
+                    if (isIncremental)
+                    {
+                        backupCase = "Updating backup with new stuff";
+                    }
+                    else
+                    {
+                        backupCase = "New Backup in progress";
+                    }
+                    firstCase = true;
 
                     if (currentBackup != 0)
                     {
@@ -523,7 +548,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool PendingRequests(int MinPriority, out string ErrorMessage)
         {
             #region "Init"
-            ErrorMessage = "";
+            ErrorMessage = backupCase;
             lock (obj)
             {
                 if (RecoveringPendingReqs)
@@ -594,7 +619,7 @@ namespace MBBetaAPI.AgentAPI
                 }
                 if (backupInProgress)
                 {
-                    ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal 
+                    ErrorMessage += "\nCurrent Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal 
                         + " from " +SNAccount.CurrentProfile.CurrentPeriodStart 
                         + " to " +SNAccount.CurrentProfile.CurrentPeriodEnd
                         + "\nRequests in flight: " + FBAPI.InFlight
@@ -618,19 +643,20 @@ namespace MBBetaAPI.AgentAPI
                 }
                 else
                 {
-                    ErrorMessage += "Current Backup " + currentBackupNumber + " done\n";
+                    backupCase = "Backup completed";
+                    ErrorMessage += "\nCurrent Backup " + currentBackupNumber + " done\n";
                 }
             } // if not too many requests pending...
             else
             {
-                ErrorMessage += "Current Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal
+                ErrorMessage += "\nCurrent Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal
                     + " from " + SNAccount.CurrentProfile.CurrentPeriodStart
                     + " to " + SNAccount.CurrentProfile.CurrentPeriodEnd
                     + "\nRequests in flight: " + FBAPI.InFlight
                     + " requests in save: " + nInSaveRequests
                     + " requests in parse: " + nInParseRequests
                     + "\n";
-                ErrorMessage += "Waiting for " + nRequestsInTransit + " requests to be processed";
+                ErrorMessage += "\nWaiting for " + nRequestsInTransit + " requests to be processed";
             }
             lock (obj)
             {

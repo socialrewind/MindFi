@@ -2448,11 +2448,12 @@ namespace MBBetaAPI.AgentAPI
         /// Record the start of a backup
         /// </summary>
         public static bool StartBackup(DateTime startPeriod, DateTime endPeriod,
-            out int BackupNo, out DateTime currentPeriodStart, out DateTime currentPeriodEnd)
+            out int BackupNo, out DateTime currentPeriodStart, out DateTime currentPeriodEnd, out bool isIncremental)
         {
             bool inTransaction = false;
 
             BackupNo = 0;
+            isIncremental = false;
             // allows for detection, if not set, they are equal
             currentPeriodStart = DateTime.UtcNow;
             currentPeriodEnd = currentPeriodStart;
@@ -2479,11 +2480,34 @@ namespace MBBetaAPI.AgentAPI
                     else
                     {
                         reader.Close();
+                        // check if it will be an incremental or full backup
+                        SQL = "select ID, StartTime, PeriodStartTime, PeriodEndTime from Backups where Active = 0 order by ID desc limit 1";
+                        CheckCmd = new SQLiteCommand(SQL, conn);
+                        reader = CheckCmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            DateTime tempStart = reader.GetDateTime(1);
+                            DateTime tempPeriodStart = reader.GetDateTime(2);
+                            DateTime tempPeriodEnd = reader.GetDateTime(3);
+                            // Logic for incremental: if period start is similar to existing, complete backup, only go forward; else, full backup needed
+                            if (tempPeriodStart <= startPeriod)
+                            {
+                                startPeriod = tempStart;
+                                endPeriod = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
+                                if (DateTime.UtcNow.AddMonths(1) > endPeriod)
+                                {
+                                    endPeriod = DateTime.UtcNow.AddMonths(1);
+                                }
+                                isIncremental = true;
+                            }
+                        }
+                        reader.Close();
+
                         // No active backup, insert it
                         SQL = "insert into Backups (StartTime, PeriodStartTime, PeriodEndTime, CurrentStartTime, CurrentEndTime, Active) values (?,?,?,?,?,1)";
                         SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                         SQLiteParameter pStart = new SQLiteParameter();
-                        pStart.Value = DateTime.Now;
+                        pStart.Value = DateTime.UtcNow;
                         InsertCmd.Parameters.Add(pStart);
                         SQLiteParameter pStartP = new SQLiteParameter();
                         pStartP.Value = startPeriod;
@@ -2555,7 +2579,7 @@ namespace MBBetaAPI.AgentAPI
                     string SQL = "update Backups set EndTime = ?, Active = 0 where Active = 1";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pEnd = new SQLiteParameter();
-                    pEnd.Value = DateTime.Now;
+                    pEnd.Value = DateTime.UtcNow;
                     UpdateCmd.Parameters.Add(pEnd);
                     UpdateCmd.ExecuteNonQuery();
                 }

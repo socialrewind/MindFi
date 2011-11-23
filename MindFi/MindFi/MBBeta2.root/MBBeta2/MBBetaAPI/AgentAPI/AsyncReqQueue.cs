@@ -446,24 +446,32 @@ namespace MBBetaAPI.AgentAPI
                     CountPerState[QUEUED] += CountPerState[RETRY];
                     CountPerState[RETRY] = 0;
                 }
+                // starts or finds existing backup to continue
+                int currentBackup;
+                DateTime currentPeriodStart, currentPeriodEnd;
+                
+                DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
+                        out currentBackup, out currentPeriodStart, out currentPeriodEnd);
+                SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
+                SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
+                currentBackupNumber = currentBackup;
+
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
                     PendingRequests(MinPriority, out error);
                 }
                 else
                 {
-                    int currentBackup;
-                    DateTime currentPeriodStart, currentPeriodEnd;
 
-                    DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
-                            out currentBackup, out currentPeriodStart, out currentPeriodEnd );
                     if (currentBackup != 0)
                     {
                         // Calculate dates for first iteration - TODO make sure they are recalculated until done
                         FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
+                        /*
                         SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
                         SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                         currentBackupNumber = currentBackup;
+                         */
                         AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
                             ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
                             ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
@@ -566,7 +574,7 @@ namespace MBBetaAPI.AgentAPI
                             // Go to the previous week
                             // TODO: Show which week is being processed
                             SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
-                            SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-7);
+                            SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
                             FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
                             // TODO: Verify which requests are really affected by periods
                             AsyncReqQueue apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);

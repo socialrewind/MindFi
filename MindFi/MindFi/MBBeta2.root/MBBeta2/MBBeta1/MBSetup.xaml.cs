@@ -161,6 +161,7 @@ namespace MBBeta2
             dispatcherTimer.Stop();
             // TODO: Localize
             OnlineBt.Content = "Go Online/Login";
+            FBLoggedIn.Text = FBLogin.loggedIn.ToString();
         }
 
         /// <summary>
@@ -175,6 +176,7 @@ namespace MBBeta2
                     // TODO: Localize
                     OnlineBt.Content = "Go Offline / Logout";
                     OnlineBt.IsEnabled = true;
+                    FBLoggedIn.Text = FBLogin.loggedIn.ToString();
 
                     switch (SNAccount.CurrentProfile.currentBackupLevel)
                     {

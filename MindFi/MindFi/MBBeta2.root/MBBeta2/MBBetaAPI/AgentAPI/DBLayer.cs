@@ -2495,7 +2495,7 @@ namespace MBBetaAPI.AgentAPI
                         currentPeriodEnd = endPeriod;
                         // TODO: Check general behavior, now go back week by week unless it is the one pointing to the future from now
                         DateTime temp1 = DateTime.UtcNow;
-                        DateTime temp2 = endPeriod.AddDays(-7);
+                        DateTime temp2 = endPeriod.AddDays(-30);
                         currentPeriodStart = ( temp1 < temp2 ) ? temp1 : temp2;
                         SQLiteParameter pstartC = new SQLiteParameter();
                         SQLiteParameter pendC = new SQLiteParameter();

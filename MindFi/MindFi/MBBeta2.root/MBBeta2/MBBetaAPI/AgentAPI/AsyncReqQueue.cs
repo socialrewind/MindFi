@@ -600,7 +600,7 @@ namespace MBBetaAPI.AgentAPI
                         }
                         else
                         {
-                            if ((SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart))
+                            if ((SNAccount.CurrentProfile.CurrentPeriodStart > SNAccount.CurrentProfile.BackupPeriodStart))
                             {
                                 // Go to the previous week
                                 // TODO: Show which week is being processed

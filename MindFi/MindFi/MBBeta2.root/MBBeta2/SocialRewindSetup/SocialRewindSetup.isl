@@ -2772,6 +2772,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
+		<row><td>***IS_STRING_NOT_DEFINED***</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>-845192050</td></row>
 		<row><td>COMPANY_NAME</td><td>1033</td><td>Social Rewind LLC</td><td>0</td><td/><td>-845177588</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td/><td>-845161142</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>-845161142</td></row>
@@ -3873,9 +3874,12 @@
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>-845161142</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>http://www.SocialRewindLLC.com</td><td>0</td><td/><td>-845177588</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Social Rewind LLC</td><td>0</td><td/><td>-845177588</td></row>
+		<row><td>ID_STRING3</td><td>1033</td><td>Social Rewind</td><td>0</td><td/><td>-845204338</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>-845201718</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>support@socialrewind.com</td><td>0</td><td/><td>-845193462</td></row>
 		<row><td>ID_STRING6</td><td>1033</td><td>http://www.SocialRewindLLC.com/site/Support/tabid/58/Default.aspx</td><td>0</td><td/><td>-845177588</td></row>
+		<row><td>ID_STRING7</td><td>1033</td><td>Social Rewind</td><td>0</td><td/><td>-845190002</td></row>
+		<row><td>ID_STRING8</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>-845190002</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>-845161142</td></row>
 	</table>
 
@@ -3977,13 +3981,18 @@
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I2">ISIconIndex</col>
+		<row><td>ARPPRODUCTICON.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\Images\cloudservice.ico</td><td>0</td></row>
+		<row><td>NewShortcut11_F8265A3EC16540E2A0631F42CFAA395F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\Images\cloudservice.ico</td><td>0</td></row>
 		<row><td>NewShortcut1_03E865952E0D4FFA8DF5C60597DBB2A5.exe</td><td/><td>C:\docs\business2011\#1SocialRewind\logos\rewind.ico</td><td>0</td></row>
+		<row><td>NewShortcut1_A58D5E79712D407B9295F6B977C04302.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\Images\cloudservice.ico</td><td>0</td></row>
 		<row><td>UNINST_Uninstall_S_1FD761FE88DA44F79266BBA27114912E.exe</td><td/><td>C:\Program Files (x86)\InstallShield\2011LE\Redist\Language Independent\OS Independent\uninstall.ico</td><td>0</td></row>
 		<row><td>_07E55A29BD9040C09A376CE6A1A9174B.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_0E380F25892142E789E90B3778C554F9.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_0F31C96D64DB4C26B2D49258BF7BA8A5.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_2606954DC5A24007B50DC606D5A5D228.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_72C56007C84C48EB89D877FD8E56BDAA.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_8AFABA587EC64FBBB96179A00E54CC1A.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_9D6EB9F45F4D42E2AC15888BD5D30EE7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_A9B48D8C42ED4039BA94190C1884F20F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_ABFEDE4C79374762967E1D0B88A710BB.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_DBB7CAA8F3874D8AA677984E78A7F167.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
@@ -4118,7 +4127,7 @@ QwBEAF8AUgBPAE0AAQBFAHgAcAByAGUAcwBzAA==
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{B565AEA6-BA3D-4142-8814-9DF5B916E391}</td></row>
 		<row><td>ISUSSignature</td><td>{E57D93C1-82DF-4F3C-934C-75A4229D1991}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewShortcuts,viewProject,viewRealSetupDesign,viewSetupDesign,viewSetupTypes,viewUpgradePaths,viewUpdateService,viewUI,viewBillboards,viewTextMessages,viewSystemSearch,viewInstallScriptStd,viewCustomActions,viewSupportFiles,viewRelease,viewDesignPatches,viewObjects</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewShortcuts,viewProject,viewRealSetupDesign,viewSetupDesign,viewSetupTypes,viewUpgradePaths,viewUpdateService,viewUI,viewBillboards,viewTextMessages,viewSystemSearch,viewInstallScriptStd,viewCustomActions,viewSupportFiles,viewRelease,viewDesignPatches,viewObjects,viewISToday,viewAppV</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4429,6 +4438,7 @@ QwBEAF8AUgBPAE0AAQBFAHgAcAByAGUAcwBzAA==
 		<row><td>ARPCONTACT</td><td>##ID_STRING5##</td><td/></row>
 		<row><td>ARPHELPLINK</td><td>##ID_STRING6##</td><td/></row>
 		<row><td>ARPINSTALLLOCATION</td><td/><td/></row>
+		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
 		<row><td>ARPSIZE</td><td/><td/></row>
 		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING1##</td><td/></row>
 		<row><td>AgreeToLicense</td><td>No</td><td/></row>
@@ -4662,7 +4672,8 @@ QwBEAF8AUgBPAE0AAQBFAHgAcAByAGUAcwBzAA==
 		<col def="S255">ISComments</col>
 		<col def="S255">ISShortcutName</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>NewShortcut1</td><td>social_rewind</td><td>***IS_STRING_NOT_DEFINED***</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td/><td/><td/><td>0</td><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>NewShortcut1</td><td>social_rewind</td><td>***IS_STRING_NOT_DEFINED***</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td>##ID_STRING3##</td><td/><td>NewShortcut1_A58D5E79712D407B9295F6B977C04302.exe</td><td>0</td><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>NewShortcut11</td><td>DesktopFolder</td><td>##ID_STRING8##</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td>##ID_STRING7##</td><td/><td>NewShortcut11_F8265A3EC16540E2A0631F42CFAA395F.exe</td><td>0</td><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
 		<row><td>UNINST_Uninstall_Social_Rewind</td><td>social_rewind</td><td>UNINST|Uninstall Social Rewind</td><td>NewComponent1</td><td>[SystemFolder]msiexec.exe</td><td>/x {29DFE98C-79E1-4BEE-AFCE-D93B3F969711}</td><td/><td/><td>UNINST_Uninstall_S_1FD761FE88DA44F79266BBA27114912E.exe</td><td>0</td><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
 	</table>
 

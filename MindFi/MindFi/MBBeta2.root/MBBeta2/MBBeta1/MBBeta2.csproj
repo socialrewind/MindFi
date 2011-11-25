@@ -40,7 +40,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>TryVisualStudioProfessional.ico</ApplicationIcon>
+    <ApplicationIcon>cloudservice.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -398,6 +398,8 @@
     <Resource Include="Images\system_help.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\cloudservice.ico" />
+    <Resource Include="cloudservice.ico" />
     <Content Include="SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

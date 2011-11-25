@@ -2738,7 +2738,7 @@
 		<col def="I2">Order</col>
 		<col def="I2">ISSetupLocation</col>
 		<col def="S255">ISReleaseFlags</col>
-		<row><td>_7D1BFE71_5A84_4003_B8D9_3656F6A9C81A_</td><td>Microsoft .NET Framework 4.0 Client.prq</td><td>0</td><td/><td/></row>
+		<row><td>_72496E57_BFCF_4C83_A997_2902DF564EB4_</td><td>Microsoft .NET Framework 4.0 Client (Web Download).prq</td><td/><td/><td/></row>
 	</table>
 
 	<table name="ISSetupType">
@@ -3986,6 +3986,7 @@
 		<row><td>_8AFABA587EC64FBBB96179A00E54CC1A.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_A9B48D8C42ED4039BA94190C1884F20F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_ABFEDE4C79374762967E1D0B88A710BB.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_DBB7CAA8F3874D8AA677984E78A7F167.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 	</table>
 
 	<table name="IniFile">

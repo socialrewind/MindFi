@@ -8,6 +8,7 @@
         Welcome to Social Rewind!
     </h2>
     <p>
-        <a href="download\SocialRewindSetup.zip">Download the Beta</a>
+        <a href="download\SocialRewindBetaSetup.zip">Download the Beta with prerrequisites</a>
+        <a href="download\Social Rewind Beta.msi">Download the Beta - smaller version (you may need to install prerrequisites manually)</a>
     </p>
 </asp:Content>

@@ -5,13 +5,28 @@
 </asp:Content>
 <asp:Content ID="BodyContent" runat="server" ContentPlaceHolderID="MainContent">
     <h2>
-        Welcome to ASP.NET!
-    </h2>
+        POST YOUR STATUS IN FACEBOOK WHILE YOU ARE OUT</h2>
     <p>
-        To learn more about ASP.NET visit <a href="http://www.asp.net" title="ASP.NET Website">www.asp.net</a>.
+        <asp:Label ID="lblError" runat="server" Text="Error"></asp:Label>
     </p>
     <p>
-        You can also find <a href="http://go.microsoft.com/fwlink/?LinkID=152368&amp;clcid=0x409"
-            title="MSDN ASP.NET Docs">documentation on ASP.NET at MSDN</a>.
+        Status you want to post:
+        <asp:TextBox ID="txtStatus" runat="server" Width="714px">what will you be thinking?</asp:TextBox>
+    </p>
+    <p>
+        Day/time you want it posted (your time zone is
+        <asp:HyperLink ID="HyperLink1" runat="server">currently UDT</asp:HyperLink>
+        )</p>
+    <p>
+        <asp:Calendar ID="calPost" runat="server" 
+            onselectionchanged="Calendar1_SelectionChanged"></asp:Calendar>
+        at
+        <asp:DropDownList ID="lstHour" runat="server">
+        </asp:DropDownList>
+        :<asp:DropDownList ID="lstMinute" runat="server">
+        </asp:DropDownList>
+&nbsp;hrs</p>
+    <p>
+        <asp:Button ID="btnPost" runat="server" Text="Program the post" />
     </p>
 </asp:Content>

@@ -61,6 +61,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Advanced Options.
+        /// </summary>
+        internal static string AdvancedOptions {
+            get {
+                return ResourceManager.GetString("AdvancedOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Backup File: .
         /// </summary>
         internal static string BackupFile {
@@ -93,6 +102,15 @@ namespace MBBeta2.Resources {
         internal static string Create {
             get {
                 return ResourceManager.GetString("Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error creating new database..
+        /// </summary>
+        internal static string DBCreationFailed {
+            get {
+                return ResourceManager.GetString("DBCreationFailed", resourceCulture);
             }
         }
         
@@ -165,6 +183,15 @@ namespace MBBeta2.Resources {
         internal static string ManyAttempts {
             get {
                 return ResourceManager.GetString("ManyAttempts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New database successfully created.
+        /// </summary>
+        internal static string NewDBCreated {
+            get {
+                return ResourceManager.GetString("NewDBCreated", resourceCulture);
             }
         }
         

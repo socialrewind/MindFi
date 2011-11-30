@@ -84,6 +84,7 @@ namespace MBBeta2
             // check
             this.Show();
             // TODO: Make sure CurrentProfile is assigned when logging in successfuly
+            
             DBLayer.ConnString = db.ConnString;
             string error;
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
@@ -804,6 +805,36 @@ namespace MBBeta2
         }
 
         #endregion
+
+        private void RefreshDataBt_Click(object sender, RoutedEventArgs e)
+        {
+            this.Cursor = Cursors.Wait;
+
+            string error;
+            ArrayList currentAccounts = DBLayer.GetAccounts(out error);
+            if (error != "")
+            {
+                MessageBox.Show("Error getting accounts from the database:\n" + error);
+            }
+            // TODO: Review how it can be empty and not null
+            if (currentAccounts != null && currentAccounts.Count != 0)
+            {
+                //Load Friends Data into Info Browser
+                LoadFriends();
+                if (FriendsList != null)
+                    FriendFilterText.IsEnabled = true;
+
+                //Load Social Groups
+                LoadSocialGroups();
+
+                //TEst Load
+                PostList = null;
+                FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value);
+            }
+                
+           
+            this.Cursor = Cursors.Arrow;
+        }
 
 
 

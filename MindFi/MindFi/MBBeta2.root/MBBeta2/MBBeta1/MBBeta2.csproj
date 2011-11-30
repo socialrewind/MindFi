@@ -400,6 +400,7 @@
   <ItemGroup>
     <Resource Include="Images\cloudservice.ico" />
     <Resource Include="cloudservice.ico" />
+    <Resource Include="Images\logo-socialrewindok.gif" />
     <Content Include="SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

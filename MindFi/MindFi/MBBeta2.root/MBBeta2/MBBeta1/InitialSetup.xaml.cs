@@ -146,18 +146,29 @@ namespace MBBeta2
             {
                 if (MBBetaAPI.AgentAPI.DBLayer.CreateDB(DBPath+"\\"+DBName, UserTB.Text, PasswordPB.Password))
                 {
-                    // TODO: Localization
-                    MessageBox.Show("New database succesfully created");
+                    
+                    Configuration MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    MBConfig.AppSettings.Settings.Remove("NewProduct");
+                    MBConfig.AppSettings.Settings.Add("NewProduct", "NO");
+                    MBConfig.Save(ConfigurationSaveMode.Modified);
                     var LoginWindow = new MBLogin(UserTB.Text, PasswordPB.Password, DBName, DBPath);
                     LoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
                     LoginWindow.Show();
                     CleanClose = true;
+
+                    LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:NewDBCreated");
+                    string message;
+                    loc.ResolveLocalizedValue(out message);
+                    MessageBox.Show(message);
+
                     this.Close();
                 }
                 else
                 {
-                    // TODO: Localization
-                    MessageBox.Show("Failed to create database");
+                    LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:DBCreationFailed");
+                    string message;
+                    loc.ResolveLocalizedValue(out message);
+                    MessageBox.Show(message);
                 }
 
             }

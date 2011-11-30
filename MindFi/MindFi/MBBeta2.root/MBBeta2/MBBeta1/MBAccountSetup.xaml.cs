@@ -133,7 +133,8 @@ namespace MBBeta2
             }
 
             string errorData = "";
-            me.Save(out errorData);
+            //For now
+            //me.Save(out errorData);
             if (errorData != "")
             {
                 if (MessageBox.Show(errorData, "Error while saving your data, cancel Add Account?", MessageBoxButton.YesNo) == System.Windows.MessageBoxResult.Yes)

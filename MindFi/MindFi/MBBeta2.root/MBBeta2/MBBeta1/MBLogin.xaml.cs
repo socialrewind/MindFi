@@ -30,10 +30,12 @@ namespace MBBeta2
         {
             InitializeComponent();
 
+            if(!IsNewProduct())
+            {
             ReadLastConfig();
             ReadDBConfig();
-
             FocusManager.SetFocusedElement(this, UserLoginTB);
+            }
 
         }
 
@@ -81,6 +83,25 @@ namespace MBBeta2
 
         //Private Methods
         #region Private Methods
+
+        private bool IsNewProduct()
+        {
+            bool NewP = false;
+            try
+            {
+                string NewProduct = ConfigurationManager.AppSettings["NewProduct"];
+                if (NewProduct == "YES")
+                {
+                    NewP = true;
+                    SetupBt_Click(null, null);
+                }
+            }
+            catch
+            {
+                MBError error = new MBError(this, "Login: Reading Application configuration", 1);
+            }
+            return NewP;
+        }
 
         private void ReadLastConfig()
         {

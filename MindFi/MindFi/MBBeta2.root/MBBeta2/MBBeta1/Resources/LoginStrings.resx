@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdvancedOptions" xml:space="preserve">
+    <value>Advanced Options</value>
+  </data>
   <data name="BackupFile" xml:space="preserve">
     <value>Backup File: </value>
   </data>
@@ -128,6 +131,9 @@
   </data>
   <data name="Create" xml:space="preserve">
     <value>Create</value>
+  </data>
+  <data name="DBCreationFailed" xml:space="preserve">
+    <value>Error creating new database.</value>
   </data>
   <data name="DBFileNotPresent" xml:space="preserve">
     <value>Backup File not available. Do you want to select another file?</value>
@@ -152,6 +158,9 @@
   </data>
   <data name="ManyAttempts" xml:space="preserve">
     <value>Too many unsuccessful login attempts. Closing.</value>
+  </data>
+  <data name="NewDBCreated" xml:space="preserve">
+    <value>New database successfully created</value>
   </data>
   <data name="Open" xml:space="preserve">
     <value>Open</value>

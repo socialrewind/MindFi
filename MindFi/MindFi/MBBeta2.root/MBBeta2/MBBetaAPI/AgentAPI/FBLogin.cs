@@ -56,7 +56,9 @@ namespace MBBetaAPI.AgentAPI
             {
                 // Client code #access_token=...
                 const string SaccessToken = "#access_token=";
-                m_accessToken = URL.Substring(start + FBLogin.RedirURL.Length + SaccessToken.Length);
+                int startToken = URL.IndexOf(SaccessToken);
+                //m_accessToken = URL.Substring(start + FBLogin.RedirURL.Length + SaccessToken.Length);
+                m_accessToken = URL.Substring(startToken + SaccessToken.Length);
                 const string expiresToken = "&expires_in=";
 
                 int expiresIndex = m_accessToken.IndexOf(expiresToken);

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Text;
 
 namespace MBBetaAPI.AgentAPI
 {
@@ -413,6 +414,21 @@ namespace MBBetaAPI.AgentAPI
             return me;
         }
 
+        /// <summary>
+        /// Updates the status of the user
+        /// </summary>
+        /// <param name="resultCall">Function that is called once the user data is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Async Request record</returns>
+        public static AsyncReqQueue UpdateStatus(string Who, string Status, CallBack resultCall)
+        {
+            // TODO: Use the who
+            bool result;
+
+            result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + Who + "/feed", 1, resultCall, Status, 0, null, "", true, false);
+
+            return null;
+        }
+
         #endregion
 
 
@@ -516,6 +532,68 @@ namespace MBBetaAPI.AgentAPI
             {
                 // TODO: Possibly improve Instrumentation
                 System.Diagnostics.Debug.WriteLine("Exception during CallGraphAPI: " + ex.ToString());
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// General method that makes the HTTP asynchronous request to start the Facebook Graph API call, when it returns JSON records, using Post method
+        /// </summary>
+        /// <param name="GraphAPIURL">URL for the appropriate Graph API method</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success or failure</returns>
+        /// TODO: Private?
+        /// // TODO: check additional needed parameters
+        public static bool CallGraphAPIPost(string GraphAPIURL, int Limit, CallBack resultCall, 
+            string PostData,
+            long AsyncID, long? parent, string parentSNID, 
+            bool addToken, bool addDateRange = false)
+        {
+            try
+            {
+                string URLToGet = GraphAPIURL;
+                // TODO: Check if URLEncode is needed
+                string postData = "message=" + PostData;
+                if (addToken)
+                {
+                    if (Limit == 0)
+                    {
+                        Limit = DEFAULT_LIMIT;
+                    }
+                    postData += "&access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
+                    // TODO: how to add in a more smart way the since / until
+                    if (addDateRange)
+                    {
+                        postData += "&since=" + InitialTime + "&until=" + EndTime;
+                    }
+                }
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URLToGet);
+                request.Method = "POST";
+                request.ContentType = "application/x-www-form-urlencoded";
+
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] byte1 = encoding.GetBytes(postData);
+                request.ContentLength = byte1.Length;
+
+                Stream newStream = request.GetRequestStream();
+                newStream.Write(byte1, 0, byte1.Length);
+                newStream.Close();
+
+
+
+                JSONResultCallback state = new JSONResultCallback(request, resultCall, AsyncID, parent, parentSNID);
+
+                IncInFlight();
+                IAsyncResult res = request.BeginGetResponse(new AsyncCallback(JSONResultCallback.JSONResponseProcess), state);
+                ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
+                    request, DEFAULT_TIMEOUT, true);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Possibly improve Instrumentation
+                System.Diagnostics.Debug.WriteLine("Exception during CallGraphAPI Post: " + ex.ToString());
                 return false;
             }
             return true;

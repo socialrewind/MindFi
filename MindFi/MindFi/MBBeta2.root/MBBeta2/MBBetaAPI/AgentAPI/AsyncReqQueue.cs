@@ -598,6 +598,10 @@ namespace MBBetaAPI.AgentAPI
                         {
                             // TODO: Make sure no pending threads before closing the backup
                             DBLayer.EndBackup();
+                            int backedPosts;
+                            DBLayer.BackupStatistics(out backedPosts);
+                            FBAPI.UpdateStatus("me", "End of backup, " + backedPosts + " posts are now saved", ProcessStatus);
+
                             backupInProgress = false;
                         }
                         else
@@ -885,7 +889,7 @@ namespace MBBetaAPI.AgentAPI
                     if (post.CommentCount > post.Comments.Count)
                     {
                         AsyncReqQueue apiReq = FBAPI.Post(post.SNID, ProcessOnePost);
-                        apiReq.Queue(minPriorityGlobal);
+                        apiReq.Queue(300);
                     }
                 }
 

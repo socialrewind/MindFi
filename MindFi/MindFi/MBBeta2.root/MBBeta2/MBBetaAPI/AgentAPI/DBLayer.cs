@@ -2605,5 +2605,35 @@ namespace MBBetaAPI.AgentAPI
             } // lock
             return true;
         }
+
+        /// <summary>
+        /// Get statistics data to show
+        /// </summary>
+        public static bool BackupStatistics(out int nPosts)
+        {
+            nPosts = 0;
+
+            lock (obj)
+            {
+                try
+                {
+                    GetConn();
+                    string SQL = "select count(*) from PostData";
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        nPosts = reader.GetInt32(1);
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    string ErrorMessage = "Error getting statistics\n" + ex.ToString();
+                    return false;
+                }
+            } // lock
+            return true;
+        }
     }
 }

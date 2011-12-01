@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Web;
 
 namespace MBBetaAPI.AgentAPI
 {
@@ -19,7 +20,8 @@ namespace MBBetaAPI.AgentAPI
 
         private static volatile bool m_loginStatus = false;
         private static volatile string m_accessToken = "";
-        private static volatile string m_loginname;
+        private static volatile string m_loginname = "";
+        private static volatile string m_loginuser = "0";
         private static volatile FBPerson m_me;
         private static volatile string lastError;
         private static volatile int expires;
@@ -30,13 +32,21 @@ namespace MBBetaAPI.AgentAPI
             set { lock (obj) { m_loginname = value; } }
         }
 
+        public static string LoginUser
+        {
+            get { return m_loginuser; }
+            set { lock (obj) { m_loginuser = value; } }
+        }
+
         public static void Login(out string URL, out CallBack myCallBack)
         {
             // get OAUTH page
             myCallBack = new CallBack(FBLogin.callbackLoginResult);
 
             // TODO: state parameter to prevent CSRF https://developers.facebook.com/docs/authentication/
-            URL = AuthURL + APPID + "&redirect_uri=" + RedirURL + "&scope=" + Permissions + "&response_type=token&popup";
+            URL = AuthURL + APPID + "&redirect_uri=" + RedirURL 
+                + "%3fuserSNID%3d" + m_loginuser
+                + "&scope=" + Permissions + "&response_type=token&popup";
         }
 
         public static bool CheckCallback(string URL)
@@ -155,6 +165,7 @@ namespace MBBetaAPI.AgentAPI
                     m_me = new FBPerson(response, 0, null);
                     m_me.Parse();
                     LoginName = m_me.Name;
+                    LoginUser = m_me.SNID;
                     lastError = response + "\n" + m_me.lastError;
                     string errorData = "";
                     m_me.Save(out errorData);

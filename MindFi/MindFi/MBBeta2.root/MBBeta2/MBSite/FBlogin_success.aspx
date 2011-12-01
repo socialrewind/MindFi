@@ -11,10 +11,7 @@
 </p>
 </font>
 <div>
-<font color="white">
-<asp:Label ID="lblAccessToken" runat="server"></asp:Label>
-<asp:Label ID="lblExpires" runat="server"></asp:Label>
-</font>
-</div>
+    Welcome to Social Rewind, thanks for participating in our Beta program. This 
+    window will automatically close soon.</div>
     </form>
 </asp:Content>

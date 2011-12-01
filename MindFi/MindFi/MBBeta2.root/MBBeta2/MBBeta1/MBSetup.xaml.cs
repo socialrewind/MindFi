@@ -180,15 +180,15 @@ namespace MBBeta2
 
                     switch (SNAccount.CurrentProfile.currentBackupLevel)
                     {
-                        case SNAccount.BASIC:
-                            MinPriority = 750;
-                            break;
-                        case SNAccount.EXTENDED:
+                        case SNAccount.STALKER:
                             MinPriority = 150;
                             break;
-                        case SNAccount.STALKER:
+                        case SNAccount.EXTENDED:
+                            MinPriority = 400;
+                            break;
+                        case SNAccount.BASIC:
                         default:
-                            MinPriority = 0;
+                            MinPriority = 750;
                             break;
                     }
                     FBPerson me = FBLogin.Me;

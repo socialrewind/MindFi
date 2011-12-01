@@ -3963,6 +3963,32 @@
 		<col def="I2">ISIconIndex</col>
 		<row><td>ARPPRODUCTICON.exe</td><td/><td>&lt;ISProductFolder&gt;\redist\Language Independent\OS Independent\setupicon.ico</td><td>0</td></row>
 		<row><td>_02F77223087A42F28960BF2B3343FF8C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_0F2341F31EE6436A89A69441B7F629BE.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_1324EA29995246BA8C9220797FC6203F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_142AF6E323094A1BB53CEB40098225A8.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_14B888849DAB4586A1ABFECCB0654583.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_1DA8A877632B4F69BB92F04DB018AEE1.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_2192A6E3D584477AAACC3E686BEF8560.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_23A78475ECF44D37B79F45EBE65E9408.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_258ED3065C8744F882C85496AA0D905C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_2A2B729C057D408BBDE8739A7ECF7D94.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_2D694D472B204EC5A06CA021D12719FA.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_2E2A9C03D40C4D92A88D185802F9106C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_32CB0A1F582247F9BE254F6AAA8C7379.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_3D83AA3DCEAF4FE08B2E3A7A986B3229.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_49FA263AC22A46808ACF842E856E35E7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_5C991E1081784AF4A83241EFE2501DC5.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_7532C8EE7AB84A76B56968B8E7AB5A7A.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_802C4C5499C343BAB84AD398694F46C0.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_A2B48AB83D694C4784336B8F4036F0DB.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_B20673BDBD7745F8AE36ACF746A05F51.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_C14D1EABF93D4D249C79B66A06AF5A16.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_CE8879B0B84148CB9EB7683B19F443C7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_D1660556F76E49D5A6207600EBA8FA90.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_DAF12C6521DF430A9EAFCA677B64536C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_E5C8FFA58D474354B99F47DE41471790.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_F4451C478E98434490D71287143A4864.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_F835E8BCA452451DA18E63C6577A6AE7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 	</table>
 
 	<table name="IniFile">
@@ -4094,7 +4120,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{7B26BBC4-C655-47FE-8D2D-291A8096D93C}</td></row>
 		<row><td>ISUSSignature</td><td>{5E3A44AF-6D9F-4631-A7DC-7C010E6A02FF}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewRealSetupDesign,viewObjects,viewShortcuts,viewDependencies,viewInstallScriptStd,viewSystemSearch,viewCustomActions,viewSupportFiles</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewRealSetupDesign,viewObjects,viewShortcuts,viewDependencies,viewInstallScriptStd,viewSystemSearch,viewCustomActions,viewSupportFiles,viewProject,viewSetupDesign,viewAppFiles,viewFeatureFiles</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>

@@ -21,7 +21,8 @@ namespace MBSite
                 this.lblResult.Text = "Login successful! ";
                 if (userSNID != null)
                 {
-                    this.lblResult.Text += userSNID;
+                    //this.lblResult.Text += userSNID;
+                    // TODO: Save
                 }
             }
         }

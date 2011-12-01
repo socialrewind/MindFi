@@ -17,6 +17,7 @@ namespace MBBeta2
         public MBAccountSetup(int SocialNetworkID)
         {
             InitializeComponent();
+            SaveBt.IsEnabled = false;
 
             SN = SocialNetworkID;
             // TODO: Get names from disk, localize
@@ -99,6 +100,7 @@ namespace MBBeta2
                     }
                     this.SNUrlTB.Text = me.Link;
                     this.SNIDTB.Text = me.SNID;
+                    SaveBt.IsEnabled = true;
                 }
             }
         }

@@ -1144,7 +1144,7 @@
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
 		<row><td>ISYourDataBaseDir</td><td>INSTALLDIR</td><td>Database</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
-		<row><td>MY_PRODUCT_NAME</td><td>SOCIAL_REWIND_LLC</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
+		<row><td>MY_PRODUCT_NAME</td><td>SOCIAL_REWIND1</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>NetHoodFolder</td><td>TARGETDIR</td><td>.:NetHood</td><td/><td>0</td><td/></row>
 		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
@@ -1153,8 +1153,8 @@
 		<row><td>ProgramFilesFolder</td><td>TARGETDIR</td><td>.:PROGRA~1|program files</td><td/><td>0</td><td/></row>
 		<row><td>ProgramMenuFolder</td><td>TARGETDIR</td><td>.:Programs</td><td/><td>3</td><td/></row>
 		<row><td>RecentFolder</td><td>TARGETDIR</td><td>.:Recent</td><td/><td>0</td><td/></row>
-		<row><td>SOCIAL_REWIND</td><td>SOCIAL_REWIND_LLC</td><td>SOCIAL~1|Social Rewind</td><td/><td>0</td><td/></row>
-		<row><td>SOCIAL_REWIND_LLC</td><td>ProgramFilesFolder</td><td>SOCIAL~1|Social Rewind LLC</td><td/><td>0</td><td/></row>
+		<row><td>SOCIAL_REWIND</td><td>SOCIAL_REWIND1</td><td>SOCIAL~1|Social Rewind</td><td/><td>0</td><td/></row>
+		<row><td>SOCIAL_REWIND1</td><td>ProgramFilesFolder</td><td>SOCIAL~1|Social Rewind</td><td/><td>0</td><td/></row>
 		<row><td>SendToFolder</td><td>TARGETDIR</td><td>.:SendTo</td><td/><td>3</td><td/></row>
 		<row><td>StartMenuFolder</td><td>TARGETDIR</td><td>.:STARTM~1|Start Menu</td><td/><td>3</td><td/></row>
 		<row><td>StartupFolder</td><td>TARGETDIR</td><td>.:StartUp</td><td/><td>3</td><td/></row>
@@ -2756,7 +2756,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>Social Rewind LLC</td><td>0</td><td/><td>-845203404</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>Social Rewind LLC</td><td>0</td><td/><td>236940913</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td/><td>-845203404</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>-845203404</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION40CLIENT</td><td>1033</td><td>Microsoft .NET Framework 4.0 Client Package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>-845217548</td></row>
@@ -3856,8 +3856,8 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>-845203404</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>-845203404</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>-845203404</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>http://www.SocialRewind.com</td><td>0</td><td/><td>236914224</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>Social Rewind LLC</td><td>0</td><td/><td>-845203404</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>http://www.SocialRewindLLC.com</td><td>0</td><td/><td>236940913</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>Social Rewind LLC</td><td>0</td><td/><td>236940913</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>-845188940</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>-845172556</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>236949008</td></row>
@@ -3962,7 +3962,9 @@
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I2">ISIconIndex</col>
-		<row><td>ARPPRODUCTICON.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2-V0.92\MBBeta2\MBBeta1\Images\rewind.ico</td><td>0</td></row>
+		<row><td>ARPPRODUCTICON.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\Images\rewind.ico</td><td>0</td></row>
+		<row><td>NewShortcut11_18F7A45E61C94CAFBE21355470660A91.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\Images\rewind.ico</td><td>0</td></row>
+		<row><td>NewShortcut1_ADA948084E5F457195370E0B8F6C0B16.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\Images\rewind.ico</td><td>0</td></row>
 		<row><td>_02F77223087A42F28960BF2B3343FF8C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_0D80BCAADB3E42AAB3BE897F5930762C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_0F2341F31EE6436A89A69441B7F629BE.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
@@ -3998,6 +4000,8 @@
 		<row><td>_CE8879B0B84148CB9EB7683B19F443C7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_D1660556F76E49D5A6207600EBA8FA90.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_DAF12C6521DF430A9EAFCA677B64536C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_DEB25F1D385F40E0A68F7CDBC65F5BDB.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_E1058A109197467FB04AFC52BF844ED3.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_E332874FEF3D4977AA61E41AD6A3BF27.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_E5C8FFA58D474354B99F47DE41471790.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_F4451C478E98434490D71287143A4864.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
@@ -4673,8 +4677,8 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="S255">ISComments</col>
 		<col def="S255">ISShortcutName</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>NewShortcut1</td><td>newfolder1</td><td>##ID_STRING4##</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td/><td/><td/><td/><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
-		<row><td>NewShortcut11</td><td>DesktopFolder</td><td>##ID_STRING4##</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td/><td/><td/><td/><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>NewShortcut1</td><td>newfolder1</td><td>##ID_STRING4##</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td/><td/><td>NewShortcut1_ADA948084E5F457195370E0B8F6C0B16.exe</td><td>0</td><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>NewShortcut11</td><td>DesktopFolder</td><td>##ID_STRING4##</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td/><td/><td>NewShortcut11_18F7A45E61C94CAFBE21355470660A91.exe</td><td>0</td><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="Signature">

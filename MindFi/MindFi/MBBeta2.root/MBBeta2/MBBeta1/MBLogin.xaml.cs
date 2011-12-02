@@ -89,7 +89,7 @@ namespace MBBeta2
             bool NewP = false;
             try
             {
-                string NewProduct = ConfigurationManager.AppSettings["NewProduct"];
+                string NewProduct = Properties.Settings.Default.NewProduct;
                 if (NewProduct == "YES")
                 {
                     NewP = true;
@@ -107,7 +107,7 @@ namespace MBBeta2
         {
             try
             {
-                string LastLoginUser = ConfigurationManager.AppSettings["LastLoginUser"];
+                string LastLoginUser = Properties.Settings.Default.LastLoginUser;
                 UserLoginTB.Text = LastLoginUser;
             }
             catch
@@ -120,8 +120,8 @@ namespace MBBeta2
         {
             try
             {
-                DBName = ConfigurationManager.AppSettings["DBName"];
-                DBPath = ConfigurationManager.AppSettings["DBPath"];
+                DBName = Properties.Settings.Default.DBName;
+                DBPath = Properties.Settings.Default.DBPath;
                 FileLocation = DBPath + DBName;
 
                 conn_prefix = "Data Source=" + DBPath + "\\" + DBName;
@@ -232,15 +232,19 @@ namespace MBBeta2
                     case 3:
                         this.Cursor = Cursors.Wait;
                         //Save settings to config file
-                        MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        MBConfig.AppSettings.Settings.Remove("DBName");
-                        MBConfig.AppSettings.Settings.Remove("DBPath");
-                        MBConfig.AppSettings.Settings.Remove("LastLoginUser");
-                        MBConfig.AppSettings.Settings.Add("DBPath", DBPath + "\\");
-                        MBConfig.AppSettings.Settings.Add("DBName", DBName);
-                        MBConfig.AppSettings.Settings.Add("LastLoginUser", UserLoginTB.Text);
-                        MBConfig.Save(ConfigurationSaveMode.Modified);
-                        ConfigurationManager.RefreshSection("appSettings");
+                        //MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                        //MBConfig.AppSettings.Settings.Remove("DBName");
+                        //MBConfig.AppSettings.Settings.Remove("DBPath");
+                        //MBConfig.AppSettings.Settings.Remove("LastLoginUser");
+                        //MBConfig.AppSettings.Settings.Add("DBPath", DBPath + "\\");
+                        //MBConfig.AppSettings.Settings.Add("DBName", DBName);
+                        //MBConfig.AppSettings.Settings.Add("LastLoginUser", UserLoginTB.Text);
+                        //MBConfig.Save(ConfigurationSaveMode.Modified);
+                        //ConfigurationManager.RefreshSection("appSettings");
+                        Properties.Settings.Default.DBName = DBName;
+                        Properties.Settings.Default.DBPath = DBPath + "\\";
+                        Properties.Settings.Default.LastLoginUser = UserLoginTB.Text;
+                        Properties.Settings.Default.Save();
                         //Open main with loaded info
                         MainWindow = new MBMain(CurrentCulture, UserLoginTB.Text, DBPath, conn, result);
                         MainWindow.Show();

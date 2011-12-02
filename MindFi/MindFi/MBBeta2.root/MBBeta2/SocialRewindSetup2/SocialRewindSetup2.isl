@@ -938,11 +938,11 @@
 		<row><td>InstallChangeFolder</td><td>Up</td><td>DirectoryListUp</td><td>0</td><td>1</td><td>0</td></row>
 		<row><td>InstallWelcome</td><td>Back</td><td>NewDialog</td><td>SplashBitmap</td><td>Display_IsBitmapDlg</td><td>0</td></row>
 		<row><td>InstallWelcome</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
-		<row><td>InstallWelcome</td><td>Next</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>0</td></row>
+		<row><td>InstallWelcome</td><td>Next</td><td>NewDialog</td><td>ReadyToInstall</td><td>1</td><td>0</td></row>
 		<row><td>LicenseAgreement</td><td>Back</td><td>NewDialog</td><td>InstallWelcome</td><td>1</td><td>0</td></row>
 		<row><td>LicenseAgreement</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>LicenseAgreement</td><td>ISPrintButton</td><td>DoAction</td><td>ISPrint</td><td>1</td><td>0</td></row>
-		<row><td>LicenseAgreement</td><td>Next</td><td>NewDialog</td><td>CustomerInformation</td><td>AgreeToLicense = "Yes"</td><td>0</td></row>
+		<row><td>LicenseAgreement</td><td>Next</td><td>NewDialog</td><td>ReadyToInstall</td><td>AgreeToLicense = "Yes"</td><td>0</td></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>NewDialog</td><td>MaintenanceWelcome</td><td>1</td><td>0</td></row>
 		<row><td>MaintenanceType</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>MaintenanceType</td><td>Next</td><td>NewDialog</td><td>CustomSetup</td><td>_IsMaintenance = "Change"</td><td>12</td></row>
@@ -973,7 +973,7 @@
 		<row><td>ReadmeInformation</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
 		<row><td>ReadmeInformation</td><td>Next</td><td>NewDialog</td><td>CustomerInformation</td><td>1</td><td>1</td></row>
 		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>CustomSetup</td><td>Installed OR _IsSetupTypeMin = "Custom"</td><td>2</td></row>
-		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>CustomerInformation</td><td>NOT Installed</td><td>1</td></row>
+		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>InstallWelcome</td><td>NOT Installed</td><td>1</td></row>
 		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>MaintenanceType</td><td>Installed AND _IsMaintenance = "Reinstall"</td><td>3</td></row>
 		<row><td>ReadyToInstall</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>ReadyToInstall</td><td>InstallNow</td><td>EndDialog</td><td>Return</td><td>OutOfNoRbDiskSpace &lt;&gt; 1</td><td>0</td></row>
@@ -3856,10 +3856,11 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>-845203404</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>-845203404</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>-845203404</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>http://www.SocialRewindLLC.com</td><td>0</td><td/><td>-845178828</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>http://www.SocialRewind.com</td><td>0</td><td/><td>236914224</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Social Rewind LLC</td><td>0</td><td/><td>-845203404</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>-845188940</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>-845172556</td></row>
+		<row><td>ID_STRING5</td><td>1033</td><td>SOCIAL~1|Social Rewind</td><td>0</td><td/><td>236949008</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>-845203404</td></row>
 	</table>
 
@@ -3961,13 +3962,15 @@
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I2">ISIconIndex</col>
-		<row><td>ARPPRODUCTICON.exe</td><td/><td>&lt;ISProductFolder&gt;\redist\Language Independent\OS Independent\setupicon.ico</td><td>0</td></row>
+		<row><td>ARPPRODUCTICON.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2-V0.92\MBBeta2\MBBeta1\Images\rewind.ico</td><td>0</td></row>
 		<row><td>_02F77223087A42F28960BF2B3343FF8C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_0D80BCAADB3E42AAB3BE897F5930762C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_0F2341F31EE6436A89A69441B7F629BE.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_1324EA29995246BA8C9220797FC6203F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_142AF6E323094A1BB53CEB40098225A8.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_14B888849DAB4586A1ABFECCB0654583.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_1DA8A877632B4F69BB92F04DB018AEE1.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_2186D112B34A4C498C25B8F660C06C33.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_2192A6E3D584477AAACC3E686BEF8560.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_23A78475ECF44D37B79F45EBE65E9408.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_258ED3065C8744F882C85496AA0D905C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
@@ -3978,17 +3981,24 @@
 		<row><td>_3487E1E98FAF4FEDB5F06DA1A828A3CA.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_3C85A3CF47794C83AF42BB1C14050479.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_3D83AA3DCEAF4FE08B2E3A7A986B3229.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_432EA245BD074F01B4FBBBA2999FD353.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_49FA263AC22A46808ACF842E856E35E7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_4AE1DBEF552543EEB2861750BF75AF87.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_4EBFA954AE2E44FF8F3E92C97569F10F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_5C991E1081784AF4A83241EFE2501DC5.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_7532C8EE7AB84A76B56968B8E7AB5A7A.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_802C4C5499C343BAB84AD398694F46C0.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_849AF09CE90242A3B06D5F4C09DE7E01.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_8C64EEE323404A8AB54B220FF7046EF6.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_9CFD0BC047E94E46AFF3E6C9FC8FE09F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_A2B48AB83D694C4784336B8F4036F0DB.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_AE23C6AB719A46C8B6126BC9DE24F412.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_B20673BDBD7745F8AE36ACF746A05F51.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_C14D1EABF93D4D249C79B66A06AF5A16.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_CE8879B0B84148CB9EB7683B19F443C7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_D1660556F76E49D5A6207600EBA8FA90.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_DAF12C6521DF430A9EAFCA677B64536C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_E332874FEF3D4977AA61E41AD6A3BF27.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_E5C8FFA58D474354B99F47DE41471790.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_F4451C478E98434490D71287143A4864.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_F835E8BCA452451DA18E63C6577A6AE7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
@@ -4123,7 +4133,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{7B26BBC4-C655-47FE-8D2D-291A8096D93C}</td></row>
 		<row><td>ISUSSignature</td><td>{5E3A44AF-6D9F-4631-A7DC-7C010E6A02FF}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewRealSetupDesign,viewObjects,viewShortcuts,viewDependencies,viewInstallScriptStd,viewSystemSearch,viewCustomActions,viewSupportFiles,viewProject,viewSetupDesign,viewAppFiles,viewFeatureFiles</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewRealSetupDesign,viewObjects,viewShortcuts,viewDependencies,viewInstallScriptStd,viewSystemSearch,viewCustomActions,viewSupportFiles,viewProject,viewSetupDesign,viewAppFiles,viewFeatureFiles,viewSetupTypes,viewISToday,viewUpgradePaths,viewTextFiles,viewUI</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4501,7 +4511,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{E2500311-97BF-42FA-A1AE-5C616EC364B0}</td><td/></row>
 		<row><td>ProductName</td><td>Social Rewind</td><td/></row>
-		<row><td>ProductVersion</td><td>0.9.00.0001</td><td/></row>
+		<row><td>ProductVersion</td><td>1.0.00.0000</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4664,6 +4674,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="S255">ISShortcutName</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>NewShortcut1</td><td>newfolder1</td><td>##ID_STRING4##</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td/><td/><td/><td/><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>NewShortcut11</td><td>DesktopFolder</td><td>##ID_STRING4##</td><td>MBBeta2.Primary_output</td><td>AlwaysInstall</td><td/><td/><td/><td/><td/><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="Signature">

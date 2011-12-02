@@ -22,5 +22,53 @@ namespace MBBeta2.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DBName {
+            get {
+                return ((string)(this["DBName"]));
+            }
+            set {
+                this["DBName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DBPath {
+            get {
+                return ((string)(this["DBPath"]));
+            }
+            set {
+                this["DBPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("YES")]
+        public string NewProduct {
+            get {
+                return ((string)(this["NewProduct"]));
+            }
+            set {
+                this["NewProduct"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastLoginUser {
+            get {
+                return ((string)(this["LastLoginUser"]));
+            }
+            set {
+                this["LastLoginUser"] = value;
+            }
+        }
     }
 }

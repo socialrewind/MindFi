@@ -147,11 +147,11 @@ namespace MBBeta2
                 {
                     if (MBBetaAPI.AgentAPI.DBLayer.CreateDB(DBPath + "\\" + DBName, UserTB.Text, PasswordPB.Password))
                     {
+                        Properties.Settings.Default.NewProduct = "NO";
 
                         Configuration MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        MBConfig.AppSettings.Settings.Remove("NewProduct");
-                        MBConfig.AppSettings.Settings.Add("NewProduct", "NO");
-                        MBConfig.Save(ConfigurationSaveMode.Modified);
+                        Properties.Settings.Default.NewProduct = "NO";
+                        Properties.Settings.Default.Save();
                         var LoginWindow = new MBLogin(UserTB.Text, PasswordPB.Password, DBName, DBPath);
                         LoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
                         LoginWindow.Show();

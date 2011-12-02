@@ -1874,8 +1874,8 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
-		<row><td>mbbeta2.content_files</td><td>MBBeta2.Content_Files</td><td>MBBeta2.Content Files</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;MBBeta2&gt;|ContentFiles</td><td>3</td><td/></row>
-		<row><td>mbbeta2.primary_output</td><td>MBBeta2.Primary_output</td><td>MBBeta2.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;MBBeta2&gt;|Built</td><td>3</td><td/></row>
+		<row><td>mbbeta2.content_files</td><td>MBBeta2.Content_Files</td><td>MBBeta2.Content Files</td><td>0</td><td/><td/><td>0</td><td>1</td><td>&lt;MBBeta2&gt;|ContentFiles</td><td>7</td><td/></row>
+		<row><td>mbbeta2.primary_output</td><td>MBBeta2.Primary_output</td><td>MBBeta2.Primary output</td><td>0</td><td/><td/><td>0</td><td>1</td><td>&lt;MBBeta2&gt;|Built</td><td>7</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -3975,11 +3975,14 @@
 		<row><td>_2D694D472B204EC5A06CA021D12719FA.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_2E2A9C03D40C4D92A88D185802F9106C.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_32CB0A1F582247F9BE254F6AAA8C7379.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_3487E1E98FAF4FEDB5F06DA1A828A3CA.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_3C85A3CF47794C83AF42BB1C14050479.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_3D83AA3DCEAF4FE08B2E3A7A986B3229.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_49FA263AC22A46808ACF842E856E35E7.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_5C991E1081784AF4A83241EFE2501DC5.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_7532C8EE7AB84A76B56968B8E7AB5A7A.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_802C4C5499C343BAB84AD398694F46C0.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
+		<row><td>_9CFD0BC047E94E46AFF3E6C9FC8FE09F.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_A2B48AB83D694C4784336B8F4036F0DB.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_B20673BDBD7745F8AE36ACF746A05F51.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>
 		<row><td>_C14D1EABF93D4D249C79B66A06AF5A16.exe</td><td/><td>C:\ProyectosDesarrollo\MindFi\MBBeta2\MBBeta1\obj\x86\Debug\MBBeta2.exe</td><td>0</td></row>

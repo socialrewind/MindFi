@@ -140,39 +140,46 @@ namespace MBBeta2
         private void CreateBt_Click(object sender, RoutedEventArgs e)
         {
 
-
-            //Verify user and password an that file name has been selected
-            if (VerifyUserPassword() && VerifyNewFile())
+            try
             {
-                if (MBBetaAPI.AgentAPI.DBLayer.CreateDB(DBPath+"\\"+DBName, UserTB.Text, PasswordPB.Password))
+                //Verify user and password an that file name has been selected
+                if (VerifyUserPassword() && VerifyNewFile())
                 {
-                    
-                    Configuration MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                    MBConfig.AppSettings.Settings.Remove("NewProduct");
-                    MBConfig.AppSettings.Settings.Add("NewProduct", "NO");
-                    MBConfig.Save(ConfigurationSaveMode.Modified);
-                    var LoginWindow = new MBLogin(UserTB.Text, PasswordPB.Password, DBName, DBPath);
-                    LoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-                    LoginWindow.Show();
-                    CleanClose = true;
+                    if (MBBetaAPI.AgentAPI.DBLayer.CreateDB(DBPath + "\\" + DBName, UserTB.Text, PasswordPB.Password))
+                    {
 
-                    LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:NewDBCreated");
-                    string message;
-                    loc.ResolveLocalizedValue(out message);
-                    MessageBox.Show(message);
+                        Configuration MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                        MBConfig.AppSettings.Settings.Remove("NewProduct");
+                        MBConfig.AppSettings.Settings.Add("NewProduct", "NO");
+                        MBConfig.Save(ConfigurationSaveMode.Modified);
+                        var LoginWindow = new MBLogin(UserTB.Text, PasswordPB.Password, DBName, DBPath);
+                        LoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+                        LoginWindow.Show();
+                        CleanClose = true;
 
-                    this.Close();
+                        LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:NewDBCreated");
+                        string message;
+                        loc.ResolveLocalizedValue(out message);
+                        MessageBox.Show(message);
+
+                        this.Close();
+                    }
+                    else
+                    {
+                        LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:DBCreationFailed");
+                        string message;
+                        loc.ResolveLocalizedValue(out message);
+                        MessageBox.Show(message);
+                    }
+
                 }
-                else
-                {
-                    LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:DBCreationFailed");
-                    string message;
-                    loc.ResolveLocalizedValue(out message);
-                    MessageBox.Show(message);
-                }
-
             }
-
+            catch (Exception ex)
+            {
+                // TODO: Localize
+                MessageBox.Show("Error creating database: " + ex.ToString());
+                this.Close();
+            }
         }
 
         private void CancelBt_Click(object sender, RoutedEventArgs e)

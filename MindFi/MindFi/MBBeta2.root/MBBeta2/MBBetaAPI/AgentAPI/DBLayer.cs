@@ -2623,7 +2623,7 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     if (reader.Read())
                     {
-                        nPosts = reader.GetInt32(1);
+                        nPosts = reader.GetInt32(0);
                     }
                     reader.Close();
                 }

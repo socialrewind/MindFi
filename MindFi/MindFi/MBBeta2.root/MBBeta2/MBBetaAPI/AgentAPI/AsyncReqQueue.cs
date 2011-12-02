@@ -459,6 +459,7 @@ namespace MBBetaAPI.AgentAPI
                 DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
                         out currentBackupStart, out currentBackupEnd,
                         out currentBackup, out currentPeriodStart, out currentPeriodEnd, out isIncremental);
+                int backedPosts;
                 SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;

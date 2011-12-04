@@ -464,6 +464,9 @@ namespace MBBetaAPI.AgentAPI
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
                 SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
+                bool isFirstPeriod = false;
+                if (currentPeriodEnd == currentBackupEnd)
+                    isFirstPeriod = true;
                 currentBackupNumber = currentBackup;
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
@@ -499,32 +502,32 @@ namespace MBBetaAPI.AgentAPI
                     {
                         // Calculate dates for first iteration - TODO make sure they are recalculated until done
                         FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
-                        /*
-                        SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
-                        SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
-                        currentBackupNumber = currentBackup;
-                         */
-                        AsyncReqQueue apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
-                            ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
-                            ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
-                        apiReq.QueueAndSend(999);
-                        apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
-                        apiReq.QueueAndSend(999);
-                        apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
-                        apiReq.QueueAndSend(999);
+                        AsyncReqQueue apiReq;
+                        if (isFirstPeriod)
+                        {
+                            // call APIs that are independent of period only once
+                            apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
+                                ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
+                                ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                            apiReq.QueueAndSend(999);
+                            apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
+                            apiReq.QueueAndSend(500);
+                        }
                         apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
                         apiReq.QueueAndSend(999);
                         apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
                         apiReq.QueueAndSend(999);
                         apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
                         apiReq.QueueAndSend(999);
-                        apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-                        apiReq.QueueAndSend(999);
                         apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
                         apiReq.QueueAndSend(500);
                         apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                        apiReq.QueueAndSend(500);
-                        apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
                         apiReq.QueueAndSend(500);
                     }
                     else

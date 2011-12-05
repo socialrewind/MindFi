@@ -819,6 +819,13 @@ namespace MBBeta2
             // TODO: Review how it can be empty and not null
             if (currentAccounts != null && currentAccounts.Count != 0)
             {
+
+                //Load ME: It should always be 1
+                //TODO: Change to MeOnFB, MeOnTwitter, MeOnLn when more data is available
+                Me = new Person(db, 1);
+                //paint owner data
+                OwnerCC.Content = Me;
+                
                 //Load Friends Data into Info Browser
                 LoadFriends();
                 if (FriendsList != null)

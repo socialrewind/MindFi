@@ -112,6 +112,7 @@ namespace MBBeta2
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             MyDocBase += tempD;
+            System.IO.Directory.CreateDirectory(MyDocBase);
             dlg.InitialDirectory = MyDocBase;
             dlg.FileName = MyDocBase + "\\" + tempD + ".db";
             dlg.AddExtension = true;

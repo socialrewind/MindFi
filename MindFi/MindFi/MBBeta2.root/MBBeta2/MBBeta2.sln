@@ -143,8 +143,8 @@ Global
 		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.DVD-5|x86.Build.0 = DVD-5
 		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|Any CPU.ActiveCfg = SingleImage
 		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|Any CPU.Build.0 = SingleImage
-		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|Mixed Platforms.ActiveCfg = SingleImage
-		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|Mixed Platforms.Build.0 = SingleImage
+		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|Mixed Platforms.ActiveCfg = DVD-5
+		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|Mixed Platforms.Build.0 = DVD-5
 		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|x86.ActiveCfg = SingleImage
 		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.Release|x86.Build.0 = SingleImage
 		{1B206498-F091-4B77-B0D4-D7EF8950BCE7}.SingleImage|Any CPU.ActiveCfg = SingleImage

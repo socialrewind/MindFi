@@ -379,8 +379,10 @@ namespace MBBeta2
 
             //Ask for Posts and display them
             PostList = null;
-            FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value);
-
+            //Add 1 day, so calculation ends at 12:00 AM of next day
+            DateTime EndDate = NavigateDF.EndDateDP.SelectedDate.Value.AddDays(1);
+            FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, EndDate);
+            
         }
 
 

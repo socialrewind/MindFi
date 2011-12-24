@@ -141,7 +141,7 @@ namespace MBBetaAPI
                 try
                 {
                     conn.Open();
-                    SQLiteCommand command = new SQLiteCommand("select PostID from PostData where ParentID is NULL and Created>@start and Created<@end ORDER BY Created DESC LIMIT @OFFSET,@LIMIT", conn);
+                    SQLiteCommand command = new SQLiteCommand("select PostID from PostData where ParentID is NULL and Created>=@start and Created<=@end ORDER BY Created DESC LIMIT @OFFSET,@LIMIT", conn);
                     command.Parameters.Add(new SQLiteParameter("start", start));
                     command.Parameters.Add(new SQLiteParameter("end", end));
                     command.Parameters.Add(new SQLiteParameter ("OFFSET", Offset));
@@ -197,7 +197,7 @@ namespace MBBetaAPI
 
                         string textcommand = "select PostID from PostData where ParentID is NULL and FromID in(";
                         textcommand += IDList;
-                        textcommand += ") and Created>@start and Created<@end";
+                        textcommand += ") and Created>=@start and Created<=@end";
 
                         SQLiteCommand command = new SQLiteCommand(textcommand, conn);
                         command.Parameters.Add(new SQLiteParameter("start", start));
@@ -214,7 +214,7 @@ namespace MBBetaAPI
                         List<string> CommentIDs = new List<string>();
                         textcommand = "select A.PostID from PostData A, PostData B where B.FromID in (";
                         textcommand += IDList;
-                        textcommand += ") AND B.ParentID IS NOT NULL and B.Created>@start and B.Created<@end AND B.ParentID = A.SNID";
+                        textcommand += ") AND B.ParentID IS NOT NULL and B.Created>=@start and B.Created<=@end AND B.ParentID = A.SNID";
 
                         command = new SQLiteCommand(textcommand, conn);
                         command.Parameters.Add(new SQLiteParameter("start", start));
@@ -259,7 +259,7 @@ namespace MBBetaAPI
                 try
                 {
                     conn.Open();
-                    SQLiteCommand command = new SQLiteCommand("select count (*) from PostData where ParentID is NULL and Created>@start and Created<@end", conn);
+                    SQLiteCommand command = new SQLiteCommand("select count (*) from PostData where ParentID is NULL and Created>=@start and Created<=@end", conn);
                     command.Parameters.Add(new SQLiteParameter("start", start));
                     command.Parameters.Add(new SQLiteParameter("end", end));
                     SQLiteDataReader reader = command.ExecuteReader();
@@ -298,7 +298,7 @@ namespace MBBetaAPI
 
                         //TODO: Change when ToId is complete
                         //SQLiteCommand command = new SQLiteCommand("select distinct MessageID from MessageData where ParentID IS NULL and (FromID=@FromID OR ToId Like @LikeId) and ((Updated>@start and Updated<@end) OR (Created>@start and Created<@end))", conn);
-                        SQLiteCommand command = new SQLiteCommand("select distinct MessageID from MessageData where ParentID IS NULL and FromID=@FromID and ((Updated>@start and Updated<@end) OR (Created>@start and Created<@end))", conn);
+                        SQLiteCommand command = new SQLiteCommand("select distinct MessageID from MessageData where ParentID IS NULL and FromID=@FromID and ((Updated>=@start and Updated=<@end) OR (Created>=@start and Created<=@end))", conn);
                         command.Parameters.Add(new SQLiteParameter("FromID", SelectedPeople[i].SNID));
                         //string LikeId = "%" + selectedPeopleDetails[i].SocialNetworkID.ToString() + "%";
                         //command.Parameters.Add(new SqlParameter("LikeId", LikeId));
@@ -347,7 +347,7 @@ namespace MBBetaAPI
                         conn.Open();
 
                         //TODO: This query must change to look into PhotoData Table, according to people appearing in Photos
-                        SQLiteCommand command = new SQLiteCommand("select distinct AlbumID from AlbumData where FromID=@FromID and ((Updated>@start and Updated<@end) OR (Created>@start and Created<@end))", conn);
+                        SQLiteCommand command = new SQLiteCommand("select distinct AlbumID from AlbumData where FromID=@FromID and ((Updated>=@start and Updated<=@end) OR (Created>=@start and Created<=@end))", conn);
                         command.Parameters.Add(new SQLiteParameter("FromID", SelectedPeople[i].SNID));
                         command.Parameters.Add(new SQLiteParameter("start", start));
                         command.Parameters.Add(new SQLiteParameter("end", end));
@@ -545,8 +545,7 @@ namespace MBBetaAPI
                     {
                         conn.Open();
 
-                        SQLiteCommand command = new SQLiteCommand("select A.EventID from EventData A, ActionData B WHERE B.WhoSNID=@IDAttending AND B.ActionID in(14,15,16) AND B.WhatSNID=A.SNID AND A.StartTime>@start and A.StartTime<@end", conn);
-                        //SQLiteCommand command = new SQLiteCommand("select A.EventID from EventData A, ActionData B WHERE B.WhoSNID=@IDAttending AND B.ActionID in(14,15,16) AND B.WhatSNID=A.SNID", conn);
+                        SQLiteCommand command = new SQLiteCommand("select A.EventID from EventData A, ActionData B WHERE B.WhoSNID=@IDAttending AND B.ActionID in(14,15,16) AND B.WhatSNID=A.SNID AND A.StartTime>=@start and A.StartTime<=@end", conn);
                         command.Parameters.Add(new SQLiteParameter("IDAttending", SelectedPeople[i].SNID));
                         command.Parameters.Add(new SQLiteParameter("start", start));
                         command.Parameters.Add(new SQLiteParameter("end", end));

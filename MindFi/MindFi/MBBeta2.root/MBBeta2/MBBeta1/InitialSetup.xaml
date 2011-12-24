@@ -44,7 +44,7 @@
                      FontSize="18"/>
             <TextBlock Text="{lex:LocText MBBeta2:LoginStrings:Password}"
                        Grid.Row="2" VerticalAlignment="Center"
-                       FontSize="18"/>
+                       FontSize="14"/>
             <PasswordBox x:Name="PasswordPB"
                      Grid.Column="1" Grid.Row="2" Margin="10,2,5,2" MaxLength="15"
                          FontSize="18"/>

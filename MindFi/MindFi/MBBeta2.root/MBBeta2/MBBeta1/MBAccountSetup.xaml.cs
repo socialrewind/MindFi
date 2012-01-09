@@ -13,6 +13,9 @@ namespace MBBeta2
         DispatcherTimer dispatcherTimer;
         int SN;
         bool success;
+        bool firstTimeOpened = true;
+        int state = 0;
+        string animation = "...";
 
         public MBAccountSetup(int SocialNetworkID)
         {
@@ -55,53 +58,100 @@ namespace MBBeta2
 
         private void SNLoginBt_Click(object sender, RoutedEventArgs e)
         {
+            DoLogin();
+        }
+
+        private void DoLogin()
+        {
             var SNLoginWindow = new MBSNLogin(true);
             SNLoginWindow.Owner = this;
             SNLoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
             SNLoginWindow.Show();
             // get the timer to check login status continuously
-            dispatcherTimer =  new DispatcherTimer();
+            state = 1;
+            dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            // check if logged in
-            // part 1: log in
-            if (!FBLogin.loggedIn)
+            FBPerson me = null;
+            switch (state)
             {
-                // TODO: Localize
-                this.SNTB.Text = "Logging in";
-            }
-            else
-            {
-                // TODO: Localize
-                this.SNTB.Text = "Logged in Facebook";
-                // once logged in, just poll for the data
-                FBPerson me = FBLogin.Me;
-                if (me == null || !me.Parsed)
-                {
-                    this.SNTB.Text += "... waiting for parse...";
-                }
-                else
-                {
-                    dispatcherTimer.Stop();
-                    this.SNTB.Text += ":" + FBLogin.LastError;
-
-                    if (me.Name != null && me.Name != "")
+                case 1: // waiting for login
+                    // check if logged in
+                    // part 1: log in
+                    if (!FBLogin.loggedIn)
                     {
-                        this.AliasTB.Text = me.Name;
+                        // TODO: Localize
+                        this.SNTB.Text = "Logging in";
                     }
                     else
                     {
-                        this.AliasTB.Text = me.SNID;
+                        // TODO: Localize
+                        this.SNTB.Text = "Logged in Facebook, processing data";
+                        state = 2;
                     }
-                    this.SNUrlTB.Text = me.Link;
-                    this.SNIDTB.Text = me.SNID;
-                    SaveBt.IsEnabled = true;
-                }
+                break;
+                case 2:
+                    // once logged in, just poll for the data
+                    me = FBLogin.Me;
+                    if (me == null || !me.Parsed)
+                    {
+                        this.SNTB.Text += "... waiting for parse...";
+                    }
+                    else
+                    {
+                        state = 3;
+                    }
+                    break;
+                case 3:
+                    me = FBLogin.Me;
+                    if (me == null || !me.Parsed)
+                    {
+                        state = 2;
+                    }
+                    this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends";
+                    // once logged in, just poll for the data
+                    DateTime initialDate;
+                    initialDate = (DateTime) (BackupDateDP.SelectedDate != null ? BackupDateDP.SelectedDate : DateTime.Now);
+                    AsyncReqQueue.GetBasicData(initialDate, DateTime.UtcNow.AddMonths(1), me.ID, me.SNID);
+                    state = 4;
+                    break;
+                case 4:
+                    AsyncReqQueue.PendingBasics();
+                    this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
+                    if (animation != "...")
+                    {
+                        animation += ".";
+                    }
+                    else
+                    {
+                        animation = "";
+                    }
+                    if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic)
+                    {
+                        dispatcherTimer.Stop();
+                        //this.SNTB.Text += ":" + FBLogin.LastError;
+                        this.SNTB.Text = "Your basic info, profile picture and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
+                        me = FBLogin.Me;
+                        if (me.Name != null && me.Name != "")
+                        {
+                            this.AliasTB.Text = me.Name;
+                        }
+                        else
+                        {
+                            this.AliasTB.Text = me.SNID;
+                        }
+                        this.SNUrlTB.Text = me.Link;
+                        this.SNIDTB.Text = me.SNID;
+                        SaveBt.IsEnabled = true;
+                        state = 5;
+                    }
+                    break;
+                    // case 5 - basic Wall posts? timeline?
             }
         }
 
@@ -164,7 +214,26 @@ namespace MBBeta2
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if ( !success && state >= 4)
+            {
+                MessageBoxResult temp = MessageBox.Show("Are you sure to exit without saving available data?");
+                if (temp != MessageBoxResult.Yes)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
             this.DialogResult = success;
+        }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            if (firstTimeOpened)
+            {
+                DoLogin();
+            }
+            firstTimeOpened = false;
         }
 
     }

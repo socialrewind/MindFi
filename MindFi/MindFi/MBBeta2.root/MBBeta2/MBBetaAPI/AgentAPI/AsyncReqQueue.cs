@@ -29,6 +29,8 @@ namespace MBBetaAPI.AgentAPI
 
         public static string ProfilePhotoDestinationDir;
         public static string AlbumDestinationDir;
+        public static bool GotOneProfilePic = false;
+        public static bool GotFriendList = false;
 
         public string ErrorMessage;
         #endregion
@@ -112,6 +114,7 @@ namespace MBBetaAPI.AgentAPI
         private bool addDateRange = false;
         private bool Saved = false;
         private static volatile Object obj = new Object();
+        private static bool DatabaseInUse = false;
         #endregion
 
         #region "Constructors"
@@ -131,6 +134,7 @@ namespace MBBetaAPI.AgentAPI
         {
             lock (obj)
             {
+                DatabaseInUse = true;
                 if (NextID == -1)
                 {
                     // read from database
@@ -139,6 +143,7 @@ namespace MBBetaAPI.AgentAPI
                     if (NextID == -1) NextID = 0;
                 }
                 ID = NextID++;
+                DatabaseInUse = false;
             }
 
             ReqType = type;
@@ -171,6 +176,7 @@ namespace MBBetaAPI.AgentAPI
         {
             lock (obj)
             {
+                DatabaseInUse = true;
                 if (NextID == -1)
                 {
                     // read from database
@@ -179,6 +185,7 @@ namespace MBBetaAPI.AgentAPI
                     if (NextID == -1) NextID = 0;
                 }
                 ID = NextID++;
+                DatabaseInUse = false;
             }
 
             ReqType = type;
@@ -201,20 +208,22 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="id">Identifier in the database to query the request</param>
         public AsyncReqQueue(int id)
         {
-            string ErrorMessage;
+            string errorMessage;
             // Call layer to get data
             InitArray();
             if (DBLayer.GetAsyncReq(id, out ReqType, out Priority, out Parent, out ParentSNID,
-                out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out ErrorMessage))
+                out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out errorMessage))
             {
                 ID = id;
                 SetCallBackFunction();
                 Saved = true; // to make sure it asks for update later
+                ErrorMessage = errorMessage;
                 return;
             }
             else
             {
                 ID = -1;
+                ErrorMessage = errorMessage;
                 //System.Windows.Forms.MessageBox.Show("Couldn't find request " + id + ", error: " + ErrorMessage);
                 return;
             }
@@ -427,6 +436,47 @@ namespace MBBetaAPI.AgentAPI
         #endregion
 
         #region "Static externally used methods"
+        public static void GetBasicData(DateTime currentPeriodStart, DateTime currentPeriodEnd, int ID, string SNID)
+        {
+            GotOneProfilePic = false;
+            GotFriendList = false;
+            minPriorityGlobal = 999; // don't go on children requests
+
+            FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
+            AsyncReqQueue apiReq;
+            apiReq = FBAPI.ProfilePic(SNID,
+                ProfilePhotoDestinationDir + SNID + ".jpg",
+                ProcessFriendPic, ID, SNID);
+            apiReq.QueueAndSend(999);
+            apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
+            apiReq.QueueAndSend(999);
+        }
+
+        public static string PendingBasics()
+        {
+            string errorMessage ="";
+
+            if (!DatabaseInUse)
+            {
+                int ConcurrentRequestLimit = 10;
+                ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
+                foreach (int reqID in queueReq)
+                {
+                    AsyncReqQueue apiReq = new AsyncReqQueue(reqID);
+                    // special case: ID is not the requested, the request is not there any longer?
+                    if (apiReq.ID != -1)
+                    {
+                        errorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
+                        // DEBUG to confirm validation is redundant
+                        //if (apiReq.Priority < minPriorityGlobal) MessageBox.Show("Unexpected low priority request, ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n");
+
+                        apiReq.Send();
+                    } // if
+                } // foreach
+            }
+            return errorMessage;
+        }
+
         /// <summary>
         /// Create the first, basic requests for a new backup
         /// </summary>
@@ -743,6 +793,7 @@ namespace MBBetaAPI.AgentAPI
 
             if (result)
             {
+                GotOneProfilePic = true;
                 nFriendsPictures++;
                 CountPerState[RECEIVED]++;
                 if (parent != null)
@@ -809,6 +860,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessFriends(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+
             nRequestsInTransit--;
             FBCollection friends = null;
             if (result)
@@ -825,6 +877,11 @@ namespace MBBetaAPI.AgentAPI
                 {
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBFriends", friends.Next, SIZETOGETPERPAGE, ProcessFriends);
                     apiReq.Queue(999);
+                }
+                else
+                {
+                    // only when done
+                    GotFriendList = true;
                 }
 
                 // save all children...

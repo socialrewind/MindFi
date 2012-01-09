@@ -17,6 +17,7 @@ namespace MBBetaAPI.AgentAPI
         private static volatile SQLiteConnection conn = null;
         private static volatile SQLiteTransaction mytransaction = null;
         private static volatile Mutex mut = new Mutex();
+        private static volatile bool DatabaseInUse = false;
 
         public static void GetConn()
         {
@@ -35,6 +36,7 @@ namespace MBBetaAPI.AgentAPI
         {
             //System.Windows.Forms.MessageBox.Show("Begin trans");
             mut.WaitOne();
+            DatabaseInUse = true;
             lock (obj)
             {
                 if (conn != null)
@@ -53,6 +55,7 @@ namespace MBBetaAPI.AgentAPI
                     mytransaction.Commit();
                 mytransaction = null;
             }
+            DatabaseInUse = false;
             mut.ReleaseMutex();
         }
 
@@ -66,6 +69,7 @@ namespace MBBetaAPI.AgentAPI
                 }
                 mytransaction = null;
             }
+            DatabaseInUse = false; 
             mut.ReleaseMutex();
         }
 
@@ -73,7 +77,7 @@ namespace MBBetaAPI.AgentAPI
         {
             lock (obj)
             {
-
+                DatabaseInUse = true;
                 // Copy the database to destination
                 string origin =  AppDomain.CurrentDomain.BaseDirectory + "\\Template.db";
 
@@ -82,6 +86,7 @@ namespace MBBetaAPI.AgentAPI
                     File.Copy(origin, file, true);
                 }
 
+                // TODO: remove double lock?
                 lock (obj)
                 {
                     DBLayer.ConnString = "Data Source=" + file + "";
@@ -102,6 +107,7 @@ namespace MBBetaAPI.AgentAPI
                     conn = null;
                     DBLayer.ConnString = "Data Source=" + file + ";Password=" + password;
                 }
+                DatabaseInUse = false;
             }
             return true;
         }
@@ -117,6 +123,7 @@ namespace MBBetaAPI.AgentAPI
 
             lock (obj)
             {
+                DatabaseInUse = true;
                 try
                 {
                     GetConn();
@@ -136,6 +143,10 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage = "Error connecting to the database: " + ex.ToString() + "\n";
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             }
         }
 
@@ -148,6 +159,7 @@ namespace MBBetaAPI.AgentAPI
 
             lock (obj)
             {
+                DatabaseInUse = true;
                 try
                 {
                     GetConn();
@@ -168,6 +180,10 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error connecting to the database: " + ex.ToString() + "\n";
                     return null;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             }
         }
 
@@ -184,6 +200,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
 
                     if (!Saved)
@@ -291,6 +308,10 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error saving to the database " + ex.ToString();
                     return false;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             }
         }
 
@@ -307,6 +328,7 @@ namespace MBBetaAPI.AgentAPI
                 string ErrorMessage;
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     SQL = "Update RequestsQueue set State=?, ResponseValue=?, Updated=? where ID=?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
@@ -345,6 +367,11 @@ namespace MBBetaAPI.AgentAPI
                     /* System.Windows.Forms.MessageBox.Show("No requests saved: ID=" + ID 
                         + ", State=" + State + "\nSQL=" + SQL+ "\nError=" + ErrorMessage);*/
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
                 return Saved;
             }
         }
@@ -358,6 +385,7 @@ namespace MBBetaAPI.AgentAPI
                 string ErrorMessage;
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     SQL = "Update RequestsQueue set State=? where State=? and Updated<?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
@@ -381,6 +409,10 @@ namespace MBBetaAPI.AgentAPI
                         + ", State=" + State + "\nSQL=" + SQL+ "\nError=" + ErrorMessage);*/
                     return false;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
                 return true;
             }
         }
@@ -396,6 +428,7 @@ namespace MBBetaAPI.AgentAPI
                 string ErrorMessage;
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     SQLiteCommand UpdateCmd = new SQLiteCommand(
                         "Update RequestsQueue set Priority=Priority+? where ID=?"
@@ -418,6 +451,11 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage = "Error saving to the database " + ex.ToString();
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
                 return Saved;
             }
         }
@@ -432,6 +470,7 @@ namespace MBBetaAPI.AgentAPI
 
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
 
                     SQLiteCommand ReadCmd = new SQLiteCommand(
@@ -450,6 +489,11 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage = "Error getting ID from the database " + ex.ToString();
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return tempID;
         }
@@ -470,6 +514,7 @@ namespace MBBetaAPI.AgentAPI
 
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
 
                     if (!Saved)
@@ -530,6 +575,11 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage = "Error getting ID from the database " + ex.ToString();
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return tempID;
         }
@@ -622,7 +672,7 @@ namespace MBBetaAPI.AgentAPI
 
                 try
                 {
-
+                    DatabaseInUse = true;
                     GetConn();
                     // TODO: Transactions for optimization
 
@@ -732,6 +782,11 @@ namespace MBBetaAPI.AgentAPI
                 + "\n SNID: " + SNID;
                     //System.Windows.Forms.MessageBox.Show("Error in data save:" + ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -748,6 +803,7 @@ namespace MBBetaAPI.AgentAPI
 
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     SQLiteCommand ExistsCmd = new SQLiteCommand(
                     "select " + Field + " from " + Table
@@ -775,6 +831,10 @@ namespace MBBetaAPI.AgentAPI
                     //MessageBox.Show ( "Error verifying data in " + Table + ":\n" + ex.ToString() );
                     lastError = ex.ToString();
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             }
             return Exists;
         }
@@ -795,6 +855,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
 
                     // birthday preprocessing
@@ -935,6 +996,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error saving Person Data\n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return Saved;
         } // function
@@ -949,6 +1015,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update Persondata set ProfilePic=? where PersonID=?";
@@ -967,6 +1034,11 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage = "Error saving Profile pic\n" + ex.ToString();
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return Saved;
         }
@@ -987,6 +1059,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update PostData set LastUpdate=?";
@@ -1129,6 +1202,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error saving Post\n" + ex.ToString();
                     // MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -1156,6 +1234,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update " + Table + " set LastUpdate=?";
@@ -1259,6 +1338,11 @@ namespace MBBetaAPI.AgentAPI
                     // DEBUG
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -1276,6 +1360,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update NotificationData set LastUpdate=?";
@@ -1365,6 +1450,11 @@ namespace MBBetaAPI.AgentAPI
                     // DEBUG
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -1381,6 +1471,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update EventData set LastUpdate=?";
@@ -1458,6 +1549,11 @@ namespace MBBetaAPI.AgentAPI
                     // DEBUG
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -1485,6 +1581,7 @@ namespace MBBetaAPI.AgentAPI
                 tempD.Month * 100 + tempD.Day;
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // TODO: Transactions for optimization
                     // TODO: mark adecuately active -> historic
@@ -1626,6 +1723,11 @@ namespace MBBetaAPI.AgentAPI
                 + "\nID: " + PartitionID
                 + "\n" + ex.ToString();
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -1645,6 +1747,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update AlbumData set LastUpdate=?";
@@ -1741,6 +1844,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error saving Album\n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -1759,6 +1867,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update PhotoData set LastUpdate=?";
@@ -1855,6 +1964,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error saving Photo\n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -1878,6 +1992,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     SQLiteCommand ExistsCmd = new SQLiteCommand(
                     "select PartitionDate, PartitionID from TagData where PersonSNID=? and PhotoSNID=? and SocialNetwork=? and Active=1",
@@ -1992,6 +2107,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error saving Tag\n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -2015,6 +2135,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     SQLiteCommand ExistsCmd = new SQLiteCommand(
                     "select PartitionDate, PartitionID from ActionData where WhoSNID=? and WhatSNID=? and SocialNetwork=? and ActionID=? and Active=1",
@@ -2114,6 +2235,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error saving Action\n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return;
         }
@@ -2128,6 +2254,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // update
                     string SQL = "Update PhotoData set Path=? where PhotoID=?";
@@ -2146,6 +2273,11 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage = "Error updating photo path\n" + ex.ToString();
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return Saved;
         }
@@ -2159,6 +2291,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // try to read
                     SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID, SocialNetwork, SNID, Name, Email, URL, BackupLevel, BackupPeriodStart, BackupPeriodEnd from SNAccounts", conn);
@@ -2173,13 +2306,15 @@ namespace MBBetaAPI.AgentAPI
                     }
                     reader.Close();
                     ErrorMessage = "";
-
-
                 }
                 catch (Exception ex)
                 {
                     ErrorMessage = "Error getting accounts from the database\n" + ex.ToString();
                     return null;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
                 }
             } // lock
             return temp;
@@ -2197,6 +2332,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // try to read
                     string SQL = "delete from SNAccounts where AccountID=?";
@@ -2220,6 +2356,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = ex.ToString();
                     return false;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return result;
         }
@@ -2237,6 +2378,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // check duplicates
                     SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID from SNAccounts where SocialNetwork=? and SNID=?", conn);
@@ -2294,6 +2436,10 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = ex.ToString();
                     return false;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             } // lock
             return result;
         }
@@ -2325,6 +2471,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // try to read
                     SQLiteCommand CheckCmd = new SQLiteCommand("select RequestType, RequestString, Priority, ParentID, ParentSNID, Created, Updated, State, Filename, AddToken, AddDateRange from RequestsQueue where ID=?", conn);
@@ -2361,6 +2508,11 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Error getting request from the database\n" + ex.ToString();
                     return false;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return true;
         }
@@ -2377,6 +2529,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     string SQL = "select ID from RequestsQueue where State=? and Priority>=? order by Priority desc, ID asc limit " + N;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
@@ -2401,6 +2554,11 @@ namespace MBBetaAPI.AgentAPI
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
                     return null;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return temp;
         }
@@ -2418,6 +2576,7 @@ namespace MBBetaAPI.AgentAPI
                 ErrorMessage = "";
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     string SQL = "select State, count(*) from RequestsQueue where Priority>=? group by State";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
@@ -2440,6 +2599,11 @@ namespace MBBetaAPI.AgentAPI
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
                     return false;
                 }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
             } // lock
             return true;
         }
@@ -2467,6 +2631,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     BeginTransaction();
                     inTransaction = true;
@@ -2560,12 +2725,13 @@ namespace MBBetaAPI.AgentAPI
                     return false;
                 }
                 finally
-                {
+                {                
                     if (inTransaction)
                     {
                         // TODO: Make sure it doesn't fail on double transaction...
                         CommitTransaction();
                     }
+                    DatabaseInUse = false;
                 }
             } // lock
             return true;
@@ -2580,6 +2746,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     // make sure only one active at the time
                     // TODO: Algorithm to check if time is completed
@@ -2601,6 +2768,7 @@ namespace MBBetaAPI.AgentAPI
                 finally
                 {
                     //CommitTransaction();
+                    DatabaseInUse = false;
                 }
             } // lock
             return true;
@@ -2617,6 +2785,7 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
+                    DatabaseInUse = true;
                     GetConn();
                     string SQL = "select count(*) from PostData";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
@@ -2631,6 +2800,10 @@ namespace MBBetaAPI.AgentAPI
                 {
                     string ErrorMessage = "Error getting statistics\n" + ex.ToString();
                     return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
                 }
             } // lock
             return true;

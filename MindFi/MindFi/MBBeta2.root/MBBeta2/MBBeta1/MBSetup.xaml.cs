@@ -15,6 +15,7 @@ namespace MBBeta2
     public partial class MBSetup : Window
     {
         public bool online = false;
+        public bool accountAdded = false;
 
         #region "Download info"
         private string BaseDir;
@@ -123,10 +124,14 @@ namespace MBBeta2
         {
             var AccountSetupWindow = new MBAccountSetup(SocialNetwork.FACEBOOK);
             bool? result = AccountSetupWindow.ShowDialog();
-            if ( result != null && !(bool)result )
+            if (result != null && !(bool)result)
             {
                 MessageBox.Show("Account was not added");
                 return;
+            }
+            else
+            {
+                accountAdded = true;
             }
             // Check if refresh works
             GetSNAccounts(db);

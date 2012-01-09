@@ -216,7 +216,7 @@ namespace MBBeta2
         {
             if ( !success && state >= 4)
             {
-                MessageBoxResult temp = MessageBox.Show("Are you sure to exit without saving available data?");
+                MessageBoxResult temp = MessageBox.Show("Are you sure to exit without saving available data?", "Confirmation", MessageBoxButton.YesNo);
                 if (temp != MessageBoxResult.Yes)
                 {
                     e.Cancel = true;

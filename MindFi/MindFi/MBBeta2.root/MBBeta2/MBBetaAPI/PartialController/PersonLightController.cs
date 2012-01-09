@@ -19,12 +19,14 @@ namespace MBBetaAPI
         {
             ID = IDParam;
             GetFromDB(db);
+            Selected = true;
         }
 
         public PersonLight(DBConnector db, Int64 SNIDPAram)
         {
             SNID = Convert.ToInt64(SNIDPAram);
             GetFromDB2(db);
+            Selected = true;
         }
         
 

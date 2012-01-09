@@ -306,6 +306,10 @@ namespace MBBeta2
         {
             var MBSetupWindow = new MBSetup(db, BasePath);
             CC.PositionNewWindow(this, MBSetupWindow);
+            if (MBSetupWindow.accountAdded)
+            {
+                DoRefreshData();
+            }
         }
 
         private void Enter_KeyDown(object sender, KeyEventArgs e)
@@ -810,6 +814,11 @@ namespace MBBeta2
 
         private void RefreshDataBt_Click(object sender, RoutedEventArgs e)
         {
+            DoRefreshData();
+        }
+
+        private void DoRefreshData()
+        {
             this.Cursor = Cursors.Wait;
 
             string error;
@@ -827,7 +836,7 @@ namespace MBBeta2
                 Me = new Person(db, 1);
                 //paint owner data
                 OwnerCC.Content = Me;
-                
+
                 //Load Friends Data into Info Browser
                 LoadFriends();
                 if (FriendsList != null)
@@ -840,8 +849,8 @@ namespace MBBeta2
                 PostList = null;
                 FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value);
             }
-                
-           
+
+
             this.Cursor = Cursors.Arrow;
         }
 

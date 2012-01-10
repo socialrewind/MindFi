@@ -556,12 +556,14 @@ namespace MBBetaAPI.AgentAPI
                         if (isFirstPeriod)
                         {
                             // call APIs that are independent of period only once
-                            apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
-                                ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
-                                ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
-                            apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
-                            apiReq.QueueAndSend(999);
+                            
+                            // commented first as they were obtained on GetBasicData
+                            //apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
+                            //    ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
+                            //    ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
+                            //apiReq.QueueAndSend(999);
+                            //apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
+                            //apiReq.QueueAndSend(999);
                             apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
                             apiReq.QueueAndSend(999);
                             apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);

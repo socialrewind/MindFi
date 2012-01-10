@@ -19,6 +19,11 @@ namespace MBBetaAPI.AgentAPI
         private static volatile Mutex mut = new Mutex();
         private static volatile bool DatabaseInUse = false;
 
+        public static bool DatabaseBusy
+        {
+            get { return DatabaseInUse; } 
+        }
+
         public static void GetConn()
         {
             lock (obj)

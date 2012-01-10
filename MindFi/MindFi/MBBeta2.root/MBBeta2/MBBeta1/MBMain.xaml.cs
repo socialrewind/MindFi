@@ -22,6 +22,8 @@ using WPFLocalizeExtension.Extensions;
 using System.Globalization;
 //Regex
 using System.Text.RegularExpressions;
+// support timers
+using System.Windows.Threading;
 //Other Projects
 using MBBetaAPI;
 using MBBetaAPI.AgentAPI;
@@ -34,6 +36,11 @@ namespace MBBeta2
     public partial class MBMain : Window
     {
         private string BasePath;
+        private bool online = false;
+        #region "Process control"
+        private bool firstTime = true;
+        private DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        #endregion
 
         public MBMain()
         {
@@ -96,6 +103,12 @@ namespace MBBeta2
             if (currentAccounts == null || currentAccounts.Count == 0)
             {
                 OpenSetupWindow();
+            }
+            // can change after setup runs
+            if (currentAccounts != null && currentAccounts.Count != 0)
+            {
+                SNAccount first = (SNAccount)currentAccounts[0];
+                SNAccount.UpdateCurrent(first);
             }
 
         }
@@ -858,5 +871,128 @@ namespace MBBeta2
 
         #endregion
 
+        private void BackupDataBt_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Online - offline behavior
+            if (online)
+            {
+                GoOffline();
+            }
+            else
+            {
+                online = true;
+                // display login
+                var SNLoginWindow = new MBSNLogin(true);
+                SNLoginWindow.Owner = this;
+                SNLoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+                SNLoginWindow.Show();
+                dispatcherTimer.Tick += new EventHandler(processTimer_Tick);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                dispatcherTimer.Start();
+            }
+
+        }
+
+        private void GoOffline()
+        {
+            online = false;
+            dispatcherTimer.Stop();
+            // TODO: Localize
+            //OnlineBt.Content = "Go Online/Login";
+            //FBLoggedIn.Text = FBLogin.loggedIn.ToString();
+        }
+
+        /// <summary>
+        /// Processing event for regular timer
+        /// </summary>
+        private void processTimer_Tick(object sender, EventArgs e)
+        {
+            if (!DBLayer.DatabaseBusy)
+            {
+                if (FBLogin.loggedIn && FBLogin.Me != null)
+                {
+                    if (firstTime)
+                    {
+                        // TODO: Localize
+                        //OnlineBt.Content = "Go Offline / Logout";
+                        //OnlineBt.IsEnabled = true;
+                        //FBLoggedIn.Text = FBLogin.loggedIn.ToString();
+
+                        FBPerson me = FBLogin.Me;
+                        if (SNAccount.CurrentProfile != null)
+                        {
+                            // TODO: Generalize for other social networks
+                            if ((SNAccount.CurrentProfile.Name != me.Name
+                                && SNAccount.CurrentProfile.SNID != me.SNID
+                                && SNAccount.CurrentProfile.URL != me.Link) ||
+                                SNAccount.CurrentProfile.SocialNetwork != SocialNetwork.FACEBOOK
+                                )
+                            {
+                                MessageBox.Show("You tried to login with a different account (" + me.Name
+                                    + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
+                                    + "). Please correct your data; login cancelled.");
+                                return;
+                            }
+                            firstTime = false;
+                            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                            AsyncReqQueue.InitialRequests(150);
+                        }
+                    }
+                    else
+                    {
+                        if (SNAccount.CurrentProfile != null)
+                        {
+                            string ErrorMessage;
+                            bool inProgress = AsyncReqQueue.PendingRequests(150, out ErrorMessage);
+                            //InfoTB.Text = ErrorMessage;
+                            if (!inProgress)
+                            {
+                                MessageBox.Show("Backup finished");
+                                // TODO: check online / offline behavior
+                                GoOffline();
+                            }
+                        }
+                    }
+                }
+
+                // Get next step depending on the requests / step?
+                // Get statistics
+                UpdateStats();
+            }
+        }
+
+        /// <summary>
+        /// General refresh for UI
+        /// </summary>
+        private void UpdateStats()
+        {
+            string error = "";
+            string stats = "Statistics\n";
+
+            // TODO: accumulate errors
+            if (error == "")
+            {
+                stats += "Total friends: " + AsyncReqQueue.nFriends
+                    + ". Friends processed: " + AsyncReqQueue.nFriendsProcessed
+                    + ". Friends pictures: " + AsyncReqQueue.nFriendsPictures
+                    + ". Total Posts: " + AsyncReqQueue.nPosts
+                    + ". Total Messages: " + AsyncReqQueue.nMessages
+                    + ". Total Albums: " + AsyncReqQueue.nAlbums
+                    + ". Total Photos: " + AsyncReqQueue.nPhotos;
+                stats += ".\nQueued: " + AsyncReqQueue.QueuedReqs;
+                stats += ". Sent: " + AsyncReqQueue.SentReqs;
+                stats += ". Retry: " + AsyncReqQueue.RetryReqs;
+                stats += ". Received: " + AsyncReqQueue.ReceivedReqs;
+                stats += ". Failed: " + AsyncReqQueue.FailedReqs;
+                stats += ". Parsed: " + AsyncReqQueue.ParsedReqs;
+                stats += ". No need parsing: " + AsyncReqQueue.NotParsedReqs;
+
+            }
+            else
+            {
+                stats = error;
+            }
+            //StatsTB.Text = stats;
+        }
     }
 }

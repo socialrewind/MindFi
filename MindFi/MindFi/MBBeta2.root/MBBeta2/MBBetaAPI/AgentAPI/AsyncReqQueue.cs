@@ -10,8 +10,8 @@ namespace MBBetaAPI.AgentAPI
 
     public class AsyncReqQueue
     {
-        const int SIZETOGETPERPAGE = 50; // USE 1 for debugging issues that are not related to concurrency
-        const int CONCURRENTREQUESTLIMIT = 10;
+        const int SIZETOGETPERPAGE = 200; // USE 1 for debugging issues that are not related to concurrency
+        const int CONCURRENTREQUESTLIMIT = 5;
 
         #region "Public Properties"
         public long ID;
@@ -69,7 +69,8 @@ namespace MBBetaAPI.AgentAPI
         private static volatile bool RecoveringPendingReqs = false;
 
         private static string backupCase = "Starting new backup";
-        private static bool firstCase = false;
+        private static volatile bool firstCase = false;
+        private static volatile int CurrentBackupState = 0;
 
         #region "Statistic properties"
         public static int QueuedReqs
@@ -479,119 +480,119 @@ namespace MBBetaAPI.AgentAPI
             return errorMessage;
         }
 
-        /// <summary>
-        /// Create the first, basic requests for a new backup
-        /// </summary>
-        /// TODO: Possibly force a new full backup
-        public static void InitialRequests(int MinPriority)
-        {
-            minPriorityGlobal = MinPriority;
-            string error;
-            int[] stateArray;
-            if (DBLayer.GetNRequestsPerState(minPriorityGlobal, out stateArray, out error))
-            {
-                CountPerState = stateArray;
-                // Update old requests for retry
-                if (!DBLayer.QueueRetryUpdate())
-                {
-                    return;
-                }
-                else
-                {
-                    // verify this is working correctly
-                    CountPerState[QUEUED] += CountPerState[RETRY];
-                    CountPerState[RETRY] = 0;
-                }
-                // starts or finds existing backup to continue
-                int currentBackup;
-                DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
-                bool isIncremental;
+        ///// <summary>
+        ///// Create the first, basic requests for a new backup
+        ///// </summary>
+        ///// TODO: Possibly force a new full backup
+        //public static void InitialRequests(int MinPriority)
+        //{
+        //    minPriorityGlobal = MinPriority;
+        //    string error;
+        //    int[] stateArray;
+        //    if (DBLayer.GetNRequestsPerState(minPriorityGlobal, out stateArray, out error))
+        //    {
+        //        CountPerState = stateArray;
+        //        // Update old requests for retry
+        //        if (!DBLayer.QueueRetryUpdate())
+        //        {
+        //            return;
+        //        }
+        //        else
+        //        {
+        //            // verify this is working correctly
+        //            CountPerState[QUEUED] += CountPerState[RETRY];
+        //            CountPerState[RETRY] = 0;
+        //        }
+        //        // starts or finds existing backup to continue
+        //        int currentBackup;
+        //        DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
+        //        bool isIncremental;
                 
-                // TODO: Check if backup was completed, to decide if incremental case should go forward
-                DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
-                        out currentBackupStart, out currentBackupEnd,
-                        out currentBackup, out currentPeriodStart, out currentPeriodEnd, out isIncremental);
-                int backedPosts;
-                SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
-                SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
-                SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
-                SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
-                bool isFirstPeriod = false;
-                if (currentPeriodEnd == currentBackupEnd)
-                    isFirstPeriod = true;
-                currentBackupNumber = currentBackup;
+        //        // TODO: Check if backup was completed, to decide if incremental case should go forward
+        //        DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
+        //                out currentBackupStart, out currentBackupEnd,
+        //                out currentBackup, out currentPeriodStart, out currentPeriodEnd, out isIncremental);
+        //        int backedPosts;
+        //        SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
+        //        SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
+        //        SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
+        //        SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
+        //        bool isFirstPeriod = false;
+        //        if (currentPeriodEnd == currentBackupEnd)
+        //            isFirstPeriod = true;
+        //        currentBackupNumber = currentBackup;
 
-                if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
-                {
-                    if (!firstCase)
-                    {
-                        if (isIncremental)
-                        {
-                            backupCase = "Updating backup with new stuff";
-                        }
-                        else
-                        {
-                            backupCase = "Continuing backup started earlier";
-                        }
-                    }
-                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
-                    PendingRequests(MinPriority, out error);
-                }
-                else
-                {
-                    if (isIncremental)
-                    {
-                        backupCase = "Updating backup with new stuff";
-                    }
-                    else
-                    {
-                        backupCase = "New Backup in progress";
-                    }
-                    firstCase = true;
-                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
+        //        if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
+        //        {
+        //            if (!firstCase)
+        //            {
+        //                if (isIncremental)
+        //                {
+        //                    backupCase = "Updating backup with new stuff";
+        //                }
+        //                else
+        //                {
+        //                    backupCase = "Continuing backup started earlier";
+        //                }
+        //            }
+        //            //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
+        //            PendingRequests(MinPriority, out error);
+        //        }
+        //        else
+        //        {
+        //            if (isIncremental)
+        //            {
+        //                backupCase = "Updating backup with new stuff";
+        //            }
+        //            else
+        //            {
+        //                backupCase = "New Backup in progress";
+        //            }
+        //            firstCase = true;
+        //            //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
 
-                    if (currentBackup != 0)
-                    {
-                        // Calculate dates for first iteration - TODO make sure they are recalculated until done
-                        FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
-                        AsyncReqQueue apiReq;
-                        if (isFirstPeriod)
-                        {
-                            // call APIs that are independent of period only once
+        //            if (currentBackup != 0)
+        //            {
+        //                // Calculate dates for first iteration - TODO make sure they are recalculated until done
+        //                FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
+        //                AsyncReqQueue apiReq;
+        //                if (isFirstPeriod)
+        //                {
+        //                    // call APIs that are independent of period only once
                             
-                            // commented first as they were obtained on GetBasicData
-                            //apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
-                            //    ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
-                            //    ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
-                            //apiReq.QueueAndSend(999);
-                            //apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
-                            //apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
-                            apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-                            apiReq.QueueAndSend(999);
-                            apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
-                            apiReq.QueueAndSend(500);
-                        }
-                        apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
-                        apiReq.QueueAndSend(999);
-                        apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                        apiReq.QueueAndSend(999);
-                        apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                        apiReq.QueueAndSend(999);
-                        apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                        apiReq.QueueAndSend(500);
-                        apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                        apiReq.QueueAndSend(500);
-                    }
-                    else
-                    {
-                        // TODO: Localize, return to interface
-                        error = "Backup couldn't be created";   
-                    }
-                }
-            }
-        }
+        //                    // commented first as they were obtained on GetBasicData
+        //                    //apiReq = FBAPI.ProfilePic(FBLogin.Me.SNID,
+        //                    //    ProfilePhotoDestinationDir + FBLogin.Me.SNID + ".jpg",
+        //                    //    ProcessFriendPic, FBLogin.Me.ID, FBLogin.Me.SNID);
+        //                    //apiReq.QueueAndSend(999);
+        //                    //apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
+        //                    //apiReq.QueueAndSend(999);
+        //                    apiReq = FBAPI.Family("me", SIZETOGETPERPAGE, ProcessFamily);
+        //                    apiReq.QueueAndSend(999);
+        //                    apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+        //                    apiReq.QueueAndSend(999);
+        //                    apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
+        //                    apiReq.QueueAndSend(500);
+        //                }
+        //                apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
+        //                apiReq.QueueAndSend(999);
+        //                apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+        //                apiReq.QueueAndSend(999);
+        //                apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+        //                apiReq.QueueAndSend(999);
+        //                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+        //                apiReq.QueueAndSend(500);
+        //                apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+        //                apiReq.QueueAndSend(500);
+        //            }
+        //            else
+        //            {
+        //                // TODO: Localize, return to interface
+        //                error = "Backup couldn't be created";   
+        //            }
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Create the first, basic requests for a new backup
@@ -630,10 +631,8 @@ namespace MBBetaAPI.AgentAPI
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
                 SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
-                bool isFirstPeriod = false;
-                if (currentPeriodEnd == currentBackupEnd)
-                    isFirstPeriod = true;
                 currentBackupNumber = currentBackup;
+                CurrentBackupState = 1;
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
@@ -668,8 +667,17 @@ namespace MBBetaAPI.AgentAPI
                     {
                         // Calculate dates for first iteration - TODO make sure they are recalculated until done
                         FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
-                        GetNextFriendsPics();
-                        GetNextFriendsData();
+                        switch (CurrentBackupState)
+                        {
+                            case 1:
+                                GetNextFriendsPics();
+                                break;
+                            case 2:
+                                GetNextFriendsData();
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     else
                     {
@@ -804,13 +812,32 @@ namespace MBBetaAPI.AgentAPI
                         }
                         else
                         {
-                            nReqs = GetNextFriendsPics();
-                            nReqs += GetNextFriendsData();
+                            switch (CurrentBackupState)
+                            {
+                                case 1:
+                                    nReqs = GetNextFriendsPics();
+                                    break;
+                                case 2:
+                                    nReqs = GetNextFriendsData();
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
 
                         // if no pending data, then check backup time progres and infligh requests
                         if (nReqs == 0)
                         {
+                            if (CurrentBackupState < 3)
+                            {
+                                CurrentBackupState++;
+                                nReqs = 1;
+                            }
+                        }
+
+                        if (nReqs == 0)
+                        {
+                            
                             if ((SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart)
                                 && nInParseRequests <= 0
                                 && nInSaveRequests <= 0

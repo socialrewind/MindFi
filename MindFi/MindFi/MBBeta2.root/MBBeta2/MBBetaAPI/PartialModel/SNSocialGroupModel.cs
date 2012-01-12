@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -21,18 +22,22 @@ namespace MBBetaAPI
 
         void GetFromDB(DBConnector db)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-                    GetFromConnectedDB(conn);
-                    conn.Close();
+                    DBLayer.GetConn();
+                    GetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
                     string message = "Reading Social Groups from DB" + ex.Message.ToString();
                     APIError error = new APIError(this, message, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 
@@ -78,17 +83,16 @@ namespace MBBetaAPI
 
         void GetMembers(DBConnector db)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
-
-                MemberIDs = new List<int>();
-                MemberNames = new List<string>();
-
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
+                    MemberIDs = new List<int>();
+                    MemberNames = new List<string>();
 
-                    SQLiteCommand command = new SQLiteCommand("select A.ID, A.Name from Entities A, RelationsData B where A.ID = B.SubjectID AND B.ObjectID=@ID", conn);
+                    SQLiteCommand command = new SQLiteCommand("select A.ID, A.Name from Entities A, RelationsData B where A.ID = B.SubjectID AND B.ObjectID=@ID", DBLayer.conn);
                     command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                     SQLiteDataReader reader = command.ExecuteReader();
@@ -100,13 +104,15 @@ namespace MBBetaAPI
 
                     reader.Close();
 
-                    conn.Close();
-
                 }
                 catch
                     (Exception ex)
                 {
                     APIError error = new APIError(this, "ERROR: Reading Members in Social Group" + ex.Message + " ID:  " + ID.ToString(), 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 

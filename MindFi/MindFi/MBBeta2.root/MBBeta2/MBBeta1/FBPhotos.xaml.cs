@@ -123,7 +123,7 @@ namespace MBBeta2
 
             List<SNPhotoAlbum> AlbumList = new List<SNPhotoAlbum>();
 
-            List<int> AlbumIDs = db.GetAlbumIDs(AlbumDF.StartDateDP.SelectedDate.Value, AlbumDF.EndDateDP.SelectedDate.Value, SelectedPeopleDetails);
+            List<int> AlbumIDs = MBBetaAPI.AgentAPI.DBLayer.GetAlbumIDs(AlbumDF.StartDateDP.SelectedDate.Value, AlbumDF.EndDateDP.SelectedDate.Value, SelectedPeopleDetails);
 
             foreach(int AlbumID in AlbumIDs)
             {

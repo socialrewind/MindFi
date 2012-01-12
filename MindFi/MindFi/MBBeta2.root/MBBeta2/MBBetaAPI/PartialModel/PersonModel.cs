@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -21,18 +22,22 @@ namespace MBBetaAPI
 
         void GetFromDB(DBConnector db)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-                    GetFromConnectedDB(conn);
-                    conn.Close();
+                    DBLayer.GetConn();
+                    GetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
                     string message = "Reading Person from DB" + ex.Message.ToString();
                     APIError error = new APIError(this, message, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 
@@ -153,36 +158,39 @@ namespace MBBetaAPI
         {
             var Orgs = new List<RelatedOrganization>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
                     //Read Entities
-                    SQLiteCommand command = new SQLiteCommand("select ObjectID, Adverb, IndirectObject from RelationsData where SubjectID = @ID AND VerbID = @Verb", conn);
+                    SQLiteCommand command = new SQLiteCommand("select ObjectID, Adverb, IndirectObject from RelationsData where SubjectID = @ID AND VerbID = @Verb", DBLayer.conn);
                     command.Parameters.Add(new SQLiteParameter("ID", ID));
                     command.Parameters.Add(new SQLiteParameter("Verb", Verb));
 
                     SQLiteDataReader reader = command.ExecuteReader();
                     int i = 0;
                     while (reader.Read())
-                    {                        
+                    {
                         Orgs.Add(new RelatedOrganization(reader.GetInt32(0)));
                         if (!reader.IsDBNull(1))
                             Orgs[i].Adverb = reader.GetString(1);
-                        if(!reader.IsDBNull(2))
+                        if (!reader.IsDBNull(2))
                             Orgs[i].IndirectObject = reader.GetString(2);
                         i++;
                     }
 
                     reader.Close();
-
-                    conn.Close();
                 }
                 catch (Exception ex)
                 {
                     string message = "Reading List of Organization for Person from DB: " + Type + " : " + ex.Message.ToString();
                     APIError error = new APIError(this, message, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 
@@ -206,13 +214,14 @@ namespace MBBetaAPI
             int RelatedID = 0;
             PersonLight SO = null;
 
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
                     //Read Action Data where ActionID = 2 (In relation to...)
-                    SQLiteCommand command = new SQLiteCommand("select ObjectID from RelationsData where VerbID=2 AND SubjectID=@ID", conn);
+                    SQLiteCommand command = new SQLiteCommand("select ObjectID from RelationsData where VerbID=2 AND SubjectID=@ID", DBLayer.conn);
                     command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                     SQLiteDataReader reader = command.ExecuteReader();
@@ -223,13 +232,15 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-
-                    conn.Close();
                 }
                 catch (Exception ex)
                 {
                     string message = "Reading Significant Other for Person from DB: " + Type + " : " + ex.Message.ToString();
                     APIError error = new APIError(this, message, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 

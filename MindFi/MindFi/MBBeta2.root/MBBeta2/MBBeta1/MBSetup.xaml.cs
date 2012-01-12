@@ -21,11 +21,11 @@ namespace MBBeta2
         private string BaseDir;
         #endregion
 
-        #region "Process control"
-        private bool firstTime = true;
-        private DispatcherTimer dispatcherTimer = new DispatcherTimer();
-        private int MinPriority;
-        #endregion
+        //#region "Process control"
+        //private bool firstTime = true;
+        //private DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        //private int MinPriority;
+        //#endregion
 
         public MBSetup(DBConnector dbParam, string basedirparam)
         {
@@ -56,7 +56,7 @@ namespace MBBeta2
 
         void GetSNAccounts(DBConnector db)
         {
-            DBLayer.ConnString = db.ConnString;
+            //DBLayer.ConnString = db.ConnString;
             string error;
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
             if (error != "")
@@ -174,100 +174,100 @@ namespace MBBeta2
         /// <summary>
         /// Processing event for regular timer
         /// </summary>
-        private void processTimer_Tick(object sender, EventArgs e)
-        {
-            if (FBLogin.loggedIn && FBLogin.Me != null)
-            {
-                if (firstTime)
-                {            
-                    // TODO: Localize
-                    //OnlineBt.Content = "Go Offline / Logout";
-                    //OnlineBt.IsEnabled = true;
-                    FBLoggedIn.Text = FBLogin.loggedIn.ToString();
+        //private void processTimer_Tick(object sender, EventArgs e)
+        //{
+        //    if (FBLogin.loggedIn && FBLogin.Me != null)
+        //    {
+        //        if (firstTime)
+        //        {            
+        //            // TODO: Localize
+        //            //OnlineBt.Content = "Go Offline / Logout";
+        //            //OnlineBt.IsEnabled = true;
+        //            FBLoggedIn.Text = FBLogin.loggedIn.ToString();
 
-                    switch (SNAccount.CurrentProfile.currentBackupLevel)
-                    {
-                        case SNAccount.STALKER:
-                            MinPriority = 150;
-                            break;
-                        case SNAccount.EXTENDED:
-                            MinPriority = 400;
-                            break;
-                        case SNAccount.BASIC:
-                        default:
-                            MinPriority = 750;
-                            break;
-                    }
-                    FBPerson me = FBLogin.Me;
-                    if (SNAccount.CurrentProfile != null)
-                    {
-                        // TODO: Generalize for other social networks
-                        if ((SNAccount.CurrentProfile.Name != me.Name
-                            && SNAccount.CurrentProfile.SNID != me.SNID
-                            && SNAccount.CurrentProfile.URL != me.Link) ||
-                            SNAccount.CurrentProfile.SocialNetwork != SocialNetwork.FACEBOOK
-                            )
-                        {
-                            MessageBox.Show("You tried to login with a different account (" + me.Name
-                                + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
-                                + "). Please correct your data; login cancelled.");
-                            return;
-                        }
-                    }
-                    firstTime = false;
-                    dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                    AsyncReqQueue.InitialRequests(MinPriority);
-                }
-                else
-                {
-                    string ErrorMessage;
-                    bool inProgress = AsyncReqQueue.PendingRequests(MinPriority, out ErrorMessage);
-                    InfoTB.Text = ErrorMessage;
-                    if (!inProgress)
-                    {
-                        // GoOffline();
-                    }
-                }
-            }
+        //            switch (SNAccount.CurrentProfile.currentBackupLevel)
+        //            {
+        //                case SNAccount.STALKER:
+        //                    MinPriority = 150;
+        //                    break;
+        //                case SNAccount.EXTENDED:
+        //                    MinPriority = 400;
+        //                    break;
+        //                case SNAccount.BASIC:
+        //                default:
+        //                    MinPriority = 750;
+        //                    break;
+        //            }
+        //            FBPerson me = FBLogin.Me;
+        //            if (SNAccount.CurrentProfile != null)
+        //            {
+        //                // TODO: Generalize for other social networks
+        //                if ((SNAccount.CurrentProfile.Name != me.Name
+        //                    && SNAccount.CurrentProfile.SNID != me.SNID
+        //                    && SNAccount.CurrentProfile.URL != me.Link) ||
+        //                    SNAccount.CurrentProfile.SocialNetwork != SocialNetwork.FACEBOOK
+        //                    )
+        //                {
+        //                    MessageBox.Show("You tried to login with a different account (" + me.Name
+        //                        + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
+        //                        + "). Please correct your data; login cancelled.");
+        //                    return;
+        //                }
+        //            }
+        //            firstTime = false;
+        //            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+        //            AsyncReqQueue.InitialRequests(MinPriority);
+        //        }
+        //        else
+        //        {
+        //            string ErrorMessage;
+        //            bool inProgress = AsyncReqQueue.PendingRequests(MinPriority, out ErrorMessage);
+        //            InfoTB.Text = ErrorMessage;
+        //            if (!inProgress)
+        //            {
+        //                // GoOffline();
+        //            }
+        //        }
+        //    }
 
-            // Get next step depending on the requests / step?
-            // Get statistics
-            UpdateStats();
-        }
+        //    // Get next step depending on the requests / step?
+        //    // Get statistics
+        //    UpdateStats();
+        //}
 
-        /// <summary>
-        /// General refresh for UI
-        /// </summary>
-        private void UpdateStats()
-        {
-            string error = "";
-            string stats = "Statistics\n";
+        ///// <summary>
+        ///// General refresh for UI
+        ///// </summary>
+        //private void UpdateStats()
+        //{
+        //    string error = "";
+        //    string stats = "Statistics\n";
 
-            // TODO: accumulate errors
-            if (error == "")
-            {
-                stats += "Total friends: " + AsyncReqQueue.nFriends
-                    + ". Friends processed: " + AsyncReqQueue.nFriendsProcessed
-                    + ". Friends pictures: " + AsyncReqQueue.nFriendsPictures
-                    + ". Total Posts: " + AsyncReqQueue.nPosts
-                    + ". Total Messages: " + AsyncReqQueue.nMessages
-                    + ". Total Albums: " + AsyncReqQueue.nAlbums
-                    + ". Total Photos: " + AsyncReqQueue.nPhotos;
-                stats += ".\nQueued: " + AsyncReqQueue.QueuedReqs;
-                stats += ". Sent: " + AsyncReqQueue.SentReqs;
-                stats += ". Retry: " + AsyncReqQueue.RetryReqs;
-                stats += ". Received: " + AsyncReqQueue.ReceivedReqs;
-                stats += ". Failed: " + AsyncReqQueue.FailedReqs;
-                stats += ". Parsed: " + AsyncReqQueue.ParsedReqs;
-                stats += ". No need parsing: " + AsyncReqQueue.NotParsedReqs;
+        //    // TODO: accumulate errors
+        //    if (error == "")
+        //    {
+        //        stats += "Total friends: " + AsyncReqQueue.nFriends
+        //            + ". Friends processed: " + AsyncReqQueue.nFriendsProcessed
+        //            + ". Friends pictures: " + AsyncReqQueue.nFriendsPictures
+        //            + ". Total Posts: " + AsyncReqQueue.nPosts
+        //            + ". Total Messages: " + AsyncReqQueue.nMessages
+        //            + ". Total Albums: " + AsyncReqQueue.nAlbums
+        //            + ". Total Photos: " + AsyncReqQueue.nPhotos;
+        //        stats += ".\nQueued: " + AsyncReqQueue.QueuedReqs;
+        //        stats += ". Sent: " + AsyncReqQueue.SentReqs;
+        //        stats += ". Retry: " + AsyncReqQueue.RetryReqs;
+        //        stats += ". Received: " + AsyncReqQueue.ReceivedReqs;
+        //        stats += ". Failed: " + AsyncReqQueue.FailedReqs;
+        //        stats += ". Parsed: " + AsyncReqQueue.ParsedReqs;
+        //        stats += ". No need parsing: " + AsyncReqQueue.NotParsedReqs;
 
-            }
-            else
-            {
-                stats = error;
-            }
-            StatsTB.Text = stats;
-        }
+        //    }
+        //    else
+        //    {
+        //        stats = error;
+        //    }
+        //    StatsTB.Text = stats;
+        //}
 
     }
 }

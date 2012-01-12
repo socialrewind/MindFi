@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -21,18 +22,22 @@ namespace MBBetaAPI
 
         void GetFromDB(DBConnector db)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-                    GetFromConnectedDB(conn);
-                    conn.Close();
+                    DBLayer.GetConn();
+                    GetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
                     string message = "Reading Likes from DB: " + ex.Message.ToString();
                     APIError error = new APIError(this, message, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
         }

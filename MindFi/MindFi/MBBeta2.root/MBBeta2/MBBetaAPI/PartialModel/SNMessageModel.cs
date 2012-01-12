@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -21,18 +22,22 @@ namespace MBBetaAPI
 
         void GetFromDB(DBConnector db)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-                    GetFromConnectedDB(conn);
-                    conn.Close();
+                    DBLayer.GetConn();
+                    GetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
                     string message = "Reading Message from DB" + ex.Message.ToString();
                     APIError error = new APIError(this, message, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 
@@ -101,14 +106,14 @@ namespace MBBetaAPI
 
             List<int> ChildMessageIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
-
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
 
-                    SQLiteCommand command = new SQLiteCommand("select MessageID from MessageData where ParentID=@ParentMessage", conn);
+                    SQLiteCommand command = new SQLiteCommand("select MessageID from MessageData where ParentID=@ParentMessage", DBLayer.conn);
                     command.Parameters.Add(new SQLiteParameter("ParentMessage", SNID));
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
@@ -117,12 +122,14 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-
-                    conn.Close();
                 }
                 catch (Exception ex)
                 {
                     APIError error = new APIError(this, "Getting Child Messages: " + ex.Message + " ID:  " + ID.ToString(), 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 

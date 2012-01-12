@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -21,18 +22,22 @@ namespace MBBetaAPI
 
         void GetFromDB(DBConnector db)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-                    GetFromConnectedDB(conn);
-                    conn.Close();
+                    DBLayer.GetConn();
+                    GetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
                     string msg = "Reading Wall Post from DB" + ex.Message.ToString();
                     APIError error = new APIError(this, msg, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 
@@ -163,24 +168,31 @@ namespace MBBetaAPI
         int GetNumberOfChildPostsFromDB(DBConnector db, string SNIDPost)
         {
             int Total = 0;
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
-                conn.Open();
-
-                SQLiteCommand command = new SQLiteCommand("select COUNT(*) from PostData where ParentPost=@IDPost", conn);
-                command.Parameters.Add(new SQLiteParameter("IDPost", SNIDPost));
-                SQLiteDataReader reader = command.ExecuteReader();
-                bool GotData = false;
-                while (reader.Read())
+                DBLayer.DatabaseInUse = true;
+                try
                 {
-                    GotData = true;
-                    Total = reader.GetInt32(0);
-                }
-                reader.Close();
-                if (!GotData)
-                    throw new Exception("No data available for the post");
+                    DBLayer.GetConn();
 
-                conn.Close();
+                    SQLiteCommand command = new SQLiteCommand("select COUNT(*) from PostData where ParentPost=@IDPost", DBLayer.conn);
+                    command.Parameters.Add(new SQLiteParameter("IDPost", SNIDPost));
+                    SQLiteDataReader reader = command.ExecuteReader();
+                    bool GotData = false;
+                    while (reader.Read())
+                    {
+                        GotData = true;
+                        Total = reader.GetInt32(0);
+                    }
+                    reader.Close();
+                    if (!GotData)
+                        throw new Exception("No data available for the post");
+
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
+                }
             }
 
 
@@ -195,25 +207,29 @@ namespace MBBetaAPI
 
             List<int> ChildPostIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
-                conn.Open();
-
-                
-
-                SQLiteCommand command = new SQLiteCommand("select PostID from PostData where ParentID=@ParentID", conn);
-                command.Parameters.Add(new SQLiteParameter("ParentID", SNID));
-                SQLiteDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
+                DBLayer.DatabaseInUse = true;
+                try
                 {
-                    ChildPostIDs.Add(reader.GetInt32(0));
+                    DBLayer.GetConn();
+
+                    SQLiteCommand command = new SQLiteCommand("select PostID from PostData where ParentID=@ParentID", DBLayer.conn);
+                    command.Parameters.Add(new SQLiteParameter("ParentID", SNID));
+                    SQLiteDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ChildPostIDs.Add(reader.GetInt32(0));
+                    }
+
+                    reader.Close();
                 }
-
-                reader.Close();
-
-                conn.Close();
-            }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
+                }
+            } 
 
             return ChildPostIDs;
 

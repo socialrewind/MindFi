@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -19,7 +20,7 @@ namespace MBBetaAPI
             user = userParam;
             password = passwordParam;
             conn = connParam;
-            db = new DBConnector(conn);
+            db = new DBConnector();
         }
 
         #endregion
@@ -48,12 +49,13 @@ namespace MBBetaAPI
             string UserinDB = "";
 
             ////Connect to DB
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-                    SQLiteCommand command = new SQLiteCommand("select Username FROM Config", conn);
+                    DBLayer.GetConn();
+                    SQLiteCommand command = new SQLiteCommand("select Username FROM Config", DBLayer.conn);
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -66,7 +68,7 @@ namespace MBBetaAPI
                         level = 2;
 
                         //Test if there is any associated SN Account
-                        command = new SQLiteCommand("select AccountID FROM SNAccounts", conn);
+                        command = new SQLiteCommand("select AccountID FROM SNAccounts", DBLayer.conn);
                         reader = command.ExecuteReader();
                         while (reader.Read())
                         {
@@ -74,11 +76,14 @@ namespace MBBetaAPI
                         }
                         reader.Close();
                     }
-                    conn.Close();
                 }
-                catch ( Exception ex )
+                catch (Exception ex)
                 {
                     level = 0;
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
 
             }

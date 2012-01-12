@@ -79,7 +79,7 @@ namespace MBBetaAPI
 
             TagsList = new List<SNPhotoTag>();
             
-            List<int> TagIDs = db.GetTagIDs(SNID);
+            List<int> TagIDs = AgentAPI.DBLayer.GetTagIDs(SNID);
             foreach (int TagID in TagIDs)
             {
                 TagsList.Add(new SNPhotoTag(db, TagID));
@@ -91,8 +91,8 @@ namespace MBBetaAPI
         {
 
             CommentsList = new List<WallPost>();
-            
-            List<int> CommentIDs = db.GetPhotoCommentIDs(SNID);
+
+            List<int> CommentIDs = AgentAPI.DBLayer.GetPhotoCommentIDs(SNID);
             foreach (int CommentID in CommentIDs)
             {
                 CommentsList.Add(new WallPost(db, CommentID, true));

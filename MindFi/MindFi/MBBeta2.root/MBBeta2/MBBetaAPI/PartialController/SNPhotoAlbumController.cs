@@ -79,7 +79,7 @@ namespace MBBetaAPI
         {
             CommentsList = new List<WallPost>();
 
-            List<int> CommentIDs = db.GetAlbumCommentIDs(SNID);
+            List<int> CommentIDs = AgentAPI.DBLayer.GetAlbumCommentIDs(SNID);
             foreach (int CommentID in CommentIDs)
             {
                 CommentsList.Add(new WallPost(db, CommentID, true));

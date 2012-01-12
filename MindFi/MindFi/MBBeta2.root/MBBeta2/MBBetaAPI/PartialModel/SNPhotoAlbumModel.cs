@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -20,18 +21,22 @@ namespace MBBetaAPI
         #region Methods
         void GetFromDB(DBConnector db)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-                    GetFromConnectedDB(conn);
-                    conn.Close();
+                    DBLayer.GetConn();
+                    GetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
                     string message = "Reading Photo Album from DB: " + ex.Message.ToString();
                     APIError error = new APIError(this, message, 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
 
@@ -118,28 +123,30 @@ namespace MBBetaAPI
             PhotoRibbon = new List<SNPhoto>();
             Photos = new List<SNPhoto>();
             List<int> PhotoIDs = new List<int>();
-            
-            try
-            {
 
-                using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
+            {
+                DBLayer.DatabaseInUse = true;
+                try
                 {
-                    conn.Open();
-                    SQLiteCommand command = new SQLiteCommand("select PhotoID from PhotoData where ParentID = @ID", conn);
+                    DBLayer.GetConn();
+                    SQLiteCommand command = new SQLiteCommand("select PhotoID from PhotoData where ParentID = @ID", DBLayer.conn);
                     command.Parameters.Add(new SQLiteParameter("ID", ID));
                     SQLiteDataReader reader = command.ExecuteReader();
-                
+
                     while (reader.Read())
                     {
                         PhotoIDs.Add(reader.GetInt32(0));
                     }
-
-                    conn.Close();
                 }
-            }
-            catch(Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + " Album ID:  " + ID.ToString(), 1);
+                catch (Exception ex)
+                {
+                    APIError error = new APIError(this, ex.Message + " Album ID:  " + ID.ToString(), 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
+                }
             }
 
 

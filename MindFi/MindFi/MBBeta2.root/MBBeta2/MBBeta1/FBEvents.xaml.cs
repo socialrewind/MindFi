@@ -96,7 +96,7 @@ namespace MBBeta2
 
         void GetEvents()
         {
-            EventIDs = db.GetEventIDsByPersonIDs(EventsDF.StartDateDP.SelectedDate.Value, EventsDF.EndDateDP.SelectedDate.Value, SelectedPeopleDetails);
+            EventIDs = MBBetaAPI.AgentAPI.DBLayer.GetEventIDsByPersonIDs(EventsDF.StartDateDP.SelectedDate.Value, EventsDF.EndDateDP.SelectedDate.Value, SelectedPeopleDetails);
 
             var UniqueEventIDs = EventIDs.Distinct();
             Events = new List<SNEvent>();

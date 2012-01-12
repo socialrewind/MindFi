@@ -9,15 +9,17 @@ namespace MBBetaAPI.AgentAPI
     /// <summary>
     /// Class that contains methods to manage the SQLite database
     /// </summary>
-    public class DBLayer
+    public partial class DBLayer
     {
         public static string ConnString;
-        private static volatile Object obj = new Object();
+        // publics that should move to private
+        public static volatile Object obj = new Object();
+        public static volatile bool DatabaseInUse = false;
+        public static volatile SQLiteConnection conn = null;
+        // private members
         private static string lastError;
-        private static volatile SQLiteConnection conn = null;
         private static volatile SQLiteTransaction mytransaction = null;
         private static volatile Mutex mut = new Mutex();
-        private static volatile bool DatabaseInUse = false;
 
         public static bool DatabaseBusy
         {

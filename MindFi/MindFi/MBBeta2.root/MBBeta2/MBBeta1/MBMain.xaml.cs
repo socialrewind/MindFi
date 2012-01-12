@@ -43,17 +43,18 @@ namespace MBBeta2
         private DispatcherTimer dispatcherTimer = new DispatcherTimer();
         #endregion
 
-        public MBMain()
-        {
-            InitializeComponent();
+        // commenting unused constructor
+        //public MBMain()
+        //{
+        //    InitializeComponent();
 
-            //Create DB Connection
-            CreateDBConnection();
+        //    //Create DB Connection
+        //    //CreateDBConnection();
 
-            //Initialize Common Code
-            CC = new CommonCode();
+        //    //Initialize Common Code
+        //    CC = new CommonCode();
 
-        }
+        //}
 
 
         //Constructor coming from MBLogin
@@ -75,7 +76,7 @@ namespace MBBeta2
 
             conn = conn_param;
             BasePath = basePathparam;
-            CreateDBConnection();
+            // CreateDBConnection();
 
             //Initialize Common Code
             CC = new CommonCode();
@@ -92,8 +93,8 @@ namespace MBBeta2
             // check
             this.Show();
             // TODO: Make sure CurrentProfile is assigned when logging in successfuly
-            
-            DBLayer.ConnString = db.ConnString;
+
+            DBLayer.ConnString = conn; // db.ConnString;
             string error;
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
             if (error != "")
@@ -157,7 +158,7 @@ namespace MBBeta2
 
             this.Cursor = Cursors.Wait;
 
-            PostCount = db.CountPosts(start, end);
+            PostCount = DBLayer.CountPosts(start, end);
             PostCountTB.Text = PostCount.ToString();
             
             if (PostCount > Limit)
@@ -166,9 +167,9 @@ namespace MBBeta2
                 GetOlderPublicationsBt.Visibility = System.Windows.Visibility.Visible;
             }
 
-            
 
-            List<int> PostIDs = db.GetPosts(start, end, Offset,Limit);
+
+            List<int> PostIDs = DBLayer.GetPosts(start, end, Offset, Limit);
 
             //PostsListWPSC.WallPostStructureListIC.ItemsSource = PostList;
 
@@ -188,21 +189,21 @@ namespace MBBeta2
             this.Cursor = Cursors.Arrow;
         }
 
-        private void CreateDBConnection()
-        {
-            try
-            {
-                db = new DBConnector(conn);
-            }
-            catch
-            {
-                MBError error = new MBError(this, "Main: Reading DB configuration from config file.", 1);
-            }
-        }
+        //private void CreateDBConnection()
+        //{
+        //    try
+        //    {
+        //        db = new DBConnector(conn);
+        //    }
+        //    catch
+        //    {
+        //        MBError error = new MBError(this, "Main: Reading DB configuration from config file.", 1);
+        //    }
+        //}
 
         private void LoadFriends()
         {
-            List<int> FriendIDs = db.GetFriendIDs();
+            List<int> FriendIDs = DBLayer.GetFriendIDs();
             FriendsList = new List<PersonLight>();
             foreach (int ID in FriendIDs)
             {
@@ -218,7 +219,7 @@ namespace MBBeta2
 
         private void LoadSocialGroups()
         {
-            List<int> GroupIDs = db.GetSocialGroupIDs();
+            List<int> GroupIDs = DBLayer.GetSocialGroupIDs();
             GroupsList = new List<SNSocialGroup>();
             foreach (int ID in GroupIDs)
             {
@@ -366,8 +367,8 @@ namespace MBBeta2
                 GetOlderPublicationsBt.Visibility = System.Windows.Visibility.Hidden;
             }
 
-            
-            List<int> PostIDs = db.GetPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value, Offset, Limit);
+
+            List<int> PostIDs = DBLayer.GetPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value, Offset, Limit);
 
 
             foreach (int PostID in PostIDs)

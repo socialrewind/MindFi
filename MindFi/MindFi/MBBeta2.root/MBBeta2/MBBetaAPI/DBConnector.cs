@@ -4,50 +4,51 @@ using System.Linq;
 using System.Text;
 using System.Data.SQLite;
 
-namespace MBBetaAPI
+namespace MBBetaAPI.AgentAPI
 {
     /// <summary>
     /// Class that contains methods to manage the SQLite database
     /// </summary>
-    public class DBConnector
+    public partial class DBLayer
     {
         //**************** Constructors
-        #region Constructors
+        //#region Constructors
 
-        public DBConnector()
-        {
-        }
+        //public DBConnector()
+        //{
+        //}
 
-        public DBConnector(string ConnStringParam)
-        {
-            ConnString = ConnStringParam;
+        //public DBConnector(string ConnStringParam)
+        //{
+        //    ConnString = ConnStringParam;
 
-            conn = new SQLiteConnection(ConnString);
+        //    conn = new SQLiteConnection(ConnString);
 
-        }
+        //}
 
-        #endregion
+        //#endregion
 
         //**************** Attributes
-        #region Attributes
+        //#region Attributes
 
-        public string ConnString;
-        public SQLiteConnection conn;
+        //public string ConnString;
+        //public SQLiteConnection conn;
 
-        #endregion
+        //#endregion
 
         //**************** Methods
         #region Methods
 
-        public List<int> GetFriendIDs()
+        public static List<int> GetFriendIDs()
         {
             List<int> PIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+            lock (obj)
             {
+                DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    GetConn();
                     //Distance 1 = Friend
                     //SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and B.Distance < 2 and A.ID = B.PersonID ", conn);
                     SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A left outer join PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and A.ID = B.PersonID ", conn);
@@ -58,26 +59,30 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-                    conn.Close();
                 }
                 catch
                 {
-                    APIError error = new APIError(this, "Reading Person IDs from DB", 1);
+                    APIError error = new APIError(null, "Reading Person IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
                 }
             }
 
             return PIDs;
         }
 
-        public List<int> GetFriendOfFriendsIDs()
+        public static List<int> GetFriendOfFriendsIDs()
         {
             List<int> PIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+            lock (obj)
             {
+                DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    GetConn();
                     SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and B.Distance=2 and A.ID = B.PersonID ", conn);
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
@@ -86,26 +91,30 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-                    conn.Close();
                 }
                 catch
                 {
-                    APIError error = new APIError(this, "Reading Friends Of Friends IDs from DB", 1);
+                    APIError error = new APIError(null, "Reading Friends Of Friends IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
                 }
             }
 
             return PIDs;
         }
 
-        public List<int> GetSocialGroupIDs()
+        public static List<int> GetSocialGroupIDs()
         {
             List<int> PIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+            lock (obj)
             {
+                DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    GetConn();
                     SQLiteCommand command = new SQLiteCommand("select ID from Entities where Type='MyBackup.FBFriendList'", conn);
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
@@ -114,11 +123,14 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-                    conn.Close();
                 }
                 catch
                 {
-                    APIError error = new APIError(this, "Reading Social Group IDs from DB", 1);
+                    APIError error = new APIError(null, "Reading Social Group IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
                 }
             }
 
@@ -133,15 +145,16 @@ namespace MBBetaAPI
         /// <param name="Offset"></param>
         /// <param name="Limit"></param>
         /// <returns></returns>
-        public List<int> GetPosts(DateTime start, DateTime end, int Offset, int Limit)
+        public static List<int> GetPosts(DateTime start, DateTime end, int Offset, int Limit)
         {
             List<int> PIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+            lock (obj)
             {
+                DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    GetConn();
                     SQLiteCommand command = new SQLiteCommand("select PostID from PostData where ParentID is NULL and Created>=@start and Created<=@end ORDER BY Created DESC LIMIT @OFFSET,@LIMIT", conn);
                     command.Parameters.Add(new SQLiteParameter("start", start));
                     command.Parameters.Add(new SQLiteParameter("end", end));
@@ -154,11 +167,14 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-                    conn.Close();
                 }
                 catch
                 {
-                    APIError error = new APIError(this, "Reading Post IDs from DB", 1);
+                    APIError error = new APIError(null, "Reading Post IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
                 }
             }
 
@@ -172,7 +188,7 @@ namespace MBBetaAPI
         /// <param name="end"></param>
         /// <param name="PersonList"></param>
         /// <returns></returns>
-        public List<int> GetPostsByPersonID(DateTime start, DateTime end, List<long> PersonList)
+        public static List<int> GetPostsByPersonID(DateTime start, DateTime end, List<long> PersonList)
         {
             List<int> PostIDs = new List<int>();
             string IDList = "";
@@ -189,12 +205,12 @@ namespace MBBetaAPI
             //If there is people in the list
             if (i > 0)
             {
-                using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                lock (obj)
                 {
+                    DatabaseInUse = true;
                     try
                     {
-
-                        conn.Open();
+                        GetConn();
 
                         string textcommand = "select PostID from PostData where ParentID is NULL and FromID in(";
                         textcommand += IDList;
@@ -227,13 +243,14 @@ namespace MBBetaAPI
                         }
 
                         reader.Close();
-
-
-                        conn.Close();
                     }
                     catch
                     {
-                        APIError error = new APIError(this, "Reading Post IDs from List of Persons in DB", 1);
+                        APIError error = new APIError(null, "Reading Post IDs from List of Persons in DB", 1);
+                    }
+                    finally
+                    {
+                        DatabaseInUse = false;
                     }
                 }
             }
@@ -243,23 +260,22 @@ namespace MBBetaAPI
             return PostIDs;
         }
 
-
-
         /// <summary>
         /// Gets the number of posts in DB, inside a time range
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public int CountPosts(DateTime start, DateTime end)
+        public static int CountPosts(DateTime start, DateTime end)
         {
             int count = 0;
 
-            using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+            lock (obj)
             {
+                DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    GetConn();
                     SQLiteCommand command = new SQLiteCommand("select count (*) from PostData where ParentID is NULL and Created>=@start and Created<=@end", conn);
                     command.Parameters.Add(new SQLiteParameter("start", start));
                     command.Parameters.Add(new SQLiteParameter("end", end));
@@ -270,32 +286,35 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-                    conn.Close();
                 }
                 catch
                 {
-                    APIError error = new APIError(this, "Reading Count Post IDs from DB", 1);
+                    APIError error = new APIError(null, "Reading Count Post IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
                 }
             }
 
             return count;
         }
 
-
-        public List<int> GetSNParentMessageIDs(DateTime start, DateTime end, List<PersonLight> SelectedPeople)
+        public static List<int> GetSNParentMessageIDs(DateTime start, DateTime end, List<PersonLight> SelectedPeople)
         {
             int i, total;
             total = SelectedPeople.Count();
 
             List<int> ParentMessageIDs = new List<int>();
 
-            try
+            for (i = 0; i < total; i++)
             {
-                for (i = 0; i < total; i++)
+                lock (obj)
                 {
-                    using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                    DatabaseInUse = true;
+                    try
                     {
-                        conn.Open();
+                        GetConn();
 
                         //TODO: Change when ToId is complete
                         //SQLiteCommand command = new SQLiteCommand("select distinct MessageID from MessageData where ParentID IS NULL and (FromID=@FromID OR ToId Like @LikeId) and ((Updated>@start and Updated<@end) OR (Created>@start and Created<@end))", conn);
@@ -314,23 +333,22 @@ namespace MBBetaAPI
                         }
 
                         reader.Close();
-
-
-                        conn.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        APIError error = new APIError(null, ex.Message + "Reading Parent Message IDs from DB", 1);
+                    }
+                    finally
+                    {
+                        DatabaseInUse = false;
                     }
                 }
             }
-            catch(Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + "Reading Parent Message IDs from DB", 1);
-            }
-
 
             return ParentMessageIDs;
         }
 
-
-        public List<int> GetAlbumIDs(DateTime start, DateTime end, List<PersonLight> SelectedPeople)
+        public static List<int> GetAlbumIDs(DateTime start, DateTime end, List<PersonLight> SelectedPeople)
         {
             
 
@@ -339,13 +357,14 @@ namespace MBBetaAPI
 
             List<int> AlbumIDs = new List<int>();
 
-            try
+            for (i = 0; i < total; i++)
             {
-                for (i = 0; i < total; i++)
+                lock (obj)
                 {
-                    using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                    DatabaseInUse = true;
+                    try
                     {
-                        conn.Open();
+                        GetConn();
 
                         //TODO: This query must change to look into PhotoData Table, according to people appearing in Photos
                         SQLiteCommand command = new SQLiteCommand("select distinct AlbumID from AlbumData where FromID=@FromID and ((Updated>=@start and Updated<=@end) OR (Created>=@start and Created<=@end))", conn);
@@ -361,51 +380,55 @@ namespace MBBetaAPI
                         }
 
                         reader.Close();
-
-                        conn.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        APIError error = new APIError(null, ex.Message + "Reading Album IDs from DB", 1);
+                    }
+                    finally
+                    {
+                        DatabaseInUse = false;
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + "Reading Album IDs from DB", 1);
             }
 
             return AlbumIDs;
         }
 
 
-        public List<int> GetTagIDs(Int64 PhotoID)
+        public static List<int> GetTagIDs(Int64 PhotoID)
         {
             List<int> PhotoIDs = new List<int>();
 
-            try
-            {
-                
-                using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                lock (obj)
                 {
-                    conn.Open();
-
-                    SQLiteCommand command = new SQLiteCommand("select TagDataID from TagData where PhotoSNID=@PhotoID", conn);
-                    command.Parameters.Add(new SQLiteParameter("PhotoID", PhotoID));
-                    SQLiteDataReader reader = command.ExecuteReader();
-
-                    while (reader.Read())
+                    DatabaseInUse = true;
+                    try
                     {
-                        PhotoIDs.Add(reader.GetInt32(0));
+                        GetConn();
+
+                        SQLiteCommand command = new SQLiteCommand("select TagDataID from TagData where PhotoSNID=@PhotoID", conn);
+                        command.Parameters.Add(new SQLiteParameter("PhotoID", PhotoID));
+                        SQLiteDataReader reader = command.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            PhotoIDs.Add(reader.GetInt32(0));
+                        }
+
+                        reader.Close();
                     }
-
-                    reader.Close();
-
-                    conn.Close();
+                    catch (Exception ex)
+                    {
+                        APIError error = new APIError(null, ex.Message + "Reading PhotoTag IDs from DB", 1);
+                    }
+                    finally
+                    {
+                        DatabaseInUse = false;
+                    }
                 }
                 
-            }
-            catch (Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + "Reading PhotoTag IDs from DB", 1);
-            }
-
+            
             return PhotoIDs;
 
         }
@@ -415,16 +438,16 @@ namespace MBBetaAPI
         /// </summary>
         /// <param name="PhotoID"></param>
         /// <returns></returns>
-        public List<int> GetPhotoCommentIDs(Int64 PhotoID)
+        public static List<int> GetPhotoCommentIDs(Int64 PhotoID)
         {
             List<int> PostIDs = new List<int>();
 
-            try
+            lock (obj)
             {
-
-                using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                DatabaseInUse = true;
+                try
                 {
-                    conn.Open();
+                    GetConn();
 
                     SQLiteCommand command = new SQLiteCommand("select PostID from PostData where ParentID=@PhotoID", conn);
                     command.Parameters.Add(new SQLiteParameter("PhotoID", PhotoID));
@@ -437,13 +460,15 @@ namespace MBBetaAPI
 
                     reader.Close();
 
-                    conn.Close();
                 }
-
-            }
-            catch (Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + "Reading Photo Comments IDs from DB", 1);
+                catch (Exception ex)
+                {
+                    APIError error = new APIError(null, ex.Message + "Reading Photo Comments IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             }
 
             return PostIDs;
@@ -455,16 +480,16 @@ namespace MBBetaAPI
         /// </summary>
         /// <param name="PhotoID"></param>
         /// <returns></returns>
-        public List<int> GetAlbumCommentIDs(Int64 AlbumID)
+        public static List<int> GetAlbumCommentIDs(Int64 AlbumID)
         {
             List<int> PostIDs = new List<int>();
 
-            try
+            lock (obj)
             {
-
-                using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                DatabaseInUse = true;
+                try
                 {
-                    conn.Open();
+                    GetConn();
 
                     SQLiteCommand command = new SQLiteCommand("select PostID from PostData where ParentID=@AlbumID", conn);
                     command.Parameters.Add(new SQLiteParameter("AlbumID", AlbumID));
@@ -477,13 +502,15 @@ namespace MBBetaAPI
 
                     reader.Close();
 
-                    conn.Close();
                 }
-
-            }
-            catch (Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + "Reading Album Comments IDs from DB", 1);
+                catch (Exception ex)
+                {
+                    APIError error = new APIError(null, ex.Message + "Reading Album Comments IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             }
 
             return PostIDs;
@@ -495,16 +522,16 @@ namespace MBBetaAPI
         /// </summary>
         /// <param name="SNID of Object"></param>
         /// <returns></returns>
-        public List<int> GetLikeIDs(string SNID)
+        public static List<int> GetLikeIDs(string SNID)
         {
             List<int> LikeIDs = new List<int>();
 
-            try
+            lock (obj)
             {
-
-                using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                DatabaseInUse = true;
+                try
                 {
-                    conn.Open();
+                    GetConn();
 
                     SQLiteCommand command = new SQLiteCommand("select ActionDataID from ActionData where SocialNetwork='1' AND WhatSNID=@SNID", conn);
                     command.Parameters.Add(new SQLiteParameter("SNID", SNID));
@@ -517,13 +544,16 @@ namespace MBBetaAPI
 
                     reader.Close();
 
-                    conn.Close();
-                }
 
-            }
-            catch (Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + "Reading Like IDs from DB", 1);
+                }
+                catch (Exception ex)
+                {
+                    APIError error = new APIError(null, ex.Message + "Reading Like IDs from DB", 1);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
             }
 
             return LikeIDs;
@@ -531,20 +561,21 @@ namespace MBBetaAPI
         }
 
 
-        public List<int> GetEventIDsByPersonIDs(DateTime start, DateTime end, List<PersonLight> SelectedPeople)
+        public static List<int> GetEventIDsByPersonIDs(DateTime start, DateTime end, List<PersonLight> SelectedPeople)
         {
             int i, total;
             total = SelectedPeople.Count();
 
             List<int> EventIDs = new List<int>();
 
-            try
+            for (i = 0; i < total; i++)
             {
-                for (i = 0; i < total; i++)
+                lock (obj)
                 {
-                    using (SQLiteConnection conn = new SQLiteConnection(ConnString))
+                    DatabaseInUse = true;
+                    try
                     {
-                        conn.Open();
+                        GetConn();
 
                         SQLiteCommand command = new SQLiteCommand("select A.EventID from EventData A, ActionData B WHERE B.WhoSNID=@IDAttending AND B.ActionID in(14,15,16) AND B.WhatSNID=A.SNID AND A.StartTime>=@start and A.StartTime<=@end", conn);
                         command.Parameters.Add(new SQLiteParameter("IDAttending", SelectedPeople[i].SNID));
@@ -560,13 +591,16 @@ namespace MBBetaAPI
 
                         reader.Close();
 
-                        conn.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        APIError error = new APIError(null, ex.Message + "Reading Event IDs from DB", 1);
+                    }
+                    finally
+                    {
+                        DatabaseInUse = false;
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                APIError error = new APIError(this, ex.Message + "Reading Event IDs from DB", 1);
             }
 
             return EventIDs;

@@ -44,7 +44,7 @@ namespace MBBetaAPI
             LikesList = new List<SNLike>();
             NumberOfLikes = 0;
 
-            List<int> LikeIDs = db.GetLikeIDs(ObjectSNID);
+            List<int> LikeIDs = AgentAPI.DBLayer.GetLikeIDs(ObjectSNID);
 
 
             foreach (int LikeID in LikeIDs)

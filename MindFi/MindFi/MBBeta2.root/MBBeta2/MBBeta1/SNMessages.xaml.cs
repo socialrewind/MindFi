@@ -105,7 +105,7 @@ namespace MBBeta2
 
             List<int> ParentMessageIDs;
 
-            ParentMessageIDs = db.GetSNParentMessageIDs(MessagesDF.StartDateDP.SelectedDate.Value, MessagesDF.EndDateDP.SelectedDate.Value, SelectedPeopleDetails);
+            ParentMessageIDs = MBBetaAPI.AgentAPI.DBLayer.GetSNParentMessageIDs(MessagesDF.StartDateDP.SelectedDate.Value, MessagesDF.EndDateDP.SelectedDate.Value, SelectedPeopleDetails);
 
             ParentMessages = new List<SNMessage>();
             foreach (int ParentMessageID in ParentMessageIDs)

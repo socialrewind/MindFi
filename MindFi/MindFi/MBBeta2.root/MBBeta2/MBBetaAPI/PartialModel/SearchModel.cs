@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
-
 using System.IO;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
@@ -32,24 +32,24 @@ namespace MBBetaAPI
             SQLiteDataReader reader;
             List<int> PostIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
-
+                    DBLayer.GetConn();
 
                     //Search on Posts FTS Table
 
                     //Search PostIDs (all or with date filter)
                     if (StartDate == DateTime.MinValue)
                     {
-                        command = new SQLiteCommand("select PostID from FTSPostData where FTSPostData MATCH @SearchText", conn);
+                        command = new SQLiteCommand("select PostID from FTSPostData where FTSPostData MATCH @SearchText", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                     }
                     else
                     {
-                        command = new SQLiteCommand("select PostID from FTSPostData WHERE FTSPostData MATCH @SearchText and Created>@start and Created<@end", conn);
+                        command = new SQLiteCommand("select PostID from FTSPostData WHERE FTSPostData MATCH @SearchText and Created>@start and Created<@end", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                         command.Parameters.Add(new SQLiteParameter("start", StartDate));
                         command.Parameters.Add(new SQLiteParameter("end", EndDate));
@@ -61,8 +61,6 @@ namespace MBBetaAPI
                     }
                     reader.Close();
 
-                    conn.Close();
-
                     var UniquePostIDs = PostIDs.Distinct();
 
                     foreach (int UniqueID in UniquePostIDs)
@@ -72,6 +70,10 @@ namespace MBBetaAPI
                 catch
                 {
                     success = false;
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
             return success;
@@ -87,21 +89,22 @@ namespace MBBetaAPI
             SQLiteDataReader reader;
             List<int> AlbumIDs = new List<int>();
 
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
 
                     //Read Album IDs from FTS enabled table
                     if (StartDate == DateTime.MinValue)
                     {
-                        command = new SQLiteCommand("select AlbumID from FTSAlbumData where FTSAlbumData MATCH @SearchText", conn);
+                        command = new SQLiteCommand("select AlbumID from FTSAlbumData where FTSAlbumData MATCH @SearchText", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                     }
                     else
                     {
-                        command = new SQLiteCommand("select AlbumID from FTSAlbumData where FTSAlbumData MATCH @SearchText AND Created>@start and Created<@end", conn);
+                        command = new SQLiteCommand("select AlbumID from FTSAlbumData where FTSAlbumData MATCH @SearchText AND Created>@start and Created<@end", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                         command.Parameters.Add(new SQLiteParameter("start", StartDate));
                         command.Parameters.Add(new SQLiteParameter("end", EndDate));
@@ -114,8 +117,6 @@ namespace MBBetaAPI
 
                     reader.Close();
 
-                    conn.Close();
-
                     var UniqueAlbumIDs = AlbumIDs.Distinct();
 
                     foreach (int UniqueID in UniqueAlbumIDs)
@@ -125,6 +126,10 @@ namespace MBBetaAPI
                 catch
                 {
                     success = false;
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
             return success;
@@ -141,19 +146,20 @@ namespace MBBetaAPI
             List<string> AlbumPaths = new List<string>();
 
             //Read PhotoIDs from FTS Table
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
                     if (StartDate == DateTime.MinValue)
                     {
-                        command = new SQLiteCommand("select PhotoID from FTSPhotoData WHERE FTSPhotoData MATCH @SearchText", conn);
+                        command = new SQLiteCommand("select PhotoID from FTSPhotoData WHERE FTSPhotoData MATCH @SearchText", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                     }
                     else
                     {
-                        command = new SQLiteCommand("select PhotoID from FTSPhotoData WHERE FTSPhotoData MATCH @SearchText and Created>@start and Created<@end", conn);
+                        command = new SQLiteCommand("select PhotoID from FTSPhotoData WHERE FTSPhotoData MATCH @SearchText and Created>@start and Created<@end", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                         command.Parameters.Add(new SQLiteParameter("start", StartDate));
                         command.Parameters.Add(new SQLiteParameter("end", EndDate));
@@ -165,9 +171,6 @@ namespace MBBetaAPI
                     }
 
                     reader.Close();
-
-                    conn.Close();
-
 
                     MatchingPhotoIDs = PhotoIDs;
 
@@ -201,6 +204,10 @@ namespace MBBetaAPI
                 {
                     success = false;
                 }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
+                }
             }
             return success;
         }
@@ -213,22 +220,22 @@ namespace MBBetaAPI
             SQLiteDataReader reader;
             List<int> MessageIDs = new List<int>();
 
-
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
 
                     //Search Messages
                     if (StartDate == DateTime.MinValue)
                     {
-                        command = new SQLiteCommand("select MessageID from FTSMessageData where FTSMessageData MATCH @SearchText", conn);
+                        command = new SQLiteCommand("select MessageID from FTSMessageData where FTSMessageData MATCH @SearchText", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                     }
                     else
                     {
-                        command = new SQLiteCommand("select MessageID from FTSMessageData where FTSMessageData MATCH @SearchText AND Created>@start AND Created<@end", conn);
+                        command = new SQLiteCommand("select MessageID from FTSMessageData where FTSMessageData MATCH @SearchText AND Created>@start AND Created<@end", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                         command.Parameters.Add(new SQLiteParameter("start", StartDate));
                         command.Parameters.Add(new SQLiteParameter("end", EndDate));
@@ -240,8 +247,6 @@ namespace MBBetaAPI
                     }
                     reader.Close();
                         
-                    conn.Close();
-
                     var UniqueMessageIDs = MessageIDs.Distinct();
                     foreach (int UniqueID in UniqueMessageIDs)
                         MatchingMessageIDs.Add(UniqueID);
@@ -251,6 +256,10 @@ namespace MBBetaAPI
                 catch
                 {
                     success = false;
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
             return success;
@@ -264,22 +273,22 @@ namespace MBBetaAPI
             SQLiteDataReader reader;
             List<int> EventIDs = new List<int>();
 
-
-            using (SQLiteConnection conn = new SQLiteConnection(db.ConnString))
+            lock (DBLayer.obj)
             {
+                DBLayer.DatabaseInUse = true;
                 try
                 {
-                    conn.Open();
+                    DBLayer.GetConn();
 
                     //Search Entities
                     if (StartDate == DateTime.MinValue)
                     {
-                        command = new SQLiteCommand("select EventID from FTSEventData WHERE FTSEventData MATCH @SearchText", conn);
+                        command = new SQLiteCommand("select EventID from FTSEventData WHERE FTSEventData MATCH @SearchText", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", SearchText));
                     }
                     else
                     {
-                        command = new SQLiteCommand("select EventID from FTSEventData WHERE FTSEventData MATCH @SearchText AND EventDate>@start and EventDate<@end", conn);
+                        command = new SQLiteCommand("select EventID from FTSEventData WHERE FTSEventData MATCH @SearchText AND EventDate>@start and EventDate<@end", DBLayer.conn);
                         command.Parameters.Add(new SQLiteParameter("SearchText", "%" + SearchText + "%"));
                         command.Parameters.Add(new SQLiteParameter("start", StartDate));
                         command.Parameters.Add(new SQLiteParameter("end", EndDate));
@@ -293,8 +302,6 @@ namespace MBBetaAPI
 
                     reader.Close();
 
-                    conn.Close();
-
                     var UniqueEventIDs = EventIDs.Distinct();
                     foreach (int UniqueID in UniqueEventIDs)
                         MatchingEventIDs.Add(UniqueID);
@@ -303,6 +310,10 @@ namespace MBBetaAPI
                 catch
                 {
                     success = false;
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
                 }
             }
             return success;

@@ -14,7 +14,7 @@ namespace MBBeta2
     /// </summary>
     public partial class MBSetup : Window
     {
-        public bool online = false;
+        //public bool online = false;
         public bool accountAdded = false;
 
         #region "Download info"
@@ -114,7 +114,7 @@ namespace MBBeta2
                 FBFrequency.Text = SNAccount.CurrentProfile.BackupFrequency.ToString() ;
             }
 
-            OnlineBt.IsEnabled = (SNAccount.CurrentProfile != null);
+            //OnlineBt.IsEnabled = (SNAccount.CurrentProfile != null);
         }
 
 
@@ -137,6 +137,7 @@ namespace MBBeta2
             GetSNAccounts(db);
         }
 
+        /*
         private void OnlineBt_Click(object sender, RoutedEventArgs e)
         {
             if (online)
@@ -168,6 +169,7 @@ namespace MBBeta2
             OnlineBt.Content = "Go Online/Login";
             FBLoggedIn.Text = FBLogin.loggedIn.ToString();
         }
+         */
 
         /// <summary>
         /// Processing event for regular timer
@@ -179,8 +181,8 @@ namespace MBBeta2
                 if (firstTime)
                 {            
                     // TODO: Localize
-                    OnlineBt.Content = "Go Offline / Logout";
-                    OnlineBt.IsEnabled = true;
+                    //OnlineBt.Content = "Go Offline / Logout";
+                    //OnlineBt.IsEnabled = true;
                     FBLoggedIn.Text = FBLogin.loggedIn.ToString();
 
                     switch (SNAccount.CurrentProfile.currentBackupLevel)
@@ -223,7 +225,7 @@ namespace MBBeta2
                     InfoTB.Text = ErrorMessage;
                     if (!inProgress)
                     {
-                        GoOffline();
+                        // GoOffline();
                     }
                 }
             }

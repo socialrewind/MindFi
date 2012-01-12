@@ -35,6 +35,7 @@ namespace MBBeta2
     /// </summary>
     public partial class MBMain : Window
     {
+        private string animation = "...";
         private string BasePath;
         private bool online = false;
         #region "Process control"
@@ -935,7 +936,9 @@ namespace MBBeta2
                             }
                             firstTime = false;
                             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                            AsyncReqQueue.InitialRequests(150);
+                            //AsyncReqQueue.InitialRequests(150);
+                            AsyncReqQueue.NewRequests(150);
+                            this.UpdateText.Text = "Getting initial friend data" + animation;
                         }
                     }
                     else
@@ -944,6 +947,7 @@ namespace MBBeta2
                         {
                             string ErrorMessage;
                             bool inProgress = AsyncReqQueue.PendingRequests(150, out ErrorMessage);
+                            this.UpdateText.Text = "Getting more friend data (" + AsyncReqQueue.nFriendsPictures + " - " + AsyncReqQueue.nFriendsProcessed + ")" + animation;
                             //InfoTB.Text = ErrorMessage;
                             if (!inProgress)
                             {
@@ -957,42 +961,51 @@ namespace MBBeta2
 
                 // Get next step depending on the requests / step?
                 // Get statistics
-                UpdateStats();
+                //UpdateStats();
+                if (animation != "...")
+                {
+                    animation += ".";
+                }
+                else
+                {
+                    animation = "";
+                }
+
             }
         }
 
         /// <summary>
         /// General refresh for UI
         /// </summary>
-        private void UpdateStats()
-        {
-            string error = "";
-            string stats = "Statistics\n";
+        //private void UpdateStats()
+        //{
+        //    string error = "";
+        //    string stats = "Statistics\n";
 
-            // TODO: accumulate errors
-            if (error == "")
-            {
-                stats += "Total friends: " + AsyncReqQueue.nFriends
-                    + ". Friends processed: " + AsyncReqQueue.nFriendsProcessed
-                    + ". Friends pictures: " + AsyncReqQueue.nFriendsPictures
-                    + ". Total Posts: " + AsyncReqQueue.nPosts
-                    + ". Total Messages: " + AsyncReqQueue.nMessages
-                    + ". Total Albums: " + AsyncReqQueue.nAlbums
-                    + ". Total Photos: " + AsyncReqQueue.nPhotos;
-                stats += ".\nQueued: " + AsyncReqQueue.QueuedReqs;
-                stats += ". Sent: " + AsyncReqQueue.SentReqs;
-                stats += ". Retry: " + AsyncReqQueue.RetryReqs;
-                stats += ". Received: " + AsyncReqQueue.ReceivedReqs;
-                stats += ". Failed: " + AsyncReqQueue.FailedReqs;
-                stats += ". Parsed: " + AsyncReqQueue.ParsedReqs;
-                stats += ". No need parsing: " + AsyncReqQueue.NotParsedReqs;
+        //    // TODO: accumulate errors
+        //    if (error == "")
+        //    {
+        //        stats += "Total friends: " + AsyncReqQueue.nFriends
+        //            + ". Friends processed: " + AsyncReqQueue.nFriendsProcessed
+        //            + ". Friends pictures: " + AsyncReqQueue.nFriendsPictures
+        //            + ". Total Posts: " + AsyncReqQueue.nPosts
+        //            + ". Total Messages: " + AsyncReqQueue.nMessages
+        //            + ". Total Albums: " + AsyncReqQueue.nAlbums
+        //            + ". Total Photos: " + AsyncReqQueue.nPhotos;
+        //        stats += ".\nQueued: " + AsyncReqQueue.QueuedReqs;
+        //        stats += ". Sent: " + AsyncReqQueue.SentReqs;
+        //        stats += ". Retry: " + AsyncReqQueue.RetryReqs;
+        //        stats += ". Received: " + AsyncReqQueue.ReceivedReqs;
+        //        stats += ". Failed: " + AsyncReqQueue.FailedReqs;
+        //        stats += ". Parsed: " + AsyncReqQueue.ParsedReqs;
+        //        stats += ". No need parsing: " + AsyncReqQueue.NotParsedReqs;
 
-            }
-            else
-            {
-                stats = error;
-            }
-            //StatsTB.Text = stats;
-        }
+        //    }
+        //    else
+        //    {
+        //        stats = error;
+        //    }
+        //    //StatsTB.Text = stats;
+        //}
     }
 }

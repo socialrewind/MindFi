@@ -11,6 +11,7 @@ namespace MBBetaAPI.AgentAPI
     public class AsyncReqQueue
     {
         const int SIZETOGETPERPAGE = 50; // USE 1 for debugging issues that are not related to concurrency
+        const int CONCURRENTREQUESTLIMIT = 10;
 
         #region "Public Properties"
         public long ID;
@@ -448,6 +449,8 @@ namespace MBBetaAPI.AgentAPI
                 ProfilePhotoDestinationDir + SNID + ".jpg",
                 ProcessFriendPic, ID, SNID);
             apiReq.QueueAndSend(999);
+            string errorMessage;
+            DBLayer.UpdatePictureRequest(ID, apiReq.ID, out errorMessage);
             apiReq = FBAPI.Friends("me", SIZETOGETPERPAGE, ProcessFriends);
             apiReq.QueueAndSend(999);
         }
@@ -458,8 +461,7 @@ namespace MBBetaAPI.AgentAPI
 
             if (!DatabaseInUse)
             {
-                int ConcurrentRequestLimit = 10;
-                ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
+                ArrayList queueReq = DBLayer.GetRequests(CONCURRENTREQUESTLIMIT - nRequestsInTransit, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
                 foreach (int reqID in queueReq)
                 {
                     AsyncReqQueue apiReq = new AsyncReqQueue(reqID);
@@ -532,7 +534,7 @@ namespace MBBetaAPI.AgentAPI
                             backupCase = "Continuing backup started earlier";
                         }
                     }
-                    FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
+                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
                     PendingRequests(MinPriority, out error);
                 }
                 else
@@ -546,7 +548,7 @@ namespace MBBetaAPI.AgentAPI
                         backupCase = "New Backup in progress";
                     }
                     firstCase = true;
-                    FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
+                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
 
                     if (currentBackup != 0)
                     {
@@ -591,6 +593,149 @@ namespace MBBetaAPI.AgentAPI
             }
         }
 
+        /// <summary>
+        /// Create the first, basic requests for a new backup
+        /// </summary>
+        /// TODO: Possibly force a new full backup
+        public static void NewRequests(int MinPriority)
+        {
+            minPriorityGlobal = MinPriority;
+            string error;
+            int[] stateArray;
+            
+            if (DBLayer.GetNRequestsPerState(minPriorityGlobal, out stateArray, out error))
+            {
+                CountPerState = stateArray;
+                // Update old requests for retry
+                if (!DBLayer.QueueRetryUpdate())
+                {
+                    return;
+                }
+                else
+                {
+                    // verify this is working correctly
+                    CountPerState[QUEUED] += CountPerState[RETRY];
+                    CountPerState[RETRY] = 0;
+                }
+                // starts or finds existing backup to continue
+                int currentBackup;
+                DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
+                bool isIncremental;
+
+                // TODO: Check if backup was completed, to decide if incremental case should go forward
+                DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
+                        out currentBackupStart, out currentBackupEnd,
+                        out currentBackup, out currentPeriodStart, out currentPeriodEnd, out isIncremental);
+                SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
+                SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
+                SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
+                SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
+                bool isFirstPeriod = false;
+                if (currentPeriodEnd == currentBackupEnd)
+                    isFirstPeriod = true;
+                currentBackupNumber = currentBackup;
+
+                if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
+                {
+                    if (!firstCase)
+                    {
+                        if (isIncremental)
+                        {
+                            backupCase = "Updating backup with new stuff";
+                        }
+                        else
+                        {
+                            backupCase = "Continuing backup started earlier";
+                        }
+                    }
+                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
+                    PendingRequests(MinPriority, out error);
+                }
+                else
+                {
+                    if (isIncremental)
+                    {
+                        backupCase = "Updating backup with new stuff";
+                    }
+                    else
+                    {
+                        backupCase = "New Backup in progress";
+                    }
+                    firstCase = true;
+                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
+
+                    if (currentBackup != 0)
+                    {
+                        // Calculate dates for first iteration - TODO make sure they are recalculated until done
+                        FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
+                        GetNextFriendsPics();
+                        GetNextFriendsData();
+                    }
+                    else
+                    {
+                        // TODO: Localize, return to interface
+                        error = "Backup couldn't be created";
+                    }
+                }
+            }
+        }
+
+        private static int GetNextFriendsPics()
+        {
+            string errorMessage;
+            AsyncReqQueue apiReq;
+            // Go over friends, adding requests for them if not yet defined
+            int[] FriendEntityID;
+            string[] FriendSNID;
+
+            int nRequests = DBLayer.GetNFriendsWithoutPicture(CONCURRENTREQUESTLIMIT, out FriendEntityID, out FriendSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int friendID in FriendEntityID)
+                {
+                    string SNID = FriendSNID[i];
+                    if (SNID != null && SNID != "")
+                    {
+                        apiReq = FBAPI.ProfilePic(SNID,
+                            ProfilePhotoDestinationDir + SNID + ".jpg",
+                            ProcessFriendPic, friendID, SNID);
+                        apiReq.QueueAndSend(999);
+                        DBLayer.UpdatePictureRequest(friendID, apiReq.ID, out errorMessage);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
+        private static int GetNextFriendsData()
+        {
+            string errorMessage;
+            AsyncReqQueue apiReq;
+            // Go over friends, adding requests for them if not yet defined
+            int[] FriendEntityID;
+            string[] FriendSNID;
+
+            int nRequests = DBLayer.GetNFriendsWithoutData(CONCURRENTREQUESTLIMIT, out FriendEntityID, out FriendSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int friendID in FriendEntityID)
+                {
+                    string SNID = FriendSNID[i];
+                    if (SNID != null && SNID != "")
+                    {
+
+                        apiReq = FBAPI.Profile(SNID, ProcessOneFriend);
+                        apiReq.QueueAndSend(999);
+                        DBLayer.UpdateDataRequest(friendID, apiReq.ID, out errorMessage);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
 
         private static void ExitPendingWithError(string ErrorMessage)
         {
@@ -609,8 +754,13 @@ namespace MBBetaAPI.AgentAPI
         /// <returns></returns>
         public static bool PendingRequests(int MinPriority, out string ErrorMessage)
         {
-            #region "Init"
             ErrorMessage = backupCase;
+
+            if (DBLayer.DatabaseBusy)
+            {
+                return true;
+            }
+            #region "Init"
             lock (obj)
             {
                 if (RecoveringPendingReqs)
@@ -646,47 +796,63 @@ namespace MBBetaAPI.AgentAPI
                     ErrorMessage = "Retry Requests to send: " + queueReq.Count + "\n";
                     if (queueReq.Count == 0)
                     {
-                        if ( (SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart )
-                            && nInParseRequests <= 0
-                            && nInSaveRequests <= 0
-                            && FBAPI.InFlight <= 0
-                            )
+                        int nReqs = 0;
+                        // first check if there are more friends to get data from                            
+                        if (DBLayer.DatabaseBusy)
                         {
-                            // TODO: Make sure no pending threads before closing the backup
-                            DBLayer.EndBackup();
-                            int backedPosts;
-                            DBLayer.BackupStatistics(out backedPosts);
-                            FBAPI.UpdateStatus("me", "End of backup, " + backedPosts + " posts are now saved", ProcessStatus);
-
-                            backupInProgress = false;
+                            nReqs = 1;
                         }
                         else
                         {
-                            if ((SNAccount.CurrentProfile.CurrentPeriodStart > SNAccount.CurrentProfile.BackupPeriodStart))
+                            nReqs = GetNextFriendsPics();
+                            nReqs += GetNextFriendsData();
+                        }
+
+                        // if no pending data, then check backup time progres and infligh requests
+                        if (nReqs == 0)
+                        {
+                            if ((SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart)
+                                && nInParseRequests <= 0
+                                && nInSaveRequests <= 0
+                                && FBAPI.InFlight <= 0
+                                )
                             {
-                                // Go to the previous week
-                                // TODO: Show which week is being processed
-                                SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
-                                SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
-                                FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
-                                // TODO: Verify which requests are really affected by periods
-                                AsyncReqQueue apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
-                                apiReq.QueueAndSend(999);
-                                apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                                apiReq.QueueAndSend(999);
-                                apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                                apiReq.QueueAndSend(999);
-                                apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-                                apiReq.QueueAndSend(999);
-                                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                                apiReq.QueueAndSend(500);
-                                apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                                apiReq.QueueAndSend(500);
+                                // TODO: Make sure no pending threads before closing the backup
+                                DBLayer.EndBackup();
+                                int backedPosts;
+                                DBLayer.BackupStatistics(out backedPosts);
+                                //FBAPI.UpdateStatus("me", "End of backup, " + backedPosts + " posts are now saved", ProcessStatus);
+
+                                backupInProgress = false;
                             }
                             else
                             {
-                                // 
-                                ErrorMessage += "only waiting for last requests in flight to complete backup";
+                                if ((SNAccount.CurrentProfile.CurrentPeriodStart > SNAccount.CurrentProfile.BackupPeriodStart))
+                                {
+                                    // Go to the previous week
+                                    // TODO: Show which week is being processed
+                                    SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
+                                    SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
+                                    FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                                    // TODO: Verify which requests are really affected by periods
+                                    AsyncReqQueue apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall);
+                                    apiReq.QueueAndSend(999);
+                                    apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                                    apiReq.QueueAndSend(999);
+                                    apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                                    apiReq.QueueAndSend(999);
+                                    apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                                    apiReq.QueueAndSend(999);
+                                    apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                                    apiReq.QueueAndSend(500);
+                                    apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                                    apiReq.QueueAndSend(500);
+                                }
+                                else
+                                {
+                                    // 
+                                    ErrorMessage += "only waiting for last requests in flight to complete backup";
+                                }
                             }
                         }
                     }
@@ -894,6 +1060,7 @@ namespace MBBetaAPI.AgentAPI
                 foreach (FBPerson item in friends.items)
                 {
                     nFriends++;
+                    /*
                     AsyncReqQueue apiReq;
                     apiReq = FBAPI.Profile(item.SNID, ProcessOneFriend);
                     apiReq.Queue(750);
@@ -909,6 +1076,7 @@ namespace MBBetaAPI.AgentAPI
                     apiReq.Queue(400);
                     apiReq = FBAPI.PhotoAlbums(item.SNID, SIZETOGETPERPAGE, ProcessAlbums);
                     apiReq.Queue(50);
+                     * */
                 }
             }
             return GenericProcess(hwnd, result, response, friends, false);

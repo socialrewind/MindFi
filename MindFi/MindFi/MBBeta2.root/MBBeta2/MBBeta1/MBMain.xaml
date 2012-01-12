@@ -144,9 +144,9 @@
             
             <!--Temporal Connect to DB Button-->
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
-                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
+                <TextBlock x:Name="UpdateText" Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
                            Foreground="Gray" FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:Never}"
+                <TextBlock x:Name="UpdateTime" Text="{lex:LocText MBBeta2:MBStrings:Never}"
                            Foreground="Gray" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                 <Button x:Name="RefreshDataBt" 
                     HorizontalContentAlignment="Center" HorizontalAlignment="Right"

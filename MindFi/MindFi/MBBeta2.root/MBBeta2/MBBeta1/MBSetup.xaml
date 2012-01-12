@@ -37,10 +37,6 @@
         <!--<Border Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>-->
         <!--<Border Grid.Row="5" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>-->
         <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center">
-            <Button x:Name="OnlineBt"
-                    HorizontalAlignment="Center" Margin="5"
-                    Content="{lex:LocText MBBeta2:SetupStrings:Online}"
-                    Click="OnlineBt_Click"/>
             <Button x:Name="FBAccountSetupBt"
                     Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}" FontSize="16" FontWeight="Bold"
                     HorizontalAlignment="Center" Margin="5"

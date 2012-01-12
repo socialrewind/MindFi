@@ -2614,6 +2614,178 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
+        /// Method that gets number of requests per state
+        /// </summary>
+        public static int GetNFriendsWithoutPicture(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                FriendEntityID = new int[N];
+                for (int i = 0; i < N; i++) FriendEntityID[i] = -1;
+                FriendSNID = new string[N];
+                for (int i = 0; i < N; i++) FriendSNID[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select PersonID, SNID from PersonData where PictureRequestID is null and Distance<>0 limit " + N; ;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int PersonID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string PersonSNID = tempSNID.ToString();
+                        FriendEntityID[nRequests] = PersonID;
+                        FriendSNID[nRequests] = PersonSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+        /// <summary>
+        /// Method that gets number of requests per state
+        /// </summary>
+        public static int GetNFriendsWithoutData(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                FriendEntityID = new int[N];
+                for (int i = 0; i < N; i++) FriendEntityID[i] = -1;
+                FriendSNID = new string[N];
+                for (int i = 0; i < N; i++) FriendSNID[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select PersonID, SNID from PersonData where DataRequestID is null and Distance<>0 limit " + N; ;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int PersonID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string PersonSNID = tempSNID.ToString();
+                        FriendEntityID[nRequests] = PersonID;
+                        FriendSNID[nRequests] = PersonSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+        /// <summary>
+        /// Method that updates the picture request ID for a friend
+        /// </summary>
+        public static bool UpdatePictureRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            lock (obj)
+            {
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "update PersonData set PictureRequestID=? where PersonID=?";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pReq = new SQLiteParameter();
+                    pReq.Value = RequestID;
+                    UpdateCmd.Parameters.Add(pReq);
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = FriendEntityID;
+                    UpdateCmd.Parameters.Add(pID);
+                    UpdateCmd.ExecuteNonQuery();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error updating requests in the database\n" + ex.ToString();
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return true;
+        }
+
+        /// <summary>
+        /// Method that updates the data request ID for a friend
+        /// </summary>
+        public static bool UpdateDataRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            lock (obj)
+            {
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "update PersonData set DataRequestID=? where PersonID=?";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pReq = new SQLiteParameter();
+                    pReq.Value = RequestID;
+                    UpdateCmd.Parameters.Add(pReq);
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = FriendEntityID;
+                    UpdateCmd.Parameters.Add(pID);
+                    UpdateCmd.ExecuteNonQuery();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error updating requests in the database\n" + ex.ToString();
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return true;
+        }
+
+        /// <summary>
         /// Record the start of a backup
         /// </summary>
         public static bool StartBackup(DateTime startPeriod, DateTime endPeriod,

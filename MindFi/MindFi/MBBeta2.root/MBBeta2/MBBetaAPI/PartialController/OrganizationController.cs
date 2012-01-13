@@ -15,10 +15,10 @@ namespace MBBetaAPI
         }
 
 
-        public Organization(DBConnector db, int IDParam)
+        public Organization(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
+            GetFromDB();
         }
         #endregion
 

@@ -26,11 +26,9 @@ namespace MBBeta2
         }
 
         //Constructor comming from Main Window
-        public FBPhotos(List<int> SelectedPeopleParameter, DBConnector dbParam)
+        public FBPhotos(List<int> SelectedPeopleParameter)
         {
             InitializeComponent();
-
-            db = dbParam;
 
             SelectedPeople = SelectedPeopleParameter;
             FillPersonLightFromSelectedPeople();
@@ -60,9 +58,6 @@ namespace MBBeta2
         List<PersonLight> SelectedPeopleDetails;
         
 
-        //Database connection
-        DBConnector db;
-
         //Current Album
         SNPhotoAlbum SelectedAlbum;
 
@@ -84,7 +79,7 @@ namespace MBBeta2
                 SelectedPeopleDetails = new List<PersonLight>(); ;
                 for (int i = 0; i < total; i++)
                 {
-                    SelectedPeopleDetails.Add(new PersonLight(db, SelectedPeople[i]));
+                    SelectedPeopleDetails.Add(new PersonLight(SelectedPeople[i]));
                 }
             }
         }
@@ -127,7 +122,7 @@ namespace MBBeta2
 
             foreach(int AlbumID in AlbumIDs)
             {
-                TmpPhotoAlbum = new SNPhotoAlbum(db, AlbumID);
+                TmpPhotoAlbum = new SNPhotoAlbum(AlbumID);
                 if (TmpPhotoAlbum.NumberOfPhotos > 0)
                     AlbumList.Add(TmpPhotoAlbum);
             }

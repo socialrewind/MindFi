@@ -13,22 +13,22 @@ namespace MBBetaAPI
 
         //**************** Constructors
         #region Constructors
-        public SNPhoto()
-        {
-        }
+        //public SNPhoto()
+        //{
+        //}
+
+        //public SNPhoto(int IDParam)
+        //{
+        //    ID = IDParam;
+        //}
 
         public SNPhoto(int IDParam)
         {
             ID = IDParam;
-        }
-
-        public SNPhoto(DBConnector db, int IDParam)
-        {
-            ID = IDParam;
-            GetFromDB(db);
-            GetTags(db);
-            GetComments(db);
-            GetLikes(db);
+            GetFromDB();
+            GetTags();
+            GetComments();
+            GetLikes();
         }
 
         #endregion
@@ -74,7 +74,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetTags(DBConnector db)
+        void GetTags()
         {
 
             TagsList = new List<SNPhotoTag>();
@@ -82,12 +82,12 @@ namespace MBBetaAPI
             List<int> TagIDs = AgentAPI.DBLayer.GetTagIDs(SNID);
             foreach (int TagID in TagIDs)
             {
-                TagsList.Add(new SNPhotoTag(db, TagID));
+                TagsList.Add(new SNPhotoTag(TagID));
             }
         }
 
 
-        void GetComments(DBConnector db)
+        void GetComments()
         {
 
             CommentsList = new List<WallPost>();
@@ -95,13 +95,13 @@ namespace MBBetaAPI
             List<int> CommentIDs = AgentAPI.DBLayer.GetPhotoCommentIDs(SNID);
             foreach (int CommentID in CommentIDs)
             {
-                CommentsList.Add(new WallPost(db, CommentID, true));
+                CommentsList.Add(new WallPost(CommentID, true));
             }
         }
 
-        void GetLikes(DBConnector db)
+        void GetLikes()
         {
-            Likes = new LikeStructure(db, SNID.ToString());
+            Likes = new LikeStructure(SNID.ToString());
         }
         
         #endregion

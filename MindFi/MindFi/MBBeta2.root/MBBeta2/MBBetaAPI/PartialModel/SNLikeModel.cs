@@ -20,7 +20,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {

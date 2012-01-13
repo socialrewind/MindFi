@@ -19,7 +19,7 @@ namespace MBBetaAPI
 
         //**************** Methods
         #region Methods
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {
@@ -116,7 +116,7 @@ namespace MBBetaAPI
         }
 
 
-        void FillPhotosAndRibbon(DBConnector db)
+        void FillPhotosAndRibbon()
         {
             SNPhoto TmpPhoto;
 
@@ -154,7 +154,7 @@ namespace MBBetaAPI
             foreach(int PhotoID in PhotoIDs)
             {
 
-                TmpPhoto = new SNPhoto(db, PhotoID);
+                TmpPhoto = new SNPhoto(PhotoID);
                 //tmp.PhotoPath = AlbumPath + "\\" + tmp.ID.ToString() + ".jpg";
 
                 if (i < 5)

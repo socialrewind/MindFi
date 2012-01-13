@@ -25,7 +25,7 @@ namespace MBBetaAPI
         //TODO: Change methods to use FTS on DB. For now, we'll use 'like' keyword. 
         //      Expected to be very slow
 
-        bool SearchMatchingPostIDsFromDB(DBConnector db, DateTime StartDate, DateTime EndDate)
+        bool SearchMatchingPostIDsFromDB(DateTime StartDate, DateTime EndDate)
         {
             bool success = true;
             SQLiteCommand command;
@@ -82,7 +82,7 @@ namespace MBBetaAPI
 
         
 
-        bool SearchMatchingAlbumIDsFromDB(DBConnector db, DateTime StartDate, DateTime EndDate)
+        bool SearchMatchingAlbumIDsFromDB(DateTime StartDate, DateTime EndDate)
         {
             bool success = true;
             SQLiteCommand command;
@@ -137,7 +137,7 @@ namespace MBBetaAPI
         }
 
 
-        bool SearchMatchingPhotoIDsFromDB(DBConnector db, DateTime StartDate, DateTime EndDate)
+        bool SearchMatchingPhotoIDsFromDB(DateTime StartDate, DateTime EndDate)
         {
             bool success = true;
             SQLiteCommand command;
@@ -213,7 +213,7 @@ namespace MBBetaAPI
         }
 
 
-        bool SearchMatchingMessageIDsFromDB(DBConnector db, DateTime StartDate, DateTime EndDate)
+        bool SearchMatchingMessageIDsFromDB(DateTime StartDate, DateTime EndDate)
         {
             bool success = true;
             SQLiteCommand command;
@@ -266,7 +266,7 @@ namespace MBBetaAPI
         }
 
 
-        bool SearchMatchingEventIDsFromDB(DBConnector db, DateTime StartDate, DateTime EndDate)
+        bool SearchMatchingEventIDsFromDB(DateTime StartDate, DateTime EndDate)
         {
             bool success = true;
             SQLiteCommand command;

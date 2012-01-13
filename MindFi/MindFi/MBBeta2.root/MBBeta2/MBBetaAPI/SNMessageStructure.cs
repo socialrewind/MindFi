@@ -14,21 +14,21 @@ namespace MBBetaAPI
         {
         }
 
-        public SNMessageStructure(DBConnector db, int IDParentMessage)
+        public SNMessageStructure(int IDParentMessage)
         {
             SNMessage tempMessage;
             
-            ParentMessage = new SNMessage(db, IDParentMessage);
+            ParentMessage = new SNMessage(IDParentMessage);
             ChildMessages = new List<SNMessage>();
 
-            List<int> ChildMessageIDs = ParentMessage.GetChildMessageIDs(db);
+            List<int> ChildMessageIDs = ParentMessage.GetChildMessageIDs();
 
             //Add the parent message to the conversation
             ChildMessages.Add(ParentMessage);
 
             foreach (int ChildID in ChildMessageIDs)
             {
-                tempMessage = new SNMessage(db, ChildID);
+                tempMessage = new SNMessage( ChildID);
                 ChildMessages.Add(tempMessage);
             }
             

@@ -121,10 +121,8 @@ namespace MBBeta2
         ICollectionView FriendsListView;
         List<SNSocialGroup> GroupsList;
         Person Me;
-
         //db connection
         private string conn;
-        DBConnector db;
 
         //Common code
         CommonCode CC;
@@ -180,7 +178,7 @@ namespace MBBeta2
 
             foreach (int PostID in PostIDs)
             {
-                PostList.Add(new WallPostStructure(db, PostID));
+                PostList.Add(new WallPostStructure(PostID));
             }
 
 
@@ -189,25 +187,13 @@ namespace MBBeta2
             this.Cursor = Cursors.Arrow;
         }
 
-        //private void CreateDBConnection()
-        //{
-        //    try
-        //    {
-        //        db = new DBConnector(conn);
-        //    }
-        //    catch
-        //    {
-        //        MBError error = new MBError(this, "Main: Reading DB configuration from config file.", 1);
-        //    }
-        //}
-
         private void LoadFriends()
         {
             List<int> FriendIDs = DBLayer.GetFriendIDs();
             FriendsList = new List<PersonLight>();
             foreach (int ID in FriendIDs)
             {
-                FriendsList.Add(new PersonLight(db, ID));
+                FriendsList.Add(new PersonLight(ID));
             }
 
             FriendsList.Sort(delegate(PersonLight p1, PersonLight p2) { return p1.Name.CompareTo(p2.Name); });
@@ -223,7 +209,7 @@ namespace MBBeta2
             GroupsList = new List<SNSocialGroup>();
             foreach (int ID in GroupIDs)
             {
-                GroupsList.Add(new SNSocialGroup(db, ID));
+                GroupsList.Add(new SNSocialGroup(ID));
             }
 
             GroupsList.Sort(delegate(SNSocialGroup g1,  SNSocialGroup g2) { return g1.Name.CompareTo(g2.Name); });
@@ -241,7 +227,7 @@ namespace MBBeta2
 
             //Load ME: It should always be 1
             //TODO: Change to MeOnFB, MeOnTwitter, MeOnLn when more data is available
-            Me = new Person(db, 1);
+            Me = new Person(1);
             //paint owner data
             OwnerCC.Content = Me;
 
@@ -319,7 +305,7 @@ namespace MBBeta2
 
         private void OpenSetupWindow()
         {
-            var MBSetupWindow = new MBSetup(db, BasePath);
+            var MBSetupWindow = new MBSetup(BasePath);
             CC.PositionNewWindow(this, MBSetupWindow);
             if (MBSetupWindow.accountAdded)
             {
@@ -373,7 +359,7 @@ namespace MBBeta2
 
             foreach (int PostID in PostIDs)
             {
-                tmp = new WallPostStructure(db, PostID);
+                tmp = new WallPostStructure(PostID);
                 PostList.Add(tmp);
             }
 
@@ -570,7 +556,7 @@ namespace MBBeta2
 
                 PersonLight selectedItem = (PersonLight)FriendsLB.SelectedItem;
 
-                Person p = new Person(db, selectedItem.ID);
+                Person p = new Person(selectedItem.ID);
 
                 DetailCard DetailCardWindow = new DetailCard();
                 DetailCardWindow.DataContext = p;
@@ -586,7 +572,7 @@ namespace MBBeta2
         {
             this.Cursor = Cursors.Wait;
 
-            var PhotosWindow = new FBPhotos(GetSelectedPersons(FriendsList), db);
+            var PhotosWindow = new FBPhotos(GetSelectedPersons(FriendsList));
             CC.PositionNewWindow(this, PhotosWindow);
 
             this.Cursor = Cursors.Arrow;
@@ -596,7 +582,7 @@ namespace MBBeta2
         {
             this.Cursor = Cursors.Wait;
 
-            var MessagesWindow = new SNMessages(GetSelectedPersons(FriendsList), db);
+            var MessagesWindow = new SNMessages(GetSelectedPersons(FriendsList));
             CC.PositionNewWindow(this, MessagesWindow);
 
             this.Cursor = Cursors.Arrow;
@@ -607,7 +593,7 @@ namespace MBBeta2
         {
             this.Cursor = Cursors.Wait;
 
-            var WallPostWindow = new FBWallPosts(GetSelectedPersons(FriendsList), db);
+            var WallPostWindow = new FBWallPosts(GetSelectedPersons(FriendsList));
             CC.PositionNewWindow(this, WallPostWindow);
 
             this.Cursor = Cursors.Arrow;
@@ -617,7 +603,7 @@ namespace MBBeta2
         {
             this.Cursor = Cursors.Wait;
 
-            var EventsWindow = new FBEvents(GetSelectedPersons(FriendsList), db);
+            var EventsWindow = new FBEvents(GetSelectedPersons(FriendsList));
             CC.PositionNewWindow(this, EventsWindow);
 
             this.Cursor = Cursors.Arrow;
@@ -687,11 +673,11 @@ namespace MBBeta2
 
                         BitArray SearchOptions = new BitArray(searchOps);
 
-                        CurrentSearch = new Search(db, SearchTB.Text, SearchOptions, DateSearchFilter.StartDateDP.SelectedDate.Value, DateSearchFilter.EndDateDP.SelectedDate.Value);
+                        CurrentSearch = new Search(SearchTB.Text, SearchOptions, DateSearchFilter.StartDateDP.SelectedDate.Value, DateSearchFilter.EndDateDP.SelectedDate.Value);
                     }
                     else
                     {
-                        CurrentSearch = new Search(db, SearchTB.Text);
+                        CurrentSearch = new Search(SearchTB.Text);
                     }
 
                     fillSearchResults();
@@ -714,7 +700,7 @@ namespace MBBeta2
 
                 foreach (int PostID in CurrentSearch.MatchingPostIDs)
                 {
-                    tmp.Add(new WallPostStructure(db, PostID));
+                    tmp.Add(new WallPostStructure(PostID));
                 }
 
                 var PostResultsWindow = new FBWallPosts(tmp);
@@ -736,7 +722,7 @@ namespace MBBeta2
                 List<SNPhotoAlbum> tmp = new List<SNPhotoAlbum>();
                 foreach (int AlbumID in CurrentSearch.MatchingAlbumIDs)
                 {
-                    tmp.Add(new SNPhotoAlbum(db, AlbumID));
+                    tmp.Add(new SNPhotoAlbum(AlbumID));
                 }
 
                 var ResultsWindow = new FBPhotos(tmp);
@@ -768,7 +754,7 @@ namespace MBBeta2
                 int i = 0;
                 foreach (int PhotoID in CurrentSearch.MatchingPhotoIDs)
                 {
-                    SNPhoto NewPhoto = new SNPhoto(db, PhotoID);
+                    SNPhoto NewPhoto = new SNPhoto(PhotoID);
                     if (i <= 5)
                         pa.PhotoRibbon.Add(NewPhoto);
                     pa.Photos.Add(NewPhoto);
@@ -794,10 +780,10 @@ namespace MBBeta2
                 List<SNMessage> tmp = new List<SNMessage>();
                 foreach (int MessageID in CurrentSearch.MatchingMessageIDs)
                 {
-                    tmp.Add(new SNMessage(db, MessageID));
+                    tmp.Add(new SNMessage(MessageID));
                 }
 
-                var ResultsWindow = new SNMessages(db, tmp);
+                var ResultsWindow = new SNMessages(tmp);
                 CC.PositionNewWindow(this, ResultsWindow);
             }
 
@@ -815,7 +801,7 @@ namespace MBBeta2
 
                 foreach (int EventID in CurrentSearch.MatchingEventIDs)
                 {
-                    tmp.Add(new SNEvent(db, EventID));
+                    tmp.Add(new SNEvent(EventID));
                 }
 
                 var ResultsWindow = new FBEvents(tmp);
@@ -848,7 +834,7 @@ namespace MBBeta2
 
                 //Load ME: It should always be 1
                 //TODO: Change to MeOnFB, MeOnTwitter, MeOnLn when more data is available
-                Me = new Person(db, 1);
+                Me = new Person(1);
                 //paint owner data
                 OwnerCC.Content = Me;
 

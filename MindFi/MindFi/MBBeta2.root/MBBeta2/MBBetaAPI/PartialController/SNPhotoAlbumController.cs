@@ -16,23 +16,23 @@ namespace MBBetaAPI
         { 
         }
 
-        public SNPhotoAlbum(int IDParam)
-        {
-            ID = IDParam;
-        }
+        //public SNPhotoAlbum(int IDParam)
+        //{
+        //    ID = IDParam;
+        //}
 
         /// <summary>
         /// Gets a Photo album from a database, given its ID
         /// </summary>
         /// <param name="db"></param>
         /// <param name="IDParam"></param>
-        public SNPhotoAlbum(DBConnector db, int IDParam)
+        public SNPhotoAlbum(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
-            FillPhotosAndRibbon(db);
-            GetComments(db);
-            GetLikes(db);
+            GetFromDB();
+            FillPhotosAndRibbon();
+            GetComments();
+            GetLikes();
         }
 
         #endregion
@@ -75,20 +75,20 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetComments(DBConnector db)
+        void GetComments()
         {
             CommentsList = new List<WallPost>();
 
             List<int> CommentIDs = AgentAPI.DBLayer.GetAlbumCommentIDs(SNID);
             foreach (int CommentID in CommentIDs)
             {
-                CommentsList.Add(new WallPost(db, CommentID, true));
+                CommentsList.Add(new WallPost(CommentID, true));
             }
         }
 
-        void GetLikes(DBConnector db)
+        void GetLikes()
         {
-            Likes = new LikeStructure(db, SNID.ToString());
+            Likes = new LikeStructure(SNID.ToString());
         }
 
         #endregion

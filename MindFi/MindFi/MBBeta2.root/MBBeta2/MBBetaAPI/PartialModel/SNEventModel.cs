@@ -19,7 +19,7 @@ namespace MBBetaAPI
 
         //**************** Methods
         #region Methods
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {
@@ -103,7 +103,7 @@ namespace MBBetaAPI
 
 
 
-        void GetAttendeesFromDB(DBConnector db)
+        void GetAttendeesFromDB()
         {
             lock (DBLayer.obj)
             {

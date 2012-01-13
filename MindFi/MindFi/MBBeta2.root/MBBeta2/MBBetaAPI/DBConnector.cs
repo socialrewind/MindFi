@@ -11,31 +11,6 @@ namespace MBBetaAPI.AgentAPI
     /// </summary>
     public partial class DBLayer
     {
-        //**************** Constructors
-        //#region Constructors
-
-        //public DBConnector()
-        //{
-        //}
-
-        //public DBConnector(string ConnStringParam)
-        //{
-        //    ConnString = ConnStringParam;
-
-        //    conn = new SQLiteConnection(ConnString);
-
-        //}
-
-        //#endregion
-
-        //**************** Attributes
-        //#region Attributes
-
-        //public string ConnString;
-        //public SQLiteConnection conn;
-
-        //#endregion
-
         //**************** Methods
         #region Methods
 

@@ -13,11 +13,11 @@ namespace MBBetaAPI
         {
         }
 
-        public SNSocialGroup(DBConnector db, int IDParam)
+        public SNSocialGroup(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
-            GetMembers(db);
+            GetFromDB();
+            GetMembers();
         }
         #endregion
 

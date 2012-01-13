@@ -15,17 +15,17 @@ namespace MBBetaAPI
         {
         }
 
-        public PersonLight(DBConnector db, int IDParam)
+        public PersonLight(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
+            GetFromDB();
             Selected = true;
         }
 
-        public PersonLight(DBConnector db, Int64 SNIDPAram)
+        public PersonLight(Int64 SNIDPAram)
         {
             SNID = Convert.ToInt64(SNIDPAram);
-            GetFromDB2(db);
+            GetFromDB2();
             Selected = true;
         }
         

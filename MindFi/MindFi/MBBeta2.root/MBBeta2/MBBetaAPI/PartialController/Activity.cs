@@ -15,7 +15,7 @@ namespace MBBetaAPI
         {
         }
 
-        public Activity(DBConnector db, int IDParam)
+        public Activity(int IDParam)
         {
             IDParam = ID;
         }

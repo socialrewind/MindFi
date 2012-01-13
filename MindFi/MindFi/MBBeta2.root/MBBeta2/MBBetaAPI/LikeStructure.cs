@@ -14,10 +14,10 @@ namespace MBBetaAPI
         {
         }
 
-        public LikeStructure(DBConnector db, string ObjectIDParam)
+        public LikeStructure(string ObjectIDParam)
         {
             ObjectSNID = ObjectIDParam;
-            GetLikes(db);
+            GetLikes();
         }
 
 
@@ -38,7 +38,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetLikes(DBConnector db)
+        void GetLikes()
         {
 
             LikesList = new List<SNLike>();
@@ -50,7 +50,7 @@ namespace MBBetaAPI
             foreach (int LikeID in LikeIDs)
             {
 
-                LikesList.Add(new SNLike(db, LikeID));
+                LikesList.Add(new SNLike(LikeID));
                 NumberOfLikes++;
 
             }

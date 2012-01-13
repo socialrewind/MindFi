@@ -20,7 +20,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {
@@ -165,7 +165,7 @@ namespace MBBetaAPI
 
 
 
-        int GetNumberOfChildPostsFromDB(DBConnector db, string SNIDPost)
+        int GetNumberOfChildPostsFromDB(string SNIDPost)
         {
             int Total = 0;
             lock (DBLayer.obj)
@@ -202,7 +202,7 @@ namespace MBBetaAPI
 
 
 
-        public List<int> ChildPostIDsFromDB(DBConnector db)
+        public List<int> ChildPostIDsFromDB()
         {
 
             List<int> ChildPostIDs = new List<int>();

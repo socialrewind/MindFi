@@ -30,11 +30,10 @@ namespace MBBeta2
         /// </summary>
         /// <param name="selectedPeopleParameter"></param>
         /// <param name="dbParam"></param>
-        public FBWallPosts(List<int> selectedPeopleParameter, DBConnector dbParam)
+        public FBWallPosts(List<int> selectedPeopleParameter)
         {
             InitializeComponent();
 
-            db = dbParam;
             SelectedPeople = selectedPeopleParameter;
 
             FillPersonDetailsFromSelectedPeople();
@@ -69,8 +68,6 @@ namespace MBBeta2
         //Atributes
         #region Attributes
         
-        DBConnector db;
-
         List<int> SelectedPeople;
         List<long> SelectedPeopleSNID;
         List<PersonLight> SelectedPeopleDetails;
@@ -94,7 +91,7 @@ namespace MBBeta2
 
                 for (int i = 0; i < total; i++)
                 {
-                    SelectedPeopleDetails.Add(new PersonLight(db, (int)SelectedPeople[i]));
+                    SelectedPeopleDetails.Add(new PersonLight((int)SelectedPeople[i]));
                     SelectedPeopleSNID.Add(SelectedPeopleDetails[i].SNID);
                 }
             }
@@ -112,7 +109,7 @@ namespace MBBeta2
 
             foreach (int item in UniquePostIDs)
             {
-                WallPostStructure tmp = new WallPostStructure(db, item);
+                WallPostStructure tmp = new WallPostStructure(item);
                 Posts.Add(tmp);
             }
 

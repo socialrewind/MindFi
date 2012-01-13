@@ -21,16 +21,9 @@ namespace MBBeta2
         private string BaseDir;
         #endregion
 
-        //#region "Process control"
-        //private bool firstTime = true;
-        //private DispatcherTimer dispatcherTimer = new DispatcherTimer();
-        //private int MinPriority;
-        //#endregion
-
-        public MBSetup(DBConnector dbParam, string basedirparam)
+        public MBSetup(string basedirparam)
         {
             InitializeComponent();
-            db = dbParam;
             BaseDir = basedirparam;
             AsyncReqQueue.ProfilePhotoDestinationDir = BaseDir + "\\fb\\ProfilePics\\";
             AsyncReqQueue.AlbumDestinationDir = BaseDir + "\\fb\\Albums\\";
@@ -44,19 +37,14 @@ namespace MBBeta2
                 Directory.CreateDirectory(AsyncReqQueue.AlbumDestinationDir);
             }
 
-            GetSNAccounts(db);
+            GetSNAccounts();
         }
-
-        //********Attributes
-        DBConnector db;
-
 
         //******** Private MEthods
         #region PrivateMethods
 
-        void GetSNAccounts(DBConnector db)
+        void GetSNAccounts()
         {
-            //DBLayer.ConnString = db.ConnString;
             string error;
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
             if (error != "")
@@ -134,7 +122,7 @@ namespace MBBeta2
                 accountAdded = true;
             }
             // Check if refresh works
-            GetSNAccounts(db);
+            GetSNAccounts();
         }
 
         /*

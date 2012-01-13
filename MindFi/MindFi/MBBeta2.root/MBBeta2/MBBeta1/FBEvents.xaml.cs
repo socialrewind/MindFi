@@ -30,10 +30,9 @@ namespace MBBeta2
         /// <summary>
         /// Constructor coming from Main Window
         /// </summary>
-        public FBEvents(List<int> SelectedPeopleParam, DBConnector dbParam)
+        public FBEvents(List<int> SelectedPeopleParam)
         {
             InitializeComponent();
-            db = dbParam;
             SelectedPeople = SelectedPeopleParam;
 
             FillPersonDetailsFromSelectedPeople();
@@ -63,7 +62,6 @@ namespace MBBeta2
 
         //********** Attributes
         #region Attributes
-        DBConnector db;
         List<int> SelectedPeople;
         List<PersonLight> SelectedPeopleDetails;
         List<long> SelectedPeopleSNID;
@@ -88,7 +86,7 @@ namespace MBBeta2
 
                 for (int i = 0; i < total; i++)
                 {
-                    SelectedPeopleDetails.Add(new PersonLight(db, (int)SelectedPeople[i]));
+                    SelectedPeopleDetails.Add(new PersonLight((int)SelectedPeople[i]));
                     SelectedPeopleSNID.Add(SelectedPeopleDetails[i].SNID);
                 }
             }
@@ -103,7 +101,7 @@ namespace MBBeta2
 
             foreach (int item in UniqueEventIDs)
             {
-                SNEvent tmp = new SNEvent(db, item);
+                SNEvent tmp = new SNEvent(item);
                 Events.Add(tmp);
             }
 

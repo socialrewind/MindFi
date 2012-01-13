@@ -616,7 +616,7 @@ namespace MBBetaAPI.AgentAPI
                     request.Abort();
                 }
             }
-        }
+            }
         #endregion
 
     }

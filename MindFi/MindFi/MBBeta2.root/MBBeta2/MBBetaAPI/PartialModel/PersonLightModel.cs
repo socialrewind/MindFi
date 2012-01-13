@@ -20,7 +20,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {
@@ -106,7 +106,7 @@ namespace MBBetaAPI
 
 
         //Methods for getting Person using SNID as identifier
-        void GetFromDB2(DBConnector db)
+        void GetFromDB2()
         {
             lock (DBLayer.obj)
             {

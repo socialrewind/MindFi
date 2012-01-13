@@ -13,10 +13,10 @@ namespace MBBetaAPI
         {
         }
 
-        public SNPhotoTag(DBConnector db, int IDParam)
+        public SNPhotoTag(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
+            GetFromDB();
             //if (SNPersonID > 0)
             //    TaggedPerson = new PersonLight(db, SNPersonID);
             //else

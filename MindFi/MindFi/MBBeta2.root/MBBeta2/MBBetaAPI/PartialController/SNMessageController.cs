@@ -12,15 +12,15 @@ namespace MBBetaAPI
     {
         //**************** Constructors
         #region Constructors
-        public SNMessage()
-        {
-        }
+        //public SNMessage()
+        //{
+        //}
 
-        public SNMessage(DBConnector db, int IDParam)
+        public SNMessage(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
-            FromPerson = new PersonLight(db, Convert.ToInt64(SNFromID));
+            GetFromDB();
+            FromPerson = new PersonLight(Convert.ToInt64(SNFromID));
             //ToPerson = new PersonLight(db, SNToID);
             FromProfilePic = FromPerson.ProfilePic;
         }
@@ -57,12 +57,12 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        public List<int> GetChildMessageIDs(DBConnector db)
+        public List<int> GetChildMessageIDs()
         {
 
             List<int> ChildMessageIDs;
 
-            ChildMessageIDs = ChildMessageIDsFromDB(db);
+            ChildMessageIDs = ChildMessageIDsFromDB();
 
             return ChildMessageIDs;
 

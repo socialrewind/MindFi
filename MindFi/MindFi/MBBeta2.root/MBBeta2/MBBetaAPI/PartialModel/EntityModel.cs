@@ -16,10 +16,10 @@ namespace MBBetaAPI
         {
         }
 
-        public Entity(DBConnector db, int IDParam)
+        public Entity(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
+            GetFromDB();
         }
 
         #endregion
@@ -36,7 +36,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {

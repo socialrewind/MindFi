@@ -20,7 +20,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {
@@ -100,7 +100,7 @@ namespace MBBetaAPI
         }
 
 
-        private List<int> ChildMessageIDsFromDB(DBConnector db)
+        private List<int> ChildMessageIDsFromDB()
         {
 
 

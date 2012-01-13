@@ -16,15 +16,15 @@ namespace MBBetaAPI
         /// </summary>
         /// <param name="db"></param>
         /// <param name="SearchTextParam"></param>
-        public Search(DBConnector db, string SearchTextParam)
+        public Search(string SearchTextParam)
         {
             SearchText = SearchTextParam;
             CreateEmptySearch();
-            SearchMatchingPostIDs(db, DateTime.MinValue, DateTime.MinValue);
-            SearchMatchingMessageIDs(db, DateTime.MinValue, DateTime.MinValue);
-            SearchMatchingAlbumIDs(db, DateTime.MinValue, DateTime.MinValue);
-            SearchMatchingPhotoIDs(db, DateTime.MinValue, DateTime.MinValue);
-            SearchMatchingEventIDs(db, DateTime.MinValue, DateTime.MinValue);
+            SearchMatchingPostIDs(DateTime.MinValue, DateTime.MinValue);
+            SearchMatchingMessageIDs(DateTime.MinValue, DateTime.MinValue);
+            SearchMatchingAlbumIDs(DateTime.MinValue, DateTime.MinValue);
+            SearchMatchingPhotoIDs(DateTime.MinValue, DateTime.MinValue);
+            SearchMatchingEventIDs(DateTime.MinValue, DateTime.MinValue);
 
             //TODO: Include LinkedIn and Twitter Searches
         }
@@ -37,26 +37,26 @@ namespace MBBetaAPI
         /// <param name="SearchOption"></param>
         /// <param name="StartDate"></param>
         /// <param name="EndDate"></param>
-        public Search(DBConnector db, string SearchTextParam, BitArray SearchOption, DateTime StartDate, DateTime EndDate)
+        public Search(string SearchTextParam, BitArray SearchOption, DateTime StartDate, DateTime EndDate)
         {
 
             SearchText = SearchTextParam;
             CreateEmptySearch();
             //FBPosts
             if (SearchOption[0] == true)
-                SearchMatchingPostIDs(db, StartDate, EndDate);
+                SearchMatchingPostIDs(StartDate, EndDate);
             //FBAlbums
             if (SearchOption[1] == true)
-                SearchMatchingAlbumIDs(db, StartDate, EndDate);
+                SearchMatchingAlbumIDs(StartDate, EndDate);
             //FBPhotos
             if (SearchOption[2] == true)
-                SearchMatchingPhotoIDs(db, StartDate, EndDate);
+                SearchMatchingPhotoIDs(StartDate, EndDate);
             //FBMessages
             if (SearchOption[3] == true)
-                SearchMatchingMessageIDs(db, StartDate, EndDate);
+                SearchMatchingMessageIDs(StartDate, EndDate);
             //FBEvents
             if (SearchOption[4] == true)
-                SearchMatchingEventIDs(db, StartDate, EndDate);
+                SearchMatchingEventIDs(StartDate, EndDate);
 
 
             //TODO:Include LinkedIn and Twitter Searches
@@ -93,50 +93,50 @@ namespace MBBetaAPI
             MatchingPhotoIDs = new List<int>();
         }
 
-        void SearchMatchingPostIDs(DBConnector db, DateTime StartDate, DateTime EndDate)
+        void SearchMatchingPostIDs(DateTime StartDate, DateTime EndDate)
         {
             APIError error;
 
-            if (!SearchMatchingPostIDsFromDB(db, StartDate, EndDate))
+            if (!SearchMatchingPostIDsFromDB(StartDate, EndDate))
                 error = new APIError(this, "Search: Error getting results for Posts", 1);
         }
 
 
-        void SearchMatchingMessageIDs(DBConnector db, DateTime StartDate, DateTime EndDate)
+        void SearchMatchingMessageIDs(DateTime StartDate, DateTime EndDate)
         {
             APIError error;
 
-            if (!SearchMatchingMessageIDsFromDB(db, StartDate, EndDate))
+            if (!SearchMatchingMessageIDsFromDB(StartDate, EndDate))
             {
                 error = new APIError(this, "Search: Error getting results for Messages", 1);
             }
         }
 
 
-        void SearchMatchingAlbumIDs(DBConnector db, DateTime StartDate, DateTime EndDate)
+        void SearchMatchingAlbumIDs(DateTime StartDate, DateTime EndDate)
         {
             APIError error;
 
-            if (!SearchMatchingAlbumIDsFromDB(db, StartDate, EndDate))
+            if (!SearchMatchingAlbumIDsFromDB(StartDate, EndDate))
                 error = new APIError(this, "Search: Error getting results for Photo Albums", 1);
         }
 
-        void SearchMatchingPhotoIDs(DBConnector db, DateTime StartDate, DateTime EndDate)
+        void SearchMatchingPhotoIDs(DateTime StartDate, DateTime EndDate)
         {
             APIError error;
 
-            if (!SearchMatchingPhotoIDsFromDB(db, StartDate, EndDate))
+            if (!SearchMatchingPhotoIDsFromDB(StartDate, EndDate))
                 error = new APIError(this, "Search: Error getting results for Photos", 1);
         }
 
 
 
 
-        void SearchMatchingEventIDs(DBConnector db, DateTime StartDate, DateTime EndDate)
+        void SearchMatchingEventIDs(DateTime StartDate, DateTime EndDate)
         {
             APIError error;
 
-            if (!SearchMatchingEventIDsFromDB(db, StartDate, EndDate))
+            if (!SearchMatchingEventIDsFromDB(StartDate, EndDate))
                 error = new APIError(this, "Search: Error getting results for Events", 1);
         }
 

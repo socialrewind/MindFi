@@ -25,11 +25,9 @@ namespace MBBeta2
         }
 
         //Constructor comming from Main Window
-        public SNMessages(List<int> SelectedPeopleParameter, DBConnector dbParam)
+        public SNMessages(List<int> SelectedPeopleParameter)
         {
             InitializeComponent();
-
-            db = dbParam;
 
             SelectedPeople = SelectedPeopleParameter;
             FillPersonLightFromSelectedPeople();
@@ -41,11 +39,9 @@ namespace MBBeta2
         /// Constructor coming from Search Window
         /// </summary>
         /// <param name="SearchResults"></param>
-        public SNMessages(DBConnector DBParam, List<SNMessage> SearchResults)
+        public SNMessages(List<SNMessage> SearchResults)
         {
             InitializeComponent();
-
-            db = DBParam;
 
             //Hide filters
             MessagesDF.Visibility = System.Windows.Visibility.Hidden;
@@ -64,9 +60,6 @@ namespace MBBeta2
         List<int> SelectedPeople;
         List<PersonLight> SelectedPeopleDetails;
 
-        //Database connection
-        DBConnector db;
-
         //Selected messages
         List<SNMessageStructure> Messages;
         List<SNMessage> ParentMessages;
@@ -84,7 +77,7 @@ namespace MBBeta2
                 SelectedPeopleDetails = new List<PersonLight>(); ;
                 for (int i = 0; i < total; i++)
                 {
-                    SelectedPeopleDetails.Add(new PersonLight(db, SelectedPeople[i]));
+                    SelectedPeopleDetails.Add(new PersonLight(SelectedPeople[i]));
                 }
             }
         }
@@ -110,7 +103,7 @@ namespace MBBeta2
             ParentMessages = new List<SNMessage>();
             foreach (int ParentMessageID in ParentMessageIDs)
             {
-                ParentMessages.Add(new SNMessage(db, ParentMessageID));
+                ParentMessages.Add(new SNMessage(ParentMessageID));
             }
 
             SNMessagesList.MessagesListBox.ItemsSource = ParentMessages;
@@ -125,7 +118,7 @@ namespace MBBeta2
             SNMessage ParentMessage = (SNMessage) SNMessagesList.MessagesListBox.SelectedItem;
             if (ParentMessage != null)
             {
-                SNMessageStructure CurrentMessageStructure = new SNMessageStructure(db, ParentMessage.ID);
+                SNMessageStructure CurrentMessageStructure = new SNMessageStructure(ParentMessage.ID);
 
                 this.Cursor = Cursors.Arrow;
 

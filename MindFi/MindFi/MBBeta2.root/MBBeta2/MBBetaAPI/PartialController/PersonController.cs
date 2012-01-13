@@ -16,13 +16,13 @@ namespace MBBetaAPI
         //**************** Constructors
         #region Constructors
 
-        public Person(DBConnector db, int IDParam)
+        public Person(int IDParam)
         {
             ID = IDParam;
-            GetFromDB(db);
-            GetSchools(db);
-            GetCompanies(db);
-            GetSignificantOther(db);
+            GetFromDB();
+            GetSchools();
+            GetCompanies();
+            GetSignificantOther();
         }
 
 
@@ -58,22 +58,22 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetSchools(DBConnector db)
+        void GetSchools()
         {
            
-            SchoolsList = GetRelatedOrganizationsFromDB(db, 4);
+            SchoolsList = GetRelatedOrganizationsFromDB(4);
 
         }
 
-        void GetCompanies(DBConnector db)
+        void GetCompanies()
         {
-            CompaniesList = GetRelatedOrganizationsFromDB(db, 3);
+            CompaniesList = GetRelatedOrganizationsFromDB(3);
 
         }
 
-        void GetSignificantOther(DBConnector db)
+        void GetSignificantOther()
         {
-            SignificantOther = GetSignificantOtherFromDB(db);
+            SignificantOther = GetSignificantOtherFromDB();
         }
 
         #endregion

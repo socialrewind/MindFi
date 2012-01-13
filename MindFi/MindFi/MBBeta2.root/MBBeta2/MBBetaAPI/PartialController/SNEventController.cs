@@ -13,13 +13,13 @@ namespace MBBetaAPI
         {
         }
 
-        public SNEvent(DBConnector db, int IDParam)
+        public SNEvent(int IDParam)
         {
             ID = IDParam;
-            Entity A = new Entity(db, ID);
+            Entity A = new Entity(ID);
             Name = A.Name;
-            GetFromDB(db);
-            GetAttendeesFromDB(db);
+            GetFromDB();
+            GetAttendeesFromDB();
         }
 
         #endregion

@@ -20,7 +20,7 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        void GetFromDB(DBConnector db)
+        void GetFromDB()
         {
             lock (DBLayer.obj)
             {
@@ -154,7 +154,7 @@ namespace MBBetaAPI
 
         //Returns a list of organizations related to a person
         //Verb: WORKAT(3) / STUDYAT (4)
-        List<RelatedOrganization> GetRelatedOrganizationsFromDB(DBConnector db, int Verb)
+        List<RelatedOrganization> GetRelatedOrganizationsFromDB(int Verb)
         {
             var Orgs = new List<RelatedOrganization>();
 
@@ -198,7 +198,7 @@ namespace MBBetaAPI
             //Fill base data needed for organization, not available in Relations Table
             foreach (RelatedOrganization RO in Orgs)
             {
-                Organization O = new Organization(db, RO.ID);
+                Organization O = new Organization(RO.ID);
                 RO.Name = O.Name;
                 RO.SN = O.SN;
                 RO.SNID = O.SNID;                
@@ -208,7 +208,7 @@ namespace MBBetaAPI
         }
 
 
-        PersonLight GetSignificantOtherFromDB(DBConnector db)
+        PersonLight GetSignificantOtherFromDB()
         {
 
             int RelatedID = 0;
@@ -246,7 +246,7 @@ namespace MBBetaAPI
 
             if (RelatedID != 0)
             {
-                SO = new PersonLight(db, RelatedID);
+                SO = new PersonLight(RelatedID);
             }
 
             return SO;

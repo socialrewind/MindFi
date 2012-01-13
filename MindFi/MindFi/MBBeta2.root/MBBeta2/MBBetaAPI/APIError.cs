@@ -5,10 +5,6 @@ using System.Text;
 
 namespace MBBetaAPI
 {
-    public class DBConnector
-    {
-    }
-
     /// <summary>
     /// Handles exceptions on API code
     /// </summary>

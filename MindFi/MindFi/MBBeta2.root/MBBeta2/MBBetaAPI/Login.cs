@@ -20,7 +20,6 @@ namespace MBBetaAPI
             user = userParam;
             password = passwordParam;
             conn = connParam;
-            db = new DBConnector();
         }
 
         #endregion
@@ -30,7 +29,6 @@ namespace MBBetaAPI
         string conn;
         string user;
         string password;
-        DBConnector db;
 
         #endregion
 

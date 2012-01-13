@@ -10,19 +10,19 @@ namespace MBBetaAPI
         //**************** Constructors
         #region Constructors
 
-        public WallPostStructure(DBConnector db, int IDParentPost)
+        public WallPostStructure(int IDParentPost)
         {
             WallPost tempPost;
 
         
-            ParentPost = new WallPost(db, IDParentPost, true);
+            ParentPost = new WallPost(IDParentPost, true);
 
             ChildPosts = new List<WallPost>();
-            List<int> ChildPostIDs = ParentPost.GetChildPostIDs(db);
+            List<int> ChildPostIDs = ParentPost.GetChildPostIDs();
 
             foreach (int ChildID in ChildPostIDs)
             {
-                tempPost = new WallPost(db, ChildID, false);
+                tempPost = new WallPost(ChildID, false);
                 ChildPosts.Add(tempPost);
             }
 

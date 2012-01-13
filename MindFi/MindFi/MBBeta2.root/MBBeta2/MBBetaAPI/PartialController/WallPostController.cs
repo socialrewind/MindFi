@@ -13,14 +13,14 @@ namespace MBBetaAPI
         {
         }
 
-        public WallPost(DBConnector db, int IDParam, bool IsParent)
+        public WallPost(int IDParam, bool IsParent)
         {
             ID = IDParam;
             
-            GetFromDB(db);
+            GetFromDB();
 
             if(IsParent)
-                GetLikes(db);
+                GetLikes();
 
             //TODO: Check if Person ID exists. If yes, add Person Light
         }
@@ -74,30 +74,30 @@ namespace MBBetaAPI
         //**************** Methods
         #region Methods
 
-        public List<int> GetChildPostIDs(DBConnector db)
+        public List<int> GetChildPostIDs()
         {
 
             List<int> ChildPostIDs;
 
-            ChildPostIDs = ChildPostIDsFromDB(db);
+            ChildPostIDs = ChildPostIDsFromDB();
 
             return ChildPostIDs;
 
         }
 
-        int GetNumberOfChildPosts(DBConnector db, string ParentPost)
+        int GetNumberOfChildPosts(string ParentPost)
         {
             int NumberOfChilds;
 
-            NumberOfChilds = GetNumberOfChildPostsFromDB(db, ParentPost);
+            NumberOfChilds = GetNumberOfChildPostsFromDB(ParentPost);
 
             return NumberOfChilds;
         }
 
 
-        void GetLikes(DBConnector db)
+        void GetLikes()
         {
-            LikeStructure Likes = new LikeStructure(db, SNID.ToString());
+            LikeStructure Likes = new LikeStructure(SNID.ToString());
             NumberOfLikes = Likes.NumberOfLikes;
             LikesList = Likes.LikesList;
         }

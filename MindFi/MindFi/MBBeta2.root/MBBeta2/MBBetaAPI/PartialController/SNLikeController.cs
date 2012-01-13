@@ -13,10 +13,10 @@ namespace MBBetaAPI
         {
         }
 
-        public SNLike(DBConnector db, int IDParam )
+        public SNLike(int IDParam )
         {
             ID = IDParam;
-            GetFromDB(db);
+            GetFromDB();
         }
 
 

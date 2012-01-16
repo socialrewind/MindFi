@@ -86,7 +86,7 @@ namespace MBBeta2
                     if (!FBLogin.loggedIn)
                     {
                         // TODO: Localize
-                        this.SNTB.Text = "Logging in";
+                        this.SNTB.Text = "Logging in" + animation;
                     }
                     else
                     {
@@ -100,7 +100,7 @@ namespace MBBeta2
                     me = FBLogin.Me;
                     if (me == null || !me.Parsed)
                     {
-                        this.SNTB.Text += "... waiting for parse...";
+                        this.SNTB.Text += "... waiting for parse" + animation;
                     }
                     else
                     {
@@ -113,7 +113,7 @@ namespace MBBeta2
                     {
                         state = 2;
                     }
-                    this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends";
+                    this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
                     // once logged in, just poll for the data
                     DateTime initialDate;
                     initialDate = (DateTime) (BackupDateDP.SelectedDate != null ? BackupDateDP.SelectedDate : DateTime.Now);
@@ -123,19 +123,12 @@ namespace MBBeta2
                 case 4:
                     AsyncReqQueue.PendingBasics();
                     this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
-                    if (animation != "...")
-                    {
-                        animation += ".";
-                    }
-                    else
-                    {
-                        animation = "";
-                    }
-                    if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic)
+                    if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic && AsyncReqQueue.GotWall)
                     {
                         dispatcherTimer.Stop();
                         //this.SNTB.Text += ":" + FBLogin.LastError;
-                        this.SNTB.Text = "Your basic info, profile picture and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
+                        this.SNTB.Text = "Your basic info, profile picture, top " + AsyncReqQueue.nPosts + 
+                            " wall posts and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
                         me = FBLogin.Me;
                         if (me.Name != null && me.Name != "")
                         {
@@ -152,6 +145,14 @@ namespace MBBeta2
                     }
                     break;
                     // case 5 - basic Wall posts? timeline?
+            }
+            if (animation != "...")
+            {
+                animation += ".";
+            }
+            else
+            {
+                animation = "";
             }
         }
 

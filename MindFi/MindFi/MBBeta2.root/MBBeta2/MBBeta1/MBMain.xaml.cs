@@ -861,7 +861,6 @@ namespace MBBeta2
 
         private void BackupDataBt_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Online - offline behavior
             if (online)
             {
                 GoOffline();
@@ -934,12 +933,23 @@ namespace MBBeta2
                         {
                             string ErrorMessage;
                             bool inProgress = AsyncReqQueue.PendingRequests(150, out ErrorMessage);
-                            this.UpdateText.Text = "Getting more friend data (" + AsyncReqQueue.nFriendsPictures + " - " + AsyncReqQueue.nFriendsProcessed + ")" + animation;
+                            switch ( AsyncReqQueue.CurrentBackupState )
+                            {
+                                case 1:
+                                    this.UpdateText.Text = "Getting friend profile pictures (" + AsyncReqQueue.nFriendsPictures + ")" + animation;
+                                    break;
+                                case 2:
+                                    this.UpdateText.Text = "Getting friend data (" + AsyncReqQueue.nFriendsProcessed + ")" + animation;
+                                    break;
+                                case 3:
+                                    this.UpdateText.Text = "Getting additional backup data" + animation;
+                                    break;
+                            }
                             //InfoTB.Text = ErrorMessage;
                             if (!inProgress)
                             {
                                 MessageBox.Show("Backup finished");
-                                // TODO: check online / offline behavior
+                                this.UpdateText.Text = "Backup finished at " + DateTime.UtcNow.ToString() + " (UTC)";
                                 GoOffline();
                             }
                         }
@@ -960,39 +970,5 @@ namespace MBBeta2
 
             }
         }
-
-        /// <summary>
-        /// General refresh for UI
-        /// </summary>
-        //private void UpdateStats()
-        //{
-        //    string error = "";
-        //    string stats = "Statistics\n";
-
-        //    // TODO: accumulate errors
-        //    if (error == "")
-        //    {
-        //        stats += "Total friends: " + AsyncReqQueue.nFriends
-        //            + ". Friends processed: " + AsyncReqQueue.nFriendsProcessed
-        //            + ". Friends pictures: " + AsyncReqQueue.nFriendsPictures
-        //            + ". Total Posts: " + AsyncReqQueue.nPosts
-        //            + ". Total Messages: " + AsyncReqQueue.nMessages
-        //            + ". Total Albums: " + AsyncReqQueue.nAlbums
-        //            + ". Total Photos: " + AsyncReqQueue.nPhotos;
-        //        stats += ".\nQueued: " + AsyncReqQueue.QueuedReqs;
-        //        stats += ". Sent: " + AsyncReqQueue.SentReqs;
-        //        stats += ". Retry: " + AsyncReqQueue.RetryReqs;
-        //        stats += ". Received: " + AsyncReqQueue.ReceivedReqs;
-        //        stats += ". Failed: " + AsyncReqQueue.FailedReqs;
-        //        stats += ". Parsed: " + AsyncReqQueue.ParsedReqs;
-        //        stats += ". No need parsing: " + AsyncReqQueue.NotParsedReqs;
-
-        //    }
-        //    else
-        //    {
-        //        stats = error;
-        //    }
-        //    //StatsTB.Text = stats;
-        //}
     }
 }

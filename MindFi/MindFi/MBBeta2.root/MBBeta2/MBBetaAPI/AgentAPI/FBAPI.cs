@@ -86,11 +86,13 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         /// <param name="resultCall">Function that is called once the friend list is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Async Request record</returns>
-        public static AsyncReqQueue Friends(string SNID, int Limit, CallBack resultCall)
+        public static AsyncReqQueue Friends(string SNID, int Limit, CallBack resultCall, long parentID, string parentSNID = "")
         {
+            if (parentSNID == "")
+                parentSNID = SNID;
             AsyncReqQueue me = new AsyncReqQueue("FBFriends",
                 FBGraphAPIURL + SNID + "/friends", Limit,
-                resultCall);
+                resultCall, true, false, parentID, parentSNID);
             return me;
         }
 
@@ -158,11 +160,30 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="Limit">How many JSON records should be returned, max</param>
         /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success/Failure</returns>
-        public static AsyncReqQueue Wall(string Who, int Limit, CallBack resultCall)
+        public static AsyncReqQueue Wall(string Who, int Limit, CallBack resultCall, long parentID, string parentSNID="")
         {
+            if (parentSNID == "")
+                parentSNID = Who;
             AsyncReqQueue me = new AsyncReqQueue("FBWall",
                 FBGraphAPIURL + Who + "/feed",
-                Limit, resultCall, true, true);
+                Limit, resultCall, true, true, parentID, parentSNID);
+            return me;
+        }
+
+        /// <summary>
+        /// Gets recent wall posts = news feed
+        /// </summary>
+        /// <param name="Who">Alias of the desired user</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success/Failure</returns>
+        public static AsyncReqQueue News(int Limit, CallBack resultCall, long parentID, string parentSNID = "")
+        {
+            if (parentSNID == "")
+                parentSNID = "me";
+            AsyncReqQueue me = new AsyncReqQueue("FBWall",
+                FBGraphAPIURL + "me/home",
+                Limit, resultCall, true, true, parentID, parentSNID);
             return me;
         }
 

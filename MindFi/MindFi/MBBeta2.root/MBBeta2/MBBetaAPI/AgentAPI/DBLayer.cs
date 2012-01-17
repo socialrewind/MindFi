@@ -2714,9 +2714,9 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Method that updates the picture request ID for a friend
+        /// Method that updates different request IDs for a person
         /// </summary>
-        public static bool UpdatePictureRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        private static bool UpdateSomeRequestID(int FriendEntityID, long RequestID, string Field, out string ErrorMessage)
         {
             lock (obj)
             {
@@ -2725,7 +2725,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "update PersonData set PictureRequestID=? where PersonID=?";
+                    string SQL = "update PersonData set " + Field + "=? where PersonID=?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pReq = new SQLiteParameter();
                     pReq.Value = RequestID;
@@ -2749,42 +2749,53 @@ namespace MBBetaAPI.AgentAPI
             } // lock
             return true;
         }
+        
+        /// <summary>
+        /// Method that updates the picture request ID for a friend
+        /// </summary>
+        public static bool UpdatePictureRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID(FriendEntityID, RequestID, "PictureRequestID", out ErrorMessage);
+        }
 
         /// <summary>
         /// Method that updates the data request ID for a friend
         /// </summary>
         public static bool UpdateDataRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
-            lock (obj)
-            {
-                ErrorMessage = "";
-                try
-                {
-                    DatabaseInUse = true;
-                    GetConn();
-                    string SQL = "update PersonData set DataRequestID=? where PersonID=?";
-                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
-                    SQLiteParameter pReq = new SQLiteParameter();
-                    pReq.Value = RequestID;
-                    UpdateCmd.Parameters.Add(pReq);
-                    SQLiteParameter pID = new SQLiteParameter();
-                    pID.Value = FriendEntityID;
-                    UpdateCmd.Parameters.Add(pID);
-                    UpdateCmd.ExecuteNonQuery();
-                    ErrorMessage = "";
-                }
-                catch (Exception ex)
-                {
-                    ErrorMessage = "Error updating requests in the database\n" + ex.ToString();
-                    return false;
-                }
-                finally
-                {
-                    DatabaseInUse = false;
-                }
+            return UpdateSomeRequestID(FriendEntityID, RequestID, "DataRequestID", out ErrorMessage);
+        }
 
-            } // lock
-            return true;
+        /// <summary>
+        /// Method that updates the picture request ID for a friend
+        /// </summary>
+        public static bool UpdateWallRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID(FriendEntityID, RequestID, "WallRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
+        /// Method that updates the picture request ID for a friend
+        /// </summary>
+        public static bool UpdateInboxRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID(FriendEntityID, RequestID, "InboxRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
+        /// Method that updates the picture request ID for a friend
+        /// </summary>
+        public static bool UpdateEventRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID(FriendEntityID, RequestID, "EventRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
+        /// Method that updates the picture request ID for a friend
+        /// </summary>
+        public static bool UpdateNewsRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID(FriendEntityID, RequestID, "NewsRequestID", out ErrorMessage);
         }
 
         /// <summary>

@@ -922,8 +922,8 @@ namespace MBBeta2
                             }
                             firstTime = false;
                             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                            //AsyncReqQueue.InitialRequests(150);
-                            AsyncReqQueue.NewRequests(150);
+                            // TODO: Make sure current ID is really 1
+                            AsyncReqQueue.NewRequests(150, 1, SNAccount.CurrentProfile.SNID);
                             this.UpdateText.Text = "Getting initial friend data" + animation;
                         }
                     }
@@ -932,17 +932,20 @@ namespace MBBeta2
                         if (SNAccount.CurrentProfile != null)
                         {
                             string ErrorMessage;
-                            bool inProgress = AsyncReqQueue.PendingRequests(150, out ErrorMessage);
+                            // TODO: Make sure current ID is really 1
+                            bool inProgress = AsyncReqQueue.PendingRequests(150, 1, SNAccount.CurrentProfile.SNID, out ErrorMessage);
                             switch ( AsyncReqQueue.CurrentBackupState )
                             {
                                 case 1:
-                                    this.UpdateText.Text = "Getting friend profile pictures (" + AsyncReqQueue.nFriendsPictures + ")" + animation;
-                                    break;
-                                case 2:
                                     this.UpdateText.Text = "Getting friend data (" + AsyncReqQueue.nFriendsProcessed + ")" + animation;
                                     break;
+                                case 2:
+                                    this.UpdateText.Text = "Getting friend profile pictures (" + AsyncReqQueue.nFriendsPictures + ")" + animation;
+                                    break;
                                 case 3:
-                                    this.UpdateText.Text = "Getting additional backup data" + animation;
+                                    this.UpdateText.Text = "Getting additional backup data from " + 
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " + 
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
                             }
                             //InfoTB.Text = ErrorMessage;
@@ -967,7 +970,7 @@ namespace MBBeta2
                 {
                     animation = "";
                 }
-
+                this.UpdateTime.Text = AsyncReqQueue.nNotifications.ToString() + " news";
             }
         }
     }

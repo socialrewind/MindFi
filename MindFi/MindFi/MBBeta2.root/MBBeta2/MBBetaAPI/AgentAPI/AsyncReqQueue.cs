@@ -121,6 +121,7 @@ namespace MBBetaAPI.AgentAPI
         private bool Saved = false;
         private static volatile Object obj = new Object();
         private static bool DatabaseInUse = false;
+        private static bool newPeriod = false;
         #endregion
 
         #region "Constructors"
@@ -600,17 +601,23 @@ namespace MBBetaAPI.AgentAPI
                 case 3:
                     // TODO: only once per date range...
                     // TODO: Verify which requests are really affected by periods
-                    AsyncReqQueue apiReq;
-                    apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                    apiReq.QueueAndSend(999);
-                    apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                    apiReq.QueueAndSend(500);
-                    //apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                    //apiReq.QueueAndSend(500);
+                    if (newPeriod)
+                    {
+                        AsyncReqQueue apiReq;
+                        apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessWall, ID, SNID);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                        apiReq.QueueAndSend(999);
+                        apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                        apiReq.QueueAndSend(500);
+                        //apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                        //apiReq.QueueAndSend(500);
+                        newPeriod = false;
+                    }
                     break;
                 default:
                     nReqs = 0;
@@ -779,6 +786,7 @@ namespace MBBetaAPI.AgentAPI
                             {
                                 if ((SNAccount.CurrentProfile.CurrentPeriodStart > SNAccount.CurrentProfile.BackupPeriodStart))
                                 {
+                                    newPeriod = true;
                                     // Go to the previous week
                                     // TODO: Show which week is being processed
                                     SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;

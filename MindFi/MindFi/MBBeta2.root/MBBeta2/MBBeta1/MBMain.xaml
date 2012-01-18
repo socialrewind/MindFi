@@ -143,11 +143,11 @@
             </Border>
             
             <!--Temporal Connect to DB Button-->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
+            <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,10,0" HorizontalAlignment="Right">
                 <TextBlock x:Name="UpdateText" Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
-                           Foreground="Gray" FontWeight="Bold" VerticalAlignment="Center"/>
+                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,200,0"/>
                 <TextBlock x:Name="UpdateTime" Text="{lex:LocText MBBeta2:MBStrings:Never}"
-                           Foreground="Gray" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                 <Button x:Name="RefreshDataBt" 
                     HorizontalContentAlignment="Center" HorizontalAlignment="Right"
                     Width="35" Margin="10,0,0,0"

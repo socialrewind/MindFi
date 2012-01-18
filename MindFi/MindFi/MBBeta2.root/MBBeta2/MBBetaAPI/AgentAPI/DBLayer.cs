@@ -2633,7 +2633,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "select PersonID, SNID from PersonData where PictureRequestID is null and Distance<>0 limit " + N; ;
+                    string SQL = "select PersonID, SNID from PersonData where PictureRequestID is null and Distance<2 limit " + N; ;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     nRequests = 0;
@@ -2682,7 +2682,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "select PersonID, SNID from PersonData where DataRequestID is null and Distance<>0 limit " + N; ;
+                    string SQL = "select PersonID, SNID from PersonData where DataRequestID is null and Distance<2 limit " + N; ;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     nRequests = 0;

@@ -952,6 +952,7 @@ namespace MBBeta2
                             if (!inProgress)
                             {
                                 MessageBox.Show("Backup finished");
+                                DoRefreshData();
                                 this.UpdateText.Text = "Backup finished at " + DateTime.UtcNow.ToString() + " (UTC)";
                                 GoOffline();
                             }

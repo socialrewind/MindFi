@@ -982,7 +982,7 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 friends = new FBCollection(response, "FBPerson", parent, parentSNID);
-                friends.Distance = 2;
+                friends.Distance = 1;
                 nInParseRequests++;
                 friends.Parse();
                 nInParseRequests--;

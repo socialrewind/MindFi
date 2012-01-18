@@ -25,8 +25,8 @@ namespace MBBetaAPI.AgentAPI
                 {
                     GetConn();
                     //Distance 1 = Friend
-                    //SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and B.Distance < 2 and A.ID = B.PersonID ", conn);
-                    SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A left outer join PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and A.ID = B.PersonID ", conn);
+                    SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A, PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and B.Distance < 2 and A.ID = B.PersonID ", conn);
+                    //SQLiteCommand command = new SQLiteCommand("select A.ID from Entities A left outer join PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and A.ID = B.PersonID ", conn);
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {

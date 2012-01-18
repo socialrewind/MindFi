@@ -90,7 +90,7 @@ namespace MBBetaAPI.AgentAPI
                 try
                 {
                     GetConn();
-                    SQLiteCommand command = new SQLiteCommand("select ID from Entities where Type='MyBackup.FBFriendList'", conn);
+                    SQLiteCommand command = new SQLiteCommand("select ID from Entities where Type='MBBetaAPI.AgentAPI.FBFriendList'", conn);
                     SQLiteDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {

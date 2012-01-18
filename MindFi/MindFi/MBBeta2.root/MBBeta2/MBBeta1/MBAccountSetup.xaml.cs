@@ -123,7 +123,8 @@ namespace MBBeta2
                 case 4:
                     AsyncReqQueue.PendingBasics();
                     this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
-                    if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic && AsyncReqQueue.GotWall && AsyncReqQueue.GotEvent && AsyncReqQueue.GotInbox)
+                    if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic && AsyncReqQueue.GotWall 
+                            && AsyncReqQueue.GotEvent && AsyncReqQueue.GotInbox && AsyncReqQueue.GotFriendLists )
                     {
                         dispatcherTimer.Stop();
                         //this.SNTB.Text += ":" + FBLogin.LastError;

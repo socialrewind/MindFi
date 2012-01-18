@@ -43,20 +43,6 @@ namespace MBBeta2
         private DispatcherTimer dispatcherTimer = new DispatcherTimer();
         #endregion
 
-        // commenting unused constructor
-        //public MBMain()
-        //{
-        //    InitializeComponent();
-
-        //    //Create DB Connection
-        //    //CreateDBConnection();
-
-        //    //Initialize Common Code
-        //    CC = new CommonCode();
-
-        //}
-
-
         //Constructor coming from MBLogin
         /// <summary>
         /// Constructor coming from MBLogin
@@ -310,6 +296,7 @@ namespace MBBeta2
             if (MBSetupWindow.accountAdded)
             {
                 DoRefreshData();
+                GoOnline();
             }
         }
 
@@ -867,15 +854,7 @@ namespace MBBeta2
             }
             else
             {
-                online = true;
-                // display login
-                var SNLoginWindow = new MBSNLogin(true);
-                SNLoginWindow.Owner = this;
-                SNLoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-                SNLoginWindow.Show();
-                dispatcherTimer.Tick += new EventHandler(processTimer_Tick);
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                dispatcherTimer.Start();
+                GoOnline();
             }
 
         }
@@ -884,9 +863,19 @@ namespace MBBeta2
         {
             online = false;
             dispatcherTimer.Stop();
-            // TODO: Localize
-            //OnlineBt.Content = "Go Online/Login";
-            //FBLoggedIn.Text = FBLogin.loggedIn.ToString();
+        }
+
+        private void GoOnline()
+        {
+            online = true;
+            // display login
+            var SNLoginWindow = new MBSNLogin(true);
+            SNLoginWindow.Owner = this;
+            SNLoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            SNLoginWindow.Show();
+            dispatcherTimer.Tick += new EventHandler(processTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
         }
 
         /// <summary>

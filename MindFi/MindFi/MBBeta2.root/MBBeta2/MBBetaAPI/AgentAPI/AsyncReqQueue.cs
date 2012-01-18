@@ -35,6 +35,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool GotWall = false;
         public static bool GotInbox = false;
         public static bool GotEvent = false;
+        public static bool GotFriendLists = false;
 
         public string ErrorMessage;
         #endregion
@@ -450,6 +451,7 @@ namespace MBBetaAPI.AgentAPI
             GotWall = false;
             GotInbox = false;
             GotEvent = false;
+            GotFriendLists = false;
             minPriorityGlobal = 999; // don't go on children requests
 
             FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
@@ -476,6 +478,9 @@ namespace MBBetaAPI.AgentAPI
             apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
+            apiReq = FBAPI.FriendLists("me", SIZETOGETPERPAGE, ProcessFriendLists, FBLogin.Me.ID);
+            apiReq.QueueAndSend(999);
+            // TODO: FriendLists request ID
         }
 
         public static string PendingBasics()
@@ -1006,27 +1011,6 @@ namespace MBBetaAPI.AgentAPI
                 nInSaveRequests++;
                 friends.Save(out error);
                 nInSaveRequests--;
-                    /*
-                foreach (FBPerson item in friends.items)
-                {
-                    nFriends++;
-                    AsyncReqQueue apiReq;
-                    apiReq = FBAPI.Profile(item.SNID, ProcessOneFriend);
-                    apiReq.Queue(750);
-                    apiReq = FBAPI.ProfilePic(item.SNID,
-                        ProfilePhotoDestinationDir + item.SNID + ".jpg",
-                        ProcessFriendPic, item.ID, item.SNID);
-                    apiReq.Queue(750);
-                    apiReq = FBAPI.Family(item.SNID, SIZETOGETPERPAGE, ProcessFamily);
-                    apiReq.Queue(400);
-                    apiReq = FBAPI.Wall(item.SNID, SIZETOGETPERPAGE, ProcessWall);
-                    apiReq.Queue(400);
-                    apiReq = FBAPI.Events(item.SNID, SIZETOGETPERPAGE, ProcessEvents);
-                    apiReq.Queue(400);
-                    apiReq = FBAPI.PhotoAlbums(item.SNID, SIZETOGETPERPAGE, ProcessAlbums);
-                    apiReq.Queue(50);
-                }
-                     * */
             }
             return GenericProcess(hwnd, result, response, friends, false);
         }
@@ -1309,6 +1293,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessFriendLists(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
+            GotFriendLists = true;
             nRequestsInTransit--;
             CountPerState[SENT]--;
             string errorData = "";
@@ -1327,7 +1312,7 @@ namespace MBBetaAPI.AgentAPI
                 foreach (FBFriendList list in lists.items)
                 {
                     AsyncReqQueue apiReq = FBAPI.Members(list.SNID, SIZETOGETPERPAGE, ProcessList, list.ID);
-                    apiReq.Queue(400);
+                    apiReq.Queue(999);
                 }
 
                 if (errorData == "") return true;

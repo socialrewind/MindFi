@@ -52,7 +52,7 @@
     <Compile Include="AgentAPI\AsyncReqQueue.cs" />
     <Compile Include="AgentAPI\DBLayer.cs" />
     <Compile Include="AgentAPI\FBAlbum.cs" />
-    <Compile Include="AgentAPI\FBAPI.cs" />
+    <Compile Include="FBAPI\FBAPI.cs" />
     <Compile Include="AgentAPI\FBCollection.cs" />
     <Compile Include="AgentAPI\FBEducation.cs" />
     <Compile Include="AgentAPI\FBEvent.cs" />
@@ -76,6 +76,9 @@
     <Compile Include="AgentAPI\Verb.cs" />
     <Compile Include="APIError.cs" />
     <Compile Include="DBConnector.cs" />
+    <Compile Include="FBAPI\FileResultCallback.cs" />
+    <Compile Include="FBAPI\HttpRequestList.cs" />
+    <Compile Include="FBAPI\JSONResultCallback.cs" />
     <Compile Include="LikeStructure.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="PartialController\Activity.cs" />

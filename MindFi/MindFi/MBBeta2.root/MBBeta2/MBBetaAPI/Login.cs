@@ -20,6 +20,7 @@ namespace MBBetaAPI
             user = userParam;
             password = passwordParam;
             conn = connParam;
+            DBLayer.ConnString = conn;
         }
 
         #endregion

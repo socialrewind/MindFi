@@ -293,7 +293,7 @@ namespace MBBetaAPI.AgentAPI
 
                         //TODO: Change when ToId is complete
                         //SQLiteCommand command = new SQLiteCommand("select distinct MessageID from MessageData where ParentID IS NULL and (FromID=@FromID OR ToId Like @LikeId) and ((Updated>@start and Updated<@end) OR (Created>@start and Created<@end))", conn);
-                        SQLiteCommand command = new SQLiteCommand("select distinct MessageID from MessageData where ParentID IS NULL and FromID=@FromID and ((Updated>=@start and Updated=<@end) OR (Created>=@start and Created<=@end))", conn);
+                        SQLiteCommand command = new SQLiteCommand("select distinct MessageID from MessageData where ParentID IS NULL and FromID=@FromID and ((Updated>=@start and Updated<=@end) OR (Created>=@start and Created<=@end))", conn);
                         command.Parameters.Add(new SQLiteParameter("FromID", SelectedPeople[i].SNID));
                         //string LikeId = "%" + selectedPeopleDetails[i].SocialNetworkID.ToString() + "%";
                         //command.Parameters.Add(new SqlParameter("LikeId", LikeId));

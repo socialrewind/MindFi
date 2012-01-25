@@ -100,6 +100,7 @@ namespace MBBeta2
                     me = FBLogin.Me;
                     if (me == null || !me.Parsed)
                     {
+                        // TODO: Localize
                         this.SNTB.Text += "... waiting for parse" + animation;
                     }
                     else
@@ -113,6 +114,7 @@ namespace MBBeta2
                     {
                         state = 2;
                     }
+                    // TODO: Localize
                     this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
                     // once logged in, just poll for the data
                     DateTime initialDate;
@@ -122,12 +124,14 @@ namespace MBBeta2
                     break;
                 case 4:
                     AsyncReqQueue.PendingBasics();
+                    // TODO: Localize
                     this.SNTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
                     if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic && AsyncReqQueue.GotWall 
                             && AsyncReqQueue.GotEvent && AsyncReqQueue.GotInbox && AsyncReqQueue.GotFriendLists )
                     {
                         dispatcherTimer.Stop();
                         //this.SNTB.Text += ":" + FBLogin.LastError;
+                        // TODO: Localize
                         this.SNTB.Text = "Your basic info, profile picture, top " + AsyncReqQueue.nPosts + 
                             " wall posts and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
                         me = FBLogin.Me;
@@ -142,6 +146,12 @@ namespace MBBeta2
                         this.SNUrlTB.Text = me.Link;
                         this.SNIDTB.Text = me.SNID;
                         SaveBt.IsEnabled = true;
+                        state = 5;
+                    }
+                    else if ( AsyncReqQueue.FailedRequests )
+                    {
+                        // TODO: Localize
+                        this.SNTB.Text = "Failed to get basic info. Check you are connected to the network and try again (using login/logout buttons).";
                         state = 5;
                     }
                     break;

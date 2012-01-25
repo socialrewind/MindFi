@@ -6,14 +6,46 @@ using System.Text;
 
 namespace MBBetaAPI.AgentAPI
 {
+    // TODO: Error message management
+
+    /// <summary>
+    /// Generic class that process a JSON response
+    /// </summary>
     public class JSONResultCallback
     {
-        HttpWebRequest request;
-        CallBack resultCall;
-        long ID;
-        long? parentID;
-        string parentSNID;
+        #region "Properties"
+        // Members of the request state
+        /// <summary>
+        /// Web request associated to the call
+        /// </summary>
+        private HttpWebRequest request;
+        /// <summary>
+        /// method that is called after the request is  received
+        /// </summary>
+        private CallBack resultCall;
+        /// <summary>
+        /// Unique ID in the database (corresponds to AsyncReqQueue)
+        /// </summary>
+        private long ID;
+        /// <summary>
+        /// Optional parent request ID
+        /// </summary>
+        private long? parentID;
+        /// <summary>
+        /// Optional Social Network ID associated to the request
+        /// </summary>
+        private string parentSNID;
+        #endregion
 
+        #region "Constructors"
+        /// <summary>
+        /// Creates an async state object for the JSON callback
+        /// </summary>
+        /// <param name="req">web request associated</param>
+        /// <param name="call">method to be called after basic processing</param>
+        /// <param name="AsyncID">unique ID in the AsyncReqQueue</param>
+        /// <param name="parent">(optional) unique ID of the parent request</param>
+        /// <param name="snid">(optional) Social Network ID of the parent object</param>
         public JSONResultCallback(HttpWebRequest req, CallBack call, long AsyncID, long? parent, string snid)
         {
             request = req;
@@ -22,22 +54,23 @@ namespace MBBetaAPI.AgentAPI
             parentID = parent;
             parentSNID = snid;
         }
+        #endregion
 
+        /// <summary>
+        /// Generic callback method
+        /// </summary>
+        /// <param name="result">Async state reference</param>
         public static void JSONResponseProcess(IAsyncResult result)
         {
             bool tryOne = false;
             string responseString = "";
             JSONResultCallback state = (JSONResultCallback)result.AsyncState;
-            // get response
-
             // Get the response.
             try
             {
                 HttpWebResponse response = (HttpWebResponse)state.request.EndGetResponse(result);
-                // only decrement if passed EndGetResponse, so to prevent double decrement on timeout
                 // Remove request to the list, moved Dec at the same time
                 FBAPI.requestList.Remove(state.request.RequestUri.ToString()); // TODO: access through method
-                //FBAPI.DecInFlight();
                 Stream streamResponse = response.GetResponseStream();
                 StreamReader streamRead = new StreamReader(streamResponse);
                 responseString = streamRead.ReadToEnd();
@@ -60,14 +93,15 @@ namespace MBBetaAPI.AgentAPI
             catch (ArgumentNullException)
             {
                 // Check to Remove request to the list, moved Dec at the same time
-
+                FBAPI.requestList.Remove(state.request.RequestUri.ToString()); // TODO: access through method
                 //System.Windows.Forms.MessageBox.Show("No state information");
             }
             catch (Exception ex)
             {
                 // Check to Remove request to the list, moved Dec at the same time
-
+                
                 //System.Windows.Forms.MessageBox.Show("Error on callblack for:\n" + state.ID + "Error:\n" + ex.ToString());
+                FBAPI.requestList.Remove(state.request.RequestUri.ToString()); // TODO: access through method
                 DBLayer.RespQueueSave(state.ID, ex.ToString(), AsyncReqQueue.RETRY);
                 // prevent probable double call when failure is in the specific function, and not really an error in fileresponseprocess...
                 if (!tryOne)

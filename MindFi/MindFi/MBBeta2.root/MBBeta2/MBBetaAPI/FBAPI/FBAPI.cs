@@ -16,34 +16,13 @@ namespace MBBetaAPI.AgentAPI
         public const int DEFAULT_LIMIT = 200;
         private static string InitialTime; // +0000 - needs to be encoded before adding the +
         private static string EndTime;
-        //private static volatile int inFlight=0;
         public static volatile HttpRequestList requestList = new HttpRequestList();
         private static volatile Object obj = new Object();
 
         public static int InFlight
         {
-            //get { lock (obj) { return inFlight; } }
             get { lock (obj) { return requestList.Size; } }
         }
-
-        //public static void IncInFlight()
-        //{
-        //    lock(obj)
-        //    {
-        //        inFlight++;
-        //    }
-        //}
-
-        //public static void DecInFlight()
-        //{
-        //    lock (obj)
-        //    {
-        //        if (inFlight > 0)
-        //        {
-        //            inFlight--;
-        //        }
-        //    }
-        //}
 
         #region "Methods"
         private static string DateISO8601(DateTime date)
@@ -214,7 +193,7 @@ namespace MBBetaAPI.AgentAPI
         public static AsyncReqQueue Notifications(string Who, int Limit, CallBack resultCall)
         {
             AsyncReqQueue me = new AsyncReqQueue("FBNotifications",
-                FBGraphAPIURL + Who + "/notifications",
+                FBGraphAPIURL + Who + "/notifications?include_read=1",
                 Limit, resultCall, true, true);
             return me;
         }
@@ -475,7 +454,15 @@ namespace MBBetaAPI.AgentAPI
                     {
                         Limit = DEFAULT_LIMIT;
                     }
-                    URLToGet += "?access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
+                    if (URLToGet.Contains("?"))
+                    {
+                        URLToGet += "&";
+                    }
+                    else
+                    {
+                        URLToGet += "?";
+                    }
+                    URLToGet += "access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
                     // TODO: how to add in a more smart way the since / until
                     if (addDateRange)
                     {
@@ -487,7 +474,6 @@ namespace MBBetaAPI.AgentAPI
                 JSONResultCallback state = new JSONResultCallback(request, resultCall, AsyncID, parent, parentSNID);
                 // Add request to the list
                 requestList.Queue(request);
-                //IncInFlight();
                 IAsyncResult res = request.BeginGetResponse(new AsyncCallback(JSONResultCallback.JSONResponseProcess), state);
                 ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
                     request, DEFAULT_TIMEOUT, true);
@@ -518,7 +504,6 @@ namespace MBBetaAPI.AgentAPI
                 FileResultCallback state = new FileResultCallback(request, FileName, resultCall, AsyncID, parent, parentSNID);
                 // Add request to the list
                 requestList.Queue(request);
-                //IncInFlight();
                 IAsyncResult res = request.BeginGetResponse(new AsyncCallback(FileResultCallback.FileResponseProcess), state);
                 ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
                     request, DEFAULT_TIMEOUT, true);
@@ -551,7 +536,6 @@ namespace MBBetaAPI.AgentAPI
                 FileResultCallback state = new FileResultCallback(request, FileName, resultCall, AsyncID, parent, parentSNID);
                 // Add request to the list
                 requestList.Queue(request);
-                //IncInFlight();                
                 IAsyncResult res = request.BeginGetResponse(new AsyncCallback(FileResultCallback.FileResponseProcess), state);
                 ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
                     request, DEFAULT_TIMEOUT, true);
@@ -614,7 +598,6 @@ namespace MBBetaAPI.AgentAPI
                 JSONResultCallback state = new JSONResultCallback(request, resultCall, AsyncID, parent, parentSNID);
                 // Add request to the list
                 requestList.Queue(request);
-                //IncInFlight();
                 IAsyncResult res = request.BeginGetResponse(new AsyncCallback(JSONResultCallback.JSONResponseProcess), state);
                 ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
                     request, DEFAULT_TIMEOUT, true);
@@ -643,7 +626,6 @@ namespace MBBetaAPI.AgentAPI
                 {
                     // Remove request to the list, moved Dec at the same time
                     requestList.Remove(request.RequestUri.ToString());
-                    //DecInFlight();
                     request.Abort();
                 }
             }

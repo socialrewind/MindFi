@@ -337,7 +337,12 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    SQL = "Update RequestsQueue set State=?, ResponseValue=?, Updated=? where ID=?";
+                    SQL = "Update RequestsQueue set State=?, ResponseValue=?, Updated=?";
+                    if (State == AgentAPI.AsyncReqQueue.RETRY)
+                    {
+                        SQL += ", RetryCount=RetryCount+1";
+                    }
+                    SQL += " where ID=?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pUState = new SQLiteParameter();
                     pUState.Value = State;
@@ -394,7 +399,8 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    SQL = "Update RequestsQueue set State=? where State=? and Updated<?";
+                    // TODO: Update retry to failed
+                    SQL = "Update RequestsQueue set State=? where State=? and RetryCount<3 and Updated<?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pUState = new SQLiteParameter();
                     pUState.Value = AsyncReqQueue.RETRY;
@@ -2538,7 +2544,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "select ID from RequestsQueue where State=? and Priority>=? order by Priority desc, ID asc limit " + N;
+                    string SQL = "select ID from RequestsQueue where State=? and Priority>=? and RetryCount<3 order by Priority desc, ID asc limit " + N;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pState = new SQLiteParameter();
                     pState.Value = State;
@@ -2964,39 +2970,40 @@ namespace MBBetaAPI.AgentAPI
             return true;
         }
 
+        // TODO: Replace commented out method for a useful one
         /// <summary>
         /// Get statistics data to show
         /// </summary>
-        public static bool BackupStatistics(out int nPosts)
-        {
-            nPosts = 0;
+        //public static bool BackupStatistics(out int nPosts)
+        //{
+        //    nPosts = 0;
 
-            lock (obj)
-            {
-                try
-                {
-                    DatabaseInUse = true;
-                    GetConn();
-                    string SQL = "select count(*) from PostData";
-                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
-                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        nPosts = reader.GetInt32(0);
-                    }
-                    reader.Close();
-                }
-                catch (Exception ex)
-                {
-                    string ErrorMessage = "Error getting statistics\n" + ex.ToString();
-                    return false;
-                }
-                finally
-                {
-                    DatabaseInUse = false;
-                }
-            } // lock
-            return true;
-        }
+        //    lock (obj)
+        //    {
+        //        try
+        //        {
+        //            DatabaseInUse = true;
+        //            GetConn();
+        //            string SQL = "select count(*) from PostData";
+        //            SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+        //            SQLiteDataReader reader = CheckCmd.ExecuteReader();
+        //            if (reader.Read())
+        //            {
+        //                nPosts = reader.GetInt32(0);
+        //            }
+        //            reader.Close();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            string ErrorMessage = "Error getting statistics\n" + ex.ToString();
+        //            return false;
+        //        }
+        //        finally
+        //        {
+        //            DatabaseInUse = false;
+        //        }
+        //    } // lock
+        //    return true;
+        //}
     }
 }

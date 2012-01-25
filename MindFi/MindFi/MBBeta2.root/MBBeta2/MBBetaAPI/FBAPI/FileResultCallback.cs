@@ -40,8 +40,6 @@ namespace MBBetaAPI.AgentAPI
                 // only decrement if passed EndGetResponse, so to prevent double decrement on timeout
                 // Remove request to the list
                 FBAPI.requestList.Remove(state.request.RequestUri.ToString()); // TODO: access through method
-                //FBAPI.DecInFlight();
-                //inFlightwasDecremented = true;
                 Stream streamResponse = response.GetResponseStream();
                 FileStream output = new FileStream(state.filename, FileMode.Create);
                 byte[] buffer = new byte[1000];
@@ -80,13 +78,6 @@ namespace MBBetaAPI.AgentAPI
             {
                 //System.Windows.Forms.MessageBox.Show("Error2 on file callblack for:\n" + state.ID + "Error:\n" + ex.ToString());
                 // Not just a timeout; example case was to update profile pictures when they are in use
-                //if (!inFlightwasDecremented)
-                //{
-                    // Remove request to the list, moved Dec at the same time
-                    //FBAPI.requestList.Remove(state.request.RequestUri.ToString()); // TODO: access through method
-                    //FBAPI.DecInFlight();
-                //}
-                // may be redundant
                 FBAPI.requestList.Remove(state.request.RequestUri.ToString()); // TODO: access through method
                 DBLayer.RespQueueSave(state.ID, ex.ToString(), AsyncReqQueue.FAILED);
                 // prevent probable double call when failure is in the specific function, and not really an error in fileresponseprocess...

@@ -10,9 +10,6 @@ namespace MBBetaAPI.AgentAPI
 
     public class AsyncReqQueue
     {
-        const int SIZETOGETPERPAGE = 200; // USE 1 for debugging issues that are not related to concurrency
-        const int CONCURRENTREQUESTLIMIT = 20;
-
         #region "Public Properties"
         public long ID;
         public string ReqType;
@@ -36,11 +33,16 @@ namespace MBBetaAPI.AgentAPI
         public static bool GotInbox = false;
         public static bool GotEvent = false;
         public static bool GotFriendLists = false;
+        public static bool FailedRequests = false;
 
         public string ErrorMessage;
+        public static volatile int CurrentBackupState = 0;
         #endregion
 
         #region "Constants"
+        const int SIZETOGETPERPAGE = 200; // USE 1 for debugging issues that are not related to concurrency
+        const int CONCURRENTREQUESTLIMIT = 20;
+        // AsyncReqQueue states
         public const int POTENTIAL = 0;
         public const int QUEUED = 1;
         public const int SENT = 2;
@@ -50,6 +52,15 @@ namespace MBBetaAPI.AgentAPI
         public const int PROCESSED = 6;
         public const int TODELETE = 7;
         public const int FAILED = 8;
+        // Backup process states
+        public const int NEWBACKUP = 0;
+        public const int BACKUPFRIENDSINFO = 1;
+        public const int BACKUPFRIENDSPROFPIC = 2;
+        public const int BACKUPMYWALL = 3;
+        public const int BACKUPMYNEWS = 4;
+        public const int BACKUPMYINBOX = 5;
+        public const int BACKUPMYEVENTS = 6;
+        public const int BACKUPMYALBUMS = 7;
         #endregion
 
         #region "Statistics"
@@ -72,10 +83,6 @@ namespace MBBetaAPI.AgentAPI
         private static volatile int currentBackupNumber = 0;
         private static volatile int nRequestsInTransit = 0;
         private static volatile bool RecoveringPendingReqs = false;
-
-        private static string backupCase = "Starting new backup";
-        private static volatile bool firstCase = false;
-        public static volatile int CurrentBackupState = 0;
 
         #region "Statistic properties"
         public static int QueuedReqs
@@ -116,6 +123,10 @@ namespace MBBetaAPI.AgentAPI
         #endregion
 
         #region "Internal variables"
+        private static bool FirstTimeBasics = true;
+        //private static string backupCase = "Starting new backup";
+        private static volatile bool firstCase = false;
+
         private static volatile int NextID = -1;
         private bool addToken = true;
         private bool addDateRange = false;
@@ -437,6 +448,7 @@ namespace MBBetaAPI.AgentAPI
                 start, end, Saved, out ErrorMessage);
             if (!Saved)
             {
+                // TODO: Error management
                 //System.Windows.Forms.MessageBox.Show("Failed to save request: " + ID + " error: " + ErrorMessage);
             }
         }
@@ -444,6 +456,8 @@ namespace MBBetaAPI.AgentAPI
         #endregion
 
         #region "Static externally used methods"
+
+        #region "Basic data methods"
         public static void GetBasicData(DateTime currentPeriodStart, DateTime currentPeriodEnd, int ID, string SNID)
         {
             GotOneProfilePic = false;
@@ -490,22 +504,32 @@ namespace MBBetaAPI.AgentAPI
             if (!DatabaseInUse)
             {
                 ArrayList queueReq = DBLayer.GetRequests(CONCURRENTREQUESTLIMIT - nRequestsInTransit, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
-                foreach (int reqID in queueReq)
+                if (queueReq.Count == 0 && nRequestsInTransit==0 && !FirstTimeBasics )
                 {
-                    AsyncReqQueue apiReq = new AsyncReqQueue(reqID);
-                    // special case: ID is not the requested, the request is not there any longer?
-                    if (apiReq.ID != -1)
+                    FailedRequests = true;
+                }
+                else
+                {
+                    foreach (int reqID in queueReq)
                     {
-                        errorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
-                        // DEBUG to confirm validation is redundant
-                        //if (apiReq.Priority < minPriorityGlobal) MessageBox.Show("Unexpected low priority request, ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n");
+                        AsyncReqQueue apiReq = new AsyncReqQueue(reqID);
+                        // special case: ID is not the requested, the request is not there any longer?
+                        if (apiReq.ID != -1)
+                        {
+                            errorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
+                            // DEBUG to confirm validation is redundant
+                            //if (apiReq.Priority < minPriorityGlobal) MessageBox.Show("Unexpected low priority request, ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n");
 
-                        apiReq.Send();
-                    } // if
-                } // foreach
-            }
+                            apiReq.Send();
+                        } // if
+                    } // foreach
+                    FirstTimeBasics = false;
+                } // if queueReq.Count is 0
+            } // if Database not in use
             return errorMessage;
         }
+
+        #endregion
 
         /// <summary>
         /// Create the first, basic requests for a new backup
@@ -545,38 +569,16 @@ namespace MBBetaAPI.AgentAPI
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
                 SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
                 currentBackupNumber = currentBackup;
-                // TODO / TEST - Should start normally at 1, 2 for testing w/o getting profile pictures
-                CurrentBackupState = 1;
+                // TODO: Name states as constants to make code clearer and easier to play with variants
+                CurrentBackupState = BACKUPFRIENDSINFO;
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
-                    if (!firstCase)
-                    {
-                        if (isIncremental)
-                        {
-                            backupCase = "Updating backup with new stuff";
-                        }
-                        else
-                        {
-                            backupCase = "Continuing backup started earlier";
-                        }
-                    }
-                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
                     PendingRequests(MinPriority, ID, SNID, out error);
                 }
                 else
                 {
-                    if (isIncremental)
-                    {
-                        backupCase = "Updating backup with new stuff";
-                    }
-                    else
-                    {
-                        backupCase = "New Backup in progress";
-                    }
                     firstCase = true;
-                    //FBAPI.UpdateStatus("me", backupCase, ProcessStatus);
-
                     if (currentBackup != 0)
                     {
                         // Calculate dates for first iteration - TODO make sure they are recalculated until done
@@ -595,32 +597,54 @@ namespace MBBetaAPI.AgentAPI
         private static int GetDataForCurrentState(int ID, string SNID)
         {
             int nReqs = 0;
+            AsyncReqQueue apiReq;
             switch (CurrentBackupState)
             {
-                case 1:
+                case BACKUPFRIENDSINFO:
                     nReqs = GetNextFriendsData();
                     break;
-                case 2:
+                case BACKUPFRIENDSPROFPIC:
                     nReqs = GetNextFriendsPics();
                     break;
-                case 3:
-                    // TODO: only once per date range...
-                    // TODO: Verify which requests are really affected by periods
+                case BACKUPMYWALL:
                     if (newPeriod)
                     {
-                        AsyncReqQueue apiReq;
                         apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
                         apiReq.QueueAndSend(999);
+                        newPeriod = false;
+                    }
+                    break;
+                case BACKUPMYNEWS:
+                    if (newPeriod)
+                    {
                         apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessWall, ID, SNID);
                         apiReq.QueueAndSend(999);
+                        newPeriod = false;
+                    }
+                    break;
+                case BACKUPMYINBOX:
+                    if (newPeriod)
+                    {
                         apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
                         apiReq.QueueAndSend(999);
-                        apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                        apiReq.QueueAndSend(999);
+                        //apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                        //apiReq.QueueAndSend(999);                        
+                        newPeriod = false;
+                    }
+                    break;
+                case BACKUPMYEVENTS:
+                    if (newPeriod)
+                    {                    
                         apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
                         apiReq.QueueAndSend(500);
-                        //apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                        //apiReq.QueueAndSend(500);
+                        newPeriod = false;
+                    }
+                    break;
+                case BACKUPMYALBUMS:
+                    if (newPeriod)
+                    {
+                        apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                        apiReq.QueueAndSend(500);
                         newPeriod = false;
                     }
                     break;
@@ -707,7 +731,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns></returns>
         public static bool PendingRequests(int MinPriority, int ID, string SNID, out string ErrorMessage)
         {
-            ErrorMessage = backupCase;
+            ErrorMessage = ""; // backupCase;
 
             if (DBLayer.DatabaseBusy)
             {
@@ -763,10 +787,11 @@ namespace MBBetaAPI.AgentAPI
                         // if no pending data, then check backup time progres and infligh requests
                         if (nReqs == 0)
                         {
-                            if (CurrentBackupState < 3)
+                            if ( CurrentBackupState <= BACKUPMYALBUMS )
                             {
                                 CurrentBackupState++;
                                 nReqs = 1;
+                                newPeriod = true;
                             }
                         }
 
@@ -779,12 +804,9 @@ namespace MBBetaAPI.AgentAPI
                                 && FBAPI.InFlight <= 0
                                 )
                             {
-                                // TODO: Make sure no pending threads before closing the backup
                                 DBLayer.EndBackup();
-                                int backedPosts;
-                                DBLayer.BackupStatistics(out backedPosts);
-                                //FBAPI.UpdateStatus("me", "End of backup, " + backedPosts + " posts are now saved", ProcessStatus);
-
+                                //int backedPosts;
+                                // DBLayer.BackupStatistics(out backedPosts);
                                 backupInProgress = false;
                             }
                             else
@@ -793,7 +815,6 @@ namespace MBBetaAPI.AgentAPI
                                 {
                                     newPeriod = true;
                                     // Go to the previous week
-                                    // TODO: Show which week is being processed
                                     SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
                                     SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
                                     FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
@@ -801,7 +822,7 @@ namespace MBBetaAPI.AgentAPI
                                 }
                                 else
                                 {
-                                    // 
+                                    // TODO: Allow to show this information, probably a different state
                                     ErrorMessage += "only waiting for last requests in flight to complete backup";
                                 }
                             }
@@ -825,16 +846,12 @@ namespace MBBetaAPI.AgentAPI
                         if (apiReq.ID != -1)
                         {
                             ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
-                            // DEBUG to confirm validation is redundant
-                            //if (apiReq.Priority < minPriorityGlobal) MessageBox.Show("Unexpected low priority request, ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n");
-
                             apiReq.Send();
                         } // if
                     } // foreach
                 }
                 else
                 {
-                    backupCase = "Backup completed";
                     ErrorMessage += "\nCurrent Backup " + currentBackupNumber + " done\n";
                 }
             } // if not too many requests pending...

@@ -889,11 +889,6 @@ namespace MBBeta2
                 {
                     if (firstTime)
                     {
-                        // TODO: Localize
-                        //OnlineBt.Content = "Go Offline / Logout";
-                        //OnlineBt.IsEnabled = true;
-                        //FBLoggedIn.Text = FBLogin.loggedIn.ToString();
-
                         FBPerson me = FBLogin.Me;
                         if (SNAccount.CurrentProfile != null)
                         {
@@ -904,6 +899,7 @@ namespace MBBeta2
                                 SNAccount.CurrentProfile.SocialNetwork != SocialNetwork.FACEBOOK
                                 )
                             {
+                                // TODO: Localize
                                 MessageBox.Show("You tried to login with a different account (" + me.Name
                                     + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
                                     + "). Please correct your data; login cancelled.");
@@ -923,21 +919,41 @@ namespace MBBeta2
                             string ErrorMessage;
                             // TODO: Make sure current ID is really 1
                             bool inProgress = AsyncReqQueue.PendingRequests(150, 1, SNAccount.CurrentProfile.SNID, out ErrorMessage);
+                            // TODO: Localization
                             switch ( AsyncReqQueue.CurrentBackupState )
                             {
-                                case 1:
+                                case AsyncReqQueue.BACKUPFRIENDSINFO:
                                     this.UpdateText.Text = "Getting friend data (" + AsyncReqQueue.nFriendsProcessed + ")" + animation;
                                     break;
-                                case 2:
+                                case AsyncReqQueue.BACKUPFRIENDSPROFPIC:
                                     this.UpdateText.Text = "Getting friend profile pictures (" + AsyncReqQueue.nFriendsPictures + ")" + animation;
                                     break;
-                                case 3:
-                                    this.UpdateText.Text = "Getting additional backup data from " + 
+                                case AsyncReqQueue.BACKUPMYWALL:
+                                    this.UpdateText.Text = "Getting my wall posts from " + 
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " + 
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
+                                case AsyncReqQueue.BACKUPMYNEWS:
+                                    this.UpdateText.Text = "Getting my notifications from " +
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                    break;
+                                case AsyncReqQueue.BACKUPMYINBOX:
+                                    this.UpdateText.Text = "Getting my inbox from " +
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                    break;
+                                case AsyncReqQueue.BACKUPMYEVENTS:
+                                    this.UpdateText.Text = "Getting my events from " +
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                    break;
+                                case AsyncReqQueue.BACKUPMYALBUMS:
+                                    this.UpdateText.Text = "Getting my albums from " +
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                    break;
                             }
-                            //InfoTB.Text = ErrorMessage;
                             if (!inProgress)
                             {
                                 MessageBox.Show("Backup finished");
@@ -948,8 +964,6 @@ namespace MBBeta2
                         }
                     }
                 }
-
-                // Get next step depending on the requests / step?
                 // Get statistics
                 //UpdateStats();
                 if (animation != "...")

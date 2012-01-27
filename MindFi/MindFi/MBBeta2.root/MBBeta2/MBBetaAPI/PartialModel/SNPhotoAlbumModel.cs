@@ -80,7 +80,7 @@ namespace MBBetaAPI
                     else
                         Date = reader.GetDateTime(7);
                     if (!reader.IsDBNull(9))
-                        Path = reader.GetString(9);
+                        Path = AsyncReqQueue.AlbumDestinationDir + reader.GetString(9);
                     if (!reader.IsDBNull(10))
                     {
                         value = reader.GetValue(10);

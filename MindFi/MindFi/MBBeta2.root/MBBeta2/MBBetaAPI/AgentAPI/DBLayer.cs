@@ -1036,6 +1036,11 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pID = new SQLiteParameter();
                     SQLiteParameter pPic = new SQLiteParameter();
                     pID.Value = PersonID;
+                    string ToRemove = AsyncReqQueue.ProfilePhotoDestinationDir;
+                    if (Path.Contains(ToRemove))
+                    {
+                        Path = Path.Replace(ToRemove, "");
+                    }
                     pPic.Value = Path;
                     UpdateCmd.Parameters.Add(pPic);
                     UpdateCmd.Parameters.Add(pID);
@@ -1790,6 +1795,11 @@ namespace MBBetaAPI.AgentAPI
                     pPrivacyValue.Value = PrivacyValue;
                     pCreated.Value = Created;
                     pUpdated.Value = Updated;
+                    string ToRemove = AsyncReqQueue.AlbumDestinationDir;
+                    if (Path.Contains(ToRemove))
+                    {
+                        Path = Path.Replace(ToRemove, "");
+                    }
                     pPath.Value = Path;
                     pCoverPicture.Value = CoverPicture;
                     pAlbumType.Value = AlbumType;
@@ -1908,6 +1918,11 @@ namespace MBBetaAPI.AgentAPI
                     pWidth.Value = Width;
                     pCreated.Value = Created;
                     pUpdated.Value = Updated;
+                    string ToRemove = AsyncReqQueue.AlbumDestinationDir;
+                    if (Path.Contains(ToRemove))
+                    {
+                        Path = Path.Replace(ToRemove, "");
+                    }
                     pPath.Value = Path;
                     pPID.Value = ParentID;
                     pPSNID.Value = ParentSNID;
@@ -2275,6 +2290,11 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pID = new SQLiteParameter();
                     SQLiteParameter pPic = new SQLiteParameter();
                     pID.Value = PhotoID;
+                    string ToRemove = AsyncReqQueue.AlbumDestinationDir;
+                    if (Path.Contains(ToRemove))
+                    {
+                        Path = Path.Replace(ToRemove, "");
+                    }
                     pPic.Value = Path;
                     UpdateCmd.Parameters.Add(pPic);
                     UpdateCmd.Parameters.Add(pID);

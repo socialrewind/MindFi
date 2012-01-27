@@ -153,7 +153,7 @@ namespace MBBetaAPI
                     if (reader2.IsDBNull(2))
                         ProfilePic = "Images/nophoto.jpg";
                     else
-                        ProfilePic = reader2.GetString(2);
+                        ProfilePic = AsyncReqQueue.ProfilePhotoDestinationDir + reader2.GetString(2);
 
                 }
 

@@ -144,7 +144,7 @@ namespace MBBetaAPI
                     else
                     {
                         GotData2 = true;
-                        FromPhotoPath = reader.GetString(0);
+                        FromPhotoPath = AsyncReqQueue.ProfilePhotoDestinationDir + reader.GetString(0);
                     }
                 }
                 reader.Close();

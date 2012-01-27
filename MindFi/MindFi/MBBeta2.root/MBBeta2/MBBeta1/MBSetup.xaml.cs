@@ -14,7 +14,6 @@ namespace MBBeta2
     /// </summary>
     public partial class MBSetup : Window
     {
-        //public bool online = false;
         public bool accountAdded = false;
 
         #region "Download info"
@@ -25,17 +24,6 @@ namespace MBBeta2
         {
             InitializeComponent();
             BaseDir = basedirparam;
-            AsyncReqQueue.ProfilePhotoDestinationDir = BaseDir + "\\fb\\ProfilePics\\";
-            AsyncReqQueue.AlbumDestinationDir = BaseDir + "\\fb\\Albums\\";
-            // TODO: Save directory to database
-            if (!Directory.Exists(AsyncReqQueue.ProfilePhotoDestinationDir))
-            {
-                Directory.CreateDirectory(AsyncReqQueue.ProfilePhotoDestinationDir);
-            }
-            if (!Directory.Exists(AsyncReqQueue.AlbumDestinationDir))
-            {
-                Directory.CreateDirectory(AsyncReqQueue.AlbumDestinationDir);
-            }
 
             GetSNAccounts();
         }
@@ -101,11 +89,7 @@ namespace MBBeta2
                 // TODO: Review
                 FBFrequency.Text = SNAccount.CurrentProfile.BackupFrequency.ToString() ;
             }
-
-            //OnlineBt.IsEnabled = (SNAccount.CurrentProfile != null);
         }
-
-
         #endregion
 
         private void FBAccountSetupBt_Click(object sender, RoutedEventArgs e)

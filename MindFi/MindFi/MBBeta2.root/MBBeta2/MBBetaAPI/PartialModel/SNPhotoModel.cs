@@ -86,7 +86,7 @@ namespace MBBetaAPI
                     if (reader.IsDBNull(11))
                         Path = "Images/nophoto.jpg";
                     else
-                        Path = reader.GetString(11);
+                        Path = AsyncReqQueue.AlbumDestinationDir + reader.GetString(11);
                     AlbumID = reader.GetInt32(12);
 
                 }

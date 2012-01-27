@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.IO;
 //Configuration Files
 using System.Configuration;
 //Localization
@@ -18,6 +19,7 @@ using WPFLocalizeExtension.Extensions;
 using System.Globalization;
 //API Layer
 using MBBetaAPI;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBeta2
 {
@@ -211,39 +213,28 @@ namespace MBBeta2
                         LoginAttemptsTB.Text = AttemptsMsg;
                         LoginAttempts++;
                         break;
+                        // TODO: Double check the effect was intended, when commenting everything on case 2
                     case 2:  //Enter SNAccount Setup
-                        //this.Cursor = Cursors.Wait;
-                        ////Save settings to config file
-                        //MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        //MBConfig.AppSettings.Settings.Remove("DBName");
-                        //MBConfig.AppSettings.Settings.Remove("DBPath");
-                        //MBConfig.AppSettings.Settings.Remove("LastLoginUser");
-                        //MBConfig.AppSettings.Settings.Add("DBPath", DBPath + "\\");
-                        //MBConfig.AppSettings.Settings.Add("DBName", DBName);
-                        //MBConfig.AppSettings.Settings.Add("LastLoginUser", UserLoginTB.Text);
-                        //MBConfig.Save(ConfigurationSaveMode.Modified);
-                        //ConfigurationManager.RefreshSection("appSettings");
-                        ////Open main with loaded info
-                        //MainWindow = new MBMain(CurrentCulture, UserLoginTB.Text, conn, result);
-                        //MainWindow.Show();
-                        //this.Close();
-                        //break;
                     case 3:
                         this.Cursor = Cursors.Wait;
                         //Save settings to config file
-                        //MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        //MBConfig.AppSettings.Settings.Remove("DBName");
-                        //MBConfig.AppSettings.Settings.Remove("DBPath");
-                        //MBConfig.AppSettings.Settings.Remove("LastLoginUser");
-                        //MBConfig.AppSettings.Settings.Add("DBPath", DBPath + "\\");
-                        //MBConfig.AppSettings.Settings.Add("DBName", DBName);
-                        //MBConfig.AppSettings.Settings.Add("LastLoginUser", UserLoginTB.Text);
-                        //MBConfig.Save(ConfigurationSaveMode.Modified);
-                        //ConfigurationManager.RefreshSection("appSettings");
                         Properties.Settings.Default.DBName = DBName;
                         Properties.Settings.Default.DBPath = DBPath + "\\";
                         Properties.Settings.Default.LastLoginUser = UserLoginTB.Text;
                         Properties.Settings.Default.Save();
+
+                        // Moved initialization from MBSetup, since we need these variables not only the first time
+                        AsyncReqQueue.ProfilePhotoDestinationDir = DBPath + "\\fb\\ProfilePics\\";
+                        AsyncReqQueue.AlbumDestinationDir = DBPath + "\\fb\\Albums\\";
+                        if (!Directory.Exists(AsyncReqQueue.ProfilePhotoDestinationDir))
+                        {
+                            Directory.CreateDirectory(AsyncReqQueue.ProfilePhotoDestinationDir);
+                        }
+                        if (!Directory.Exists(AsyncReqQueue.AlbumDestinationDir))
+                        {
+                            Directory.CreateDirectory(AsyncReqQueue.AlbumDestinationDir);
+                        }
+
                         //Open main with loaded info
                         MainWindow = new MBMain(CurrentCulture, UserLoginTB.Text, DBPath, conn, result);
                         MainWindow.Show();

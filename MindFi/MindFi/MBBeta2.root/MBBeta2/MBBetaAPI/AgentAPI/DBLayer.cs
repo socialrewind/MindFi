@@ -2818,7 +2818,7 @@ namespace MBBetaAPI.AgentAPI
             BackupNo = 0;
             isIncremental = false;
             // allows for detection, if not set, they are equal
-            currentPeriodStart = DateTime.UtcNow;
+            currentPeriodStart = DateTime.Today;
             currentPeriodEnd = currentPeriodStart;
             currentBackupStart = startPeriod;
             currentBackupEnd = endPeriod;
@@ -2864,9 +2864,9 @@ namespace MBBetaAPI.AgentAPI
                             {
                                 currentBackupStart = tempStart;
                                 currentBackupEnd = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
-                                if (DateTime.UtcNow.AddMonths(1) > endPeriod)
+                                if (DateTime.Today.AddMonths(1) > endPeriod)
                                 {
-                                    currentBackupEnd = DateTime.UtcNow.AddMonths(1);
+                                    currentBackupEnd = DateTime.Today.AddMonths(1);
                                 }
                                 isIncremental = true;
                             }
@@ -2888,7 +2888,7 @@ namespace MBBetaAPI.AgentAPI
                         // Calculation
                         currentPeriodEnd = endPeriod;
                         // TODO: Check general behavior, now go back week by week unless it is the one pointing to the future from now
-                        DateTime temp1 = DateTime.UtcNow;
+                        DateTime temp1 = DateTime.Today;
                         DateTime temp2 = endPeriod.AddDays(-30);
                         currentPeriodStart = ( temp1 < temp2 ) ? temp1 : temp2;
                         SQLiteParameter pstartC = new SQLiteParameter();

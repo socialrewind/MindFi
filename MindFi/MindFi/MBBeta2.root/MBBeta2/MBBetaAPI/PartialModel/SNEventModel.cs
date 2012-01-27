@@ -27,7 +27,7 @@ namespace MBBetaAPI
                 try
                 {
                     DBLayer.GetConn();
-                    GetFromConnectedDB(DBLayer.conn);
+                    EventGetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
@@ -46,7 +46,7 @@ namespace MBBetaAPI
         /// Gets event Details given Event ID
         /// </summary>
         /// <param name="conn"></param>
-        public void GetFromConnectedDB(SQLiteConnection conn)
+        protected void EventGetFromConnectedDB(SQLiteConnection conn)
         {
 
             bool GotData = false;

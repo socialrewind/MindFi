@@ -16,6 +16,7 @@ namespace MBBetaAPI
         public SNEvent(int IDParam)
         {
             ID = IDParam;
+            // TODO: Check why an entity is associated to the event
             Entity A = new Entity(ID);
             Name = A.Name;
             GetFromDB();
@@ -26,8 +27,6 @@ namespace MBBetaAPI
 
         //**************** Attributes
         #region Attributes
-        //ID
-        public int ID { get; set; }
         public int SN { get; set; }
         public Int64 SNID { get; set; }
         

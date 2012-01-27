@@ -60,8 +60,9 @@ namespace MBBeta2
         List<int> SelectedPeople;
         List<PersonLight> SelectedPeopleDetails;
 
+        // TODO: Use the commented fields
         //Selected messages
-        List<SNMessageStructure> Messages;
+        // List<SNMessageStructure> Messages;
         List<SNMessage> ParentMessages;
 
         #endregion
@@ -98,7 +99,7 @@ namespace MBBeta2
 
             List<int> ParentMessageIDs;
 
-            ParentMessageIDs = MBBetaAPI.AgentAPI.DBLayer.GetSNParentMessageIDs(MessagesDF.StartDateDP.SelectedDate.Value, MessagesDF.EndDateDP.SelectedDate.Value, SelectedPeopleDetails);
+            ParentMessageIDs = MBBetaAPI.AgentAPI.DBLayer.GetSNParentMessageIDs(MessagesDF.StartDateDP.SelectedDate.Value, MessagesDF.EndDateDP.SelectedDate.Value.AddDays(1), SelectedPeopleDetails);
 
             ParentMessages = new List<SNMessage>();
             foreach (int ParentMessageID in ParentMessageIDs)

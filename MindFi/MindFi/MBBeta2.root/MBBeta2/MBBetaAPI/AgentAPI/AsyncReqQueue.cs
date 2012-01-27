@@ -569,8 +569,16 @@ namespace MBBetaAPI.AgentAPI
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
                 SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
                 currentBackupNumber = currentBackup;
-                // TODO: Name states as constants to make code clearer and easier to play with variants
-                CurrentBackupState = BACKUPFRIENDSINFO;
+                newPeriod = true;
+                // Check: if isIncremental maybe start from Wall
+                if (isIncremental)
+                {
+                    CurrentBackupState = BACKUPMYWALL;
+                }
+                else
+                {
+                    CurrentBackupState = BACKUPFRIENDSINFO;
+                }
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
@@ -818,6 +826,8 @@ namespace MBBetaAPI.AgentAPI
                                     SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
                                     SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
                                     FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                                    // return state to all data that is associated to time range
+                                    CurrentBackupState = BACKUPMYWALL;
                                     nReqs = GetDataForCurrentState(ID, SNID);
                                 }
                                 else

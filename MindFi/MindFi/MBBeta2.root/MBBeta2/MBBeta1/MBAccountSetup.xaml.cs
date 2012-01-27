@@ -119,7 +119,7 @@ namespace MBBeta2
                     // once logged in, just poll for the data
                     DateTime initialDate;
                     initialDate = (DateTime) (BackupDateDP.SelectedDate != null ? BackupDateDP.SelectedDate : DateTime.Now);
-                    AsyncReqQueue.GetBasicData(initialDate, DateTime.UtcNow.AddMonths(1), me.ID, me.SNID);
+                    AsyncReqQueue.GetBasicData(initialDate, DateTime.Today.AddMonths(1), me.ID, me.SNID);
                     state = 4;
                     break;
                 case 4:
@@ -206,9 +206,12 @@ namespace MBBeta2
                     Close();
                 }
             }
+            // important: time in both is 0:0:0
+            DateTime initialDate = BackupDateDP.SelectedDate.Value;
+            DateTime endDate = DateTime.Today.AddMonths(1);           
             SNAccount.UpdateCurrent(new SNAccount(-1, SN, me.SNID, me.Name, me.EMail, me.Link, 
                 this.BackupTypeCB.SelectedIndex + 1, 
-                BackupDateDP.SelectedDate.Value, DateTime.UtcNow.AddMonths(1) ));
+                initialDate, endDate ) );
 
             if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, SN, me.SNID, me.Link,
                    SNAccount.CurrentProfile.currentBackupLevel,

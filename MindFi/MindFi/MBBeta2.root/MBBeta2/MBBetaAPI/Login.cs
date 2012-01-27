@@ -76,8 +76,9 @@ namespace MBBetaAPI
                         reader.Close();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
+                    // TODO: Record exception details
                     level = 0;
                 }
                 finally

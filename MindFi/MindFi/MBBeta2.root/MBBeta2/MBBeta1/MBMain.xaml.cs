@@ -73,7 +73,7 @@ namespace MBBeta2
                 InitialLoad();
 
                 //TEst Load
-                FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value);
+                FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value.AddDays(1));
             }
             this.Cursor = Cursors.Arrow;
             // check
@@ -341,7 +341,7 @@ namespace MBBeta2
             }
 
 
-            List<int> PostIDs = DBLayer.GetPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value, Offset, Limit);
+            List<int> PostIDs = DBLayer.GetPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value.AddDays(1), Offset, Limit);
 
 
             foreach (int PostID in PostIDs)
@@ -660,7 +660,7 @@ namespace MBBeta2
 
                         BitArray SearchOptions = new BitArray(searchOps);
 
-                        CurrentSearch = new Search(SearchTB.Text, SearchOptions, DateSearchFilter.StartDateDP.SelectedDate.Value, DateSearchFilter.EndDateDP.SelectedDate.Value);
+                        CurrentSearch = new Search(SearchTB.Text, SearchOptions, DateSearchFilter.StartDateDP.SelectedDate.Value, DateSearchFilter.EndDateDP.SelectedDate.Value.AddDays(1));
                     }
                     else
                     {
@@ -835,7 +835,7 @@ namespace MBBeta2
 
                 //TEst Load
                 PostList = null;
-                FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value);
+                FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value.AddDays(1));
             }
 
 

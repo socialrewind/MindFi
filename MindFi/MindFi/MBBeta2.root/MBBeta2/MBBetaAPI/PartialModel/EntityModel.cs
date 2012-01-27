@@ -59,7 +59,7 @@ namespace MBBetaAPI
         }
 
 
-        public void GetFromConnectedDB(SQLiteConnection conn)
+        protected void GetFromConnectedDB(SQLiteConnection conn)
         {
 
             SQLiteCommand command = new SQLiteCommand("select Name, Type, Active from Entities where ID = @ID", conn);

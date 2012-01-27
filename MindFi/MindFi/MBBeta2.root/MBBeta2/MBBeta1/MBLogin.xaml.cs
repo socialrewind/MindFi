@@ -187,7 +187,6 @@ namespace MBBeta2
             int result;
             LocTextExtension loc;
             bool success;
-            Configuration MBConfig;
             MBMain MainWindow;
 
             if (LoginAttempts <= 3)

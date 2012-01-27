@@ -28,7 +28,7 @@ namespace MBBetaAPI
                 try
                 {
                     DBLayer.GetConn();
-                    GetFromConnectedDB(DBLayer.conn);
+                    PersonGetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
@@ -44,7 +44,7 @@ namespace MBBetaAPI
         }
 
 
-        void GetFromConnectedDB(SQLiteConnection conn)
+        protected void PersonGetFromConnectedDB(SQLiteConnection conn)
         {
 
 

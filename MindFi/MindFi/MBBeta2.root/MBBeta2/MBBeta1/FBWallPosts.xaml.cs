@@ -101,8 +101,9 @@ namespace MBBeta2
         void GetPostIDs()
         {
 
-
-            PostIDs = MBBetaAPI.AgentAPI.DBLayer.GetPostsByPersonID(PostsDF.StartDateDP.SelectedDate.Value, PostsDF.EndDateDP.SelectedDate.Value, SelectedPeopleSNID);
+            // Fix: make sure it goes until the end of the date
+            PostIDs = MBBetaAPI.AgentAPI.DBLayer.GetPostsByPersonID(PostsDF.StartDateDP.SelectedDate.Value, 
+                PostsDF.EndDateDP.SelectedDate.Value.AddDays(1), SelectedPeopleSNID);
 
             var UniquePostIDs = PostIDs.Distinct();
             Posts = new List<WallPostStructure>();

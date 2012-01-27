@@ -5,6 +5,7 @@ using System.Text;
 
 namespace MBBetaAPI
 {
+    // TODO: Add functionality
     public partial class Activity
     {        
 
@@ -17,7 +18,7 @@ namespace MBBetaAPI
 
         public Activity(int IDParam)
         {
-            IDParam = ID;
+            ID = IDParam;
         }
     
         #endregion
@@ -26,10 +27,13 @@ namespace MBBetaAPI
         #region Attributes
 
         int ID;
+        // TODO: Use the commented fields
+        /*
         int ActorID;
         PersonLight Actor;
         string Verb;        //TODO: Process via localization engine. Use string as parameter
         int ObjectID;
+        */
 
 
 

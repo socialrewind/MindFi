@@ -28,7 +28,7 @@ namespace MBBetaAPI
                 try
                 {
                     DBLayer.GetConn();
-                    GetFromConnectedDB(DBLayer.conn);
+                    PersonLightGetFromConnectedDB(DBLayer.conn);
                 }
                 catch (Exception ex)
                 {
@@ -47,7 +47,7 @@ namespace MBBetaAPI
         /// Method for getting person data using internal Person ID as identifier
         /// </summary>
         /// <param name="conn"></param>
-        public void GetFromConnectedDB(SQLiteConnection conn)
+        protected void PersonLightGetFromConnectedDB(SQLiteConnection conn)
         {
 
 

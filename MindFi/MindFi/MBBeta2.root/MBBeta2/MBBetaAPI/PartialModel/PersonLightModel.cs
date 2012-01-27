@@ -81,9 +81,13 @@ namespace MBBetaAPI
                     //SocialNetwork, ProfilePic, SNID 
                     SN = reader2.GetInt32(0);
                     if (reader2.IsDBNull(1))
+                    {
                         ProfilePic = "Images/nophoto.jpg";
+                    }
                     else
-                        ProfilePic = reader2.GetString(1);
+                    {
+                        ProfilePic = AsyncReqQueue.ProfilePhotoDestinationDir + reader2.GetString(1);
+                    }
 
 
                     SNID = reader2.GetInt64(2);
@@ -151,9 +155,13 @@ namespace MBBetaAPI
                     ID = reader2.GetInt32(0);
                     SN = reader2.GetInt32(1);
                     if (reader2.IsDBNull(2))
+                    {
                         ProfilePic = "Images/nophoto.jpg";
+                    }
                     else
+                    {
                         ProfilePic = AsyncReqQueue.ProfilePhotoDestinationDir + reader2.GetString(2);
+                    }
 
                 }
 

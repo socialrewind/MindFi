@@ -219,13 +219,17 @@ namespace MBBeta2
                         this.Cursor = Cursors.Wait;
                         //Save settings to config file
                         Properties.Settings.Default.DBName = DBName;
-                        Properties.Settings.Default.DBPath = DBPath + "\\";
+                        if (DBPath.LastIndexOf("\\") != DBPath.Length - 1)
+                        {
+                            DBPath += "\\";
+                        }
+                        Properties.Settings.Default.DBPath = DBPath;
                         Properties.Settings.Default.LastLoginUser = UserLoginTB.Text;
                         Properties.Settings.Default.Save();
 
                         // Moved initialization from MBSetup, since we need these variables not only the first time
-                        AsyncReqQueue.ProfilePhotoDestinationDir = DBPath + "\\fb\\ProfilePics\\";
-                        AsyncReqQueue.AlbumDestinationDir = DBPath + "\\fb\\Albums\\";
+                        AsyncReqQueue.ProfilePhotoDestinationDir = DBPath + "fb\\ProfilePics\\";
+                        AsyncReqQueue.AlbumDestinationDir = DBPath + "fb\\Albums\\";
                         if (!Directory.Exists(AsyncReqQueue.ProfilePhotoDestinationDir))
                         {
                             Directory.CreateDirectory(AsyncReqQueue.ProfilePhotoDestinationDir);

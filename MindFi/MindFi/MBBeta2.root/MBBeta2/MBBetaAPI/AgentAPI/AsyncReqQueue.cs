@@ -1491,8 +1491,8 @@ namespace MBBetaAPI.AgentAPI
                         AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
                         ProcessPhoto, photo.ID, photo.SNID);
                     apiReq.Queue(200);
-                    apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
-                    apiReq.Queue(150);
+                    //apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
+                    //apiReq.Queue(150);
                 }
 
                 // Next is not null, but it should since we get all accepted photos on the first round... 

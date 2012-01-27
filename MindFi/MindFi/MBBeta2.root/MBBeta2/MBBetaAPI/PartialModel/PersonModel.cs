@@ -85,50 +85,107 @@ namespace MBBetaAPI
                         SN = reader2.GetInt32(0);
                         SNID = reader2.GetInt64(1);
                         if (reader2.IsDBNull(2))
+                        {
                             ProfilePic = "Images/nophoto.jpg";
+                        }
                         else
+                        {
                             ProfilePic = AsyncReqQueue.ProfilePhotoDestinationDir + reader2.GetString(2);
-                        SNLink = new Uri(reader2.GetString(3));
-                        FirstName = reader2.GetString(4);
-                        if (reader2.IsDBNull(5))
-                            MiddleName = "";
+                        }
+                        if (reader2.IsDBNull(3))
+                        {
+                            SNLink = null;
+                        }
                         else
+                        {
+                            SNLink = new Uri(reader2.GetString(3));
+                        }
+                        if (reader2.IsDBNull(4))
+                        {
+                            FirstName = "";
+                        }
+                        else
+                        {
+                            FirstName = reader2.GetString(4);
+                        }
+                        if (reader2.IsDBNull(5))
+                        {
+                            MiddleName = "";
+                        }
+                        else
+                        {
                             MiddleName = reader2.GetString(5);
-                        LastName = reader2.GetString(6);
+                        }
+                        if (reader2.IsDBNull(6))
+                        {
+                            LastName = "";
+                        }
+                        else
+                        {
+                            LastName = reader2.GetString(6);
+                        }
 
                         //BirthDay, BirthMonth, BirthYear, About, Bio, Quotes
 
                         if (reader2.IsDBNull(7))
-                            BirthDay = 1;
+                        {
+                            BirthDay = 0;
+                        }
                         else
+                        {
                             BirthDay = reader2.GetInt32(7);
+                        }
                         if (reader2.IsDBNull(8))
-                            BirthMonth = 1;
+                        {
+                            BirthMonth = 0;
+                        }
                         else
+                        {
                             BirthMonth = reader2.GetInt32(8);
+                        }
                         if (reader2.IsDBNull(9))
-                            BirthYear = 1900;
+                        {
+                            BirthYear = 0;
+                        }
                         else
+                        {
                             BirthYear = reader2.GetInt32(9);
+                        }
                         if (reader2.IsDBNull(10))
+                        {
                             About = "";
+                        }
                         else
+                        {
                             About = reader2.GetString(10);
+                        }
                         if (reader2.IsDBNull(11))
+                        {
                             Bio = "";
+                        }
                         else
+                        {
                             Bio = reader2.GetString(11);
+                        }
                         if (reader2.IsDBNull(12))
+                        {
                             Quotes = "";
+                        }
                         else
+                        {
                             Quotes = reader2.GetString(12);
+                        }
 
                         //RelationshipStatus, Distance
 
                         if (reader2.IsDBNull(13))
+                        {
                             RelationshipStatus = "";
+                        }
                         else
+                        {
                             RelationshipStatus = reader2.GetString(13);
+                        }
 
                         //Distance is 14
                     }

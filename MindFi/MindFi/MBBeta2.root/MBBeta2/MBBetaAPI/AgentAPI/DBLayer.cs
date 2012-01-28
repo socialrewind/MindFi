@@ -858,7 +858,7 @@ namespace MBBetaAPI.AgentAPI
             string FullBirthday, string UserName, string Gender, string Locale,
             string RelStatus, string Religion, string Political,
             int? UserTimeZone, string About, string Bio, string Quotes, string Verified,
-            DateTime? Updated,
+            DateTime? Updated, bool Parsed,
             out bool Saved, out string ErrorMessage)
         {
             ErrorMessage = "";
@@ -873,24 +873,8 @@ namespace MBBetaAPI.AgentAPI
 
                     // birthday preprocessing
                     string birthDay = "", birthMonth = "", birthYear = "";
-                    if (FullBirthday != null)
-                    {
-                        int bLen = FullBirthday.Length;
-                        if (bLen >= 2)
-                        {
-                            birthMonth = FullBirthday.Substring(0, 2);
-                            if (bLen >= 5)
-                            {
-                                birthDay = FullBirthday.Substring(3, 2);
-                                if (bLen >= 10)
-                                {
-                                    birthYear = FullBirthday.Substring(6);
-                                }
-                            }
-                        }
-                        //MessageBox.Show("Processed birthday: " + birthDay + " / " + birthMonth + " / " + birthYear);
-                    }
-
+                    ProcessFullBirthday(FullBirthday, out birthDay, out birthMonth, out birthYear);
+                    
                     // update
                     string SQL = "Update Persondata set Verified=?";
                     SQLiteParameter pDistance = new SQLiteParameter();
@@ -1000,7 +984,22 @@ namespace MBBetaAPI.AgentAPI
                     // System.Windows.Forms.MessageBox.Show("saved " + outrows + " persons");
                     if (outrows > 0)
                     {
-                        Saved = true;
+                        if (Parsed)
+                        {
+                            // update status of the associated request
+                            SQL = "update RequestsQueue set State=5 where State=4 and ID=(select DataRequestID from PersonData where PartitionDate=? and PartitionID=?)";
+                            SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
+                            UpdateCmd2.Parameters.Add(pPartitionDate);
+                            UpdateCmd2.Parameters.Add(pPartitionID);
+                            // System.Windows.Forms.MessageBox.Show("ready to execute: " + SQL + " affecting " + PartitionDate + " - " + PartitionID + " with bday: " + birthDay + " / " + birthMonth + " / " + birthYear);
+                            int outrows2 = UpdateCmd2.ExecuteNonQuery();
+                            // DEBUG
+                            // System.Windows.Forms.MessageBox.Show("saved " + outrows + " persons");
+                            if (outrows2 > 0)
+                            {
+                                Saved = true;
+                            }
+                        }
                     }
                     ErrorMessage = "";
                 } // try
@@ -3110,40 +3109,28 @@ namespace MBBetaAPI.AgentAPI
             return true;
         }
 
-        // TODO: Replace commented out method for a useful one
-        /// <summary>
-        /// Get statistics data to show
-        /// </summary>
-        //public static bool BackupStatistics(out int nPosts)
-        //{
-        //    nPosts = 0;
-
-        //    lock (obj)
-        //    {
-        //        try
-        //        {
-        //            DatabaseInUse = true;
-        //            GetConn();
-        //            string SQL = "select count(*) from PostData";
-        //            SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
-        //            SQLiteDataReader reader = CheckCmd.ExecuteReader();
-        //            if (reader.Read())
-        //            {
-        //                nPosts = reader.GetInt32(0);
-        //            }
-        //            reader.Close();
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            string ErrorMessage = "Error getting statistics\n" + ex.ToString();
-        //            return false;
-        //        }
-        //        finally
-        //        {
-        //            DatabaseInUse = false;
-        //        }
-        //    } // lock
-        //    return true;
-        //}
+        public static void ProcessFullBirthday(string fullBirthday, out string birthDay, out string birthMonth, out string birthYear)
+        {
+            // birthday preprocessing
+            birthDay = "";
+            birthMonth = "";
+            birthYear = "";
+            if (fullBirthday != null)
+            {
+                int bLen = fullBirthday.Length;
+                if (bLen >= 2)
+                {
+                    birthMonth = fullBirthday.Substring(0, 2);
+                    if (bLen >= 5)
+                    {
+                        birthDay = fullBirthday.Substring(3, 2);
+                        if (bLen >= 10)
+                        {
+                            birthYear = fullBirthday.Substring(6);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -216,7 +216,7 @@ namespace MBBetaAPI.AgentAPI
                     Distance, ProfilePic, Link, FirstName, MiddleName, LastName,
                     FullBirthday, UserName, Gender, Locale, RelationshipStatus, 
                     Religion, Political, UserTimeZone, About, Bio, Quotes, 
-                    Verified, Updated,
+                    Verified, Updated, Parsed,
                     out Saved, out ErrorMessage);
                 if (Education != null)
                 {

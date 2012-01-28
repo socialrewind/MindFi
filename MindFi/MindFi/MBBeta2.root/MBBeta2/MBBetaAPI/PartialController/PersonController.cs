@@ -44,6 +44,10 @@ namespace MBBetaAPI
         public string Quotes { get; private set; }
         public string ProfilePic { get; private set; }
         public int Distance { get; private set; }
+        public int DataRequestID { get; private set; }
+        public int DataRequestState { get; private set; }
+        public string DataRequestType { get; private set; }
+        public string DataResponseValue { get; private set; }
 
         //Extended attributes
         public List<RelatedOrganization> SchoolsList { get; private set; }

@@ -286,6 +286,8 @@ namespace MBBeta2
                 DetailCard DetailCardWindow = new DetailCard();
                 DetailCardWindow.DataContext = Me;
                 CC.PositionNewWindow(this, DetailCardWindow);
+                //Tests.AsyncDetailCard DetailCardWindow = new Tests.AsyncDetailCard();
+                //CC.PositionNewWindow(this, DetailCardWindow);
 
                 this.Cursor = Cursors.Arrow;
             }

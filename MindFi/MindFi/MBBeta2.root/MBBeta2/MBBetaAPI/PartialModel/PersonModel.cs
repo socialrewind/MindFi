@@ -67,7 +67,7 @@ namespace MBBetaAPI
                 reader.Close();
 
                 //Read Person
-                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance from  PersonData where PersonID = @ID", conn);
+                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance, DataRequestID, State, RequestType, ResponseValue from PersonData join RequestsQueue on DataRequestID= RequestsQueue.ID where PersonID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader2 = command.ExecuteReader();
@@ -76,12 +76,7 @@ namespace MBBetaAPI
                     
                     GotData = true;
 
-                    //Read Distance (parameter 14)
-                    Distance = reader2.GetInt32(14);
-                    if (Distance < 2)
-                    {
-
-                        //SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName
+                    //SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName
                         SN = reader2.GetInt32(0);
                         SNID = reader2.GetInt64(1);
                         if (reader2.IsDBNull(2))
@@ -187,13 +182,98 @@ namespace MBBetaAPI
                             RelationshipStatus = reader2.GetString(13);
                         }
 
-                        //Distance is 14
-                    }
-                    
+                        if (reader2.IsDBNull(14))
+                        {
+                            Distance = 99;
+                        }
+                        else
+                        {
+                            Distance = reader2.GetInt32(14);
+                        }
+
+                        if (reader2.IsDBNull(15))
+                        {
+                            DataRequestID = 0;
+                        }
+                        else
+                        {
+                            DataRequestID = reader2.GetInt32(15);
+                        }
+                        if (reader2.IsDBNull(16))
+                        {
+                            DataRequestState = 0;
+                        }
+                        else
+                        {
+                            DataRequestState = reader2.GetInt32(16);
+                        }
+                        if (reader2.IsDBNull(17))
+                        {
+                            DataRequestType = "";
+                        }
+                        else
+                        {
+                            DataRequestType = reader2.GetString(17);
+                        }
+                        if (reader2.IsDBNull(18))
+                        {
+                            DataResponseValue = "";
+                        }
+                        else
+                        {
+                            DataResponseValue = reader2.GetString(18);
+                        }
                 }
 
                 reader2.Close();
 
+                // TODO: Double check possible states
+                // Parse process, if needed
+                if (DataRequestState == AsyncReqQueue.RECEIVED)
+                {
+                    switch (DataRequestType)
+                    {
+                        case "FBPerson":
+                            string errorData;
+                            FBPerson currentFriend = new FBPerson(DataResponseValue, Distance, null);
+                            currentFriend.Parse();
+                            // sync data from currentFriend
+                            FirstName = currentFriend.FirstName;
+                            LastName = currentFriend.LastName;
+                            MiddleName = currentFriend.MiddleName;
+                            Name = currentFriend.Name;
+                            if (currentFriend.Link != null && currentFriend.Link != "")
+                            {
+                                SNLink = new Uri(currentFriend.Link);
+                            }
+                            About = currentFriend.About;
+                            Bio = currentFriend.Bio;
+                            Quotes = currentFriend.Quotes;
+                            RelationshipStatus = currentFriend.RelationshipStatus;
+                            string tempDay, tempMonth, tempYear;
+                            DBLayer.ProcessFullBirthday(currentFriend.FullBirthday, out tempDay, out tempMonth, out tempYear);
+                            int tempBirthDay, tempBirthMonth, tempBirthYear;
+                            if (int.TryParse(tempDay, out tempBirthDay))
+                            {
+                                BirthDay = tempBirthDay;
+                            }
+                            if (int.TryParse(tempMonth, out tempBirthMonth))
+                            {
+                                BirthMonth = tempBirthMonth;
+                            }
+                            if (int.TryParse(tempYear, out tempBirthYear))
+                            {
+                                BirthYear = tempBirthYear;
+                            }
+                            // TODO: make sure it recognizes parse has happened
+                            currentFriend.Parsed = true;
+                            currentFriend.Save(out errorData);
+                            // TODO: Missing other fields
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
             catch
                 (Exception ex)

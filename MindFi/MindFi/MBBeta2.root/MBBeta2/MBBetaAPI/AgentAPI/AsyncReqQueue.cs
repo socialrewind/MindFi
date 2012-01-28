@@ -68,6 +68,7 @@ namespace MBBetaAPI.AgentAPI
         public static volatile int nFriendsProcessed = 0;
         public static volatile int nFriendsPictures = 0;
         public static volatile int nPosts = 0;
+        public static volatile int nEvents = 0;
         public static volatile int nMessages = 0;
         public static volatile int nAlbums = 0;
         public static volatile int nPhotos = 0;
@@ -125,7 +126,7 @@ namespace MBBetaAPI.AgentAPI
         #region "Internal variables"
         private static bool FirstTimeBasics = true;
         //private static string backupCase = "Starting new backup";
-        private static volatile bool firstCase = false;
+        //private static volatile bool firstCase = false;
 
         private static volatile int NextID = -1;
         private bool addToken = true;
@@ -556,18 +557,20 @@ namespace MBBetaAPI.AgentAPI
                     CountPerState[RETRY] = 0;
                 }
                 // starts or finds existing backup to continue
-                int currentBackup;
+                int currentBackup, currentState;
                 DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
                 bool isIncremental;
 
                 // TODO: Check if backup was completed, to decide if incremental case should go forward
                 DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
                         out currentBackupStart, out currentBackupEnd,
-                        out currentBackup, out currentPeriodStart, out currentPeriodEnd, out isIncremental);
+                        out currentBackup, out currentPeriodStart, out currentPeriodEnd, 
+                        out isIncremental, out currentState);
                 SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
                 SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
+                CurrentBackupState = currentState;
                 currentBackupNumber = currentBackup;
                 newPeriod = true;
                 // Check: if isIncremental maybe start from Wall
@@ -586,7 +589,7 @@ namespace MBBetaAPI.AgentAPI
                 }
                 else
                 {
-                    firstCase = true;
+                    //firstCase = true;
                     if (currentBackup != 0)
                     {
                         // Calculate dates for first iteration - TODO make sure they are recalculated until done
@@ -798,6 +801,7 @@ namespace MBBetaAPI.AgentAPI
                             if ( CurrentBackupState <= BACKUPMYALBUMS )
                             {
                                 CurrentBackupState++;
+                                DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
                                 nReqs = 1;
                                 newPeriod = true;
                             }
@@ -828,6 +832,7 @@ namespace MBBetaAPI.AgentAPI
                                     FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
                                     // return state to all data that is associated to time range
                                     CurrentBackupState = BACKUPMYWALL;
+                                    DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
                                     nReqs = GetDataForCurrentState(ID, SNID);
                                 }
                                 else
@@ -1291,6 +1296,7 @@ namespace MBBetaAPI.AgentAPI
                 CountPerState[PARSED]++;
                 nInSaveRequests++;
                 events.Save(out errorData);
+                nEvents += events.CurrentNumber;
                 nInSaveRequests--;
 
                 //foreach (FBEvent anEvent in events.items)

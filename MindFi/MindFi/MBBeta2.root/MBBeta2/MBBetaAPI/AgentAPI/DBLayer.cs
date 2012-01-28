@@ -2831,9 +2831,9 @@ namespace MBBetaAPI.AgentAPI
             out DateTime currentBackupStart, out DateTime currentBackupEnd,
             out int BackupNo, 
             out DateTime currentPeriodStart, out DateTime currentPeriodEnd,
-            out bool isIncremental)
+            out bool isIncremental, out int currentState)
         {
-            bool inTransaction = false;
+            //bool inTransaction = false;
 
             BackupNo = 0;
             isIncremental = false;
@@ -2842,6 +2842,7 @@ namespace MBBetaAPI.AgentAPI
             currentPeriodEnd = currentPeriodStart;
             currentBackupStart = startPeriod;
             currentBackupEnd = endPeriod;
+            currentState = AsyncReqQueue.BACKUPFRIENDSINFO;
 
             lock (obj)
             {
@@ -2849,10 +2850,10 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    BeginTransaction();
-                    inTransaction = true;
+                    //BeginTransaction();
+                    //inTransaction = true;
                     // check first if there is an active Backup
-                    string SQL = "select ID, CurrentStartTime, CurrentEndTime, PeriodStartTime, PeriodEndTime from Backups where Active = 1";
+                    string SQL = "select ID, CurrentStartTime, CurrentEndTime, PeriodStartTime, PeriodEndTime, CurrentBackupState from Backups where Active = 1";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     if (reader.Read())
@@ -2864,6 +2865,7 @@ namespace MBBetaAPI.AgentAPI
                         currentBackupStart = tempPeriodStart;
                         DateTime tempPeriodEnd = reader.GetDateTime(4);
                         currentBackupEnd = tempPeriodEnd;
+                        currentState = reader.GetInt32(5);
                         reader.Close();
                         // TODO: update target period if necessary?
                     }
@@ -2894,28 +2896,31 @@ namespace MBBetaAPI.AgentAPI
                         reader.Close();
 
                         // No active backup, insert it
-                        SQL = "insert into Backups (StartTime, PeriodStartTime, PeriodEndTime, CurrentStartTime, CurrentEndTime, Active) values (?,?,?,?,?,1)";
+                        SQL = "insert into Backups (StartTime, CurrentBackupState, PeriodStartTime, PeriodEndTime, CurrentStartTime, CurrentEndTime, Active) values (?,?,?,?,?,?,1)";
                         SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
-                        SQLiteParameter pStart = new SQLiteParameter();
-                        pStart.Value = DateTime.UtcNow;
-                        InsertCmd.Parameters.Add(pStart);
-                        SQLiteParameter pStartP = new SQLiteParameter();
-                        pStartP.Value = currentBackupStart;
-                        InsertCmd.Parameters.Add(pStartP);
-                        SQLiteParameter pendP = new SQLiteParameter();
-                        pendP.Value = currentBackupEnd;
-                        InsertCmd.Parameters.Add(pendP);
                         // Calculation
                         currentPeriodEnd = endPeriod;
                         // TODO: Check general behavior, now go back week by week unless it is the one pointing to the future from now
                         DateTime temp1 = DateTime.Today;
                         DateTime temp2 = endPeriod.AddDays(-30);
                         currentPeriodStart = ( temp1 < temp2 ) ? temp1 : temp2;
+                        SQLiteParameter pStart = new SQLiteParameter();
+                        pStart.Value = DateTime.Now;
+                        InsertCmd.Parameters.Add(pStart);
+                        SQLiteParameter pState = new SQLiteParameter();
+                        pState.Value = 0;
+                        InsertCmd.Parameters.Add(pState);
+                        SQLiteParameter pStartP = new SQLiteParameter();
+                        pStartP.Value = currentBackupStart;
+                        InsertCmd.Parameters.Add(pStartP);
+                        SQLiteParameter pendP = new SQLiteParameter();
+                        pendP.Value = currentBackupEnd;
+                        InsertCmd.Parameters.Add(pendP);
                         SQLiteParameter pstartC = new SQLiteParameter();
-                        SQLiteParameter pendC = new SQLiteParameter();
-                        pendC.Value = currentPeriodEnd;
                         pstartC.Value = currentPeriodStart;
                         InsertCmd.Parameters.Add(pstartC);
+                        SQLiteParameter pendC = new SQLiteParameter();
+                        pendC.Value = currentPeriodEnd;
                         InsertCmd.Parameters.Add(pendC);
                         InsertCmd.ExecuteNonQuery();
                         SQL = "select ID from Backups where StartTime=?";
@@ -2931,22 +2936,125 @@ namespace MBBetaAPI.AgentAPI
                 }
                 catch (Exception ex)
                 {
-                    if (inTransaction)
-                    {
-                        RollbackTransaction();
-                        inTransaction = false;
-                    }
+                    //if (inTransaction)
+                    //{
+                    //    RollbackTransaction();
+                    //    inTransaction = false;
+                    //}
                     string ErrorMessage = "Error creating backup \n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
                     return false;
                 }
                 finally
                 {                
-                    if (inTransaction)
+                    //if (inTransaction)
+                    //{
+                    //    // TODO: Make sure it doesn't fail on double transaction...
+                    //    CommitTransaction();
+                    //}
+                    DatabaseInUse = false;
+                }
+            } // lock
+            return true;
+        }
+
+        public static bool GetLastBackup(out string backupState, out string backupDate)
+        {
+            // TODO: Localization
+            backupState = "No Backup available";
+            backupDate = "Never updated";
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    // check first if there is an active Backup
+                    string SQL = "select StartTime, EndTime, Active from Backups";
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    if (reader.Read())
                     {
-                        // TODO: Make sure it doesn't fail on double transaction...
-                        CommitTransaction();
+                        DateTime currentPeriodStart = reader.GetDateTime(0);
+                        DateTime? currentPeriodEnd = null;
+                        if ( !reader.IsDBNull(1) )
+                        {
+                            currentPeriodEnd = (DateTime?) reader.GetDateTime(1);
+                        }
+                        bool active = reader.GetBoolean(2);
+                        if ( active )
+                        {
+                            backupState = "Backup in progress";
+                            backupDate = currentPeriodStart.ToShortDateString() + " " + currentPeriodStart.ToShortTimeString();
+                        }
+                        else
+                        {
+                            backupState = "Backup ready";
+                            if (currentPeriodEnd == null)
+                            {
+                                backupDate = currentPeriodStart.ToShortDateString() + " " + currentPeriodStart.ToShortTimeString();
+                            }
+                            else
+                            {
+                                backupDate = currentPeriodEnd.Value.ToShortDateString() + " " + currentPeriodEnd.Value.ToShortTimeString();
+                            }
+                        }
+                        reader.Close();
                     }
+                    else
+                    {
+                        reader.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string ErrorMessage = "Error looking for backup \n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+            } // lock
+            return true;
+        }
+
+        /// <summary>
+        /// Update progress of a backup
+        /// </summary>
+        public static bool UpdateBackup(int backupNo, DateTime currentStart, DateTime currentEnd, int currentBackupState )
+        {
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "update Backups set currentStartTime=?, currentEndTime=?, currentBackupState=? where ID=?";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pStart = new SQLiteParameter();
+                    pStart.Value = currentStart;
+                    UpdateCmd.Parameters.Add(pStart);
+                    SQLiteParameter pEnd = new SQLiteParameter();
+                    pEnd.Value = currentEnd;
+                    UpdateCmd.Parameters.Add(pEnd);
+                    SQLiteParameter pBackupState = new SQLiteParameter();
+                    pBackupState.Value = currentBackupState;
+                    UpdateCmd.Parameters.Add(pBackupState);
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = backupNo;
+                    UpdateCmd.Parameters.Add(pID);
+                    UpdateCmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    string ErrorMessage = "Error updating backup \n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return false;
+                }
+                finally
+                {
                     DatabaseInUse = false;
                 }
             } // lock
@@ -2971,7 +3079,7 @@ namespace MBBetaAPI.AgentAPI
                     string SQL = "update Backups set EndTime = ?, Active = 0 where Active = 1";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pEnd = new SQLiteParameter();
-                    pEnd.Value = DateTime.UtcNow;
+                    pEnd.Value = DateTime.Now;
                     UpdateCmd.Parameters.Add(pEnd);
                     UpdateCmd.ExecuteNonQuery();
                 }

@@ -87,6 +87,14 @@ namespace MBBeta2
             {
                 MessageBox.Show("Error getting accounts from the database:\n" + error);
             }
+
+            // Information about backup data
+            // TODO: Localize, maybe modularize
+            string backupState, backupDate;
+            DBLayer.GetLastBackup(out backupState, out backupDate);
+            this.UpdateText.Text = backupState;
+            this.UpdateTime.Text = "Updated: " + backupDate;
+
             // TODO: Review how it can be empty and not null
             if (currentAccounts == null || currentAccounts.Count == 0)
             {
@@ -838,6 +846,12 @@ namespace MBBeta2
                 FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value.AddDays(1));
             }
 
+            // TODO: Localize
+            string backupState, backupDate;
+            DBLayer.GetLastBackup(out backupState, out backupDate);
+            this.UpdateText.Text = backupState;
+            this.UpdateTime.Text = "Updated: " + backupDate;
+            this.Cursor = Cursors.Arrow;
 
             this.Cursor = Cursors.Arrow;
         }
@@ -929,27 +943,27 @@ namespace MBBeta2
                                     this.UpdateText.Text = "Getting friend profile pictures (" + AsyncReqQueue.nFriendsPictures + ")" + animation;
                                     break;
                                 case AsyncReqQueue.BACKUPMYWALL:
-                                    this.UpdateText.Text = "Getting my wall posts from " + 
+                                    this.UpdateText.Text = "Getting my wall posts (" + AsyncReqQueue.nPosts + ") from " + 
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " + 
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
                                 case AsyncReqQueue.BACKUPMYNEWS:
-                                    this.UpdateText.Text = "Getting my notifications from " +
+                                    this.UpdateText.Text = "Getting news posts (" + AsyncReqQueue.nPosts + ") from " +
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
                                 case AsyncReqQueue.BACKUPMYINBOX:
-                                    this.UpdateText.Text = "Getting my inbox from " +
+                                    this.UpdateText.Text = "Getting my inbox (" + AsyncReqQueue.nMessages + ") from " +
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
                                 case AsyncReqQueue.BACKUPMYEVENTS:
-                                    this.UpdateText.Text = "Getting my events from " +
+                                    this.UpdateText.Text = "Getting my events (" + AsyncReqQueue.nEvents + ") from " +
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
                                 case AsyncReqQueue.BACKUPMYALBUMS:
-                                    this.UpdateText.Text = "Getting my albums from " +
+                                    this.UpdateText.Text = "Getting my albums (" + AsyncReqQueue.nAlbums + ") from " +
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
@@ -958,7 +972,8 @@ namespace MBBeta2
                             {
                                 MessageBox.Show("Backup finished");
                                 DoRefreshData();
-                                this.UpdateText.Text = "Backup finished at " + DateTime.UtcNow.ToString() + " (UTC)";
+                                this.UpdateText.Text = "Backup just finished";
+                                this.UpdateTime.Text = DateTime.UtcNow.ToString();
                                 GoOffline();
                             }
                         }

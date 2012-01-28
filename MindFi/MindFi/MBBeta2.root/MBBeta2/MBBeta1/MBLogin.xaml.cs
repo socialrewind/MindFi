@@ -312,10 +312,10 @@ namespace MBBeta2
             dlg.InitialDirectory = DBPath;
 
             // Show open file dialog box
-            Nullable<bool> result = dlg.ShowDialog();
+            Nullable<bool> result2 = dlg.ShowDialog();
 
             // Process open file dialog box results
-            if (result == true)
+            if (result2 == true)
             {
                 // Open document
                 string FilePath = dlg.FileName;

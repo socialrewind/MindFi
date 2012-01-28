@@ -144,6 +144,9 @@
   <data name="Language" xml:space="preserve">
     <value>Select Language:</value>
   </data>
+  <data name="LoginSetup" xml:space="preserve">
+    <value>Login setup string</value>
+  </data>
   <data name="Login_Button" xml:space="preserve">
     <value>Start</value>
   </data>

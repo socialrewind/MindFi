@@ -31,7 +31,7 @@ namespace MBBeta2
         public InitialSetup()
         {
             InitializeComponent();
-            
+            GenerateDefaultBackupFile();
         }
 
 
@@ -97,6 +97,27 @@ namespace MBBeta2
             return result;
         }
 
+        void GenerateDefaultBackupFile()
+        {
+            DateTime Now = DateTime.Now;
+            string tempD = Now.Year.ToString();
+            if (Now.Month < 10) tempD += "0";
+            tempD += Now.Month;
+            if (Now.Day < 10) tempD += "0";
+            tempD += Now.Day;
+
+            string MyDocBase = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\My Social Rewind (Beta)\\";
+
+            //Create dir
+            MyDocBase += tempD;
+            System.IO.Directory.CreateDirectory(MyDocBase);
+
+            //Set variables to creat file when dialog closes
+            string FilePath = MyDocBase + "\\" + tempD + ".db";
+            DBName = System.IO.Path.GetFileName(FilePath);
+            DBPath = System.IO.Path.GetDirectoryName(FilePath);
+            BackupFileTB.Text = DBName;
+        }
         #endregion
 
         private void SelectFileBt_Click(object sender, RoutedEventArgs e)
@@ -108,7 +129,7 @@ namespace MBBeta2
             if (Now.Day < 10) tempD += "0";
             tempD += Now.Day;
 
-            string MyDocBase = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\MyBackupTests\\";
+            string MyDocBase = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\My Social Rewind (Beta)\\";
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             MyDocBase += tempD;

@@ -178,6 +178,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Login setup string.
+        /// </summary>
+        internal static string LoginSetup {
+            get {
+                return ResourceManager.GetString("LoginSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Too many unsuccessful login attempts. Closing..
         /// </summary>
         internal static string ManyAttempts {

@@ -117,17 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdvancedOptions" xml:space="preserve">
+    <value>Opciones avanzadas</value>
+  </data>
   <data name="BackupFile" xml:space="preserve">
     <value>Archivo de respaldo:</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
   </data>
   <data name="ChangeFile" xml:space="preserve">
     <value>Cambiar</value>
   </data>
+  <data name="Create" xml:space="preserve">
+    <value>Crear</value>
+  </data>
+  <data name="DBCreationFailed" xml:space="preserve">
+    <value>Error creando el archivo de respaldo</value>
+  </data>
   <data name="DBFileNotPresent" xml:space="preserve">
     <value>El archivo de respaldo no está disponible. ¿Desea seleccionar otro?</value>
   </data>
+  <data name="InitialSetup" xml:space="preserve">
+    <value>Configuración inicial</value>
+  </data>
   <data name="Language" xml:space="preserve">
     <value>Seleccionar Idioma:</value>
+  </data>
+  <data name="LoginSetup" xml:space="preserve">
+    <value>Login setup string</value>
   </data>
   <data name="Login_Button" xml:space="preserve">
     <value>Inicio</value>
@@ -138,13 +156,43 @@
   <data name="Login_WrongLogin" xml:space="preserve">
     <value>Usuario o password incorrectos.</value>
   </data>
+  <data name="Login_WrongUser" xml:space="preserve">
+    <value>Error abriendo el respaldo. Usuario incorrecto.</value>
+  </data>
   <data name="ManyAttempts" xml:space="preserve">
     <value>Demasiados intentos fallidos. Cerrando.</value>
   </data>
+  <data name="NewDBCreated" xml:space="preserve">
+    <value>Se creo exitosamente el archivo de respaldo.</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Abrir</value>
+  </data>
   <data name="Password" xml:space="preserve">
-    <value>Password: </value>
+    <value>Contraseña:</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Las contraseñas no coinciden</value>
+  </data>
+  <data name="ReEnterPassword" xml:space="preserve">
+    <value>Vuelva a escribir la contraseña</value>
+  </data>
+  <data name="SelectFile" xml:space="preserve">
+    <value>Seleccione un archivo de respaldo</value>
+  </data>
+  <data name="SelectNewFile" xml:space="preserve">
+    <value>Seleccione un nuevo archivo de respaldo</value>
   </data>
   <data name="User" xml:space="preserve">
     <value>Usuario: </value>
+  </data>
+  <data name="WarnDBFilePresent" xml:space="preserve">
+    <value>Ya hay un archivo de respaldo. ¿Está seguro de crear uno nuevo?</value>
+  </data>
+  <data name="WrongPassword" xml:space="preserve">
+    <value>La contraseña debe tener al menos 8 caracteres de largo, incluyendo un dígito o signo, una letra mayúscula y una minúscula</value>
+  </data>
+  <data name="WrongUser" xml:space="preserve">
+    <value>El nombre de usuario sólo puede contener letras, números y el guión bajo ('_').</value>
   </data>
 </root>

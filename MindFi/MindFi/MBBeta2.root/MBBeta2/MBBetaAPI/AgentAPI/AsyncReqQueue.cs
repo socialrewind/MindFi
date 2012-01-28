@@ -61,6 +61,7 @@ namespace MBBetaAPI.AgentAPI
         public const int BACKUPMYINBOX = 5;
         public const int BACKUPMYEVENTS = 6;
         public const int BACKUPMYALBUMS = 7;
+        public const int BACKUPMYNOTIFICATIONS = 8;
         #endregion
 
         #region "Statistics"
@@ -659,6 +660,14 @@ namespace MBBetaAPI.AgentAPI
                         newPeriod = false;
                     }
                     break;
+                case BACKUPMYNOTIFICATIONS:
+                    if (newPeriod)
+                    {
+                        apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                        apiReq.QueueAndSend(500);
+                        newPeriod = false;
+                    }
+                    break;
                 default:
                     nReqs = 0;
                     break;
@@ -798,7 +807,7 @@ namespace MBBetaAPI.AgentAPI
                         // if no pending data, then check backup time progres and infligh requests
                         if (nReqs == 0)
                         {
-                            if ( CurrentBackupState <= BACKUPMYALBUMS )
+                            if ( CurrentBackupState <= BACKUPMYNOTIFICATIONS )
                             {
                                 CurrentBackupState++;
                                 DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
@@ -829,6 +838,10 @@ namespace MBBetaAPI.AgentAPI
                                     // Go to the previous week
                                     SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
                                     SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
+                                    if (SNAccount.CurrentProfile.CurrentPeriodStart < SNAccount.CurrentProfile.BackupPeriodStart)
+                                    {
+                                        SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.BackupPeriodStart;
+                                    }
                                     FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
                                     // return state to all data that is associated to time range
                                     CurrentBackupState = BACKUPMYWALL;

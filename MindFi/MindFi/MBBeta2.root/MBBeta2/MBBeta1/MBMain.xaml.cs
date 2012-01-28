@@ -967,6 +967,11 @@ namespace MBBeta2
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
+                                case AsyncReqQueue.BACKUPMYNOTIFICATIONS:
+                                    this.UpdateText.Text = "Getting my notifications from " +
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                    break;
                             }
                             if (!inProgress)
                             {

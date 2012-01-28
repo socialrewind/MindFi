@@ -28,7 +28,8 @@ namespace MBBeta2.Controls
             StartDateDP.SelectedDate = (System.DateTime.Today.AddDays(-30));
 
             EndDateDP.DisplayDateStart = StartDateDP.SelectedDate;
-            EndDateDP.DisplayDateEnd = (System.DateTime.Today);
+            // TODO: Check how much we can have in the future
+            EndDateDP.DisplayDateEnd = (System.DateTime.Today.AddDays(60));
             EndDateDP.SelectedDate = (System.DateTime.Today);
         }
 

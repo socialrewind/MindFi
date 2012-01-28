@@ -67,7 +67,7 @@ namespace MBBetaAPI
                 reader.Close();
 
                 //Read Person
-                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance, DataRequestID, State, RequestType, ResponseValue from PersonData join RequestsQueue on DataRequestID= RequestsQueue.ID where PersonID = @ID", conn);
+                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance, DataRequestID, State, RequestType, ResponseValue from PersonData left outer join RequestsQueue on DataRequestID= RequestsQueue.ID where PersonID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader2 = command.ExecuteReader();
@@ -229,50 +229,31 @@ namespace MBBetaAPI
 
                 // TODO: Double check possible states
                 // Parse process, if needed
-                if (DataRequestState == AsyncReqQueue.RECEIVED)
+                switch (DataRequestState)
                 {
-                    switch (DataRequestType)
-                    {
-                        case "FBPerson":
-                            string errorData;
-                            FBPerson currentFriend = new FBPerson(DataResponseValue, Distance, null);
-                            currentFriend.Parse();
-                            // sync data from currentFriend
-                            FirstName = currentFriend.FirstName;
-                            LastName = currentFriend.LastName;
-                            MiddleName = currentFriend.MiddleName;
-                            Name = currentFriend.Name;
-                            if (currentFriend.Link != null && currentFriend.Link != "")
+                    case AsyncReqQueue.RECEIVED:
+                        ProcessReceivedRequest();
+                        break;
+                    case 0:
+                        // create the new request and send - prioritize
+                        string errorMessage;
+                        AsyncReqQueue apiReq = FBAPI.Profile(SNID, ProcessPerson);
+                        if (apiReq.QueueAndSend(999))
+                        {
+                            DBLayer.UpdateDataRequest(ID, apiReq.ID, out errorMessage);
+                            if (errorMessage != "")
                             {
-                                SNLink = new Uri(currentFriend.Link);
+                                ErrorMessage = errorMessage;
                             }
-                            About = currentFriend.About;
-                            Bio = currentFriend.Bio;
-                            Quotes = currentFriend.Quotes;
-                            RelationshipStatus = currentFriend.RelationshipStatus;
-                            string tempDay, tempMonth, tempYear;
-                            DBLayer.ProcessFullBirthday(currentFriend.FullBirthday, out tempDay, out tempMonth, out tempYear);
-                            int tempBirthDay, tempBirthMonth, tempBirthYear;
-                            if (int.TryParse(tempDay, out tempBirthDay))
-                            {
-                                BirthDay = tempBirthDay;
-                            }
-                            if (int.TryParse(tempMonth, out tempBirthMonth))
-                            {
-                                BirthMonth = tempBirthMonth;
-                            }
-                            if (int.TryParse(tempYear, out tempBirthYear))
-                            {
-                                BirthYear = tempBirthYear;
-                            }
-                            // TODO: make sure it recognizes parse has happened
-                            currentFriend.Parsed = true;
-                            currentFriend.Save(out errorData);
-                            // TODO: Missing other fields
-                            break;
-                        default:
-                            break;
-                    }
+                        }
+                        else
+                        {
+                            // TODO: Localized
+                            ErrorMessage = "Cannot request information while disconnected";
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
             catch
@@ -286,6 +267,50 @@ namespace MBBetaAPI
 
             if (!GotData)
                 throw new Exception("No data available for the person");
+        }
+
+        private void ProcessReceivedRequest()
+        {
+            switch (DataRequestType)
+            {
+                case "FBPerson":
+                    string errorData;
+                    FBPerson currentFriend = new FBPerson(DataResponseValue, Distance, null);
+                    currentFriend.Parse();
+                    // sync data from currentFriend
+                    // TODO: Double check all fields are used
+                    FirstName = currentFriend.FirstName;
+                    LastName = currentFriend.LastName;
+                    MiddleName = currentFriend.MiddleName;
+                    Name = currentFriend.Name;
+                    if (currentFriend.Link != null && currentFriend.Link != "")
+                    {
+                        SNLink = new Uri(currentFriend.Link);
+                    }
+                    About = currentFriend.About;
+                    Bio = currentFriend.Bio;
+                    Quotes = currentFriend.Quotes;
+                    RelationshipStatus = currentFriend.RelationshipStatus;
+                    string tempDay, tempMonth, tempYear;
+                    DBLayer.ProcessFullBirthday(currentFriend.FullBirthday, out tempDay, out tempMonth, out tempYear);
+                    int tempBirthDay, tempBirthMonth, tempBirthYear;
+                    if (int.TryParse(tempDay, out tempBirthDay))
+                    {
+                        BirthDay = tempBirthDay;
+                    }
+                    if (int.TryParse(tempMonth, out tempBirthMonth))
+                    {
+                        BirthMonth = tempBirthMonth;
+                    }
+                    if (int.TryParse(tempYear, out tempBirthYear))
+                    {
+                        BirthYear = tempBirthYear;
+                    }
+                    currentFriend.Parsed = true;
+                    currentFriend.Save(out errorData);
+                    break;
+                // TODO: default case and other types for Twitter, LinkedIn
+            }
         }
 
 
@@ -390,5 +415,29 @@ namespace MBBetaAPI
         }
 
         #endregion
+        #region "Single item processing methods"
+        /// <summary>
+        /// process one friend profile
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public bool ProcessPerson(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                DataResponseValue = response;
+                DataRequestType = "FBPerson";
+                DataRequestState = AsyncReqQueue.RECEIVED;
+                ProcessReceivedRequest();
+                return true;
+            }
+            return false;
+        }
+        #endregion
+
     }
 }

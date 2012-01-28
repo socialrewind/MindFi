@@ -195,6 +195,9 @@
     <Compile Include="SNMessages.xaml.cs">
       <DependentUpon>SNMessages.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\AsyncDetailCard.xaml.cs">
+      <DependentUpon>AsyncDetailCard.xaml</DependentUpon>
+    </Compile>
     <Compile Include="VirtualizingWrapPannel.cs" />
     <Page Include="Controls\AlbumControl.xaml">
       <SubType>Designer</SubType>
@@ -273,6 +276,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SNMessages.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\AsyncDetailCard.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -89,6 +89,9 @@
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding LastName}"
                            FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="Red"
+                           FontWeight="Bold" HorizontalAlignment="Center"/>
             </StackPanel>
         </StackPanel>
 

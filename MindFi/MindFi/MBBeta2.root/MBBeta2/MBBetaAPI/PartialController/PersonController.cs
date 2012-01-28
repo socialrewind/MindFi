@@ -48,6 +48,7 @@ namespace MBBetaAPI
         public int DataRequestState { get; private set; }
         public string DataRequestType { get; private set; }
         public string DataResponseValue { get; private set; }
+        public string ErrorMessage { get; private set; }
 
         //Extended attributes
         public List<RelatedOrganization> SchoolsList { get; private set; }

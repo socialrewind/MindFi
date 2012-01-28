@@ -885,13 +885,24 @@ namespace MBBeta2
         {
             online = true;
             // display login
+            /*
             var SNLoginWindow = new MBSNLogin(true);
             SNLoginWindow.Owner = this;
             SNLoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
             SNLoginWindow.Show();
+             * */
+            DoLogin(this);
             dispatcherTimer.Tick += new EventHandler(processTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
+        }
+
+        private static void DoLogin(Window myOwner)
+        {
+            var SNLoginWindow = new MBSNLogin(true);
+            SNLoginWindow.Owner = myOwner;
+            SNLoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            SNLoginWindow.Show();
         }
 
         /// <summary>

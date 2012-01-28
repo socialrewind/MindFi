@@ -388,32 +388,39 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Success on sending the request</returns>
         public bool Send()
         {
-            if (State == QUEUED || State == RETRY)
+            if (FBLogin.loggedIn)
             {
-                lock (obj)
+                if (State == QUEUED || State == RETRY)
                 {
-                    CountPerState[SENT]++;
-                    CountPerState[QUEUED]--;
-                    nRequestsInTransit++;
+                    lock (obj)
+                    {
+                        CountPerState[SENT]++;
+                        CountPerState[QUEUED]--;
+                        nRequestsInTransit++;
+                    }
+                    State = SENT;
+                    Save();
                 }
-                State = SENT;
-                Save();
+                else
+                {
+                    //System.Windows.Forms.MessageBox.Show("ERROR: AsyncReq ID " + ID + " Not in the appropriate state for being Sent");
+                    return false;
+                }
+                bool result = false;
+                if (FileName == "")
+                {
+                    result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken, addDateRange);
+                }
+                else
+                {
+                    result = FBAPI.CallGraphAPI(ReqURL, FileName, methodToCall, ID, Parent, ParentSNID);
+                }
+                return result;
             }
             else
             {
-                //System.Windows.Forms.MessageBox.Show("ERROR: AsyncReq ID " + ID + " Not in the appropriate state for being Sent");
-                return false;
+                return false; // cannot send when disconnected or not loggedin
             }
-            bool result = false;
-            if (FileName == "")
-            {
-                result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken, addDateRange);
-            }
-            else
-            {
-                result = FBAPI.CallGraphAPI(ReqURL, FileName, methodToCall, ID, Parent, ParentSNID);
-            }
-            return result;
         }
 
         /// <summary>
@@ -421,7 +428,7 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         /// <param name="priority">Higher (using 999), the first to be consumed from the queue</param>
         /// <returns></returns>
-        private bool QueueAndSend(int priority)
+        public bool QueueAndSend(int priority)
         {
             bool success = true;
             Priority = priority;
@@ -430,7 +437,7 @@ namespace MBBetaAPI.AgentAPI
                 success = Queue();
                 if (success)
                 {
-                    Send();
+                    success = Send();
                 }
                 currentPriorityGlobal = priority;
             }

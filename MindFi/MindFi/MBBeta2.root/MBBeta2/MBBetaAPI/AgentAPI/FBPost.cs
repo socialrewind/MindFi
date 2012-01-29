@@ -196,7 +196,7 @@ namespace MBBetaAPI.AgentAPI
                     Source, Icon, Attribution, Privacy, PrivacyValue,
                     m_created, m_updated,
                     ActionsID, ActionsName, ApplicationID, ApplicationName,
-                    PostType, ParentID, CommentCount, LikesCount,
+                    PostType, ParentID, CommentCount, LikesCount, Parsed,
                     out Saved, out ErrorMessage);
                 lock (LockObj)
                 {

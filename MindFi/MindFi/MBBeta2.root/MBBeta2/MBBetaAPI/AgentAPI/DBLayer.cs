@@ -1066,7 +1066,7 @@ namespace MBBetaAPI.AgentAPI
             string Source, string Icon, string Attribution, string Privacy, string PrivacyValue,
             DateTime? Created, DateTime? Updated,
             string ActionsID, string ActionsName, string ApplicationID, string ApplicationName,
-            string PostType, string ParentID, int? CommentCount, int? LikesCount,
+            string PostType, string ParentID, int? CommentCount, int? LikesCount, bool Parsed,
             out bool Saved, out string ErrorMessage)
         {
             ErrorMessage = "";
@@ -1200,16 +1200,31 @@ namespace MBBetaAPI.AgentAPI
                     if (outrows > 0)
                     {
                         Saved = true;
-                        // Adding FTS records
-                        SQL = "insert into FTSPostData (PostID,Message,Description,Created) select PostID,Message, Description, Created from PostData where PartitionDate=? and PartitionID=?;";
-                        SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
-                        FTSCmd.Parameters.Add(pPartitionDate);
-                        FTSCmd.Parameters.Add(pPartitionID);
-
-                        outrows = FTSCmd.ExecuteNonQuery();
-                        if (outrows == 0)
+                        if (Parsed)
                         {
-                            //System.Windows.Forms.MessageBox.Show("error inserting FTS PostData");
+                            // update status of the associated request
+                            SQL = "update RequestsQueue set State=5 where State=4 and ID=(select PostRequestID from PostData where PartitionDate=? and PartitionID=?)";
+                            SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
+                            UpdateCmd2.Parameters.Add(pPartitionDate);
+                            UpdateCmd2.Parameters.Add(pPartitionID);
+                            // System.Windows.Forms.MessageBox.Show("ready to execute: " + SQL + " affecting " + PartitionDate + " - " + PartitionID + " with bday: " + birthDay + " / " + birthMonth + " / " + birthYear);
+                            int outrows2 = UpdateCmd2.ExecuteNonQuery();
+                            // DEBUG
+                            // System.Windows.Forms.MessageBox.Show("saved " + outrows + " persons");
+                            if (outrows2 > 0)
+                            {
+                                // Adding FTS records
+                                SQL = "insert into FTSPostData (PostID,Message,Description,Created) select PostID,Message, Description, Created from PostData where PartitionDate=? and PartitionID=?;";
+                                SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
+                                FTSCmd.Parameters.Add(pPartitionDate);
+                                FTSCmd.Parameters.Add(pPartitionID);
+
+                                outrows = FTSCmd.ExecuteNonQuery();
+                                if (outrows == 0)
+                                {
+                                    //System.Windows.Forms.MessageBox.Show("error inserting FTS PostData");
+                                }
+                            }
                         }
                     }
                     ErrorMessage = "";
@@ -2790,7 +2805,7 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Method that updates different request IDs for a person
         /// </summary>
-        private static bool UpdateSomeRequestID(int FriendEntityID, long RequestID, string Field, out string ErrorMessage)
+        private static bool UpdateSomeRequestID(string Table, string IDField, int FriendEntityID, long RequestID, string Field, out string ErrorMessage)
         {
             lock (obj)
             {
@@ -2799,7 +2814,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "update PersonData set " + Field + "=? where PersonID=?";
+                    string SQL = "update " + Table + " set " + Field + "=? where " + IDField + "=?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pReq = new SQLiteParameter();
                     pReq.Value = RequestID;
@@ -2829,7 +2844,7 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public static bool UpdatePictureRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
-            return UpdateSomeRequestID(FriendEntityID, RequestID, "PictureRequestID", out ErrorMessage);
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "PictureRequestID", out ErrorMessage);
         }
 
         /// <summary>
@@ -2837,7 +2852,7 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public static bool UpdateDataRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
-            return UpdateSomeRequestID(FriendEntityID, RequestID, "DataRequestID", out ErrorMessage);
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "DataRequestID", out ErrorMessage);
         }
 
         /// <summary>
@@ -2845,7 +2860,7 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public static bool UpdateWallRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
-            return UpdateSomeRequestID(FriendEntityID, RequestID, "WallRequestID", out ErrorMessage);
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "WallRequestID", out ErrorMessage);
         }
 
         /// <summary>
@@ -2853,7 +2868,7 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public static bool UpdateInboxRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
-            return UpdateSomeRequestID(FriendEntityID, RequestID, "InboxRequestID", out ErrorMessage);
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "InboxRequestID", out ErrorMessage);
         }
 
         /// <summary>
@@ -2861,7 +2876,7 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public static bool UpdateEventRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
-            return UpdateSomeRequestID(FriendEntityID, RequestID, "EventRequestID", out ErrorMessage);
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "EventRequestID", out ErrorMessage);
         }
 
         /// <summary>
@@ -2869,7 +2884,15 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public static bool UpdateNewsRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
-            return UpdateSomeRequestID(FriendEntityID, RequestID, "NewsRequestID", out ErrorMessage);
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "NewsRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
+        /// Method that updates post Requests
+        /// </summary>
+        public static bool UpdatePostRequest(int PostEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID("PostData", "PostID", PostEntityID, RequestID, "PostRequestID", out ErrorMessage);
         }
 
         /// <summary>

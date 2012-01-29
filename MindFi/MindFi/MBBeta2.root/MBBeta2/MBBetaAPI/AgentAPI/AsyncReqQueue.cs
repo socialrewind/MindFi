@@ -40,8 +40,8 @@ namespace MBBetaAPI.AgentAPI
         #endregion
 
         #region "Constants"
-        const int SIZETOGETPERPAGE = 200; // USE 1 for debugging issues that are not related to concurrency
-        const int CONCURRENTREQUESTLIMIT = 20;
+        public const int SIZETOGETPERPAGE = 200; // USE 1 for debugging issues that are not related to concurrency
+        public const int CONCURRENTREQUESTLIMIT = 20;
         // AsyncReqQueue states
         public const int POTENTIAL = 0;
         public const int QUEUED = 1;
@@ -367,11 +367,11 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Internal variant that specifies priority for the request and decides accordingly if it should be queued or not
+        /// Variant that specifies priority for the request and decides accordingly if it should be queued or not
         /// </summary>
         /// <param name="priority">Higher (using 999), the first to be consumed from the queue</param>
         /// <returns></returns>
-        private bool Queue(int priority)
+        public bool Queue(int priority)
         {
             bool success = true;
             Priority = priority;
@@ -424,7 +424,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Internal variant that combines Queue and Send, specifies priority for the request and decides accordingly if it should be queued and send or not
+        /// Variant that combines Queue and Send, specifies priority for the request and decides accordingly if it should be queued and send or not
         /// </summary>
         /// <param name="priority">Higher (using 999), the first to be consumed from the queue</param>
         /// <returns></returns>
@@ -1133,6 +1133,7 @@ namespace MBBetaAPI.AgentAPI
                 nInSaveRequests--;
                 nPosts += wall.CurrentNumber;
 
+                // TODO: Remove commented
             //    foreach (FBPost post in wall.items)
             //    {
             //        if (post.LikesCount > 0)
@@ -1681,27 +1682,9 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 nFriendsProcessed++;
-                // Parser is postponed
-                //FBPerson currentFriend = new FBPerson(response, 1, null);
-                //nInParseRequests++;
-                //currentFriend.Parse();
-                //nInParseRequests--;
-                //CountPerState[PARSED]++;
-
-                //string errorData;
-                //nInSaveRequests++;
-                //currentFriend.Save(out errorData);
-                //nInSaveRequests--;
-                //if (errorData != "")
-                //{
-                //    return false;
-                //}
                 return true;
             }
-            else
-            {
-                nFailedRequests++;
-            }
+            nFailedRequests++;
             return false;
         }
 

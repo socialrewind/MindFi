@@ -58,6 +58,8 @@ namespace MBBetaAPI
         public string PostType { get; set; }
         public string ParentID { get; set; }    //Should be int, of internal PostID, not SNID!
 
+        public string ApplicationName { get; set; }
+
         public int CommentsCount { get; set; }
 
         //Likes
@@ -68,6 +70,12 @@ namespace MBBetaAPI
         public PersonLight FromPerson { get; set; }
         public PersonLight ToPerson { get; set; }
 
+        // Data for async Requests
+        public int PostRequestID { get; private set; }
+        public int PostRequestState { get; private set; }
+        public string PostRequestType { get; private set; }
+        public string PostResponseValue { get; private set; }
+        public string ErrorMessage { get; private set; }
 
         #endregion
 

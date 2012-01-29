@@ -33,5 +33,11 @@ namespace MBBeta2
 
         }
 
+        private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            // Refresh
+            this.ErrorMessage2.Text = "Information was updated " + DateTime.Now.ToShortTimeString();            
+        }
+
     }
 }

@@ -62,12 +62,14 @@ namespace MBBetaAPI.AgentAPI
         public const int BACKUPMYEVENTS = 6;
         public const int BACKUPMYALBUMS = 7;
         public const int BACKUPMYNOTIFICATIONS = 8;
+        public const int BACKUPFRIENDSWALLS = 9;
         #endregion
 
         #region "Statistics"
         public static volatile int nFriends = 0;
         public static volatile int nFriendsProcessed = 0;
         public static volatile int nFriendsPictures = 0;
+        public static volatile int nFriendsWalls = 0;
         public static volatile int nPosts = 0;
         public static volatile int nEvents = 0;
         public static volatile int nMessages = 0;
@@ -126,8 +128,6 @@ namespace MBBetaAPI.AgentAPI
 
         #region "Internal variables"
         private static bool FirstTimeBasics = true;
-        //private static string backupCase = "Starting new backup";
-        //private static volatile bool firstCase = false;
 
         private static volatile int NextID = -1;
         private bool addToken = true;
@@ -675,6 +675,13 @@ namespace MBBetaAPI.AgentAPI
                         newPeriod = false;
                     }
                     break;
+                case BACKUPFRIENDSWALLS:
+                    if (newPeriod)
+                    {
+                        nReqs = GetNextFriendsWalls();
+                    }
+                    break;
+
                 default:
                     nReqs = 0;
                     break;
@@ -734,6 +741,34 @@ namespace MBBetaAPI.AgentAPI
                         apiReq = FBAPI.Profile(SNID, ProcessOneFriend);
                         apiReq.QueueAndSend(999);
                         DBLayer.UpdateDataRequest(friendID, apiReq.ID, out errorMessage);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
+        private static int GetNextFriendsWalls()
+        {
+            string errorMessage;
+            AsyncReqQueue apiReq;
+            // Go over friends, adding requests for them if not yet defined
+            int[] FriendEntityID;
+            string[] FriendSNID;
+
+            int nRequests = DBLayer.GetNFriendsWithoutWall(CONCURRENTREQUESTLIMIT, out FriendEntityID, out FriendSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int friendID in FriendEntityID)
+                {
+                    string SNID = FriendSNID[i];
+                    if (SNID != null && SNID != "")
+                    {
+                        apiReq = FBAPI.Wall(SNID, SIZETOGETPERPAGE, ProcessWall, friendID, SNID);
+                        apiReq.QueueAndSend(999);
+                        DBLayer.UpdateWallRequest(friendID, apiReq.ID, out errorMessage);
+                        nFriendsWalls++;
                     }
                     i++;
                 }
@@ -811,10 +846,11 @@ namespace MBBetaAPI.AgentAPI
                             nReqs = GetDataForCurrentState(ID, SNID);
                         }
 
-                        // if no pending data, then check backup time progres and infligh requests
+                        // if no pending data, then check backup time progress and infligh requests
                         if (nReqs == 0)
                         {
-                            if ( CurrentBackupState <= BACKUPMYNOTIFICATIONS )
+                            if ( CurrentBackupState < BACKUPMYNOTIFICATIONS || 
+                                (CurrentBackupState < BACKUPFRIENDSWALLS && SNAccount.CurrentProfile.currentBackupLevel >= SNAccount.EXTENDED) )
                             {
                                 CurrentBackupState++;
                                 DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);

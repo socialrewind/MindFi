@@ -284,7 +284,8 @@ namespace MBBeta2
                 this.Cursor = Cursors.Wait;
 
                 DetailCard DetailCardWindow = new DetailCard();
-                DetailCardWindow.DataContext = Me;
+                PersonWrapper dataContext = new PersonWrapper(Me);
+                DetailCardWindow.DataContext = dataContext;
                 CC.PositionNewWindow(this, DetailCardWindow);
                 //Tests.AsyncDetailCard DetailCardWindow = new Tests.AsyncDetailCard();
                 //CC.PositionNewWindow(this, DetailCardWindow);
@@ -982,6 +983,11 @@ namespace MBBeta2
                                     break;
                                 case AsyncReqQueue.BACKUPMYNOTIFICATIONS:
                                     this.UpdateText.Text = "Getting my notifications from " +
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                    break;
+                                case AsyncReqQueue.BACKUPFRIENDSWALLS:
+                                    this.UpdateText.Text = "Getting friends walls (" + AsyncReqQueue.nFriendsWalls + ") from " +
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;

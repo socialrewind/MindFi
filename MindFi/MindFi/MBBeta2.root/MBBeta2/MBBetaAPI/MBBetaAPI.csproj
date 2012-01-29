@@ -82,6 +82,7 @@
     <Compile Include="LikeStructure.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="PartialController\Activity.cs" />
+    <Compile Include="PartialController\PersonWrapper.cs" />
     <Compile Include="PartialController\SearchController.cs" />
     <Compile Include="PartialController\SNEventController.cs" />
     <Compile Include="PartialController\SNLikeController.cs" />

@@ -2739,6 +2739,55 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
+        /// Method that gets number of requests per state
+        /// </summary>
+        public static int GetNFriendsWithoutWall(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                FriendEntityID = new int[N];
+                for (int i = 0; i < N; i++) FriendEntityID[i] = -1;
+                FriendSNID = new string[N];
+                for (int i = 0; i < N; i++) FriendSNID[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select PersonID, SNID from PersonData where WallRequestID is null and Distance<2 limit " + N; ;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int PersonID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string PersonSNID = tempSNID.ToString();
+                        FriendEntityID[nRequests] = PersonID;
+                        FriendSNID[nRequests] = PersonSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+        /// <summary>
         /// Method that updates different request IDs for a person
         /// </summary>
         private static bool UpdateSomeRequestID(int FriendEntityID, long RequestID, string Field, out string ErrorMessage)
@@ -2877,31 +2926,34 @@ namespace MBBetaAPI.AgentAPI
                         reader = CheckCmd.ExecuteReader();
                         if (reader.Read())
                         {
-                            //DateTime tempStart = reader.GetDateTime(1);
-                            DateTime tempPeriodStart = reader.GetDateTime(0);
-                            DateTime tempPeriodEnd = reader.GetDateTime(1);
-                            DateTime tempLastBackupDone = reader.GetDateTime(2);
-                            tempLastBackupDone = tempLastBackupDone.Date;
-                            // Logic for incremental: if period start is similar to existing, complete backup, only go forward; else, full backup needed
-                            // if existing backup covers the past, go only forward; else cover the period back first
-                            if (tempPeriodStart <= currentBackupStart)
+                            if (!reader.IsDBNull(0) && !reader.IsDBNull(1) && !reader.IsDBNull(2))
                             {
-                                currentBackupStart = (tempPeriodEnd >= tempLastBackupDone.AddDays(-1)) ? tempLastBackupDone.AddDays(-1) : tempPeriodEnd;
-                                currentBackupEnd = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
-                                if (DateTime.Today.AddMonths(1) > endPeriod)
+                                //DateTime tempStart = reader.GetDateTime(1);
+                                DateTime tempPeriodStart = reader.GetDateTime(0);
+                                DateTime tempPeriodEnd = reader.GetDateTime(1);
+                                DateTime tempLastBackupDone = reader.GetDateTime(2);
+                                tempLastBackupDone = tempLastBackupDone.Date;
+                                // Logic for incremental: if period start is similar to existing, complete backup, only go forward; else, full backup needed
+                                // if existing backup covers the past, go only forward; else cover the period back first
+                                if (tempPeriodStart <= currentBackupStart)
                                 {
-                                    currentBackupEnd = DateTime.Today.AddMonths(1);
+                                    currentBackupStart = (tempPeriodEnd >= tempLastBackupDone.AddDays(-1)) ? tempLastBackupDone.AddDays(-1) : tempPeriodEnd;
+                                    currentBackupEnd = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
+                                    if (DateTime.Today.AddMonths(1) > endPeriod)
+                                    {
+                                        currentBackupEnd = DateTime.Today.AddMonths(1);
+                                    }
+                                    if (currentBackupEnd < currentBackupStart.AddMonths(1))
+                                    {
+                                        currentBackupEnd = currentBackupStart.AddMonths(1);
+                                    }
+                                    isIncremental = true;
                                 }
-                                if (currentBackupEnd < currentBackupStart.AddMonths(1))
+                                else
                                 {
-                                    currentBackupEnd = currentBackupStart.AddMonths(1);
+                                    // initially, backup only the past
+                                    currentBackupEnd = tempPeriodStart;
                                 }
-                                isIncremental = true;
-                            }
-                            else
-                            {
-                                // initially, backup only the past
-                                currentBackupEnd = tempPeriodStart;
                             }
                         }
                         reader.Close();

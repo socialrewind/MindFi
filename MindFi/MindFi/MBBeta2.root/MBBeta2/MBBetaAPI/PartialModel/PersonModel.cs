@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using System.ComponentModel;
 using MBBetaAPI.AgentAPI;
 
 namespace MBBetaAPI
 {
-    public partial class Person
+    public partial class Person : INotifyPropertyChanged
     {
         //**************** Constructors
         #region Constructors
@@ -17,8 +18,18 @@ namespace MBBetaAPI
         #region Attributes
         #endregion
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         //**************** Methods
         #region Methods
+
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
 
         void GetFromDB()
         {
@@ -233,6 +244,15 @@ namespace MBBetaAPI
                 {
                     case AsyncReqQueue.RECEIVED:
                         ProcessReceivedRequest();
+                        NotifyPropertyChanged("All");
+                        break;
+                    case AsyncReqQueue.PARSED:
+                        if (FirstName == null)
+                        {
+                            ProcessReceivedRequest();
+                            ErrorMessage += "Appeared already parsed but no special data available";
+                            NotifyPropertyChanged("All");
+                        }
                         break;
                     case 0:
                         // create the new request and send - prioritize
@@ -241,7 +261,17 @@ namespace MBBetaAPI
                         if (apiReq.QueueAndSend(999))
                         {
                             DBLayer.UpdateDataRequest(ID, apiReq.ID, out errorMessage);
-                            if (errorMessage != "")
+                            if (errorMessage == "")
+                            {
+                                // TODO: Use ProfilePicRequest state
+                                apiReq = FBAPI.ProfilePic(SNID.ToString(),
+                                    AsyncReqQueue.ProfilePhotoDestinationDir + SNID.ToString() + ".jpg",
+                                    ProcessFriendPic, ID, SNID.ToString());
+                                apiReq.QueueAndSend(999);
+                                DBLayer.UpdatePictureRequest(ID, apiReq.ID, out errorMessage);
+
+                            }
+                            else
                             {
                                 ErrorMessage = errorMessage;
                             }
@@ -433,10 +463,43 @@ namespace MBBetaAPI
                 DataRequestType = "FBPerson";
                 DataRequestState = AsyncReqQueue.RECEIVED;
                 ProcessReceivedRequest();
+                NotifyPropertyChanged("All");
                 return true;
             }
             return false;
         }
+
+        /// <summary>
+        /// Process a profile picture
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">Filename</param>
+        /// <param name="parent">Reference to the friend database ID</param>
+        /// <param name="parentSNID">Reference to the friend social network ID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public bool ProcessFriendPic(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            string errorData = "";
+
+            if (result)
+            {
+                if (parent != null)
+                {
+                    if (parent != null && response.IndexOf("jpg") > 0)
+                    {
+                        ProfilePic = response;
+                        DBLayer.UpdateProfilePic((long)parent, response, out errorData);
+                        NotifyPropertyChanged("ProfilePic");
+                        if (errorData == "") return true;
+                    }
+                }
+                // corrected bug: return an error without mark as failed
+                return false;
+            }
+            return false;
+        }
+
         #endregion
 
     }

@@ -6,6 +6,7 @@
       MinWidth="640" MinHeight="480"
 	  Title="DetailCard"
       WindowStyle="None" AllowsTransparency="True" BorderBrush="Black" BorderThickness="1"
+        DataContextChanged="Window_DataContextChanged"
       WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
@@ -90,6 +91,9 @@
                 <TextBlock Text="{Binding LastName}"
                            FontWeight="Bold" HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="Red"
+                           FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock Name="ErrorMessage2"
                            Foreground="Red"
                            FontWeight="Bold" HorizontalAlignment="Center"/>
             </StackPanel>

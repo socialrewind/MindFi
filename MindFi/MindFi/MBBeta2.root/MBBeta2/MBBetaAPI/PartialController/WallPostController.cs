@@ -53,6 +53,7 @@ namespace MBBetaAPI
         public Uri Picture { get; set; }        
         public Uri Link { get; set; }
         public string Caption { get; set; }
+        public string Story { get; set; }
         public string Description { get; set; }
         public DateTime Date { get; set; }
         public string PostType { get; set; }

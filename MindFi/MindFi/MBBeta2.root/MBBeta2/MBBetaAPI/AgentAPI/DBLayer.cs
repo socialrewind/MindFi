@@ -655,6 +655,10 @@ namespace MBBetaAPI.AgentAPI
                     ReferenceTable = 12;
                     Field = "NoteID";
                     break;
+                case "StoryTagData":
+                    ReferenceTable = 13;
+                    Field = "";
+                    break;
                 default:
                     // TODO: message box for easier diagnostic when not in final production
                     throw new Exception("Invalid table for DataSave: " + Table);
@@ -987,7 +991,7 @@ namespace MBBetaAPI.AgentAPI
                         if (Parsed)
                         {
                             // update status of the associated request
-                            SQL = "update RequestsQueue set State=5 where State=4 and ID=(select DataRequestID from PersonData where PartitionDate=? and PartitionID=?)";
+                            SQL = "update RequestsQueue set State=5 where ID=(select DataRequestID from PersonData where PartitionDate=? and PartitionID=?)";
                             SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
                             UpdateCmd2.Parameters.Add(pPartitionDate);
                             UpdateCmd2.Parameters.Add(pPartitionID);
@@ -1062,7 +1066,7 @@ namespace MBBetaAPI.AgentAPI
 
         public static void PostDataSave(decimal PartitionDate, int PartitionID,
             string FromID, string FromName, string ToID, string ToName, string Message,
-            string Picture, string Link, string Caption, string Description,
+            string Picture, string Link, string Caption, string Description, string Story,
             string Source, string Icon, string Attribution, string Privacy, string PrivacyValue,
             DateTime? Created, DateTime? Updated,
             string ActionsID, string ActionsName, string ApplicationID, string ApplicationName,
@@ -1090,6 +1094,7 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pLink = new SQLiteParameter();
                     SQLiteParameter pCaption = new SQLiteParameter();
                     SQLiteParameter pDescription = new SQLiteParameter();
+                    SQLiteParameter pStory = new SQLiteParameter();
                     SQLiteParameter pSource = new SQLiteParameter();
                     SQLiteParameter pIcon = new SQLiteParameter();
                     SQLiteParameter pAttribution = new SQLiteParameter();
@@ -1116,6 +1121,7 @@ namespace MBBetaAPI.AgentAPI
                     pLink.Value = Link;
                     pCaption.Value = Caption;
                     pDescription.Value = Description;
+                    pStory.Value = Story;
                     pSource.Value = Source;
                     pIcon.Value = Icon;
                     pAttribution.Value = Attribution;
@@ -1141,6 +1147,7 @@ namespace MBBetaAPI.AgentAPI
                     if (Link != null) SQL += ", Link=?";
                     if (Caption != null) SQL += ", Caption=?";
                     if (Description != null) SQL += ", Description=?";
+                    if (Story != null) SQL += ", Story=?";
                     if (Source != null) SQL += ", Source=?";
                     if (Icon != null) SQL += ", Icon=?";
                     if (Attribution != null) SQL += ", Attribution=?";
@@ -1175,6 +1182,7 @@ namespace MBBetaAPI.AgentAPI
                     if (Link != null) UpdateCmd.Parameters.Add(pLink);
                     if (Caption != null) UpdateCmd.Parameters.Add(pCaption);
                     if (Description != null) UpdateCmd.Parameters.Add(pDescription);
+                    if (Story != null) UpdateCmd.Parameters.Add(pStory);
                     if (Source != null) UpdateCmd.Parameters.Add(pSource);
                     if (Icon != null) UpdateCmd.Parameters.Add(pIcon);
                     if (Attribution != null) UpdateCmd.Parameters.Add(pAttribution);
@@ -1203,7 +1211,7 @@ namespace MBBetaAPI.AgentAPI
                         if (Parsed)
                         {
                             // update status of the associated request
-                            SQL = "update RequestsQueue set State=5 where State=4 and ID=(select PostRequestID from PostData where PartitionDate=? and PartitionID=?)";
+                            SQL = "update RequestsQueue set State=5 where ID=(select PostRequestID from PostData where PartitionDate=? and PartitionID=?)";
                             SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
                             UpdateCmd2.Parameters.Add(pPartitionDate);
                             UpdateCmd2.Parameters.Add(pPartitionID);
@@ -2147,6 +2155,149 @@ namespace MBBetaAPI.AgentAPI
                 catch (Exception ex)
                 {
                     ErrorMessage = "Error saving Tag\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show(ErrorMessage);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return;
+        }
+
+        public static void StoryTagDataSave(
+            string PersonSNID, string PostSNID, 
+            int Offset, int Length,
+            DateTime? Created, DateTime? Updated,
+            out bool Saved, out string ErrorMessage)
+        {
+            decimal PartitionDate;
+            int PartitionID = -1;
+            bool Exists = false;
+
+            ErrorMessage = "";
+            Saved = false;
+            DateTime tempD = DateTime.Now;
+            PartitionDate = tempD.Year * 10000 + tempD.Month * 100 + tempD.Day;
+
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    SQLiteCommand ExistsCmd = new SQLiteCommand(
+                    "select PartitionDate, PartitionID from StoryTagData where PersonSNID=? and PostSNID=? and SocialNetwork=? and Active=1",
+                            conn);
+                    SQLiteParameter pSNID = new SQLiteParameter();
+                    pSNID.Value = PersonSNID;
+                    ExistsCmd.Parameters.Add(pSNID);
+                    SQLiteParameter pSNID2 = new SQLiteParameter();
+                    pSNID2.Value = PostSNID;
+                    ExistsCmd.Parameters.Add(pSNID2);
+                    SQLiteParameter pSN = new SQLiteParameter();
+                    pSN.Value = SocialNetwork.FACEBOOK;
+                    ExistsCmd.Parameters.Add(pSN);
+                    SQLiteDataReader reader = ExistsCmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                        {
+                            PartitionDate = reader.GetDecimal(0);
+                            PartitionID = reader.GetInt32(1);
+                            Exists = true;
+                        }
+                    }
+                    reader.Close();
+
+                    string SQL;
+                    if (Exists)
+                    {
+                        SQL = "update StoryTagData set SocialNetwork=?, PersonSNID=?, PostSNID=?, Active=1, "
+                            + "Offset=?, Length=?, Created=?, Updated=?, LastUpdate=? where PartitionDate=? and PartitionID=?";
+                    }
+                    else
+                    {
+                        SQLiteCommand ReadCmd = new SQLiteCommand(
+                            "select FreeID from DailyID  where Day=? and ReferenceTable=?",
+                                conn);
+                        SQLiteParameter pDay = new SQLiteParameter();
+                        pDay.Value = PartitionDate;
+                        ReadCmd.Parameters.Add(pDay);
+                        SQLiteParameter pRefTable = new SQLiteParameter();
+                        pRefTable.Value = GetReferenceTable("StoryTagData", out ErrorMessage);
+                        ReadCmd.Parameters.Add(pRefTable);
+                        SQLiteDataReader reader2 = ReadCmd.ExecuteReader();
+                        PartitionID = 1; // first execution, I am #1, but free is 2
+                        SQL = "insert into DailyID (Day, ReferenceTable, FreeID) values(?, ?, 2)";
+                        if (reader2.Read())
+                        {
+                            if (!reader2.IsDBNull(0))
+                            {
+                                PartitionID = reader2.GetInt32(0);
+                                SQL = "update DailyID set FreeID=FreeID+1 where Day=? and ReferenceTable=?";
+                            }
+                        }
+                        reader2.Close();
+                        SQLiteCommand FreeIDCmd = new SQLiteCommand(SQL, conn);
+                        FreeIDCmd.Parameters.Add(pDay);
+                        FreeIDCmd.Parameters.Add(pRefTable);
+                        FreeIDCmd.ExecuteNonQuery();
+
+                        SQL = "Insert into StoryTagData (SocialNetwork, PersonSNID, PostSNID, Active, "
+                            + "Offset, Length, Created, Updated, LastUpdate, PartitionDate, PartitionID)"
+                            + " values (?,?,1,?,?,?,?,?,?,?)";
+                    }
+                    SQLiteParameter pPersonSNID = new SQLiteParameter();
+                    SQLiteParameter pPostSNID = new SQLiteParameter();
+                    SQLiteParameter pOffset = new SQLiteParameter();
+                    SQLiteParameter pLength = new SQLiteParameter();
+                    SQLiteParameter pCreated = new SQLiteParameter();
+                    SQLiteParameter pUpdated = new SQLiteParameter();
+                    SQLiteParameter pLU = new SQLiteParameter();
+                    SQLiteParameter pPartitionDate = new SQLiteParameter();
+                    SQLiteParameter pPartitionID = new SQLiteParameter();
+
+                    pSN.Value = SocialNetwork.FACEBOOK;
+                    pPersonSNID.Value = PersonSNID;
+                    pPostSNID.Value = PostSNID;
+                    pOffset.Value = Offset;
+                    pLength.Value = Length;
+                    pCreated.Value = Created;
+                    pUpdated.Value = Updated;
+                    pLU.Value = DateTime.Now;
+                    pPartitionDate.Value = PartitionDate;
+                    pPartitionID.Value = PartitionID;
+
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+
+                    UpdateCmd.Parameters.Add(pSN);
+                    UpdateCmd.Parameters.Add(pPersonSNID);
+                    UpdateCmd.Parameters.Add(pPostSNID);
+                    UpdateCmd.Parameters.Add(pOffset);
+                    UpdateCmd.Parameters.Add(pLength);
+                    UpdateCmd.Parameters.Add(pCreated);
+                    UpdateCmd.Parameters.Add(pUpdated);
+                    UpdateCmd.Parameters.Add(pLU);
+                    UpdateCmd.Parameters.Add(pPartitionDate);
+                    UpdateCmd.Parameters.Add(pPartitionID);
+
+                    int outrows = UpdateCmd.ExecuteNonQuery();
+
+                    if (outrows > 0)
+                    {
+                        Saved = true;
+                    }
+                    else
+                    {
+                        //System.Windows.Forms.MessageBox.Show("didn't save photo tag " + PartitionDate + "," + PartitionID);
+                    }
+                    ErrorMessage = "";
+                } // try
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error saving Story Tag\n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show(ErrorMessage);
                 }
                 finally

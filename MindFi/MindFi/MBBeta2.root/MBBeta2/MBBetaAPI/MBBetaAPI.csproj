@@ -52,6 +52,7 @@
     <Compile Include="AgentAPI\AsyncReqQueue.cs" />
     <Compile Include="AgentAPI\DBLayer.cs" />
     <Compile Include="AgentAPI\FBAlbum.cs" />
+    <Compile Include="AgentAPI\FBStoryTag.cs" />
     <Compile Include="FBAPI\FBAPI.cs" />
     <Compile Include="AgentAPI\FBCollection.cs" />
     <Compile Include="AgentAPI\FBEducation.cs" />

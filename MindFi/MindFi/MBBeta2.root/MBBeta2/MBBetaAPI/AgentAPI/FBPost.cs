@@ -91,9 +91,16 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string PostType { get; set; }
         /// <summary>
-        /// ID of the object the post refers to
+        /// Verbalized story
         /// </summary>
-        // public string ObjectID { get; set; }
+        public string Story { get; set; }
+        /// <summary>
+        /// Tags associated to this photo
+        /// </summary>
+        public ArrayList StoryTags
+        {
+            get { lock (LockObj) { return m_tags; } }
+        }
         /// <summary>
         /// List of comments associated to the post
         /// </summary>
@@ -125,6 +132,7 @@ namespace MBBetaAPI.AgentAPI
         private ArrayList m_comments;
         private ArrayList m_likes;
         private ArrayList m_to;
+        private ArrayList m_tags;
 
         #endregion
 
@@ -167,6 +175,7 @@ namespace MBBetaAPI.AgentAPI
             AddParser("comments", "FBPost", ref m_comments);
             AddParser("to", "FBPerson", ref m_to);
             AddParser("likes", "FBPerson", ref m_likes);
+            AddParser("story_tags", "FBStoryTag", ref m_tags);
         }
 
         public override void Save(out string ErrorMessage)
@@ -192,7 +201,7 @@ namespace MBBetaAPI.AgentAPI
 
                 DBLayer.PostDataSave(MyPartitionDate, MyPartitionID,
                     FromID, FromName, ToID, ToName, Message,
-                    Picture, Link, Caption, Description,
+                    Picture, Link, Caption, Description, Story,
                     Source, Icon, Attribution, Privacy, PrivacyValue,
                     m_created, m_updated,
                     ActionsID, ActionsName, ApplicationID, ApplicationName,
@@ -349,11 +358,9 @@ namespace MBBetaAPI.AgentAPI
                 case "type":
                     PostType = value;
                     break;
-/*
-                case "object_id":
-                    ObjectID = value;
+                case "story":
+                    Story = value;
                     break;
-*/
                 case "value":
                 case "friends":
                     if (parentName == "privacy")

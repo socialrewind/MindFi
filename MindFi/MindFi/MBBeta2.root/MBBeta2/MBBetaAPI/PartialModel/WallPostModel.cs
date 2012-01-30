@@ -62,7 +62,7 @@ namespace MBBetaAPI
             try
             {
                 //Read Post
-                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, SNID, FromID, FromName, ToID, ToName, Message, Picture, Link, Caption, Description, PostData.Created, PostData.Updated, CommentCount, LikesCount, PostData.ParentID, PostType, PostRequestID, State, RequestType, ResponseValue  from PostData left outer join RequestsQueue on PostRequestID= RequestsQueue.ID where PostID = @ID", conn);
+                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, SNID, FromID, FromName, ToID, ToName, Message, Picture, Link, Caption, Description, PostData.Created, PostData.Updated, CommentCount, LikesCount, PostData.ParentID, PostType, PostRequestID, State, RequestType, ResponseValue, Story from PostData left outer join RequestsQueue on PostRequestID= RequestsQueue.ID where PostID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -155,6 +155,14 @@ namespace MBBetaAPI
                         else
                         {
                             PostResponseValue = reader.GetString(20);
+                        }
+                        if (reader.IsDBNull(21))
+                        {
+                            Story = "";
+                        }
+                        else
+                        {
+                            Story = reader.GetString(21);
                         }
 
                 }

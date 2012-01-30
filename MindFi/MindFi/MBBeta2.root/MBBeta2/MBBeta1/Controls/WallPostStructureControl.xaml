@@ -16,6 +16,7 @@
                         Height="30" Width="30"  
                         Source="{Binding Path=FromPhotoPath}"/>
                 <StackPanel Orientation="Vertical" Margin="5,0,0,0">
+                    <TextBlock FontWeight="Bold" Text="{Binding Path=Story}" />
                     <TextBlock FontWeight="Bold" Text="{Binding Path=FromName}" />
                     <TextBlock  Text="{Binding Path=Message}"
                                MaxWidth="250" TextWrapping="Wrap"/>

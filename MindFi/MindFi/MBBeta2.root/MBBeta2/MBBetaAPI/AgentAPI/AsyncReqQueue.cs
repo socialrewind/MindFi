@@ -85,7 +85,7 @@ namespace MBBetaAPI.AgentAPI
         private static volatile int minPriorityGlobal = 0;
         private static volatile int currentPriorityGlobal = 999;
         private static volatile int currentBackupNumber = 0;
-        private static volatile int nRequestsInTransit = 0;
+        //private static volatile int nRequestsInTransit = 0;
         private static volatile bool RecoveringPendingReqs = false;
 
         #region "Statistic properties"
@@ -396,7 +396,7 @@ namespace MBBetaAPI.AgentAPI
                     {
                         CountPerState[SENT]++;
                         CountPerState[QUEUED]--;
-                        nRequestsInTransit++;
+                        //nRequestsInTransit++;
                     }
                     State = SENT;
                     Save();
@@ -512,8 +512,8 @@ namespace MBBetaAPI.AgentAPI
 
             if (!DatabaseInUse)
             {
-                ArrayList queueReq = DBLayer.GetRequests(CONCURRENTREQUESTLIMIT - nRequestsInTransit, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
-                if (queueReq.Count == 0 && nRequestsInTransit==0 && !FirstTimeBasics )
+                ArrayList queueReq = DBLayer.GetRequests(CONCURRENTREQUESTLIMIT - FBAPI.InFlight, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
+                if (queueReq.Count == 0 && FBAPI.InFlight==0 && !FirstTimeBasics )
                 {
                     FailedRequests = true;
                 }
@@ -814,9 +814,9 @@ namespace MBBetaAPI.AgentAPI
             // TODO: calculate how many requests were processed in the last time unit, and increase / decrease dynamically the number of requests to go
             int ConcurrentRequestLimit = 10;
             // TESTING: stop sending while Parse ( and save database ) is in progress
-            if (nRequestsInTransit < ConcurrentRequestLimit && nInParseRequests <= 0 && nInSaveRequests <=0 )
+            if (FBAPI.InFlight < ConcurrentRequestLimit && nInParseRequests <= 0 && nInSaveRequests <=0 )
             {
-                ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.QUEUED, out ErrorMessage, minPriorityGlobal);
+                ArrayList queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - FBAPI.InFlight, AsyncReqQueue.QUEUED, out ErrorMessage, minPriorityGlobal);
                 if (ErrorMessage != "")
                 {
                     ExitPendingWithError("Error getting queued requests: " + ErrorMessage);
@@ -825,7 +825,7 @@ namespace MBBetaAPI.AgentAPI
                 ErrorMessage = "Queued Requests to send: " + queueReq.Count + "\n";
                 if (queueReq.Count == 0)
                 {
-                    queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - nRequestsInTransit, AsyncReqQueue.RETRY, out ErrorMessage, minPriorityGlobal);
+                    queueReq = DBLayer.GetRequests(ConcurrentRequestLimit - FBAPI.InFlight, AsyncReqQueue.RETRY, out ErrorMessage, minPriorityGlobal);
                     if (ErrorMessage != "")
                     {
                         ExitPendingWithError("Error getting retry requests: " + ErrorMessage);
@@ -902,6 +902,7 @@ namespace MBBetaAPI.AgentAPI
                 }
                 if (backupInProgress)
                 {
+                    /*
                     ErrorMessage += "\nCurrent Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal 
                         + " from " +SNAccount.CurrentProfile.CurrentPeriodStart 
                         + " to " +SNAccount.CurrentProfile.CurrentPeriodEnd
@@ -909,6 +910,7 @@ namespace MBBetaAPI.AgentAPI
                         + " requests in save: " + nInSaveRequests
                         + " requests in parse: " + nInParseRequests
                         + "\n";
+                     * */
                             
                     foreach (int reqID in queueReq)
                     {
@@ -916,7 +918,7 @@ namespace MBBetaAPI.AgentAPI
                         // special case: ID is not the requested, the request is not there any longer?
                         if (apiReq.ID != -1)
                         {
-                            ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
+                            //ErrorMessage += "ID: " + apiReq.ID + " Type: " + apiReq.ReqType + " Pri: " + apiReq.Priority + " URL: " + apiReq.ReqURL + "\n";
                             apiReq.Send();
                         } // if
                     } // foreach
@@ -928,6 +930,7 @@ namespace MBBetaAPI.AgentAPI
             } // if not too many requests pending...
             else
             {
+                /*
                 ErrorMessage += "\nCurrent Backup " + currentBackupNumber + ", currently working on priority " + currentPriorityGlobal + ", limit " + minPriorityGlobal
                     + " from " + SNAccount.CurrentProfile.CurrentPeriodStart
                     + " to " + SNAccount.CurrentProfile.CurrentPeriodEnd
@@ -935,7 +938,8 @@ namespace MBBetaAPI.AgentAPI
                     + " requests in save: " + nInSaveRequests
                     + " requests in parse: " + nInParseRequests
                     + "\n";
-                ErrorMessage += "\nWaiting for " + nRequestsInTransit + " requests to be processed";
+                ErrorMessage += "\nWaiting for " + FBAPI.InFlight + " requests to be processed";
+                 */
             }
             lock (obj)
             {
@@ -994,7 +998,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool ProcessFriendPic(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             string errorData = "";
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             nNotParsedRequests++;
             CountPerState[SENT]--;
 
@@ -1032,7 +1036,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessPhoto(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             string errorData = "";
             nNotParsedRequests++;
             if (result)
@@ -1070,7 +1074,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool ProcessFriends(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
 
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             FBCollection friends = null;
             if (result)
             {
@@ -1114,7 +1118,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessWall(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             GotWall = true;
             FBCollection wall = null;
             // Moving parse to a different async method
@@ -1174,7 +1178,7 @@ namespace MBBetaAPI.AgentAPI
 
         public static bool ProcessThread(int hwnd, bool result, string response, long? parent = null, string parentSNID = "", bool processChildren = false)
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             FBCollection inbox = null;
             if (result)
             {
@@ -1241,7 +1245,7 @@ namespace MBBetaAPI.AgentAPI
         // TODO: Consolidate with ProcessInbox and similar routines
         public static bool ProcessNotes(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             FBCollection notes = null;
             if (result)
             {
@@ -1284,7 +1288,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessAlbums(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             FBCollection albums = null;
             if (result)
             {
@@ -1340,7 +1344,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessEvents(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             string errorData = "";
 
             GotEvent = true;
@@ -1384,7 +1388,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool ProcessFriendLists(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             GotFriendLists = true;
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             CountPerState[SENT]--;
             string errorData = "";
 
@@ -1424,7 +1428,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessList(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             CountPerState[SENT]--;
             // TODO: Consolidate with ProcessFriends, maybe with an empty name or with the default name All Friends
             string errorData = "";
@@ -1458,7 +1462,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessFamily(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             CountPerState[SENT]--;
             // TODO: Consolidate with ProcessFriends, maybe with an empty name or with the default name All Friends
             string errorData = "";
@@ -1493,7 +1497,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns></returns>        
         public static bool ProcessNotifications(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             CountPerState[SENT]--;
             string errorData = "";
 
@@ -1526,7 +1530,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns></returns>
         public static bool ProcessPhotosInAlbum(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             FBCollection photos = null;
             if (result)
             {
@@ -1584,7 +1588,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessActions(int hwnd, bool result, string response, int verb, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             CountPerState[SENT]--;
             string errorData = "";
 
@@ -1677,7 +1681,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessOneFriend(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             CountPerState[SENT]--;
             if (result)
             {
@@ -1699,7 +1703,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessOneEvent(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             CountPerState[SENT]--;
             string errorData = "";
 
@@ -1744,7 +1748,7 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Request vas processed true/false</returns>
         public static bool ProcessOnePost(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
-            nRequestsInTransit--;
+            //nRequestsInTransit--;
             string errorData = "";
 
             if (result)

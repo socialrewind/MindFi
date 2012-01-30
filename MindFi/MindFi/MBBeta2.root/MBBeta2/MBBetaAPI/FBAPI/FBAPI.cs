@@ -412,7 +412,7 @@ namespace MBBetaAPI.AgentAPI
         public static AsyncReqQueue MoreData(string dataType, string URL, int Limit, CallBack resultCall)
         {
             AsyncReqQueue me = new AsyncReqQueue(dataType,
-                URL, Limit, resultCall, false);
+                URL, Limit, resultCall, false, true);
             return me;
         }
 
@@ -466,7 +466,14 @@ namespace MBBetaAPI.AgentAPI
                     // TODO: how to add in a more smart way the since / until
                     if (addDateRange)
                     {
-                        URLToGet += "&since=" + InitialTime + "&until=" + EndTime;
+                        if ( InitialTime != null && EndTime != null )
+                        {
+                            URLToGet += "&since=" + InitialTime + "&until=" + EndTime;
+                        }
+                        else
+                        {
+                            URLToGet += "&since=" + SNAccount.CurrentProfile.CurrentPeriodStart + "&until=" + SNAccount.CurrentProfile.CurrentPeriodEnd;
+                        }
                     }
                 }
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URLToGet);

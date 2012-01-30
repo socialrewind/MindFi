@@ -145,7 +145,7 @@
     <value>Seleccionar Idioma:</value>
   </data>
   <data name="LoginSetup" xml:space="preserve">
-    <value>Login setup string</value>
+    <value>Por favor indique un usuario y contraseña para proteger la información de su respaldo.</value>
   </data>
   <data name="Login_Button" xml:space="preserve">
     <value>Inicio</value>

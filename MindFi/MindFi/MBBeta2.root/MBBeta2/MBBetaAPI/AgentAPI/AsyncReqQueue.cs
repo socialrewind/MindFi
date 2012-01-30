@@ -756,7 +756,8 @@ namespace MBBetaAPI.AgentAPI
             int[] FriendEntityID;
             string[] FriendSNID;
 
-            int nRequests = DBLayer.GetNFriendsWithoutWall(CONCURRENTREQUESTLIMIT, out FriendEntityID, out FriendSNID, out errorMessage);
+            // Optimization: only get one friend wall instead of CONCURRENTREQUESTLIMIT
+            int nRequests = DBLayer.GetNFriendsWithoutWall(1, out FriendEntityID, out FriendSNID, out errorMessage);
             if (nRequests > 0)
             {
                 int i = 0;

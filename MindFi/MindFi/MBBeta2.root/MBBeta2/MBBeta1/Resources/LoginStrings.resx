@@ -145,7 +145,7 @@
     <value>Select Language:</value>
   </data>
   <data name="LoginSetup" xml:space="preserve">
-    <value>Login setup string</value>
+    <value>Please select a user name and password to protect the information in your backup.</value>
   </data>
   <data name="Login_Button" xml:space="preserve">
     <value>Start</value>

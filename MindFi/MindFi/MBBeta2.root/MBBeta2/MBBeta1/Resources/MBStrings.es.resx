@@ -118,144 +118,150 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdvancedSearchHeader" xml:space="preserve">
-    <value>Select options and dates to refine search results</value>
+    <value>Seleccione fechas y opciones para filtrar sus resultados</value>
   </data>
   <data name="BackupData" xml:space="preserve">
-    <value>Crea un respaldo de tus datos</value>
+    <value>Crea un respaldo de sus datos</value>
   </data>
   <data name="BrowseNetwork" xml:space="preserve">
-    <value>Browse Your Network</value>
+    <value>Navegue su red</value>
   </data>
   <data name="BrowseSelectFriends" xml:space="preserve">
-    <value>1. Selecciona tus amigos o grupos.</value>
+    <value>1. Seleccione sus amigos o grupos.</value>
   </data>
   <data name="BrowseSelectOptions" xml:space="preserve">
-    <value>2. Selecciona lo que quieres ver.</value>
+    <value>2. Seleccion3 lo que quieres ver.</value>
   </data>
   <data name="DisableAdvancedSearch" xml:space="preserve">
-    <value>Hide Advanced Search Options</value>
+    <value>Esconder opciones avanzadas de búsqueda</value>
   </data>
   <data name="EnableAdvancedSearch" xml:space="preserve">
-    <value>Show Advanced Search Options</value>
+    <value>Mostrar opciones avanzadas de búsqueda</value>
   </data>
   <data name="EndDate" xml:space="preserve">
-    <value>End Date</value>
+    <value>Fecha final</value>
   </data>
   <data name="FBEvents" xml:space="preserve">
-    <value>Events</value>
+    <value>Eventos</value>
   </data>
   <data name="FBMessages" xml:space="preserve">
-    <value>Messages</value>
+    <value>Mensajes</value>
   </data>
   <data name="FBPhotoAlbums" xml:space="preserve">
-    <value>Photo Albums</value>
+    <value>Álbumes de fotos</value>
   </data>
   <data name="FBPhotos" xml:space="preserve">
-    <value>Photos</value>
+    <value>Fotos</value>
   </data>
   <data name="FBWall" xml:space="preserve">
-    <value>Wall Posts</value>
+    <value>Noticias en la pared</value>
   </data>
   <data name="FriendFilterClearSelection" xml:space="preserve">
-    <value>Clear Selection</value>
+    <value>Limpiar selección</value>
   </data>
   <data name="FriendFilterSelectAll" xml:space="preserve">
-    <value>Select All</value>
+    <value>Seleccionar todo</value>
   </data>
   <data name="FriendFilterShow" xml:space="preserve">
-    <value>Show</value>
+    <value>Mostrar</value>
   </data>
   <data name="FriendFilterShowAll" xml:space="preserve">
-    <value>All Friends</value>
+    <value>Todos los amigos</value>
   </data>
   <data name="FriendFilterShowSelected" xml:space="preserve">
-    <value>Selected Friends</value>
+    <value>Amigos seleccionados</value>
   </data>
   <data name="FriendFilterText" xml:space="preserve">
-    <value>Filter: </value>
+    <value>Filtro:</value>
   </data>
   <data name="LastUpdate" xml:space="preserve">
-    <value>Last Update:</value>
+    <value>Última actualización:</value>
   </data>
   <data name="LIMessages" xml:space="preserve">
-    <value>Messages</value>
+    <value>Mensajes</value>
   </data>
   <data name="LIPosts" xml:space="preserve">
-    <value>Posts</value>
+    <value>Noticias</value>
   </data>
   <data name="NavigateDateFilter" xml:space="preserve">
-    <value>Apply Date Filter</value>
+    <value>Aplicar filtro de fecha</value>
   </data>
   <data name="NavigateNetwork" xml:space="preserve">
-    <value>Navigate Your Network Updates</value>
+    <value>Navegue las noticias en su red</value>
   </data>
   <data name="Never" xml:space="preserve">
-    <value>Never Updated</value>
+    <value>Sin datos</value>
   </data>
   <data name="OlderPublications" xml:space="preserve">
-    <value>Get Older Publications</value>
+    <value>Mostrar noticias anteriores</value>
   </data>
   <data name="RefreshData" xml:space="preserve">
-    <value>Scan your networks for updates</value>
+    <value>Actualiza los cambios</value>
   </data>
   <data name="SearchHeader" xml:space="preserve">
-    <value>Enter your search term</value>
+    <value>Escriba las palabras a buscar</value>
   </data>
   <data name="SearchNetwork" xml:space="preserve">
-    <value>Search Your Network</value>
+    <value>Buscar en la red social</value>
   </data>
   <data name="Setup" xml:space="preserve">
-    <value>Setup</value>
+    <value>Configuración</value>
   </data>
   <data name="StartDate" xml:space="preserve">
-    <value>Start Date</value>
+    <value>Fecha de inicio</value>
   </data>
   <data name="TwPhotos" xml:space="preserve">
-    <value>Photos</value>
+    <value>Fotos</value>
   </data>
   <data name="TwTweets" xml:space="preserve">
     <value>Tweets</value>
   </data>
   <data name="DoubleClickTo" xml:space="preserve">
-    <value>Double Click To</value>
+    <value>Doble clic para</value>
   </data>
   <data name="ViewDetails" xml:space="preserve">
-    <value>View Details...</value>
+    <value>Ver detalles</value>
   </data>
   <data name="ViewDetailsOf" xml:space="preserve">
-    <value>View Details Of</value>
+    <value>Ver detalles para</value>
   </data>
   <data name="CurrentView" xml:space="preserve">
     <value>Vista Actual</value>
   </data>
   <data name="Posts" xml:space="preserve">
-    <value>Posts</value>
+    <value>Noticias</value>
   </data>
   <data name="Statistics" xml:space="preserve">
-    <value>Statistics</value>
+    <value>Estadísticas</value>
   </data>
   <data name="PersonLikeThis" xml:space="preserve">
-    <value>person like this.</value>
+    <value>persona le gusta</value>
   </data>
   <data name="PersonsLikeThis" xml:space="preserve">
-    <value>persons like this.</value>
+    <value>personas les gusta</value>
   </data>
   <data name="OpenLink" xml:space="preserve">
-    <value>Open Link...</value>
+    <value>Abrir liga...</value>
   </data>
   <data name="FilterOptions" xml:space="preserve">
-    <value>Filter Options</value>
+    <value>Opciones de filtrado</value>
   </data>
   <data name="Main_Members" xml:space="preserve">
-    <value>Group Members...</value>
+    <value>Miembros del grupo...</value>
   </data>
   <data name="NumberOfRecords" xml:space="preserve">
-    <value>Number of posts to retrieve:</value>
+    <value>Número de noticias a mostrar</value>
   </data>
   <data name="SearchResultsFor" xml:space="preserve">
-    <value>Search Results For:</value>
+    <value>Buscar resultados para:</value>
   </data>
   <data name="ViewResults" xml:space="preserve">
-    <value>View Results...</value>
+    <value>Ver resultados...</value>
+  </data>
+  <data name="LoginOptions" xml:space="preserve">
+    <value>Entre a la red social y configure su perfil</value>
+  </data>
+  <data name="WhatAreYouThinking" xml:space="preserve">
+    <value>¿Qué está pensando?</value>
   </data>
 </root>

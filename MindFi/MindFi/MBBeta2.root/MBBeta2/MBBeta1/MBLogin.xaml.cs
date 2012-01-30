@@ -42,13 +42,18 @@ namespace MBBeta2
         }
 
         /// <summary>
-        /// Constructor coming from Initial Setyp
+        /// Constructor coming from Initial Setup
         /// </summary>
+        /// <param name="UserParam"></param>
+        /// <param name="PasswordParam"></param>
         /// <param name="DBNameParam"></param>
         /// <param name="DBPathParam"></param>
-        public MBLogin(string UserParam, string PasswordParam, string DBNameParam, string DBPathParam)
+        /// <param name="InputCulture"></param>
+        public MBLogin(string UserParam, string PasswordParam, string DBNameParam, string DBPathParam, string InputCulture)
         {
             InitializeComponent();
+
+            LocalizeDictionary.Instance.Culture = CultureInfo.GetCultureInfo(InputCulture);
 
             UserLoginTB.Text = UserParam;
             PasswordLoginTB.Password = PasswordParam;
@@ -111,6 +116,9 @@ namespace MBBeta2
             {
                 string LastLoginUser = Properties.Settings.Default.LastLoginUser;
                 UserLoginTB.Text = LastLoginUser;
+                //Read last selected language
+                CurrentCulture = Properties.Settings.Default.LastCulture;
+                LocalizeDictionary.Instance.Culture = CultureInfo.GetCultureInfo(CurrentCulture);
             }
             catch
             {
@@ -225,6 +233,7 @@ namespace MBBeta2
                         }
                         Properties.Settings.Default.DBPath = DBPath;
                         Properties.Settings.Default.LastLoginUser = UserLoginTB.Text;
+                        Properties.Settings.Default.LastCulture = CurrentCulture;
                         Properties.Settings.Default.Save();
 
                         // Moved initialization from MBSetup, since we need these variables not only the first time

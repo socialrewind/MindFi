@@ -70,5 +70,17 @@ namespace MBBeta2.Properties {
                 this["LastLoginUser"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastCulture {
+            get {
+                return ((string)(this["LastCulture"]));
+            }
+            set {
+                this["LastCulture"] = value;
+            }
+        }
     }
 }

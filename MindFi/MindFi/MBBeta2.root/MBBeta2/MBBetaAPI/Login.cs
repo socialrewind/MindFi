@@ -20,7 +20,7 @@ namespace MBBetaAPI
             user = userParam;
             password = passwordParam;
             conn = connParam;
-            DBLayer.ConnString = conn;
+            DBLayer.ConnString = connParam;
         }
 
         #endregion
@@ -53,6 +53,8 @@ namespace MBBetaAPI
                 DBLayer.DatabaseInUse = true;
                 try
                 {
+                    //Setup null conn on DBLayer to clear any previous wrong credentials attempt
+                    DBLayer.conn = null;
                     DBLayer.GetConn();
                     SQLiteCommand command = new SQLiteCommand("select Username FROM Config", DBLayer.conn);
                     SQLiteDataReader reader = command.ExecuteReader();

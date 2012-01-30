@@ -250,12 +250,18 @@
     <value>Group Members...</value>
   </data>
   <data name="NumberOfRecords" xml:space="preserve">
-    <value>Number of posts to retrieve:</value>
+    <value>Number of posts to show:</value>
   </data>
   <data name="SearchResultsFor" xml:space="preserve">
     <value>Search Results For:</value>
   </data>
   <data name="ViewResults" xml:space="preserve">
     <value>View Results...</value>
+  </data>
+  <data name="LoginOptions" xml:space="preserve">
+    <value>Login to your social network accounts and define your user profiles.</value>
+  </data>
+  <data name="WhatAreYouThinking" xml:space="preserve">
+    <value>What are you thinking?</value>
   </data>
 </root>

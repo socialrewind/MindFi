@@ -178,7 +178,7 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Login setup string.
+        ///   Looks up a localized string similar to Please select a user name and password to protect the information in your backup..
         /// </summary>
         internal static string LoginSetup {
             get {

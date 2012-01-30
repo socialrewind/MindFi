@@ -286,6 +286,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Login to your social network accounts and define your user profiles..
+        /// </summary>
+        internal static string LoginOptions {
+            get {
+                return ResourceManager.GetString("LoginOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Group Members....
         /// </summary>
         internal static string Main_Members {
@@ -322,7 +331,7 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Number of posts to retrieve:.
+        ///   Looks up a localized string similar to Number of posts to show:.
         /// </summary>
         internal static string NumberOfRecords {
             get {
@@ -480,6 +489,15 @@ namespace MBBeta2.Resources {
         internal static string ViewResults {
             get {
                 return ResourceManager.GetString("ViewResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What are you thinking?.
+        /// </summary>
+        internal static string WhatAreYouThinking {
+            get {
+                return ResourceManager.GetString("WhatAreYouThinking", resourceCulture);
             }
         }
     }

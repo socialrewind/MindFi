@@ -32,6 +32,18 @@
             </Style.Setters>
         </Style>
 
+        <!--Change text to black on focus-->
+        <Style x:Key="BlackTextOnFocusStyle" TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="False">
+                    <Setter Property="Foreground" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!--Owner Data Template-->
         <DataTemplate x:Key="OwnerDataTemplate">
             <StackPanel Orientation="Horizontal">
@@ -125,9 +137,9 @@
             </Grid.Background>
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="0.25*"/>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.20*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -136,16 +148,24 @@
             </Grid.RowDefinitions>
 
             <Border Grid.ColumnSpan="1" Grid.RowSpan="3" CornerRadius="10"
-                        Margin="20,10,10,10"
+                        Margin="10"
                         Background="White">
                 <ContentControl x:Name="OwnerCC"
                                 ContentTemplate="{StaticResource OwnerDataTemplate}"/>
             </Border>
-            
-            <!--Temporal Connect to DB Button-->
+
+            <!--Post new status-->
+            <StackPanel Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch">
+                <TextBox x:Name="PostNewStatusTB"
+                         Text="{lex:LocText MBBeta2:MBStrings:WhatAreYouThinking}" 
+                         VerticalAlignment="Stretch"
+                         Style="{StaticResource BlackTextOnFocusStyle}"
+                         GotFocus="PostNewStatusTB_GotFocus"
+                         LostFocus="PostNewStatusTB_LostFocus"
+                         KeyDown="PostNewStatusTB_KeyDown"/>
+            </StackPanel>
+
             <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,10,0" HorizontalAlignment="Right">
-                <TextBlock x:Name="UpdateText" Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
-                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,200,0"/>
                 <TextBlock x:Name="UpdateTime" Text="{lex:LocText MBBeta2:MBStrings:Never}"
                            Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                 <Button x:Name="RefreshDataBt" 
@@ -163,9 +183,9 @@
                     HorizontalContentAlignment="Center" HorizontalAlignment="Right"
                     Width="35" Margin="0,0,10,0"
                     Click="BackupDataBt_Click">
-                <Image Source="Images/Blue-Backup-icon.png" Height="30"/>
+                <Image Source="Images/login_icon.png" Height="30"/>
                 <Button.ToolTip>
-                    <TextBlock Text="{lex:LocText MBBeta2:MBStrings:BackupData}"/>
+                    <TextBlock Text="{lex:LocText MBBeta2:MBStrings:LoginOptions}"/>
                 </Button.ToolTip>
             </Button>
 
@@ -184,7 +204,14 @@
         
         <!--Footer-->
         <Grid DockPanel.Dock="Bottom" Background="DarkBlue">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.3*"/>
+                <ColumnDefinition Width="0.7*"/>
+            </Grid.ColumnDefinitions>
             <TextBlock Text="Status Bar" Foreground="White"/>
+            <TextBlock Grid.Column="1"
+                        x:Name="UpdateText" Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
+                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,200,0"/>
         </Grid>
         
         <!--Body-->
@@ -480,7 +507,7 @@
                                           Click="AdvancedSearchTB_Click" Margin="5">
                             </ToggleButton>
 
-                            <Grid x:Name="AdvancedSearchGrid" IsEnabled="False" Visibility="Collapsed">
+                            <Grid x:Name="AdvancedSearchGrid" IsEnabled="False" Visibility="Visible">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
@@ -504,12 +531,12 @@
                                     <CheckBox x:Name="FBMessageSearchCB" Content="{lex:LocText MBBeta2:MBStrings:FBMessages}"/>
                                     <CheckBox x:Name="FBEventSearchCB" Content="{lex:LocText MBBeta2:MBStrings:FBEvents}"/>
                                 </StackPanel>
-                                <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Margin="5,10,5,5">
+                                <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Margin="5,10,5,5" Visibility="Hidden">
                                     <Image Source="Images/twitter_logo.png" Height="30" Margin="0,5,0,5"/>
                                     <CheckBox x:Name="TwTweetsSearchCB" Content="{lex:LocText MBBeta2:MBStrings:TwTweets}"/>
                                     <CheckBox x:Name="TWPhotoSearchCB" Content="{lex:LocText MBBeta2:MBStrings:TwPhotos}"/>
                                 </StackPanel>
-                                <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="1" Margin="5,10,5,5">
+                                <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="1" Margin="5,10,5,5" Visibility="Hidden">
                                     <Image Source="Images/linkedin_logo.jpg" Height="30" Margin="0,5,0,5"/>
                                     <CheckBox x:Name="LIPostsSearchCB" Content="{lex:LocText MBBeta2:MBStrings:LIPosts}"/>
                                     <CheckBox x:Name="LIMessagesSearchCB" Content="{lex:LocText MBBeta2:MBStrings:LIMessages}"/>

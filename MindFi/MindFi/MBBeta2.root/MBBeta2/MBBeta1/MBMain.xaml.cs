@@ -330,6 +330,41 @@ namespace MBBeta2
 
         #endregion
 
+        #region PostNewStatus
+
+        private void PostNewStatusTB_GotFocus(object sender, RoutedEventArgs e)
+        {
+            PostNewStatusTB.Text = "";
+        }
+
+
+        private void PostNewStatusTB_LostFocus(object sender, RoutedEventArgs e)
+        {
+            LocTextExtension loc = new LocTextExtension("MBBeta2:MBStrings:WhatAreYouThinking");
+            loc.SetBinding(PostNewStatusTB, TextBox.TextProperty);
+        }
+
+        private void PostNewStatusTB_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+
+                //The code to post an status goes here
+                MessageBox.Show("Create new post code goes here");
+
+                if (keyboardFocus != null)
+                {
+                    keyboardFocus.MoveFocus(tRequest);
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        #endregion
+
         #region Navigate Controls Methods
 
         /// <summary>
@@ -557,9 +592,9 @@ namespace MBBeta2
                 Person p = new Person(selectedItem.ID);
 
                 DetailCard DetailCardWindow = new DetailCard();
-                DetailCardWindow.DataContext = p;
+                PersonWrapper dataContext = new PersonWrapper(p);
+                DetailCardWindow.DataContext = dataContext;
                 CC.PositionNewWindow(this, DetailCardWindow);
-
 
                 this.Cursor = Cursors.Arrow;
 
@@ -819,6 +854,7 @@ namespace MBBeta2
         private void DoRefreshData()
         {
             this.Cursor = Cursors.Wait;
+            this.UpdateText.Text = "Refreshing data...";
 
             string error;
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
@@ -886,12 +922,6 @@ namespace MBBeta2
         {
             online = true;
             // display login
-            /*
-            var SNLoginWindow = new MBSNLogin(true);
-            SNLoginWindow.Owner = this;
-            SNLoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-            SNLoginWindow.Show();
-             * */
             DoLogin(this);
             dispatcherTimer.Tick += new EventHandler(processTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -987,7 +1017,7 @@ namespace MBBeta2
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
                                 case AsyncReqQueue.BACKUPFRIENDSWALLS:
-                                    this.UpdateText.Text = "Getting friends walls (" + AsyncReqQueue.nFriendsWalls + ") from " +
+                                    this.UpdateText.Text = "Getting friends walls (" + AsyncReqQueue.nFriendsWalls + "/" + AsyncReqQueue.nPosts + " posts) from " +
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;

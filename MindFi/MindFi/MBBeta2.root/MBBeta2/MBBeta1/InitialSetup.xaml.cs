@@ -40,6 +40,8 @@ namespace MBBeta2
         string DBName;
         string DBPath;
 
+        string CurrentCulture;
+
         bool CleanClose;
 
         #endregion
@@ -174,7 +176,7 @@ namespace MBBeta2
                         Configuration MBConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                         Properties.Settings.Default.NewProduct = "NO";
                         Properties.Settings.Default.Save();
-                        var LoginWindow = new MBLogin(UserTB.Text, PasswordPB.Password, DBName, DBPath);
+                        var LoginWindow = new MBLogin(UserTB.Text, PasswordPB.Password, DBName, DBPath, CurrentCulture);
                         LoginWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
                         LoginWindow.Show();
                         CleanClose = true;
@@ -235,6 +237,47 @@ namespace MBBeta2
             }
         }
 
+        private void LanguageSelectionCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (LanguageSelectionCB.SelectedIndex)
+            {
+                case 0:
+                    LocalizeDictionary.Instance.Culture = CultureInfo.GetCultureInfo("en-US");
+                    CurrentCulture = "en-US";
+                    break;
+                case 1:
+                    LocalizeDictionary.Instance.Culture = CultureInfo.GetCultureInfo("es");
+                    CurrentCulture = "es";
+                    break;
+                //case 2:
+                //    LocalizeDictionary.Instance.Culture = CultureInfo.GetCultureInfo("es-MX");
+                //    break;
+            }
+        }
+
+        private void Enter_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+
+                var obj = sender as PasswordBox;
+                if (obj == PasswordVerificationPB)
+                {
+                    CreateBt_Click(null, null);
+                }
+
+                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+
+                if (keyboardFocus != null)
+                {
+                    keyboardFocus.MoveFocus(tRequest);
+                }
+
+                e.Handled = true;
+            }
+
+        }
         
     }
 }

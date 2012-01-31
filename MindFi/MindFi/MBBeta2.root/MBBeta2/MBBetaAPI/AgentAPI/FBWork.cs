@@ -9,7 +9,7 @@ namespace MBBetaAPI.AgentAPI
     ///     https://developers.facebook.com/docs/reference/api/user, work property
     /// It contains the logic to save to the MyBackup database (OrganizationIdentity table)
     /// </summary>
-    public class FBWork:FBObject
+    public class FBWork : FBObject
     {
         #region "Properties"
         public string LocationID { get; set; }
@@ -23,8 +23,9 @@ namespace MBBetaAPI.AgentAPI
 
         #region "Private members"
         private FBPerson relatedPerson;
-	private decimal OrgPartitionDate;
-	private int OrgPartitionID;
+        private decimal OrgPartitionDate;
+        private int OrgPartitionID;
+        private ArrayList m_with;
         #endregion
 
         #region "Methods"
@@ -35,9 +36,10 @@ namespace MBBetaAPI.AgentAPI
         public FBWork(JSONScanner temp, JSONParser parent)
             : base(temp)
         {
-	    // should throw if ever the parent is not an FBPerson
-	    relatedPerson = (FBPerson) parent;
-	    MyDataTable = "OrganizationData";
+            // should throw if ever the parent is not an FBPerson
+            relatedPerson = (FBPerson)parent;
+            MyDataTable = "OrganizationData";
+            AddParser("with", "FBPerson", ref m_with);
         }
         #endregion
 
@@ -45,19 +47,16 @@ namespace MBBetaAPI.AgentAPI
         public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";
-	    base.Save(out ErrorMessage);
-	    if ( Saved )
-	    {
-		Saved = false;
-	    	DBLayer.RelationSave(relatedPerson.ID, Verb.WORKAT, this.ID,
-			PositionName, Description,
-			StartDate, EndDate,
-			out OrgPartitionDate, out OrgPartitionID,
-			out Saved, out ErrorMessage);
-	    } else
-	    {
-		// System.Windows.Forms.MessageBox.Show(ErrorMessage);
-	    }
+            base.Save(out ErrorMessage);
+            if (Saved)
+            {
+                Saved = false;
+                DBLayer.RelationSave(relatedPerson.ID, Verb.WORKAT, this.ID,
+                PositionName, Description,
+                StartDate, EndDate,
+                out OrgPartitionDate, out OrgPartitionID,
+                out Saved, out ErrorMessage);
+            }
         }
 
         protected override void AssignValue(string name, string value)
@@ -91,12 +90,12 @@ namespace MBBetaAPI.AgentAPI
                     break;
 
                 default:
-		    base.AssignValue(name, value);
+                    base.AssignValue(name, value);
                     break;
             }
         }
 
-	#endregion
+        #endregion
 
     }
 }

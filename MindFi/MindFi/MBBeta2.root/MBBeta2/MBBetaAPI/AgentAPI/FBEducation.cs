@@ -22,6 +22,9 @@ namespace MBBetaAPI.AgentAPI
         private FBPerson relatedPerson;
         private decimal YearPartitionDate;
         private int YearPartitionID;
+        private ArrayList m_with;
+        private ArrayList m_concentration;
+
         #endregion
 
         #region "Methods"
@@ -35,6 +38,8 @@ namespace MBBetaAPI.AgentAPI
             // should throw if ever the parent is not an FBPerson
             relatedPerson = (FBPerson)parent;
             MyDataTable = "OrganizationData";
+            AddParser("with", "FBPerson", ref m_with);
+            AddParser("concentration", "FBObject", ref m_concentration);
         }
         #endregion
 
@@ -85,6 +90,9 @@ namespace MBBetaAPI.AgentAPI
                     break;
                 case "type":
                     Type = value;
+                    break;
+                case "concentration":
+                    // seems something to ignore for now
                     break;
                 default:
                     base.AssignValue(name, value);

@@ -5,7 +5,7 @@
         xmlns:converters="clr-namespace:MBBeta2.Converters"
         xmlns:controls="clr-namespace:MBBeta2.Controls"
         xmlns:local="clr-namespace:MBBeta2"
-        Title="Social Rewind" MinHeight="600" MinWidth="800" Icon="/MBBeta2;component/Images/rewind.ico">
+        Title="Social Rewind Beta 2" MinHeight="600" MinWidth="800" Icon="/MBBeta2;component/Images/rewind.ico">
     <Window.Resources>
 
         <!--Set tabs to fill available space-->
@@ -205,10 +205,8 @@
         <!--Footer-->
         <Grid DockPanel.Dock="Bottom" Background="DarkBlue">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.3*"/>
-                <ColumnDefinition Width="0.7*"/>
+                <ColumnDefinition Width="1.0*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Status Bar" Foreground="White"/>
             <TextBlock Grid.Column="1"
                         x:Name="UpdateText" Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
                            Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,200,0"/>

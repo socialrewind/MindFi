@@ -91,15 +91,23 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string PostType { get; set; }
         /// <summary>
+        /// Post category
+        /// </summary>
+        public string Category { get; set; }
+        /// <summary>
+        /// Likes
+        /// </summary>
+        public bool HasLikes { get; set; }
+        /// <summary>
         /// Verbalized story
         /// </summary>
         public string Story { get; set; }
         /// <summary>
-        /// Tags associated to this photo
+        /// Tags associated to this story
         /// </summary>
         public ArrayList StoryTags
         {
-            get { lock (LockObj) { return m_tags; } }
+            get { lock (LockObj) { return m_stags; } }
         }
         /// <summary>
         /// List of comments associated to the post
@@ -132,7 +140,11 @@ namespace MBBetaAPI.AgentAPI
         private ArrayList m_comments;
         private ArrayList m_likes;
         private ArrayList m_to;
-        private ArrayList m_tags;
+        private ArrayList m_stags;
+        private ArrayList m_mtags;
+        private ArrayList m_wtags;
+        private ArrayList m_actions;
+        private ArrayList m_properties;
 
         #endregion
 
@@ -175,7 +187,11 @@ namespace MBBetaAPI.AgentAPI
             AddParser("comments", "FBPost", ref m_comments);
             AddParser("to", "FBPerson", ref m_to);
             AddParser("likes", "FBPerson", ref m_likes);
-            AddParser("story_tags", "FBStoryTag", ref m_tags);
+            AddParser("story_tags", "FBStoryTag", ref m_stags);
+            AddParser("message_tags", "FBStoryTag", ref m_mtags);
+            AddParser("with_tags", "FBStoryTag", ref m_wtags);
+            AddParser("actions", "FBPost", ref m_actions);
+            AddParser("properties", "FBPost", ref m_properties);
             // default value for creation when it is not downloaded
             m_created = DateTime.Now;
         }
@@ -247,6 +263,13 @@ namespace MBBetaAPI.AgentAPI
                             dest.Save(out error);
                             ErrorMessage += error;
                         }
+                    }
+                    if ( ( m_wtags != null && m_wtags.Count > 0 )
+                        || (m_mtags != null && m_mtags.Count > 0)
+                        || (m_stags != null && m_stags.Count > 0))
+                    {
+                        // TODO: Really save
+                        ErrorMessage += "not yet saving tags";
                     }
                 }
                 // TODO: Change parser to generate likes as user list, then save corresponding relationship	
@@ -355,10 +378,14 @@ namespace MBBetaAPI.AgentAPI
                     Icon = value;
                     break;
                 case "link":
+                case "href": // for properties, as it seems to provide the same function
                     Link = value;
                     break;
                 case "type":
                     PostType = value;
+                    break;
+                case "category":
+                    Category = value;
                     break;
                 case "story":
                     Story = value;
@@ -385,10 +412,9 @@ namespace MBBetaAPI.AgentAPI
                     }
                     break;
                 case "user_likes":
-                case "category":
-                    // User likes es simplement true cuando aparece, ignorado pues se necesita un sistema separado para obtener los "likes" hijos cuando existan
-                    // this is for Posts TO a Page, for now ignoring, could add the field "ToCategory", pero primero sería conveniente ver la asociación con los Pages que el usuario Like
-                    // ignore without warning
+                    // TODO: it may be useful to optimize likes...
+                    // User likes es simplement true cuando aparece, previamente ignorado pues se necesita un sistema separado para obtener los "likes" hijos cuando existan
+                    HasLikes = true;
                     break;
                 default:
                     base.AssignValue(name,value);

@@ -278,6 +278,9 @@ namespace MBBetaAPI.AgentAPI
                 case "FBWall":
                     methodToCall = ProcessWall;
                     break;
+                case "FBNews":
+                    methodToCall = ProcessNews;
+                    break;
                 case "FBAlbums":
                     methodToCall = ProcessAlbums;
                     break;
@@ -469,6 +472,10 @@ namespace MBBetaAPI.AgentAPI
         #region "Basic data methods"
         public static void GetBasicData(DateTime currentPeriodStart, DateTime currentPeriodEnd, int ID, string SNID)
         {
+            // clean information
+            nFriends = 0;
+            nPosts = 0;           
+            FailedRequests = false;
             GotOneProfilePic = false;
             GotFriendList = false;
             GotWall = false;
@@ -490,7 +497,7 @@ namespace MBBetaAPI.AgentAPI
             apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateWallRequest(ID, apiReq.ID, out errorMessage);
-            apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessWall, ID, SNID);
+            apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessNews, ID, SNID);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateNewsRequest(ID, apiReq.ID, out errorMessage);
             apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
@@ -578,6 +585,7 @@ namespace MBBetaAPI.AgentAPI
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
                 SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
+                FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
                 CurrentBackupState = currentState;
                 currentBackupNumber = currentBackup;
                 newPeriod = true;
@@ -600,8 +608,6 @@ namespace MBBetaAPI.AgentAPI
                     //firstCase = true;
                     if (currentBackup != 0)
                     {
-                        // Calculate dates for first iteration - TODO make sure they are recalculated until done
-                        FBAPI.SetTimeRange(currentPeriodStart, currentPeriodEnd);
                         GetDataForCurrentState(ID, SNID);
                     }
                     else
@@ -636,7 +642,7 @@ namespace MBBetaAPI.AgentAPI
                 case BACKUPMYNEWS:
                     if (newPeriod)
                     {
-                        apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessWall, ID, SNID);
+                        apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessNews, ID, SNID);
                         apiReq.QueueAndSend(999);
                         newPeriod = false;
                     }
@@ -1128,6 +1134,17 @@ namespace MBBetaAPI.AgentAPI
                 wall = new FBCollection(response, "FBPost", parent, parentSNID);
                 nInParseRequests++;
                 wall.Parse();
+                foreach (FBPost item in wall.items)
+                {
+                    if (item.ToID == null)
+                    {
+                        item.ToID = parentSNID;
+                        if (item.ToID == item.FromID)
+                        {
+                            item.ToName = item.FromName;
+                        }
+                    }
+                }
                 nInParseRequests--;
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
@@ -1157,6 +1174,34 @@ namespace MBBetaAPI.AgentAPI
                 if (wall.Next != null)
                 {
                     AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
+                    apiReq.Queue(minPriorityGlobal);
+                }
+            }
+            return GenericProcess(hwnd, result, response, wall, true);
+        }
+
+        public static bool ProcessNews(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            FBCollection wall = null;
+            // Moving parse to a different async method
+            if (result)
+            {
+                wall = new FBCollection(response, "FBPost", parent, parentSNID);
+                nInParseRequests++;
+                wall.Parse();
+                nInParseRequests--;
+                CountPerState[PARSED]++;
+                CountPerState[RECEIVED]--;
+
+                string error;
+                nInSaveRequests++;
+                wall.Save(out error);
+                nInSaveRequests--;
+                nPosts += wall.CurrentNumber;
+
+                if (wall.Next != null)
+                {
+                    AsyncReqQueue apiReq = FBAPI.MoreData("FBNews", wall.Next, SIZETOGETPERPAGE, ProcessNews);
                     apiReq.Queue(minPriorityGlobal);
                 }
             }

@@ -346,7 +346,7 @@ namespace MBBetaAPI.AgentAPI
                                 break;
                             case JSONScanner.JSONScannerTokens.PUNCTUATOR:
                                 name = name.Replace("\"", "");
-                                if (token == "[" && name == "data")
+                                if (token == "[" ) // && name == "data")
                                 {
                                     nestingLevel++;
                                     string errorChildren = ParseChildren(parentName, temp, out tokenId, out token);
@@ -436,58 +436,59 @@ namespace MBBetaAPI.AgentAPI
                 // parsing a child object, recognize which one then 
                 switch (name)
                 {
-                    case "to":
-                        //System.Windows.Forms.MessageBox.Show("Processing to");
-                        // Check: have to iterate until ] ?
-                        do
-                        {
-                            tokenId = temp.Scan(out token);
-                            if (ConstructOriginalResponse)
-                            {
-                                OriginalResponse += token;
-                            }
+                        // No longer used
+                    //case "to":
+                    //    System.Windows.Forms.MessageBox.Show("Processing to");
+                    //     Check: have to iterate until ] ?
+                    //    do
+                    //    {
+                    //        tokenId = temp.Scan(out token);
+                    //        if (ConstructOriginalResponse)
+                    //        {
+                    //            OriginalResponse += token;
+                    //        }
 
-                            if (tokenId == JSONScanner.JSONScannerTokens.PUNCTUATOR)
-                            {
-                                if (token == "[" || token == "{")
-                                {
-                                    nestingLevel++;
-                                }
-                                else if (token == "]" || token == "}")
-                                {
-                                    nestingLevel--;
-                                }
-                                else
-                                {
-                                    errors += "Unexpected punctuators found " + token + ", ignored\n";
-                                }
-                            }
-                            else if (tokenId == JSONScanner.JSONScannerTokens.LITERAL)
-                            {
-                                // reset each time, since internally ParseChild removes it when going out of an element
-                                parentName = name;
-                                // Parse Child will reduce nesting level, since it iterates until }
-                                ParseChild(token, temp, out tokenId, out token);
-                            }
-                            else
-                            {
-                                errors += "Unexpected error expecting punctuators or child name literal, found " + token + ", ignored\n";
-                            }
+                    //        if (tokenId == JSONScanner.JSONScannerTokens.PUNCTUATOR)
+                    //        {
+                    //            if (token == "[" || token == "{")
+                    //            {
+                    //                nestingLevel++;
+                    //            }
+                    //            else if (token == "]" || token == "}")
+                    //            {
+                    //                nestingLevel--;
+                    //            }
+                    //            else
+                    //            {
+                    //                errors += "Unexpected punctuators found " + token + ", ignored\n";
+                    //            }
+                    //        }
+                    //        else if (tokenId == JSONScanner.JSONScannerTokens.LITERAL)
+                    //        {
+                    //             reset each time, since internally ParseChild removes it when going out of an element
+                    //            parentName = name;
+                    //             Parse Child will reduce nesting level, since it iterates until }
+                    //            ParseChild(token, temp, out tokenId, out token);
+                    //        }
+                    //        else
+                    //        {
+                    //            errors += "Unexpected error expecting punctuators or child name literal, found " + token + ", ignored\n";
+                    //        }
 
-                        }
-                        // TODO: Double check where is initialNestingLevel and where -1, this may be the reason that cuts too many posts
-                        while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != initialNestingLevel - 1);
-                        // get the comma or { after...
-                        if (tokenId != JSONScanner.JSONScannerTokens.EOF)
-                        {
-                            tokenId = temp.Scan(out token);
-                        }
-                        if (ConstructOriginalResponse)
-                        {
-                            OriginalResponse += token;
-                        }
+                    //    }
+                    //     TODO: Double check where is initialNestingLevel and where -1, this may be the reason that cuts too many posts
+                    //    while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != initialNestingLevel - 1);
+                    //     get the comma or { after...
+                    //    if (tokenId != JSONScanner.JSONScannerTokens.EOF)
+                    //    {
+                    //        tokenId = temp.Scan(out token);
+                    //    }
+                    //    if (ConstructOriginalResponse)
+                    //    {
+                    //        OriginalResponse += token;
+                    //    }
 
-                        break;
+                    //    break;
                     // TODO: Generalize all string arrays
                     case "interested_in":
                     case "meeting_for":
@@ -670,10 +671,14 @@ namespace MBBetaAPI.AgentAPI
                         case "FBObject":
                             item = new FBObject(temp);
                             break;
+                        case "FBStoryTag":
+                            item = new FBStoryTag(temp, this);
+                            break;
                         default:
                             errors += "don't know how to process " + ChildrenType + "\n";
                             item = null;
-                            break;
+                            throw new Exception(errors);
+                            //break;
                     }
                     if (item != null)
                     {

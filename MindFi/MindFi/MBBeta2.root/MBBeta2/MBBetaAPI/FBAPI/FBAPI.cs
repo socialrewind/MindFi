@@ -42,6 +42,10 @@ namespace MBBetaAPI.AgentAPI
         {
             lock (obj)
             {
+                if ( start == null || end == null )
+                {
+                    throw new Exception("Time range should never be getting a null");
+                }
                 InitialTime = DateISO8601(start);
                 // next day, to make sure today info is included
                 EndTime = DateISO8601(end.AddDays(1));
@@ -162,7 +166,7 @@ namespace MBBetaAPI.AgentAPI
         {
             if (parentSNID == "")
                 parentSNID = "me";
-            AsyncReqQueue me = new AsyncReqQueue("FBWall",
+            AsyncReqQueue me = new AsyncReqQueue("FBNews",
                 FBGraphAPIURL + "me/home",
                 Limit, resultCall, true, true, parentID, parentSNID);
             return me;
@@ -503,14 +507,12 @@ namespace MBBetaAPI.AgentAPI
                     // TODO: how to add in a more smart way the since / until
                     if (addDateRange)
                     {
-                        if ( InitialTime != null && EndTime != null )
+                        if ( InitialTime == null || EndTime == null )
                         {
-                            URLToGet += "&since=" + InitialTime + "&until=" + EndTime;
+                            // TODO: Find why this is happening
+                            SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
                         }
-                        else
-                        {
-                            URLToGet += "&since=" + SNAccount.CurrentProfile.CurrentPeriodStart + "&until=" + SNAccount.CurrentProfile.CurrentPeriodEnd;
-                        }
+                        URLToGet += "&since=" + InitialTime + "&until=" + EndTime;
                     }
                 }
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URLToGet);
@@ -627,6 +629,11 @@ namespace MBBetaAPI.AgentAPI
                     // TODO: how to add in a more smart way the since / until
                     if (addDateRange)
                     {
+                        if (InitialTime == null || EndTime == null)
+                        {
+                            // TODo: Find why this is happening
+                            SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                        }
                         postData += "&since=" + InitialTime + "&until=" + EndTime;
                     }
                 }

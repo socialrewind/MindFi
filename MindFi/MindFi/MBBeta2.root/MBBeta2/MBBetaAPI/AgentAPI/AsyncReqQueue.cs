@@ -1781,26 +1781,6 @@ namespace MBBetaAPI.AgentAPI
             return false;
         }
 
-        /// <summary>
-        /// process update status response
-        /// </summary>
-        /// <param name="hwnd">who is calling the callback</param>
-        /// <param name="result">was the request successful?</param>
-        /// <param name="response">JSON person data</param>
-        /// <param name="parent">CHECK: Reference to the user ID</param>
-        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
-        /// <returns>Request vas processed true/false</returns>
-        public static bool ProcessStatus(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            if (result)
-            {
-                return true;
-            }
-            else
-            {
-            }
-            return false;
-        }
         #endregion
 
         #endregion

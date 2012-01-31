@@ -38,6 +38,8 @@ namespace MBBeta2
         private string animation = "...";
         private string BasePath;
         private bool online = false;
+        private string ErrorMessage = "";
+
         #region "Process control"
         private bool firstTime = true;
         private DispatcherTimer dispatcherTimer = new DispatcherTimer();
@@ -352,7 +354,8 @@ namespace MBBeta2
                 UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
 
                 //The code to post an status goes here
-                MessageBox.Show("Create new post code goes here");
+                //MessageBox.Show("Create new post code goes here");
+                FBAPI.UpdateStatus("me", PostNewStatusTB.Text, ProcessStatus );
 
                 if (keyboardFocus != null)
                 {
@@ -1046,5 +1049,38 @@ namespace MBBeta2
                 this.UpdateTime.Text = AsyncReqQueue.nNotifications.ToString() + " news";
             }
         }
+
+        /// <summary>
+        /// process update status response
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public bool ProcessStatus(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                FBPost statusObj = new FBPost(response);
+                statusObj.Parse();
+                statusObj.Message = this.PostNewStatusTB.Text;
+                statusObj.PostType = "status";
+                statusObj.ApplicationName = "Social Rewind";
+                string errorData;
+                statusObj.Save(out errorData);
+                if (errorData != "")
+                {
+                    ErrorMessage = errorData;
+                }
+                return true;
+            }
+            else
+            {
+            }
+            return false;
+        }
+
     }
 }

@@ -176,6 +176,8 @@ namespace MBBetaAPI.AgentAPI
             AddParser("to", "FBPerson", ref m_to);
             AddParser("likes", "FBPerson", ref m_likes);
             AddParser("story_tags", "FBStoryTag", ref m_tags);
+            // default value for creation when it is not downloaded
+            m_created = DateTime.Now;
         }
 
         public override void Save(out string ErrorMessage)

@@ -416,11 +416,16 @@ namespace MBBetaAPI.AgentAPI
             return me;
         }
 
+        #endregion
+
+        #region "Publishing methods"
         /// <summary>
-        /// Updates the status of the user
+        /// Updates the status of the user - post in another user's wall
         /// </summary>
+        /// <param name="Who">User to post to, use "me" to post in own wall</param>
+        /// <param name="Status">Text to post</param>
         /// <param name="resultCall">Function that is called once the user data is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
-        /// <returns>Async Request record</returns>
+        /// <returns>Nothing - no Async Request record neeed</returns>
         public static AsyncReqQueue UpdateStatus(string Who, string Status, CallBack resultCall)
         {
             // TODO: Use the who
@@ -431,6 +436,38 @@ namespace MBBetaAPI.AgentAPI
             return null;
         }
 
+        /// <summary>
+        /// Adds a comment to an object
+        /// </summary>
+        /// <param name="SNID">Social Network ID for the object</param>
+        /// <param name="Comment">Text to comment</param>
+        /// <param name="resultCall">Function that is called once the user data is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Nothing - no Async Request record neeed</returns>
+        public static AsyncReqQueue AddComment(string SNID, string Comment, CallBack resultCall)
+        {
+            // TODO: Use the who
+            bool result;
+
+            result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + SNID + "/comments", 1, resultCall, Comment, 0, null, "", true, false);
+
+            return null;
+        }
+
+        /// <summary>
+        /// Likes or unlikes and object
+        /// </summary>
+        /// <param name="SNID">Object to like / unlike</param>
+        /// <param name="resultCall">Function that is called once the user data is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Nothing - no Async Request record neeed</returns>
+        public static AsyncReqQueue UpdateLike(string SNID, CallBack resultCall)
+        {
+            // TODO: Use the who
+            bool result;
+
+            result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + SNID + "/likes", 1, resultCall, "", 0, null, "", true, false);
+
+            return null;
+        }
         #endregion
 
 
@@ -574,7 +611,12 @@ namespace MBBetaAPI.AgentAPI
             {
                 string URLToGet = GraphAPIURL;
                 // TODO: Check if URLEncode is needed
-                string postData = "message=" + PostData;
+                string postData = "";
+
+                if (PostData != "")
+                {
+                    postData = "message=" + PostData;
+                }
                 if (addToken)
                 {
                     if (Limit == 0)

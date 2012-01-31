@@ -1074,13 +1074,23 @@ namespace MBBeta2
                 {
                     ErrorMessage = errorData;
                 }
+                /*
+                FBAPI.UpdateLike(statusObj.SNID, ProcessNull);
+                FBAPI.AddComment(statusObj.SNID, "test of a comment", ProcessNull);
+                 */
+
                 return true;
-            }
-            else
-            {
             }
             return false;
         }
 
+        public bool ProcessNull(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

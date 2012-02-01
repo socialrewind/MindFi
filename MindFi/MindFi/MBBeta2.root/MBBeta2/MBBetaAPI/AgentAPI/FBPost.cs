@@ -203,15 +203,12 @@ namespace MBBetaAPI.AgentAPI
             if (Saved)
             {
                 Saved = false;
-                // System.Windows.Forms.MessageBox.Show("Date: " + MyPartitionDate + " ID:" + MyPartitionID);
                 string ParentID = null;
                 FBObject fbParent = parent as FBObject;
                 if (fbParent != null)
                 {
                     ParentID = fbParent.SNID;
                 }
-                // System.Windows.Forms.MessageBox.Show("saving post created: " + Created + " updated: " + Updated);
-                // TODO: Review if comments / messages need a different type
                 if (PostType == null || PostType == "")
                 {
                     PostType = "comment";
@@ -248,6 +245,7 @@ namespace MBBetaAPI.AgentAPI
                     }
                     if (m_likes != null && m_likes.Count > 0)
                     {
+                        // TODO: modularize
                         foreach (FBPerson who in m_likes)
                         {
                             //System.Windows.Forms.MessageBox.Show ( "Saving " + who.SNID + " who likes " + parentSNID );
@@ -261,6 +259,7 @@ namespace MBBetaAPI.AgentAPI
                     }
                     if (m_to != null && m_to.Count > 0)
                     {
+                        // TODO: modularize
                         //System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
                         foreach (FBPerson dest in m_to)
                         {
@@ -273,12 +272,23 @@ namespace MBBetaAPI.AgentAPI
                             ErrorMessage += error;
                         }
                     }
-                    if ( ( m_wtags != null && m_wtags.Count > 0 )
-                        || (m_mtags != null && m_mtags.Count > 0)
-                        || (m_stags != null && m_stags.Count > 0))
+                    if ( m_wtags != null && m_wtags.Count > 0 )
                     {
-                        // TODO: Really save
-                        ErrorMessage += "not yet saving tags";
+                        string error;
+                        SaveList(m_wtags, Verb.TAG, out error);
+                        ErrorMessage += ErrorMessage;
+                    }
+                    if (m_mtags != null && m_mtags.Count > 0)
+                    {
+                        string error;
+                        SaveList(m_mtags, Verb.TAG, out error);
+                        ErrorMessage += ErrorMessage;
+                    }
+                    if (m_stags != null && m_stags.Count > 0)
+                    {
+                        string error;
+                        SaveList(m_wtags, Verb.TAG, out error);
+                        ErrorMessage += ErrorMessage;
                     }
                 }
                 // TODO: Change parser to generate likes as user list, then save corresponding relationship	
@@ -287,6 +297,21 @@ namespace MBBetaAPI.AgentAPI
             {
                 //System.Windows.Forms.MessageBox.Show("didnt save post " + ID + " because of\n" + ErrorMessage);
             }
+        }
+
+        private void SaveList(ArrayList list, int aVerb, out string errorMessage)
+        {
+            errorMessage = "";
+            foreach (FBStoryTag who in list)
+            {
+                string error;
+                // save likes relationship
+                DBLayer.ActionDataSave(who.SNID, SNID, aVerb, out Saved, out error);
+                errorMessage += error;
+                who.Save(out error);
+                errorMessage += error;
+            }
+
         }
 
         protected override void AssignValue(string name, string value)

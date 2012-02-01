@@ -22,8 +22,6 @@ namespace MBBetaAPI
         #region Methods
 
         //Methods for search
-        //TODO: Change methods to use FTS on DB. For now, we'll use 'like' keyword. 
-        //      Expected to be very slow
 
         bool SearchMatchingPostIDsFromDB(DateTime StartDate, DateTime EndDate)
         {

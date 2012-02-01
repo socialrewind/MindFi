@@ -139,12 +139,17 @@ namespace MBBeta2
             dlg.InitialDirectory = MyDocBase;
             dlg.FileName = MyDocBase + "\\" + tempD + ".db";
             dlg.AddExtension = true;
-            // TODO: Localization
-            dlg.Filter = "Database files (*.db)|*.db|All files (*.*)|*.*";
+
+            LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:FileFilter");
+            string LocFilter;
+            loc.ResolveLocalizedValue(out LocFilter);
+            dlg.Filter = LocFilter; // "Database files (*.db)|*.db|All files (*.*)|*.*";
             dlg.FilterIndex = 1;
 
-            // TODO: Localization
-            dlg.Title = "Select the name for the new database";
+            string LocSelect;
+            loc = new LocTextExtension("MBBeta2:LoginStrings:SelectDBName");
+            loc.ResolveLocalizedValue(out LocSelect);
+            dlg.Title = LocSelect;  // "Select the name for the new database";
             Nullable<bool> result = dlg.ShowDialog();
             if (result == true)
             {
@@ -200,8 +205,10 @@ namespace MBBeta2
             }
             catch (Exception ex)
             {
-                // TODO: Localize
-                MessageBox.Show("Error creating database: " + ex.ToString());
+                LocTextExtension loc = new LocTextExtension("MBBeta2:LoginStrings:DBCreationFailed");
+                string message;
+                loc.ResolveLocalizedValue(out message);
+                MessageBox.Show(message + "\n" + ex.ToString());
                 this.Close();
             }
         }

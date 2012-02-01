@@ -124,6 +124,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Database files (*.db)|*.db|All files (*.*)|*.*.
+        /// </summary>
+        internal static string FileFilter {
+            get {
+                return ResourceManager.GetString("FileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Initial Setup.
         /// </summary>
         internal static string InitialSetup {
@@ -237,6 +246,15 @@ namespace MBBeta2.Resources {
         internal static string ReEnterPassword {
             get {
                 return ResourceManager.GetString("ReEnterPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select the name for the new database.
+        /// </summary>
+        internal static string SelectDBName {
+            get {
+                return ResourceManager.GetString("SelectDBName", resourceCulture);
             }
         }
         

@@ -135,8 +135,7 @@ namespace MBBetaAPI.AgentAPI
                         //System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
                         foreach (FBPerson dest in m_to)
                         {
-                            dest.Distance = 2; // TODO: don't update if it was already lower
-                            //System.Windows.Forms.MessageBox.Show("person: " + dest.SNID + " email: " + dest.EMail + " name: " + dest.Name);
+                            dest.Distance = 2;
                             string error;
                             // save likes relationship
                             DBLayer.ActionDataSave(dest.SNID, SNID, Verb.SENTTO, out Saved, out error);

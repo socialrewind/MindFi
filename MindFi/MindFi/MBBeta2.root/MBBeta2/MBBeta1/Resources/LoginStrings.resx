@@ -138,6 +138,9 @@
   <data name="DBFileNotPresent" xml:space="preserve">
     <value>Backup File not available. Do you want to select another file?</value>
   </data>
+  <data name="FileFilter" xml:space="preserve">
+    <value>Database files (*.db)|*.db|All files (*.*)|*.*</value>
+  </data>
   <data name="InitialSetup" xml:space="preserve">
     <value>Initial Setup</value>
   </data>
@@ -176,6 +179,9 @@
   </data>
   <data name="ReEnterPassword" xml:space="preserve">
     <value>Re enter password:</value>
+  </data>
+  <data name="SelectDBName" xml:space="preserve">
+    <value>Select the name for the new database</value>
   </data>
   <data name="SelectFile" xml:space="preserve">
     <value>Select New Backup File:</value>

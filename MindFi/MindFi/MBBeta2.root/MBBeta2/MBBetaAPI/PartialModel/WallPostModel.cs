@@ -62,6 +62,7 @@ namespace MBBetaAPI
             try
             {
                 //Read Post
+                // TODO: Clean unused fields
                 SQLiteCommand command = new SQLiteCommand("select SocialNetwork, SNID, FromID, FromName, ToID, ToName, Message, Picture, Link, Caption, Description, PostData.Created, PostData.Updated, CommentCount, LikesCount, PostData.ParentID, PostType, PostRequestID, State, RequestType, ResponseValue, Story from PostData left outer join RequestsQueue on PostRequestID= RequestsQueue.ID where PostID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
@@ -78,7 +79,6 @@ namespace MBBetaAPI
                         SNID = Convert.ToString(value);
                         FromID = reader.GetString(2);
                         FromName = reader.GetString(3);
-                        //TODO: Enable when data is available
                         //ToID = reader.GetString(4);
                         if (reader.IsDBNull(5))
                         {
@@ -107,13 +107,21 @@ namespace MBBetaAPI
                         else
                             Description = reader.GetString(10);
                         if (reader.IsDBNull(11))
-                            if(reader.IsDBNull(12))
+                        {
+                            if (reader.IsDBNull(12))
+                            {
                                 Date = DateTime.MinValue;
+                            }
                             else
+                            {
                                 Date = reader.GetDateTime(12);
+                            }
+                        }
                         else
+                        {
                             Date = reader.GetDateTime(11);
-
+                        }
+                        Date = Date.ToLocalTime();
 
                         //CommentCount, LikesCount, ParentID, PostType
                         if (reader.IsDBNull(13))
@@ -344,8 +352,8 @@ namespace MBBetaAPI
                     string errorData;
                     FBPost aPost = new FBPost(PostResponseValue);
                     aPost.Parse();
-                    // TODO: Maybe optimize if likes are available
-                    if (aPost.LikesCount > 0)
+                    // TODO: Very it is optimized when likes are not available, and don't process if all likes are already here
+                    if ( aPost.HasLikes ) //if (aPost.LikesCount > 0)
                     {
                         AsyncReqQueue apiReq;
                         apiReq = FBAPI.Likes(aPost.SNID, AsyncReqQueue.SIZETOGETPERPAGE, ProcessLikes, aPost.ID);

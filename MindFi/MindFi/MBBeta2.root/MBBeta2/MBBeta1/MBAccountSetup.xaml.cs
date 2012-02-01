@@ -2,6 +2,10 @@
 using System.Windows;
 using System.Windows.Threading;
 using MBBetaAPI.AgentAPI;
+//Localization
+using WPFLocalizeExtension.Engine;
+using WPFLocalizeExtension.Extensions;
+using System.Globalization;
 
 namespace MBBeta2
 {
@@ -86,12 +90,17 @@ namespace MBBeta2
                     if (!FBLogin.loggedIn)
                     {
                         // TODO: Localize
-                        this.SNTB.Text = "Logging in" + animation;
+                        LocTextExtension loc = new LocTextExtension("MBBeta2:SetupStrings:ASLogging");
+                        string message;
+                        loc.ResolveLocalizedValue(out message);
+                        this.SNTB.Text = message + animation;
                     }
                     else
                     {
-                        // TODO: Localize
-                        this.SNTB.Text = "Logged in Facebook, processing data";
+                        LocTextExtension loc = new LocTextExtension("MBBeta2:SetupStrings:ASProcessing");
+                        string message;
+                        loc.ResolveLocalizedValue(out message);
+                        this.SNTB.Text = message;
                         state = 2;
                     }
                 break;
@@ -100,8 +109,10 @@ namespace MBBeta2
                     me = FBLogin.Me;
                     if (me == null || !me.Parsed)
                     {
-                        // TODO: Localize
-                        this.SNTB.Text += "... waiting for parse" + animation;
+                        LocTextExtension loc = new LocTextExtension("MBBeta2:SetupStrings:WaitingParse");
+                        string message;
+                        loc.ResolveLocalizedValue(out message);
+                        this.SNTB.Text += message + animation;
                     }
                     else
                     {
@@ -189,6 +200,7 @@ namespace MBBeta2
                     SNAccount.CurrentProfile.SocialNetwork != SN
                     )
                 {
+                    // TODO: Localize
                     MessageBox.Show("You tried to login with a different account (" + me.Name
                         + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
                         + "). Please correct your data; login cancelled.");
@@ -197,15 +209,16 @@ namespace MBBeta2
             }
 
             string errorData = "";
-            //For now
-            //me.Save(out errorData);
-            if (errorData != "")
-            {
-                if (MessageBox.Show(errorData, "Error while saving your data, cancel Add Account?", MessageBoxButton.YesNo) == System.Windows.MessageBoxResult.Yes)
-                {
-                    Close();
-                }
-            }
+            // NO LONGER USED
+            ////For now
+            ////me.Save(out errorData);
+            //if (errorData != "")
+            //{
+            //    if (MessageBox.Show(errorData, "Error while saving your data, cancel Add Account?", MessageBoxButton.YesNo) == System.Windows.MessageBoxResult.Yes)
+            //    {
+            //        Close();
+            //    }
+            //}
             // important: time in both is 0:0:0
             DateTime initialDate = BackupDateDP.SelectedDate.Value;
             DateTime endDate = DateTime.Today.AddMonths(1);           
@@ -219,10 +232,11 @@ namespace MBBeta2
                    SNAccount.CurrentProfile.BackupPeriodEnd,
                    out errorData))
             {
+                // TODO: Localize
                 MessageBox.Show("Error while saving account:\n" + errorData);
                 return;
             }
-            MessageBox.Show("Data saved correctly");
+            //MessageBox.Show("Data saved correctly");
             success = true;
             Close();
         }
@@ -231,6 +245,7 @@ namespace MBBeta2
         {
             if ( !success && state >= 4)
             {
+                // TODO: Localize
                 MessageBoxResult temp = MessageBox.Show("Are you sure to exit without saving available data?", "Confirmation", MessageBoxButton.YesNo);
                 if (temp != MessageBoxResult.Yes)
                 {

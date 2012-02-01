@@ -61,6 +61,24 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Logging in.
+        /// </summary>
+        internal static string ASLogging {
+            get {
+                return ResourceManager.GetString("ASLogging", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logged in Facebook, processing data.
+        /// </summary>
+        internal static string ASProcessing {
+            get {
+                return ResourceManager.GetString("ASProcessing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Backup Frequency:.
         /// </summary>
         internal static string BackupFrequency {
@@ -201,6 +219,15 @@ namespace MBBeta2.Resources {
         internal static string SocialNetwork {
             get {
                 return ResourceManager.GetString("SocialNetwork", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ... waiting for parse.
+        /// </summary>
+        internal static string WaitingParse {
+            get {
+                return ResourceManager.GetString("WaitingParse", resourceCulture);
             }
         }
     }

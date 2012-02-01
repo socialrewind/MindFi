@@ -361,7 +361,6 @@ namespace MBBetaAPI.AgentAPI
                     CountPerState[QUEUED]++;
                 }
                 State = QUEUED;
-                // TODO: separate status?
                 Save();
                 return true;
             }
@@ -550,7 +549,6 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Create the first, basic requests for a new backup
         /// </summary>
-        /// TODO: Possibly force a new full backup
         public static void NewRequests(int MinPriority, int ID, string SNID)
         {
             minPriorityGlobal = MinPriority;
@@ -576,7 +574,6 @@ namespace MBBetaAPI.AgentAPI
                 DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
                 bool isIncremental;
 
-                // TODO: Check if backup was completed, to decide if incremental case should go forward
                 DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
                         out currentBackupStart, out currentBackupEnd,
                         out currentBackup, out currentPeriodStart, out currentPeriodEnd, 
@@ -901,6 +898,7 @@ namespace MBBetaAPI.AgentAPI
                                 else
                                 {
                                     // TODO: Allow to show this information, probably a different state
+                                    // TODO: Localize
                                     ErrorMessage += "only waiting for last requests in flight to complete backup";
                                 }
                             }

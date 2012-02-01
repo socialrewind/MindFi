@@ -165,4 +165,13 @@
   <data name="Online" xml:space="preserve">
     <value>Go Online/Login</value>
   </data>
+  <data name="ASLogging" xml:space="preserve">
+    <value>Logging in</value>
+  </data>
+  <data name="ASProcessing" xml:space="preserve">
+    <value>Logged in Facebook, processing data</value>
+  </data>
+  <data name="WaitingParse" xml:space="preserve">
+    <value>... waiting for parse</value>
+  </data>
 </root>

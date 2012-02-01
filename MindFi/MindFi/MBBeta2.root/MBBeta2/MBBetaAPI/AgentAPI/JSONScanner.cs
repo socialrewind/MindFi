@@ -92,11 +92,14 @@ namespace MBBetaAPI.AgentAPI
 
 	private int table(char current)
 	{
-	    // TODO: Unicode case is alpha
-	    if ( (int)current < ASCIISIZE )
-		return m_table[(int)current];
-	    else
-		return ALPHA;
+        if ((int)current < ASCIISIZE)
+        {
+            return m_table[(int)current];
+        }
+        else
+        {
+            return ALPHA;
+        }
 	}
 
         /// <summary>
@@ -265,50 +268,50 @@ namespace MBBetaAPI.AgentAPI
             return buffer[currentBuffer][currentChar];
         }
 
-	char ProcessUnicode(out StringBuilder tempToken)
-	{
-	    char current;
+        char ProcessUnicode(out StringBuilder tempToken)
+        {
+            char current;
 
-	    tempToken = new StringBuilder();
-	    tempToken.Append( CurrentInput() );
-	    current = NextInput();
-	    // Process Unicode case
-	    switch ( current )
-	    {
-		case 'u':
-		    tempToken.Append(current);
-		    StringBuilder hexToken = new StringBuilder();
-		    // parse exactly 4 hex chars, err if less
-		    for ( int HexChar=0; HexChar<4; HexChar++)
-		    {
-		    current = NextInput();
-		    tempToken.Append(current);
-		    if ( current<'0' || ( current>'9' && current <'A') || ( current>'Z' && current <'a')|| current>'z' )
-		    {
-			return backslash;
-		    }
-		    hexToken.Append(current);
-		    }
-		    current = (char) int.Parse(hexToken.ToString(), NumberStyles.HexNumber);
-		    //System.Windows.Forms.MessageBox.Show("Ready to return " + current + " converted from " + tempToken);
-		    // convert all unicode into a single char to add to the token
-		    return current;
-		case 'n':
-		    return '\n';
-		case 'r':
-		    return '\r';
-        case 't':
-            return '\t';
-        case '\\':
-		    return '/'; // TEST
-		case '"':
-		case '/':
-		    return current;
-	    }
-//System.Windows.Forms.MessageBox.Show("after backslash : " + current);
-// ignore backslash, convert to the character after w/o backslash
-	    return current;
-	}
+            tempToken = new StringBuilder();
+            tempToken.Append(CurrentInput());
+            current = NextInput();
+            // Process Unicode case
+            switch (current)
+            {
+                case 'u':
+                    tempToken.Append(current);
+                    StringBuilder hexToken = new StringBuilder();
+                    // parse exactly 4 hex chars, err if less
+                    for (int HexChar = 0; HexChar < 4; HexChar++)
+                    {
+                        current = NextInput();
+                        tempToken.Append(current);
+                        if (current < '0' || (current > '9' && current < 'A') || (current > 'Z' && current < 'a') || current > 'z')
+                        {
+                            return backslash;
+                        }
+                        hexToken.Append(current);
+                    }
+                    current = (char)int.Parse(hexToken.ToString(), NumberStyles.HexNumber);
+                    //System.Windows.Forms.MessageBox.Show("Ready to return " + current + " converted from " + tempToken);
+                    // convert all unicode into a single char to add to the token
+                    return current;
+                case 'n':
+                    return '\n';
+                case 'r':
+                    return '\r';
+                case 't':
+                    return '\t';
+                case '\\':
+                    return '/'; // TEST
+                case '"':
+                case '/':
+                    return current;
+            }
+            //System.Windows.Forms.MessageBox.Show("after backslash : " + current);
+            // ignore backslash, convert to the character after w/o backslash
+            return current;
+        }
 
         #endregion
 
@@ -337,25 +340,6 @@ Top:
 			{
                             token.Append(current);
 			}
-/*
-			else
-			{
-                        if (current == backslash)
-			{
-//System.Windows.Forms.MessageBox.Show("Entering Alpha case");
-                            current = ProcessUnicode(out tempToken);
-			    if ( current == backslash )
-			    { 
-				scannerOutput = tempToken.ToString();
-                    		m_lastToken = scannerOutput;
-                    		m_lastTokenId = JSONScannerTokens.ERROR;
-            			return m_lastTokenId;
-			    }
-                            token.Append(current);
-			    // TODO: Make sure this case doesn't end the loop
-			}
-			}
-*/
 		    } while (table(current) <= DIGIT);
                     scannerOutput = token.ToString();
                     m_lastToken = scannerOutput;

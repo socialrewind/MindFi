@@ -436,59 +436,6 @@ namespace MBBetaAPI.AgentAPI
                 // parsing a child object, recognize which one then 
                 switch (name)
                 {
-                        // No longer used
-                    //case "to":
-                    //    System.Windows.Forms.MessageBox.Show("Processing to");
-                    //     Check: have to iterate until ] ?
-                    //    do
-                    //    {
-                    //        tokenId = temp.Scan(out token);
-                    //        if (ConstructOriginalResponse)
-                    //        {
-                    //            OriginalResponse += token;
-                    //        }
-
-                    //        if (tokenId == JSONScanner.JSONScannerTokens.PUNCTUATOR)
-                    //        {
-                    //            if (token == "[" || token == "{")
-                    //            {
-                    //                nestingLevel++;
-                    //            }
-                    //            else if (token == "]" || token == "}")
-                    //            {
-                    //                nestingLevel--;
-                    //            }
-                    //            else
-                    //            {
-                    //                errors += "Unexpected punctuators found " + token + ", ignored\n";
-                    //            }
-                    //        }
-                    //        else if (tokenId == JSONScanner.JSONScannerTokens.LITERAL)
-                    //        {
-                    //             reset each time, since internally ParseChild removes it when going out of an element
-                    //            parentName = name;
-                    //             Parse Child will reduce nesting level, since it iterates until }
-                    //            ParseChild(token, temp, out tokenId, out token);
-                    //        }
-                    //        else
-                    //        {
-                    //            errors += "Unexpected error expecting punctuators or child name literal, found " + token + ", ignored\n";
-                    //        }
-
-                    //    }
-                    //     TODO: Double check where is initialNestingLevel and where -1, this may be the reason that cuts too many posts
-                    //    while (tokenId != JSONScanner.JSONScannerTokens.EOF && nestingLevel != initialNestingLevel - 1);
-                    //     get the comma or { after...
-                    //    if (tokenId != JSONScanner.JSONScannerTokens.EOF)
-                    //    {
-                    //        tokenId = temp.Scan(out token);
-                    //    }
-                    //    if (ConstructOriginalResponse)
-                    //    {
-                    //        OriginalResponse += token;
-                    //    }
-
-                    //    break;
                     // TODO: Generalize all string arrays
                     case "interested_in":
                     case "meeting_for":
@@ -554,10 +501,6 @@ namespace MBBetaAPI.AgentAPI
                 value = value.Substring(1);
             if (value.Substring(value.Length - 1) == "\"")
                 value = value.Substring(0, value.Length - 1);
-
-            // TODO: Check all Unicode transformations - now in JSONScanner, test by removing this one
-            // value = value.Replace("\\u0040", "@");
-
             AssignValue(name, value);
         }
 

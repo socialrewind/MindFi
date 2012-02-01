@@ -171,16 +171,15 @@ namespace MBBetaAPI.AgentAPI
                             ErrorMessage += error;
                         }
                     }
+                    // TODO: Check when this has to be saved
                     /*
                                         if (m_to != null && m_to.Count > 0 )
                                         {
-                                //System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
                                 foreach (FBPerson dest in m_to)
                                             {
-                                    dest.Distance = 2; // TODO: don't update if it was already lower
-                                    //System.Windows.Forms.MessageBox.Show("person: " + dest.SNID + " email: " + dest.EMail + " name: " + dest.Name);
                                                 string error;
                                     // save likes relationship
+                                    dest.Distance = 2;
                                     DBLayer.ActionDataSave( dest.SNID, SNID, Verb.SENTTO, out Saved, out error);
                                     ErrorMessage += error;
                                     dest.Save(out error);

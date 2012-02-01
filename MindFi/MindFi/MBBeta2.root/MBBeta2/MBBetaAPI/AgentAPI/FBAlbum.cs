@@ -76,12 +76,12 @@ namespace MBBetaAPI.AgentAPI
         /// Default constructor, based on a JSON response
         /// </summary>
         /// <param name="response">JSON response to parse and build the person object</param>
-        public FBAlbum(string response)
-            : base(response)
-        {
-            MyDataTable = "AlbumData";
-            AddParser("comments", "FBPost", ref m_comments);
-        }
+        //public FBAlbum(string response)
+        //    : base(response)
+        //{
+        //    MyDataTable = "AlbumData";
+        //    AddParser("comments", "FBPost", ref m_comments);
+        //}
 
         /// <summary>
         /// Default constructor, based on a scanner already in progress. For example, it is used when parsing a user Wall, which contains Post elements
@@ -94,7 +94,6 @@ namespace MBBetaAPI.AgentAPI
             AddParser("comments", "FBPost", ref m_comments);
         }
 
-        // TODO: Verify constructors are needed
         public override void Save(out string ErrorMessage)
         {
             ErrorMessage = "";

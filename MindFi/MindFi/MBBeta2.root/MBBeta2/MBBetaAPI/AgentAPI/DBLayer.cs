@@ -93,27 +93,23 @@ namespace MBBetaAPI.AgentAPI
                     File.Copy(origin, file, true);
                 }
 
-                // TODO: remove double lock?
-                lock (obj)
-                {
-                    DBLayer.ConnString = "Data Source=" + file + "";
-                    conn = null;
-                    GetConn();
-                    SQLiteCommand InsertCmd = new SQLiteCommand(
-                        "insert into Config(Username, CurrentStep) values (?,?)"
-                            , conn);
-                    SQLiteParameter pName = new SQLiteParameter();
-                    pName.Value = user;
-                    InsertCmd.Parameters.Add(pName);
-                    SQLiteParameter pCurrent = new SQLiteParameter();
-                    pCurrent.Value = 0;
-                    InsertCmd.Parameters.Add(pCurrent);
-                    InsertCmd.ExecuteNonQuery();
-                    conn.ChangePassword(password);
-                    conn.Close();
-                    conn = null;
-                    DBLayer.ConnString = "Data Source=" + file + ";Password=" + password;
-                }
+                DBLayer.ConnString = "Data Source=" + file + "";
+                conn = null;
+                GetConn();
+                SQLiteCommand InsertCmd = new SQLiteCommand(
+                    "insert into Config(Username, CurrentStep) values (?,?)"
+                        , conn);
+                SQLiteParameter pName = new SQLiteParameter();
+                pName.Value = user;
+                InsertCmd.Parameters.Add(pName);
+                SQLiteParameter pCurrent = new SQLiteParameter();
+                pCurrent.Value = 0;
+                InsertCmd.Parameters.Add(pCurrent);
+                InsertCmd.ExecuteNonQuery();
+                conn.ChangePassword(password);
+                conn.Close();
+                conn = null;
+                DBLayer.ConnString = "Data Source=" + file + ";Password=" + password;
                 DatabaseInUse = false;
             }
             return true;
@@ -2247,7 +2243,7 @@ namespace MBBetaAPI.AgentAPI
 
                         SQL = "Insert into StoryTagData (SocialNetwork, PersonSNID, PostSNID, Active, "
                             + "Offset, Length, Created, Updated, LastUpdate, PartitionDate, PartitionID)"
-                            + " values (?,?,1,?,?,?,?,?,?,?)";
+                            + " values (?,?,?,1,?,?,?,?,?,?,?)";
                     }
                     SQLiteParameter pPersonSNID = new SQLiteParameter();
                     SQLiteParameter pPostSNID = new SQLiteParameter();
@@ -3072,8 +3068,6 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    //BeginTransaction();
-                    //inTransaction = true;
                     // check first if there is an active Backup
                     string SQL = "select ID, CurrentStartTime, CurrentEndTime, PeriodStartTime, PeriodEndTime, CurrentBackupState from Backups where Active = 1";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
@@ -3089,7 +3083,6 @@ namespace MBBetaAPI.AgentAPI
                         currentBackupEnd = tempPeriodEnd;
                         currentState = reader.GetInt32(5);
                         reader.Close();
-                        // TODO: update target period if necessary?
                     }
                     else
                     {
@@ -3102,7 +3095,6 @@ namespace MBBetaAPI.AgentAPI
                         {
                             if (!reader.IsDBNull(0) && !reader.IsDBNull(1) && !reader.IsDBNull(2))
                             {
-                                //DateTime tempStart = reader.GetDateTime(1);
                                 DateTime tempPeriodStart = reader.GetDateTime(0);
                                 DateTime tempPeriodEnd = reader.GetDateTime(1);
                                 DateTime tempLastBackupDone = reader.GetDateTime(2);
@@ -3137,9 +3129,9 @@ namespace MBBetaAPI.AgentAPI
                         SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                         // Calculation
                         currentPeriodEnd = endPeriod;
-                        // TODO: Check general behavior, now go back week by week unless it is the one pointing to the future from now
+                        // Now go back by a month unless it is the one pointing to the future from now
                         DateTime temp1 = DateTime.Today;
-                        DateTime temp2 = endPeriod.AddDays(-30);
+                        DateTime temp2 = endPeriod.AddMonths(-1);
                         currentPeriodStart = ( temp1 < temp2 ) ? temp1 : temp2;
                         SQLiteParameter pStart = new SQLiteParameter();
                         pStart.Value = DateTime.Now;
@@ -3173,22 +3165,12 @@ namespace MBBetaAPI.AgentAPI
                 }
                 catch (Exception ex)
                 {
-                    //if (inTransaction)
-                    //{
-                    //    RollbackTransaction();
-                    //    inTransaction = false;
-                    //}
                     string ErrorMessage = "Error creating backup \n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
                     return false;
                 }
                 finally
                 {                
-                    //if (inTransaction)
-                    //{
-                    //    // TODO: Make sure it doesn't fail on double transaction...
-                    //    CommitTransaction();
-                    //}
                     DatabaseInUse = false;
                 }
             } // lock
@@ -3309,10 +3291,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    // make sure only one active at the time
                     // TODO: Algorithm to check if time is completed
-                    // TODO: Review transactions if necessary
-                    // BeginTransaction();
                     string SQL = "update Backups set EndTime = ?, Active = 0 where Active = 1";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pEnd = new SQLiteParameter();
@@ -3328,7 +3307,6 @@ namespace MBBetaAPI.AgentAPI
                 }
                 finally
                 {
-                    //CommitTransaction();
                     DatabaseInUse = false;
                 }
             } // lock

@@ -483,7 +483,6 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="Limit">How many JSON records should be returned, max</param>
         /// <param name="resultCall">Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success or failure</returns>
-        /// TODO: Private?
         public static bool CallGraphAPI(string GraphAPIURL, int Limit, CallBack resultCall, long AsyncID, long? parent, string parentSNID, bool addToken, bool addDateRange = false)
         {
             try
@@ -540,7 +539,6 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="FileName">Path in which the file will be downloaded</param>
         /// <param name="resultCall">Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success or failure</returns>
-        /// TODO: Private?
         public static bool CallGraphAPI(string GraphAPIURL, string FileName, CallBack resultCall, long AsyncID, long? parent, string parentSNID)
         {
             try
@@ -570,7 +568,6 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="FileName">Path in which the file will be downloaded</param>
         /// <param name="resultCall">Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success or failure</returns>
-        /// TODO: Private?
         public static bool DownloadLink(string Link, string FileName, CallBack resultCall, long AsyncID, long? parent, string parentSNID)
         {
             try
@@ -602,7 +599,6 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="Limit">How many JSON records should be returned, max</param>
         /// <param name="resultCall">Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success or failure</returns>
-        /// TODO: Private?
         /// // TODO: check additional needed parameters
         public static bool CallGraphAPIPost(string GraphAPIURL, int Limit, CallBack resultCall, 
             string PostData,
@@ -612,7 +608,6 @@ namespace MBBetaAPI.AgentAPI
             try
             {
                 string URLToGet = GraphAPIURL;
-                // TODO: Check if URLEncode is needed
                 string postData = "";
 
                 if (PostData != "")

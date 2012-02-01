@@ -138,6 +138,9 @@
   <data name="DBFileNotPresent" xml:space="preserve">
     <value>El archivo de respaldo no está disponible. ¿Desea seleccionar otro?</value>
   </data>
+  <data name="FileFilter" xml:space="preserve">
+    <value>Archivos de base de datos (*.db)|*.db|Todos los archivos (*.*)|*.*</value>
+  </data>
   <data name="InitialSetup" xml:space="preserve">
     <value>Configuración inicial</value>
   </data>
@@ -176,6 +179,9 @@
   </data>
   <data name="ReEnterPassword" xml:space="preserve">
     <value>Vuelva a escribir la contraseña</value>
+  </data>
+  <data name="SelectDBName" xml:space="preserve">
+    <value>Indique el nombre del archivo de base de datos</value>
   </data>
   <data name="SelectFile" xml:space="preserve">
     <value>Seleccione un archivo de respaldo</value>

@@ -247,7 +247,7 @@ namespace MBBetaAPI
                         NotifyPropertyChanged("All");
                         break;
                     case AsyncReqQueue.PARSED:
-                        if (FirstName == null)
+                        if (FirstName == null || FirstName=="")
                         {
                             ProcessReceivedRequest();
                             ErrorMessage += "Appeared already parsed but no special data available";

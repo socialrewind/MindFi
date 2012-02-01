@@ -80,7 +80,14 @@ namespace MBBetaAPI
                         FromName = reader.GetString(3);
                         //TODO: Enable when data is available
                         //ToID = reader.GetString(4);
-                        //ToName = reader.GetString(5);
+                        if (reader.IsDBNull(5))
+                        {
+                            ToName = "";
+                        }
+                        else
+                        {
+                            ToName = reader.GetString(5);
+                        }
                         if (reader.IsDBNull(6))
                             Message = "";
                         else
@@ -164,7 +171,11 @@ namespace MBBetaAPI
                         {
                             Story = reader.GetString(21);
                         }
-
+                        WallName = FromName;
+                        if (ToName != "" && ToName != FromName )
+                        {
+                            WallName += " > " + ToName;
+                        }
                 }
 
                 reader.Close();

@@ -42,10 +42,11 @@ namespace MBBetaAPI
         public string FromName { get; set; }
         public string FromPhotoPath { get; set; }
 
-        //Recipient
-        public int InternalToID { get; set; }
-        public string ToID { get; set; }
+        ////Recipient
+        //public int InternalToID { get; set; }
+        //public string ToID { get; set; }
         public string ToName { get; set; }
+        public string WallName { get; set; }
 
         //Attributes
         public string Title { get; set; }

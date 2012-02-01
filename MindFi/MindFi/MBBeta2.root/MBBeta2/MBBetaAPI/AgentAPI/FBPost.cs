@@ -217,6 +217,15 @@ namespace MBBetaAPI.AgentAPI
                     PostType = "comment";
                 }
 
+                if (m_to != null && m_to.Count > 0 )
+                {
+                    ToName = "";
+                    foreach (FBPerson dest in m_to)
+                    {
+                        ToName += dest.Name + "; ";
+                    }
+                }
+
                 DBLayer.PostDataSave(MyPartitionDate, MyPartitionID,
                     FromID, FromName, ToID, ToName, Message,
                     Picture, Link, Caption, Description, Story,

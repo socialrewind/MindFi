@@ -22,19 +22,19 @@
         
         <Style x:Key="RelationshipStatusStyle" TargetType="TextBlock">
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="">
+                <DataTrigger Binding="{Binding Path=Value.RelationshipStatus}" Value="">
                     <Setter Property="Text" Value=""/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="Single">
+                <DataTrigger Binding="{Binding Path=Value.RelationshipStatus}" Value="Single">
                     <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:Single}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="Engaged">
+                <DataTrigger Binding="{Binding Path=Value.RelationshipStatus}" Value="Engaged">
                     <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:Engaged}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="Married">
+                <DataTrigger Binding="{Binding Path=Value.RelationshipStatus}" Value="Married">
                     <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:Married}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Path=RelationshipStatus}" Value="In a relationship">
+                <DataTrigger Binding="{Binding Path=Value.RelationshipStatus}" Value="In a relationship">
                     <Setter Property="Text" Value="{lex:LocText MBBeta2:DCStrings:InARelationship}"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -81,16 +81,16 @@
 
             <Grid>
                 <Rectangle Width="100" Height="100" RadiusX="10" RadiusY="10" Fill="White"/>
-                <Image Source="{Binding ProfilePic}" Width="80" Height="80"/>
+                <Image Source="{Binding Path=Value.ProfilePic}" Width="80" Height="80"/>
             </Grid>
 
             <StackPanel Orientation="Vertical" Margin="0,20,0,0">
-                <TextBlock Text="{Binding FirstName}"
+                <TextBlock Text="{Binding Path=Value.FirstName}"
                            FontSize="15" FontWeight="Bold"
                            HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding LastName}"
+                <TextBlock Text="{Binding Path=Value.LastName}"
                            FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding ErrorMessage}"
+                <TextBlock Text="{Binding Path=Value.ErrorMessage}"
                            Foreground="Red"
                            FontWeight="Bold" HorizontalAlignment="Center"/>
                 <TextBlock Name="ErrorMessage2"
@@ -112,9 +112,9 @@
                     <StackPanel Orientation="Horizontal" Margin="5,5,0,0">
                         <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:Birthday}"/>
                         <TextBlock  Text=": "/>
-                        <TextBlock  Text="{Binding BirthMonth, Converter={StaticResource monthConverter}, StringFormat={}{0:MMM}}"/>
+                        <TextBlock  Text="{Binding Path=Value.BirthMonth, Converter={StaticResource monthConverter}, StringFormat={}{0:MMM}}"/>
                         <TextBlock  Text=" "/>
-                        <TextBlock Text="{Binding BirthDay}"/>
+                        <TextBlock Text="{Binding Path=Value.BirthDay}"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -125,7 +125,7 @@
                     <StackPanel Orientation="Horizontal" Margin="5,5,0,0">
                         <TextBlock Style="{StaticResource RelationshipStatusStyle}"/>
                         <TextBlock Text=" "/>
-                        <TextBlock Text="{Binding Path=SignificantOther.Name}"/>
+                        <TextBlock Text="{Binding Path=Value.SignificantOther.Name}"/>
                     </StackPanel>
 
                 </StackPanel>
@@ -135,7 +135,7 @@
                         FontWeight="Bold"/>
                     <ItemsControl   x:Name="EducationItemsControl" Margin="5,5,0,0"
                                     ItemTemplate="{StaticResource OrganizationDataTemplate}"
-                                    ItemsSource="{Binding Path=SchoolsList}">                        
+                                    ItemsSource="{Binding Path=Value.SchoolsList}">                        
                     </ItemsControl>                    
                 </StackPanel>
                 
@@ -144,13 +144,13 @@
                         FontWeight="Bold"/>
                     <ItemsControl   x:Name="WorkItemsControl" Margin="5,5,0,0"
                                     ItemTemplate="{StaticResource OrganizationDataTemplate}"
-                                ItemsSource="{Binding Path=CompaniesList}">
+                                ItemsSource="{Binding Path=Value.CompaniesList}">
                     </ItemsControl>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Margin="0,10,0,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding FirstName}"
+                        <TextBlock Text="{Binding Path=Value.FirstName}"
                             FontWeight="Bold"/>
                         <TextBlock Text=" "/>
                         <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:AndYou}"

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Data.SQLite;
+using System.ComponentModel;
 
 namespace MBBetaAPI.AgentAPI
 {
@@ -554,12 +555,18 @@ namespace MBBetaAPI.AgentAPI
             minPriorityGlobal = MinPriority;
             string error;
             int[] stateArray;
-            
+            int nFriendsReceived;
+
+            if (DBLayer.GetBackupStatistics(out nFriendsReceived, out error))
+            {
+                nFriendsProcessed = nFriendsReceived;
+            }
+                            
             if (DBLayer.GetNRequestsPerState(minPriorityGlobal, out stateArray, out error))
             {
                 CountPerState = stateArray;
                 // Update old requests for retry
-                if (!DBLayer.QueueRetryUpdate())
+                if (!DBLayer.QueueRetryUpdate(minPriorityGlobal))
                 {
                     return;
                 }
@@ -726,7 +733,6 @@ namespace MBBetaAPI.AgentAPI
         private static int GetNextFriendsData()
         {
             string errorMessage;
-            AsyncReqQueue apiReq;
             // Go over friends, adding requests for them if not yet defined
             int[] FriendEntityID;
             string[] FriendSNID;
@@ -738,17 +744,29 @@ namespace MBBetaAPI.AgentAPI
                 foreach (int friendID in FriendEntityID)
                 {
                     string SNID = FriendSNID[i];
+
                     if (SNID != null && SNID != "")
                     {
-
-                        apiReq = FBAPI.Profile(SNID, ProcessOneFriend);
-                        apiReq.QueueAndSend(999);
-                        DBLayer.UpdateDataRequest(friendID, apiReq.ID, out errorMessage);
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendData);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
+                        bw.RunWorkerAsync(temp);
                     }
                     i++;
                 }
             }
             return nRequests;
+        }
+
+        private static void bw_GetFriendData(object sender, DoWorkEventArgs e)
+        {
+            string errorMessage;
+            BackgroundWorker worker = sender as BackgroundWorker;
+            AsyncWorkArgs temp = (AsyncWorkArgs)e.Argument;
+
+            AsyncReqQueue apiReq = FBAPI.Profile(temp.SNID, ProcessOneFriend);
+            apiReq.QueueAndSend(999);
+            DBLayer.UpdateDataRequest(temp.ID, apiReq.ID, out errorMessage);
         }
 
         private static int GetNextFriendsWalls()
@@ -1828,5 +1846,17 @@ namespace MBBetaAPI.AgentAPI
 
         #endregion
 
+    }
+
+    class AsyncWorkArgs
+    {
+        public int ID;
+        public string SNID;
+
+        public AsyncWorkArgs(int id, string snid)
+        {
+            ID = id;
+            SNID = snid;
+        }
     }
 }

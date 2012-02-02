@@ -384,7 +384,7 @@ namespace MBBetaAPI.AgentAPI
             }
         }
 
-        public static bool QueueRetryUpdate()
+        public static bool QueueRetryUpdate(int RetryPriority)
         {
             string SQL = "";
 
@@ -396,11 +396,14 @@ namespace MBBetaAPI.AgentAPI
                     DatabaseInUse = true;
                     GetConn();
                     // TODO: Update retry to failed
-                    SQL = "Update RequestsQueue set State=? where State=? and RetryCount<3 and Updated<?";
+                    SQL = "Update RequestsQueue set State=?, Priority=? where State=? and RetryCount<3 and Updated<?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pUState = new SQLiteParameter();
                     pUState.Value = AsyncReqQueue.RETRY;
                     UpdateCmd.Parameters.Add(pUState);
+                    SQLiteParameter pPriority = new SQLiteParameter();
+                    pPriority.Value = RetryPriority;
+                    UpdateCmd.Parameters.Add(pPriority);
                     SQLiteParameter pUState2 = new SQLiteParameter();
                     pUState2.Value = AsyncReqQueue.SENT;
                     UpdateCmd.Parameters.Add(pUState2);
@@ -856,7 +859,7 @@ namespace MBBetaAPI.AgentAPI
             int Distance, string ProfilePic, string Link,
             string FirstName, string MiddleName, string LastName,
             string FullBirthday, string UserName, string Gender, string Locale,
-            string RelStatus, string Religion, string Political,
+            string RelStatus, string SignificantOtherName, string Religion, string Political,
             int? UserTimeZone, string About, string Bio, string Quotes, string Verified,
             DateTime? Updated, bool Parsed,
             out bool Saved, out string ErrorMessage)
@@ -887,6 +890,7 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pGender = new SQLiteParameter();
                     SQLiteParameter pLocale = new SQLiteParameter();
                     SQLiteParameter pRelStatus = new SQLiteParameter();
+                    SQLiteParameter pSO = new SQLiteParameter();
                     SQLiteParameter pReligion = new SQLiteParameter();
                     SQLiteParameter pPolitical = new SQLiteParameter();
                     SQLiteParameter pUserTimeZone = new SQLiteParameter();
@@ -909,6 +913,7 @@ namespace MBBetaAPI.AgentAPI
                     pGender.Value = Gender;
                     pLocale.Value = Locale;
                     pRelStatus.Value = RelStatus;
+                    pSO.Value = SignificantOtherName;
                     pReligion.Value = Religion;
                     pPolitical.Value = Political;
                     pUserTimeZone.Value = UserTimeZone;
@@ -932,6 +937,7 @@ namespace MBBetaAPI.AgentAPI
                     if (Gender != null) SQL += ", Gender=?";
                     if (Locale != null) SQL += ", Locale=?";
                     if (RelStatus != null) SQL += ", RelationshipStatus=?";
+                    if (SignificantOtherName != null) SQL += ", SignificantOther=?";
                     if (Religion != null) SQL += ", Religion=?";
                     if (Political != null) SQL += ", Political=?";
                     if (UserTimeZone != null) SQL += ", UserTimeZone=?";
@@ -965,6 +971,7 @@ namespace MBBetaAPI.AgentAPI
                     if (Gender != null) UpdateCmd.Parameters.Add(pGender);
                     if (Locale != null) UpdateCmd.Parameters.Add(pLocale);
                     if (RelStatus != null) UpdateCmd.Parameters.Add(pRelStatus);
+                    if (SignificantOtherName != null) UpdateCmd.Parameters.Add(pSO);
                     if (Religion != null) UpdateCmd.Parameters.Add(pReligion);
                     if (Political != null) UpdateCmd.Parameters.Add(pPolitical);
                     if (UserTimeZone != null) UpdateCmd.Parameters.Add(pUserTimeZone);
@@ -2764,8 +2771,8 @@ namespace MBBetaAPI.AgentAPI
         {
             lock (obj)
             {
-                NState = new int[AsyncReqQueue.TODELETE + 1];
-                for (int i = 0; i < AsyncReqQueue.TODELETE + 1; i++) NState[i] = 0;
+                NState = new int[AsyncReqQueue.FAILED + 1];
+                for (int i = 0; i < AsyncReqQueue.FAILED + 1; i++) NState[i] = 0;
 
                 ErrorMessage = "";
                 try
@@ -2947,6 +2954,44 @@ namespace MBBetaAPI.AgentAPI
 
             } // lock
             return nRequests;
+        }
+
+        /// <summary>
+        /// Method that gets what progress we have on initial backup
+        /// </summary>
+        public static bool GetBackupStatistics(out int nFriendsReceived, out string ErrorMessage)
+        {
+            ErrorMessage = "";
+            nFriendsReceived = 0;
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select count(*) from PersonData join RequestsQueue on DataRequestID=RequestsQueue.ID where State=4 or State=5";
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        nFriendsReceived = reader.GetInt32(0);
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return true;
         }
 
         /// <summary>

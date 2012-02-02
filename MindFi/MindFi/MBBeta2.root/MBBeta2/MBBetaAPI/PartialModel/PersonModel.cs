@@ -78,7 +78,7 @@ namespace MBBetaAPI
                 reader.Close();
 
                 //Read Person
-                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance, DataRequestID, State, RequestType, ResponseValue from PersonData left outer join RequestsQueue on DataRequestID= RequestsQueue.ID where PersonID = @ID", conn);
+                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance, DataRequestID, State, RequestType, ResponseValue, SignificantOther from PersonData left outer join RequestsQueue on DataRequestID= RequestsQueue.ID where PersonID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader2 = command.ExecuteReader();
@@ -234,6 +234,14 @@ namespace MBBetaAPI
                         {
                             DataResponseValue = reader2.GetString(18);
                         }
+                        if (reader2.IsDBNull(19))
+                        {
+                            SignificantOtherName = null;
+                        }
+                        else
+                        {
+                            SignificantOtherName = reader2.GetString(19);
+                        }
                 }
 
                 reader2.Close();
@@ -336,7 +344,8 @@ namespace MBBetaAPI
                     {
                         BirthYear = tempBirthYear;
                     }
-                    currentFriend.Parsed = true;
+                    // no need to parse, only with internal method
+                    //currentFriend.Parsed = true;
                     currentFriend.Save(out errorData);
                     break;
                 // TODO: default case and other types for Twitter, LinkedIn
@@ -413,7 +422,7 @@ namespace MBBetaAPI
                 {
                     DBLayer.GetConn();
                     //Read Action Data where ActionID = 2 (In relation to...)
-                    SQLiteCommand command = new SQLiteCommand("select ObjectID from RelationsData where VerbID=2 AND SubjectID=@ID", DBLayer.conn);
+                    SQLiteCommand command = new SQLiteCommand("select ObjectID from RelationsData where VerbID=" + Verb.SIGNIFICANTOTHERWITH + " AND SubjectID=@ID", DBLayer.conn);
                     command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                     SQLiteDataReader reader = command.ExecuteReader();

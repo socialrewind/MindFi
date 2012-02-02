@@ -382,7 +382,8 @@ namespace MBBetaAPI
                     {
                         Picture = new Uri(aPost.Picture);
                     }
-                    aPost.Parsed = true;
+                    // no need to parse, only with internal method
+                    //aPost.Parsed = true;
                     aPost.Save(out errorData);
                     break;
                 // TODO: default case and other types for Twitter, LinkedIn

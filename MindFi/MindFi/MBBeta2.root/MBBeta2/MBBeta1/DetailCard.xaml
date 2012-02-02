@@ -125,7 +125,7 @@
                     <StackPanel Orientation="Horizontal" Margin="5,5,0,0">
                         <TextBlock Style="{StaticResource RelationshipStatusStyle}"/>
                         <TextBlock Text=" "/>
-                        <TextBlock Text="{Binding Path=Value.SignificantOther.Name}"/>
+                        <TextBlock Text="{Binding Path=Value.SignificantOtherName}"/>
                     </StackPanel>
 
                 </StackPanel>

@@ -214,7 +214,9 @@ namespace MBBetaAPI.AgentAPI
                 Saved = false;
                 DBLayer.PersonDataSave(MyPartitionDate, MyPartitionID,
                     Distance, ProfilePic, Link, FirstName, MiddleName, LastName,
-                    FullBirthday, UserName, Gender, Locale, RelationshipStatus, 
+                    FullBirthday, UserName, Gender, Locale, 
+                    RelationshipStatus, 
+                    (SignificantOther==null)?null:SignificantOther.Name, 
                     Religion, Political, UserTimeZone, About, Bio, Quotes, 
                     Verified, Updated, Parsed,
                     out Saved, out ErrorMessage);

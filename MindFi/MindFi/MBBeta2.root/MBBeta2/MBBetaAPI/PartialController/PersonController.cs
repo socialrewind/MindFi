@@ -22,7 +22,7 @@ namespace MBBetaAPI
             GetFromDB();
             GetSchools();
             GetCompanies();
-            GetSignificantOther();
+            //GetSignificantOther();
         }
 
 
@@ -56,6 +56,7 @@ namespace MBBetaAPI
 
         //Relationship Status
         public string RelationshipStatus {get; private set;}
+        public string SignificantOtherName { get; private set; }
         public PersonLight SignificantOther { get; private set; }
 
         #endregion

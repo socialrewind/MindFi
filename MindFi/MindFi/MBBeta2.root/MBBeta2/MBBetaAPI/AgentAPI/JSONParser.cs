@@ -33,7 +33,7 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Flag to indicate if the OriginalResponse has been analyzed and object initialized with corresponding values
         /// </summary>
-        public bool Parsed { get; set; }
+        public bool Parsed { get; private set; }
         /// <summary>
         /// Flag to indicate if the object has been saved to the database
         /// </summary>

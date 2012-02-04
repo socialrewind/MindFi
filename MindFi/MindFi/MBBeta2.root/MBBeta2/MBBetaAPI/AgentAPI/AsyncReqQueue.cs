@@ -702,7 +702,6 @@ namespace MBBetaAPI.AgentAPI
         private static int GetNextFriendsPics()
         {
             string errorMessage;
-            AsyncReqQueue apiReq;
             // Go over friends, adding requests for them if not yet defined
             int[] FriendEntityID;
             string[] FriendSNID;
@@ -716,13 +715,10 @@ namespace MBBetaAPI.AgentAPI
                     string SNID = FriendSNID[i];
                     if (SNID != null && SNID != "")
                     {
-                        apiReq = FBAPI.ProfilePic(SNID,
-                            ProfilePhotoDestinationDir + SNID + ".jpg",
-                            ProcessFriendPic, friendID, SNID);
-                        apiReq.QueueAndSend(999);
-                        DateTime perfCheck = DateTime.Now;
-                        DBLayer.UpdatePictureRequest(friendID, apiReq.ID, out errorMessage);
-                        TimeSpan temp = DateTime.Now.Subtract(perfCheck);
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendPic);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
+                        bw.RunWorkerAsync(temp);
                     }
                     i++;
                 }
@@ -767,6 +763,19 @@ namespace MBBetaAPI.AgentAPI
             AsyncReqQueue apiReq = FBAPI.Profile(temp.SNID, ProcessOneFriend);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateDataRequest(temp.ID, apiReq.ID, out errorMessage);
+        }
+
+        private static void bw_GetFriendPic(object sender, DoWorkEventArgs e)
+        {
+            string errorMessage;
+            BackgroundWorker worker = sender as BackgroundWorker;
+            AsyncWorkArgs temp = (AsyncWorkArgs)e.Argument;
+
+            AsyncReqQueue apiReq = FBAPI.ProfilePic(temp.SNID,
+                            ProfilePhotoDestinationDir + temp.SNID + ".jpg",
+                            ProcessFriendPic, temp.ID, temp.SNID);
+            apiReq.QueueAndSend(999);
+            DBLayer.UpdatePictureRequest(temp.ID, apiReq.ID, out errorMessage);
         }
 
         private static int GetNextFriendsWalls()

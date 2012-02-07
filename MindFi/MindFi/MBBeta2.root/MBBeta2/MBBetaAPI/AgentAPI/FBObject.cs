@@ -23,6 +23,14 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public DateTime? Updated { get { return m_updated; } }
         /// <summary>
+        /// Paging: link to previous set in FB to parse
+        /// </summary>
+        public string Previous { get; set; }
+        /// <summary>
+        /// Paging: link to next set in FB to parse
+        /// </summary>
+        public string Next { get; set; }
+        /// <summary>
         /// data table associated with the object
         /// </summary>
         protected string MyDataTable { get; set; }
@@ -146,6 +154,16 @@ namespace MBBetaAPI.AgentAPI
                 case "updated_time":
                     m_updated = DateTimeValue(value, out error);
                     lastError += error;
+                    break;
+                case "previous":
+                    // eliminate internal backslashes, not needed in URL for storage
+                    value = value.Replace("\\", "");
+                    Previous = value;
+                    break;
+                case "next":
+                    // eliminate internal backslashes, not needed in URL for storage
+                    value = value.Replace("\\", "");
+                    Next = value;
                     break;
                 default:
                     base.AssignValue(name, value);

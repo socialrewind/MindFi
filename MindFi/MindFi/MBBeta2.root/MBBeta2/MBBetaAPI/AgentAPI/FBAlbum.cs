@@ -66,6 +66,7 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         private string AlbumType;
         private ArrayList m_comments;
+        private ArrayList m_likes;
 
         #endregion
 
@@ -92,6 +93,7 @@ namespace MBBetaAPI.AgentAPI
         {
             MyDataTable = "AlbumData";
             AddParser("comments", "FBPost", ref m_comments);
+            AddParser("likes", "FBObject", ref m_likes);
         }
 
         public override void Save(out string ErrorMessage)
@@ -214,6 +216,12 @@ namespace MBBetaAPI.AgentAPI
                     {
                         base.AssignValue(name, value);
                     }
+                    break;
+                case "privacy":
+                    Privacy += value;
+                    break;
+                case "can_upload":
+                    // Ignore for now
                     break;
                 default:
                     base.AssignValue(name, value);

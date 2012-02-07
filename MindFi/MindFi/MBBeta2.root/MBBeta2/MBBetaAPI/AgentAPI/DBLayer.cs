@@ -904,10 +904,13 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pUpdated = new SQLiteParameter();
 
                     pDistance.Value = Distance;
-                    string ToRemove = AsyncReqQueue.ProfilePhotoDestinationDir;
-                    if (ProfilePic.Contains(ToRemove))
+                    if (ProfilePic != null)
                     {
-                        ProfilePic = ProfilePic.Replace(ToRemove, "");
+                        string ToRemove = AsyncReqQueue.ProfilePhotoDestinationDir;
+                        if (ProfilePic.Contains(ToRemove))
+                        {
+                            ProfilePic = ProfilePic.Replace(ToRemove, "");
+                        }
                     }
                     pPic.Value = ProfilePic;
                     pLink.Value = Link;
@@ -1047,10 +1050,13 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pID = new SQLiteParameter();
                     SQLiteParameter pPic = new SQLiteParameter();
                     pID.Value = PersonID;
-                    string ToRemove = AsyncReqQueue.ProfilePhotoDestinationDir;
-                    if (Path.Contains(ToRemove))
+                    if (Path != null)
                     {
-                        Path = Path.Replace(ToRemove, "");
+                        string ToRemove = AsyncReqQueue.ProfilePhotoDestinationDir;
+                        if (Path.Contains(ToRemove))
+                        {
+                            Path = Path.Replace(ToRemove, "");
+                        }
                     }
                     pPic.Value = Path;
                     UpdateCmd.Parameters.Add(pPic);
@@ -1825,10 +1831,13 @@ namespace MBBetaAPI.AgentAPI
                     pPrivacyValue.Value = PrivacyValue;
                     pCreated.Value = Created;
                     pUpdated.Value = Updated;
-                    string ToRemove = AsyncReqQueue.AlbumDestinationDir;
-                    if (Path.Contains(ToRemove))
+                    if (Path != null)
                     {
-                        Path = Path.Replace(ToRemove, "");
+                        string ToRemove = AsyncReqQueue.AlbumDestinationDir;
+                        if (Path.Contains(ToRemove))
+                        {
+                            Path = Path.Replace(ToRemove, "");
+                        }
                     }
                     pPath.Value = Path;
                     pCoverPicture.Value = CoverPicture;
@@ -1948,10 +1957,13 @@ namespace MBBetaAPI.AgentAPI
                     pWidth.Value = Width;
                     pCreated.Value = Created;
                     pUpdated.Value = Updated;
-                    string ToRemove = AsyncReqQueue.AlbumDestinationDir;
-                    if (Path.Contains(ToRemove))
+                    if (Path != null)
                     {
-                        Path = Path.Replace(ToRemove, "");
+                        string ToRemove = AsyncReqQueue.AlbumDestinationDir;
+                        if (Path.Contains(ToRemove))
+                        {
+                            Path = Path.Replace(ToRemove, "");
+                        }
                     }
                     pPath.Value = Path;
                     pPID.Value = ParentID;
@@ -2463,10 +2475,13 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pID = new SQLiteParameter();
                     SQLiteParameter pPic = new SQLiteParameter();
                     pID.Value = PhotoID;
-                    string ToRemove = AsyncReqQueue.AlbumDestinationDir;
-                    if (Path.Contains(ToRemove))
+                    if (Path != null)
                     {
-                        Path = Path.Replace(ToRemove, "");
+                        string ToRemove = AsyncReqQueue.AlbumDestinationDir;
+                        if (Path.Contains(ToRemove))
+                        {
+                            Path = Path.Replace(ToRemove, "");
+                        }
                     }
                     pPic.Value = Path;
                     UpdateCmd.Parameters.Add(pPic);
@@ -2964,22 +2979,31 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Method that gets what progress we have on initial backup
         /// </summary>
-        public static bool GetBackupStatistics(out int nFriendsReceived, out string ErrorMessage)
+        public static bool GetBackupStatistics(out int nFriendsReceived, out int nPicsReceived, out string ErrorMessage)
         {
             ErrorMessage = "";
             nFriendsReceived = 0;
+            nPicsReceived = 0;
             lock (obj)
             {
                 try
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "select count(*) from PersonData join RequestsQueue on DataRequestID=RequestsQueue.ID where State=4 or State=5";
+                    string SQL = "select count(*) from PersonData join RequestsQueue on DataRequestID=RequestsQueue.ID where State=4 or State=5 and Distance>0";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     while (reader.Read())
                     {
                         nFriendsReceived = reader.GetInt32(0);
+                    }
+                    reader.Close();
+                    SQL = "select count(*) from PersonData join RequestsQueue on PictureRequestID=RequestsQueue.ID where State=4 or State=5 and Distance>0";
+                    CheckCmd = new SQLiteCommand(SQL, conn);
+                    reader = CheckCmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        nPicsReceived = reader.GetInt32(0);
                     }
                     reader.Close();
                     ErrorMessage = "";

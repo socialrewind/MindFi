@@ -27,6 +27,10 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string itemType;
         /// <summary>
+        /// Name of the Field to update for requests
+        /// </summary>
+        public string PersonDataField="";
+        /// <summary>
         /// Number of elements in the current collection
         /// </summary>
         public int CurrentNumber
@@ -109,7 +113,12 @@ namespace MBBetaAPI.AgentAPI
             {
                 try
                 {
-                    // basic efficiency improvement: Do not lock if nothing to save
+                    // save first the general data (previous, next)
+                    if (PersonDataField != "" && ID != -1)
+                    {
+                        DBLayer.UpdatePreviousNext(ID, Previous, Next, PersonDataField, out error);
+                    }
+                    // basic efficiency improvement: Do not lock if nothing to save            
                     if (items.Count > 0)
                     {
                         DBLayer.BeginTransaction();

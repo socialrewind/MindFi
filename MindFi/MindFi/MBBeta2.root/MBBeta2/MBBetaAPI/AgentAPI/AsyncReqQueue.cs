@@ -1153,10 +1153,11 @@ namespace MBBetaAPI.AgentAPI
             //nRequestsInTransit--;
             GotWall = true;
             FBCollection wall = null;
-            // Moving parse to a different async method
+            // TODO: Moving parse to a different async method
             if (result)
             {
                 wall = new FBCollection(response, "FBPost", parent, parentSNID);
+                wall.PersonDataField = "WallRequestID";
                 nInParseRequests++;
                 wall.Parse();
                 foreach (FBPost item in wall.items)
@@ -1196,11 +1197,11 @@ namespace MBBetaAPI.AgentAPI
             //    }
 
 
-                if (wall.Next != null)
-                {
-                    AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
-                    apiReq.Queue(minPriorityGlobal);
-                }
+                //if (wall.Next != null)
+                //{
+                //    AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
+                //    apiReq.Queue(minPriorityGlobal);
+                //}
             }
             return GenericProcess(hwnd, result, response, wall, true);
         }
@@ -1212,6 +1213,7 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 wall = new FBCollection(response, "FBPost", parent, parentSNID);
+                wall.PersonDataField = "NewsRequestID";
                 nInParseRequests++;
                 wall.Parse();
                 nInParseRequests--;
@@ -1224,11 +1226,11 @@ namespace MBBetaAPI.AgentAPI
                 nInSaveRequests--;
                 nPosts += wall.CurrentNumber;
 
-                if (wall.Next != null)
-                {
-                    AsyncReqQueue apiReq = FBAPI.MoreData("FBNews", wall.Next, SIZETOGETPERPAGE, ProcessNews);
-                    apiReq.Queue(minPriorityGlobal);
-                }
+                //if (wall.Next != null)
+                //{
+                //    AsyncReqQueue apiReq = FBAPI.MoreData("FBNews", wall.Next, SIZETOGETPERPAGE, ProcessNews);
+                //    apiReq.Queue(minPriorityGlobal);
+                //}
             }
             return GenericProcess(hwnd, result, response, wall, true);
         }
@@ -1254,6 +1256,7 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 inbox = new FBCollection(response, "FBMessage", parent, parentSNID);
+                inbox.PersonDataField = "InboxRequestID";
                 nInParseRequests++;
                 inbox.Parse();
                 nInParseRequests--;
@@ -1422,6 +1425,7 @@ namespace MBBetaAPI.AgentAPI
             if (result)
             {
                 FBCollection events = new FBCollection(response, "FBEvent", parent, parentSNID);
+                events.PersonDataField = "EventRequestID";
                 nInParseRequests++;
                 events.Parse();
                 nInParseRequests--;

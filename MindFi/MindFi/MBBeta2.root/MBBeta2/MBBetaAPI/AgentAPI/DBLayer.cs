@@ -904,6 +904,11 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pUpdated = new SQLiteParameter();
 
                     pDistance.Value = Distance;
+                    string ToRemove = AsyncReqQueue.ProfilePhotoDestinationDir;
+                    if (ProfilePic.Contains(ToRemove))
+                    {
+                        ProfilePic = ProfilePic.Replace(ToRemove, "");
+                    }
                     pPic.Value = ProfilePic;
                     pLink.Value = Link;
                     pFirstName.Value = FirstName;
@@ -2983,6 +2988,46 @@ namespace MBBetaAPI.AgentAPI
                 {
                     ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
                     //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return true;
+        }
+
+        /// <summary>
+        /// Method that updates different request IDs for a person
+        /// </summary>
+        public static bool UpdatePreviousNext(int ID, string Previous, string Next, string Field, out string ErrorMessage)
+        {
+            lock (obj)
+            {
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "update RequestsQueue set Previous=?, Next=? where ID=(select " + Field + " from PeopleData where PersonID=?)";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pPrevious = new SQLiteParameter();
+                    pPrevious.Value = Previous;
+                    UpdateCmd.Parameters.Add(pPrevious);
+                    SQLiteParameter pNext = new SQLiteParameter();
+                    pNext.Value = Next;
+                    UpdateCmd.Parameters.Add(pNext);
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = ID;
+                    UpdateCmd.Parameters.Add(pID);
+                    UpdateCmd.ExecuteNonQuery();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error updating requests in the database\n" + ex.ToString();
                     return false;
                 }
                 finally

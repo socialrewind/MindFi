@@ -102,6 +102,10 @@ namespace MBBetaAPI.AgentAPI
             currentBackupLevel = level;
             BackupPeriodStart = backupPeriodStart;
             BackupPeriodEnd = backupPeriodEnd;
+            // make sure they are initialized for preventing bugs
+            BackupStartDate = DateTime.Now;
+            CurrentPeriodStart = backupPeriodStart;
+            CurrentPeriodEnd = backupPeriodEnd;
         }
 
         /// <summary>

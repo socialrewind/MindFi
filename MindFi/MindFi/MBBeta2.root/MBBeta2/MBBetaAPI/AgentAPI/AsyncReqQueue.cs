@@ -1402,11 +1402,11 @@ namespace MBBetaAPI.AgentAPI
                     apiReq.Queue(400);
                 }
 
-                if (albums.CurrentNumber > 0 && albums.Next != null)
-                {
-                    AsyncReqQueue apiReq = FBAPI.MoreData("FBAlbums", albums.Next, SIZETOGETPERPAGE, ProcessAlbums);
-                    apiReq.Queue(minPriorityGlobal);
-                }
+                //if (albums.CurrentNumber > 0 && albums.Next != null)
+                //{
+                //    AsyncReqQueue apiReq = FBAPI.MoreData("FBAlbums", albums.Next, SIZETOGETPERPAGE, ProcessAlbums);
+                //    apiReq.Queue(minPriorityGlobal);
+                //}
             }
             return GenericProcess(hwnd, result, response, albums, false);
         }
@@ -1631,15 +1631,15 @@ namespace MBBetaAPI.AgentAPI
                     return false;
                 }
 
-                foreach (FBPhoto photo in photos.items)
-                {
-                    AsyncReqQueue apiReq = FBAPI.DownloadPhoto(photo.Source,
-                        AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
-                        ProcessPhoto, photo.ID, photo.SNID);
-                    apiReq.Queue(200);
-                    //apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
-                    //apiReq.Queue(150);
-                }
+                //foreach (FBPhoto photo in photos.items)
+                //{
+                //    AsyncReqQueue apiReq = FBAPI.DownloadPhoto(photo.Source,
+                //        AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
+                //        ProcessPhoto, photo.ID, photo.SNID);
+                //    apiReq.Queue(200);
+                //    //apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
+                //    //apiReq.Queue(150);
+                //}
 
                 // Next is not null, but it should since we get all accepted photos on the first round... 
                 // TODO: Analyze how to use Next appropriately

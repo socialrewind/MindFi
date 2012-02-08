@@ -64,6 +64,7 @@ namespace MBBetaAPI.AgentAPI
         public const int BACKUPFRIENDSPROFPIC = 7;
         public const int BACKUPMYALBUMS = 8;
         public const int BACKUPFRIENDSWALLS = 9;
+        public const int BACKUPMYPHOTOS = 10;
         #endregion
 
         #region "Statistics"
@@ -695,6 +696,9 @@ namespace MBBetaAPI.AgentAPI
                         nReqs = GetNextFriendsWalls();
                     }
                     break;
+                case BACKUPMYPHOTOS:
+                    nReqs = GetNextAlbumPics();
+                    break;
                 default:
                     nReqs = 0;
                     break;
@@ -721,6 +725,37 @@ namespace MBBetaAPI.AgentAPI
                         BackgroundWorker bw = new BackgroundWorker();
                         bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendPic);
                         AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
+                        bw.RunWorkerAsync(temp);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
+        private static int GetNextAlbumPics()
+        {
+            string errorMessage;
+            // Go over friends, adding requests for them if not yet defined
+            string[] PhotoSource;
+            int[] PhotoEntityID;
+            string[] PhotoSNID;
+            string[] AlbumSNID;
+
+            int nRequests = DBLayer.GetNPhotosToDownload(CONCURRENTREQUESTLIMIT, out PhotoSource, out AlbumSNID, out PhotoEntityID, out PhotoSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int photoID in PhotoEntityID)
+                {
+                    string source = PhotoSource[i];
+                    string parent = AlbumSNID[i];
+                    string SNID = PhotoSNID[i];
+                    if (source!=null && SNID != null && source!="" && SNID != "")
+                    {
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetAlbumPic);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(photoID, SNID, source, parent);
                         bw.RunWorkerAsync(temp);
                     }
                     i++;
@@ -779,6 +814,22 @@ namespace MBBetaAPI.AgentAPI
                             ProcessFriendPic, temp.ID, temp.SNID);
             apiReq.QueueAndSend(999);
             DBLayer.UpdatePictureRequest(temp.ID, apiReq.ID, out errorMessage);
+        }
+
+        private static void bw_GetAlbumPic(object sender, DoWorkEventArgs e)
+        {
+            //string errorMessage;
+            BackgroundWorker worker = sender as BackgroundWorker;
+            AsyncWorkArgs temp = (AsyncWorkArgs)e.Argument;
+
+            AsyncReqQueue apiReq = FBAPI.DownloadPhoto(temp.Source,
+                AlbumDestinationDir + temp.parentSNID + "\\" + temp.SNID + ".jpg",
+                ProcessPhoto, temp.ID, temp.SNID);
+            apiReq.QueueAndSend(200);
+            apiReq = FBAPI.Likes(temp.SNID, SIZETOGETPERPAGE, ProcessLikes, temp.ID);
+            apiReq.QueueAndSend(150);
+            // TODO: keep request ID for photos
+            //DBLayer.UpdatePictureRequest(temp.ID, apiReq.ID, out errorMessage);
         }
 
         private static int GetNextFriendsWalls()
@@ -884,7 +935,7 @@ namespace MBBetaAPI.AgentAPI
                         if (nReqs == 0)
                         {
                             if (CurrentBackupState < BACKUPFRIENDSPROFPIC || 
-                                (CurrentBackupState < BACKUPFRIENDSWALLS && SNAccount.CurrentProfile.currentBackupLevel >= SNAccount.EXTENDED) )
+                                (CurrentBackupState < BACKUPMYPHOTOS && SNAccount.CurrentProfile.currentBackupLevel >= SNAccount.EXTENDED) )
                             {
                                 CurrentBackupState++;
                                 DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
@@ -1869,11 +1920,22 @@ namespace MBBetaAPI.AgentAPI
     {
         public int ID;
         public string SNID;
+        public string Source;
+        public string parentSNID;
 
         public AsyncWorkArgs(int id, string snid)
         {
             ID = id;
             SNID = snid;
+            Source = "";
+        }
+
+        public AsyncWorkArgs(int id, string snid, string source, string parent)
+        {
+            ID = id;
+            SNID = snid;
+            Source = source;
+            parentSNID = parent;
         }
     }
 }

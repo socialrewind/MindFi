@@ -58,14 +58,14 @@ namespace MBBetaAPI.AgentAPI
         {
             get { lock (LockObj) { return m_comments; } }
         }
-        /// <summary>
-        /// Link to more comments
-        /// </summary>
-        public string Next { get; set; }
-        /// <summary>
-        /// Link to more comments
-        /// </summary>
-        public string Previous { get; set; }
+        ///// <summary>
+        ///// Link to more comments
+        ///// </summary>
+        //public string Next { get; set; }
+        ///// <summary>
+        ///// Link to more comments
+        ///// </summary>
+        //public string Previous { get; set; }
         #endregion
 
         private ArrayList m_comments;

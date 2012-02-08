@@ -61,14 +61,14 @@ namespace MBBetaAPI.AgentAPI
         /// Subject of the Message
         /// </summary>
         public string Subject { get; set; }
-        /// <summary>
-        /// Thread: link to previous message
-        /// </summary>
-        public string Previous { get; set; }
-        /// <summary>
-        /// Thread: link to next message
-        /// </summary>
-        public string Next { get; set; }
+        ///// <summary>
+        ///// Thread: link to previous message
+        ///// </summary>
+        //public string Previous { get; set; }
+        ///// <summary>
+        ///// Thread: link to next message
+        ///// </summary>
+        //public string Next { get; set; }
         #endregion
 
         #region "Internal similar to FBNotification"

@@ -1024,6 +1024,11 @@ namespace MBBeta2
                                         SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                         SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                                     break;
+                                case AsyncReqQueue.BACKUPMYPHOTOS:
+                                    this.UpdateText.Text = "Getting my photos (" + AsyncReqQueue.nPhotos + " ) from " +
+                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                    break;
                             }
                             if (!inProgress)
                             {

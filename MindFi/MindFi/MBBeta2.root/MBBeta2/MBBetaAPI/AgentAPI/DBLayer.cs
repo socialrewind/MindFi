@@ -2928,6 +2928,65 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
+        /// Method that gets a set of photos to request
+        /// </summary>
+        public static int GetNPhotosToDownload(int N, out string[] PhotoSource, out string[] AlbumSNID, out int[] PhotoEntityID, out string[] PhotoSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                PhotoEntityID = new int[N];
+                for (int i = 0; i < N; i++) PhotoEntityID[i] = -1;
+                PhotoSNID = new string[N];
+                for (int i = 0; i < N; i++) PhotoSNID[i] = "";
+                AlbumSNID = new string[N];
+                for (int i = 0; i < N; i++) AlbumSNID[i] = "";
+                PhotoSource = new string[N];
+                for (int i = 0; i < N; i++) PhotoSource[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select PhotoID, SNID, Source, ParentSNID from PhotoData where Path is null limit " + N; ;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int PhotoID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string photoSNID = tempSNID.ToString();
+                        string source = reader.GetString(2);
+                        tempSNID = reader.GetValue(3);
+                        string albumSNID = tempSNID.ToString();
+                        PhotoEntityID[nRequests] = PhotoID;
+                        PhotoSNID[nRequests] = photoSNID;
+                        PhotoSource[nRequests] = source;
+                        AlbumSNID[nRequests] = albumSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+
+        /// <summary>
         /// Method that gets number of requests per state
         /// </summary>
         public static int GetNFriendsWithoutWall(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)

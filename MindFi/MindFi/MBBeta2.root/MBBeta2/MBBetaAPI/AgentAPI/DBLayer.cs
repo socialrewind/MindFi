@@ -116,6 +116,10 @@ namespace MBBetaAPI.AgentAPI
                 if (file != origin)
                 {
                     File.Copy(origin, file, true);
+                    // setup gets Template to be readonly and protected, so lets make sure new file is not readonly
+                    FileAttributes temp = File.GetAttributes(file);
+                    temp = temp & (~ FileAttributes.ReadOnly);
+                    File.SetAttributes(file, temp);
                 }
 
                 DBLayer.ConnString = "Data Source=" + file + "";

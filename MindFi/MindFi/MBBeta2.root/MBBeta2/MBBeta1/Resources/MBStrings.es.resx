@@ -270,4 +270,7 @@
   <data name="SelectBackupName" xml:space="preserve">
     <value>Indique el nombre del archivo de respaldo</value>
   </data>
+  <data name="BackupFilesAllFiles" xml:space="preserve">
+    <value>Archivos comprimidos de respaldo (*.zip)|*.zip|Todos los archivos (*.*)|*.*</value>
+  </data>
 </root>

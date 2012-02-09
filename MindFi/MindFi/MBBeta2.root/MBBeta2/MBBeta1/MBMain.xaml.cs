@@ -39,6 +39,7 @@ namespace MBBeta2
         private string BasePath;
         private bool online = false;
         private string ErrorMessage = "";
+        private string ZipOperation = "";
 
         #region "Process control"
         private bool firstTime = true;
@@ -364,6 +365,49 @@ namespace MBBeta2
 
                 e.Handled = true;
             }
+        }
+
+        /// <summary>
+        /// process update status response
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public bool ProcessStatus(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                FBPost statusObj = new FBPost(response);
+                statusObj.Parse();
+                statusObj.Message = this.PostNewStatusTB.Text;
+                statusObj.PostType = "status";
+                statusObj.ApplicationName = "Social Rewind";
+                string errorData;
+                statusObj.Save(out errorData);
+                if (errorData != "")
+                {
+                    ErrorMessage = errorData;
+                }
+                /*
+                FBAPI.UpdateLike(statusObj.SNID, ProcessNull);
+                FBAPI.AddComment(statusObj.SNID, "test of a comment", ProcessNull);
+                 */
+
+                return true;
+            }
+            return false;
+        }
+
+        public bool ProcessNull(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                return true;
+            }
+            return false;
         }
 
         #endregion
@@ -893,7 +937,6 @@ namespace MBBeta2
             DBLayer.GetLastBackup(out backupState, out backupDate);
             this.UpdateText.Text = backupState;
             this.UpdateTime.Text = "Updated: " + backupDate;
-            this.Cursor = Cursors.Arrow;
 
             this.Cursor = Cursors.Arrow;
         }
@@ -1060,51 +1103,11 @@ namespace MBBeta2
             }
         }
 
-        /// <summary>
-        /// process update status response
-        /// </summary>
-        /// <param name="hwnd">who is calling the callback</param>
-        /// <param name="result">was the request successful?</param>
-        /// <param name="response">JSON person data</param>
-        /// <param name="parent">CHECK: Reference to the user ID</param>
-        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
-        /// <returns>Request vas processed true/false</returns>
-        public bool ProcessStatus(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            if (result)
-            {
-                FBPost statusObj = new FBPost(response);
-                statusObj.Parse();
-                statusObj.Message = this.PostNewStatusTB.Text;
-                statusObj.PostType = "status";
-                statusObj.ApplicationName = "Social Rewind";
-                string errorData;
-                statusObj.Save(out errorData);
-                if (errorData != "")
-                {
-                    ErrorMessage = errorData;
-                }
-                /*
-                FBAPI.UpdateLike(statusObj.SNID, ProcessNull);
-                FBAPI.AddComment(statusObj.SNID, "test of a comment", ProcessNull);
-                 */
-
-                return true;
-            }
-            return false;
-        }
-
-        public bool ProcessNull(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
-        {
-            if (result)
-            {
-                return true;
-            }
-            return false;
-        }
+        #region "Zip and unzip"
 
         private void btnZip_Click(object sender, RoutedEventArgs e)
         {
+            this.Cursor = Cursors.Wait;
             // Get destination path
             DateTime Now = DateTime.Now;
             string tempD = Now.Year.ToString();
@@ -1134,6 +1137,9 @@ namespace MBBeta2
                 string Destination = dlg.FileName;
                 //MessageBox.Show("Would create backup " + Destination + " from compressing the folder " + BasePath);
                 btnZip.IsEnabled = false;
+                btnUnzip.IsEnabled = false;
+                // TODO: Localize
+                ZipOperation = "Zipping backup";
                 SRZipBackup.CreateZipBackup(BasePath, Destination);
 
                 dispatcherTimer.Tick += new EventHandler(backupTimer_Tick);
@@ -1145,13 +1151,13 @@ namespace MBBeta2
 
         private void backupTimer_Tick(object sender, EventArgs e)
         {
-            this.UpdateText.Text = "Zipping backup" + animation;
+            this.UpdateText.Text = ZipOperation + animation;
             UpdateAnimation();
             if (!SRZipBackup.InBackup)
             {
                 if (SRZipBackup.ErrorMessage == "")
                 {
-                    this.UpdateText.Text = "Zipping backup was completed.";
+                    this.UpdateText.Text = ZipOperation + " was completed.";
                 }
                 else
                 {
@@ -1159,8 +1165,55 @@ namespace MBBeta2
                 }
                 dispatcherTimer.Stop();
                 btnZip.IsEnabled = true;
+                btnUnzip.IsEnabled = true;
+                this.Cursor = Cursors.Arrow;
             }
         }
+
+        private void btnUnzip_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.InitialDirectory = ""; // current from previous file dialog
+            dlg.AddExtension = true;
+
+            LocTextExtension loc = new LocTextExtension("MBBeta2:MBStrings:BackupFilesAllFiles");
+            string LocFilter;
+            loc.ResolveLocalizedValue(out LocFilter);
+            dlg.Filter = LocFilter; // "Compressed backup files (*.zip)|*.zip"
+            dlg.FilterIndex = 1;
+
+            string LocSelect;
+            loc = new LocTextExtension("MBBeta2:MBStrings:SelectBackupName");
+            loc.ResolveLocalizedValue(out LocSelect);
+            dlg.Title = LocSelect;  // "Select the name for the backup file";
+            Nullable<bool> result = dlg.ShowDialog();
+            if (result == true)
+            {
+                System.Windows.Forms.FolderBrowserDialog dlg2 = new System.Windows.Forms.FolderBrowserDialog();
+                System.Windows.Forms.DialogResult res;
+                res = dlg2.ShowDialog();
+                if (res == System.Windows.Forms.DialogResult.OK)
+                {
+                    if ( dlg2.SelectedPath == BasePath || BasePath.Contains(dlg2.SelectedPath) )
+                    {
+                        MessageBox.Show("Cannot unzip to the currently used database folder (or a parent folder). Please use a different folder.");
+                        return;
+                    }
+                    this.Cursor = Cursors.Wait;
+                    btnZip.IsEnabled = false;
+                    btnUnzip.IsEnabled = false;
+                    ZipOperation = "Unzipping backup";
+                    //MessageBox.Show("ready to unzip " + dlg.FileName + " to " + dlg2.SelectedPath);
+                    SRZipBackup.UnzipBackup(dlg.FileName, dlg2.SelectedPath);
+
+                    dispatcherTimer.Tick += new EventHandler(backupTimer_Tick);
+                    dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                    dispatcherTimer.Start();
+                }
+            }
+        }
+
+        #endregion
 
     }
 }

@@ -39,6 +39,28 @@ namespace MBBetaAPI
             DBLayer.UnlockDatabaseForCopy();
         }
 
+        /// <summary>
+        /// Creates a folder from a zip backup
+        /// </summary>
+        /// <param name="SourcePath">Zip to uncompress</param>
+        /// <param name="Destination">Destination folder name</param>
+        public static void UnzipBackup(string SourcePath, string Destination)
+        {
+            InBackup = true;
+            BackgroundWorker bw = new BackgroundWorker();
+            bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_UnzipFolder);
+            AsyncZipArgs temp = new AsyncZipArgs(SourcePath, Destination);
+            bw.RunWorkerAsync(temp);
+        }
+
+        private static void bw_UnzipFolder(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            AsyncZipArgs temp = (AsyncZipArgs)e.Argument;
+            ShellUnCompressFolder(temp.Source, temp.Destination);
+            InBackup = false;
+        }
+
         // sample from http://social.msdn.microsoft.com/Forums/en/netfxbcl/thread/b409dc2b-397c-44cd-b3a6-377066c591a9
         // ese also http://www.codeproject.com/Articles/34165/How-to-Utilise-the-Shell32-Library-in-NET-as-a-COM
         public static void ShellCompressFolder(string Source, string Dest)
@@ -114,7 +136,19 @@ namespace MBBetaAPI
                 System.Diagnostics.Debug.WriteLine(ErrorMessage);
             } 
         }
- 
+
+        public static void ShellUnCompressFolder(string Source, string Dest)
+        {
+            Shell SH = new Shell();
+            Folder SF = SH.NameSpace(Source); // zip
+            Folder DF = SH.NameSpace(Dest); // new folder
+            FolderItems Sitems = SF.Items();
+            // big advantage: this is synchronous
+            foreach ( FolderItem x in Sitems )
+            {
+                DF.CopyHere(x);
+            }
+        }
     }
 
     public class AsyncZipArgs

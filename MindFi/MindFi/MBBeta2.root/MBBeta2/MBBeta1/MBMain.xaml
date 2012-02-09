@@ -202,8 +202,11 @@
             <Button Content="Zip Backup" Grid.Column="1" Height="23" 
                     HorizontalAlignment="Left" Margin="18,6,0,0" 
                     Name="btnZip" Click="btnZip_Click" 
-                    VerticalAlignment="Top" 
-                    Width="75" />
+                    VerticalAlignment="Top" />
+            <Button Content="Unzip Backup" Grid.Column="1" Height="23" 
+                    HorizontalAlignment="Left" Margin="108,6,0,0" 
+                    Name="btnUnzip" Click="btnUnzip_Click"
+                    VerticalAlignment="Top" />
         </Grid>
         
         <!--Footer-->

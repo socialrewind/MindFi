@@ -2070,6 +2070,7 @@ namespace MBBetaAPI.AgentAPI
 
         public static void TagDataSave(
             string PersonSNID, string PhotoSNID,
+            string PersonName,
             float? X, float? Y,
             DateTime? Created, DateTime? Updated,
             out bool Saved, out string ErrorMessage)
@@ -2116,7 +2117,7 @@ namespace MBBetaAPI.AgentAPI
                     string SQL;
                     if (Exists)
                     {
-                        SQL = "update TagData set SocialNetwork=?, PersonSNID=?, PhotoSNID=?, Active=1, "
+                        SQL = "update TagData set SocialNetwork=?, PersonSNID=?, PhotoSNID=?, PersonName=?, Active=1, "
                             + "X=?, Y=?, Created=?, Updated=?, LastUpdate=? where PartitionDate=? and PartitionID=?";
                     }
                     else
@@ -2147,12 +2148,13 @@ namespace MBBetaAPI.AgentAPI
                         FreeIDCmd.Parameters.Add(pRefTable);
                         FreeIDCmd.ExecuteNonQuery();
 
-                        SQL = "Insert into TagData (SocialNetwork, PersonSNID, PhotoSNID, Active, "
+                        SQL = "Insert into TagData (SocialNetwork, PersonSNID, PhotoSNID, PersonName, Active, "
                             + "X, Y, Created, Updated, LastUpdate, PartitionDate, PartitionID)"
-                            + " values (?,?,?,1,?,?,?,?,?,?,?)";
+                            + " values (?,?,?,?,1,?,?,?,?,?,?,?)";
                     }
                     SQLiteParameter pPrSNID = new SQLiteParameter();
                     SQLiteParameter pPhSNID = new SQLiteParameter();
+                    SQLiteParameter pPrName = new SQLiteParameter();
                     SQLiteParameter pX = new SQLiteParameter();
                     SQLiteParameter pY = new SQLiteParameter();
                     SQLiteParameter pCreated = new SQLiteParameter();
@@ -2164,6 +2166,7 @@ namespace MBBetaAPI.AgentAPI
                     pSN.Value = SocialNetwork.FACEBOOK;
                     pPrSNID.Value = PersonSNID;
                     pPhSNID.Value = PhotoSNID;
+                    pPrName.Value = PersonName;
                     pX.Value = X;
                     pY.Value = Y;
                     pCreated.Value = Created;
@@ -2177,6 +2180,7 @@ namespace MBBetaAPI.AgentAPI
                     UpdateCmd.Parameters.Add(pSN);
                     UpdateCmd.Parameters.Add(pPrSNID);
                     UpdateCmd.Parameters.Add(pPhSNID);
+                    UpdateCmd.Parameters.Add(pPrName);
                     UpdateCmd.Parameters.Add(pX);
                     UpdateCmd.Parameters.Add(pY);
                     UpdateCmd.Parameters.Add(pCreated);

@@ -60,7 +60,7 @@ namespace MBBetaAPI.AgentAPI
             if (person.Saved)
             {
                 Saved = false;
-                DBLayer.TagDataSave(this.SNID, parent.SNID, X, Y,
+                DBLayer.TagDataSave(this.SNID, parent.SNID, Name, X, Y,
                     Created, Updated,
                     out Saved, out ErrorMessage);
             }

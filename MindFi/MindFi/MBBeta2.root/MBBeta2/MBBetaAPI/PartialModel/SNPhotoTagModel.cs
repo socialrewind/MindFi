@@ -58,9 +58,11 @@ namespace MBBetaAPI
 
                 //Read Tag
                 //TODO: Complete person name when available in table for efficiency
-                //SQLiteCommand command = new SQLiteCommand("select SocialNetwork, PersonSNID, PhotoSNID, X, Y, Created from TagData where TagDataID = @ID", conn);
-                SQLiteCommand command = new SQLiteCommand("select TagData.SocialNetwork, TagData.PersonSNID, TagData.PhotoSNID, TagData.X, TagData.Y, TagData.Created, ID, Name"
+                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, PersonSNID, PhotoSNID, X, Y, Created, PersonName from TagData where TagDataID = @ID", conn);
+                /*
+                SQLiteCommand command = new SQLiteCommand("select TagData.SocialNetwork, TagData.PersonSNID, TagData.PhotoSNID, TagData.X, TagData.Y, TagData.Created, Name"
                                         + " from TagData left outer join PersonData on PersonSNID = PersonData.SNID left outer join Entities on PersonData.PersonID = Entities.ID where TagDataID = @ID", conn);
+                 * */
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -90,20 +92,11 @@ namespace MBBetaAPI
                     var Date = reader.GetDateTime(5);
                     if (reader.IsDBNull(6))
                     {
-                        PersonID = -1;
-                    }
-                    else
-                    {
-                        var value6 = reader.GetValue(6);
-                        PersonID = Convert.ToInt32(value6);
-                    }
-                    if (reader.IsDBNull(7))
-                    {
                         PersonName = "Unknown";
                     }
                     else
                     {
-                        var value7 = reader.GetValue(7);
+                        var value7 = reader.GetValue(6);
                         PersonName = value7.ToString();
                     }
                 }

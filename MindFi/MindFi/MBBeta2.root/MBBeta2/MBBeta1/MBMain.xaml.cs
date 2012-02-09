@@ -1097,5 +1097,40 @@ namespace MBBeta2
             }
             return false;
         }
+
+        private void btnZip_Click(object sender, RoutedEventArgs e)
+        {
+            // Get destination path
+            DateTime Now = DateTime.Now;
+            string tempD = Now.Year.ToString();
+            if (Now.Month < 10) tempD += "0";
+            tempD += Now.Month;
+            if (Now.Day < 10) tempD += "0";
+            tempD += Now.Day;
+
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.InitialDirectory = ""; // current from previous file dialog
+            dlg.FileName = "SocialRewindBackup" + tempD + ".zip";
+            dlg.AddExtension = true;
+
+            LocTextExtension loc = new LocTextExtension("MBBeta2:MBStrings:BackupFiles");
+            string LocFilter;
+            loc.ResolveLocalizedValue(out LocFilter);
+            dlg.Filter = LocFilter; // "Compressed backup files (*.zip)|*.zip"
+            dlg.FilterIndex = 1;
+
+            string LocSelect;
+            loc = new LocTextExtension("MBBeta2:MBStrings:SelectBackupName");
+            loc.ResolveLocalizedValue(out LocSelect);
+            dlg.Title = LocSelect;  // "Select the name for the backup file";
+            Nullable<bool> result = dlg.ShowDialog();
+            if (result == true)
+            {
+                string Destination = dlg.FileName;
+                MessageBox.Show("Would create backup " + Destination + " from compressing the folder " + BasePath);
+                SRZipBackup.CreateZipBackup(BasePath, Destination);
+                // TODO: Update interface
+            }
+        }
     }
 }

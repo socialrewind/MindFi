@@ -264,4 +264,10 @@
   <data name="WhatAreYouThinking" xml:space="preserve">
     <value>What are you thinking?</value>
   </data>
+  <data name="BackupFiles" xml:space="preserve">
+    <value>Compressed backup files (*.zip)|*.zip</value>
+  </data>
+  <data name="SelectBackupName" xml:space="preserve">
+    <value>Select the name for the backup file</value>
+  </data>
 </root>

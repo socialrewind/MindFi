@@ -39,6 +39,31 @@ namespace MBBetaAPI.AgentAPI
 
         }
 
+        public static void LockDatabaseForCopy()
+        {
+            lock (obj)
+            {
+                if (conn != null)
+                {
+                    if (conn.State != System.Data.ConnectionState.Closed)
+                    {
+                        conn.Close();
+                    }
+                    conn = null;
+                }
+                DatabaseInUse = true;
+            }
+        }
+
+        public static void UnlockDatabaseForCopy()
+        {
+            lock (obj)
+            {
+                DatabaseInUse = false;
+                GetConn();
+            }
+        }
+
         public static void BeginTransaction()
         {
             //System.Windows.Forms.MessageBox.Show("Begin trans");

@@ -79,6 +79,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Compressed backup files (*.zip)|*.zip.
+        /// </summary>
+        internal static string BackupFiles {
+            get {
+                return ResourceManager.GetString("BackupFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Browse Your Network.
         /// </summary>
         internal static string BrowseNetwork {
@@ -417,6 +426,15 @@ namespace MBBeta2.Resources {
         internal static string SearchResultsFor {
             get {
                 return ResourceManager.GetString("SearchResultsFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select the name for the backup file.
+        /// </summary>
+        internal static string SelectBackupName {
+            get {
+                return ResourceManager.GetString("SelectBackupName", resourceCulture);
             }
         }
         

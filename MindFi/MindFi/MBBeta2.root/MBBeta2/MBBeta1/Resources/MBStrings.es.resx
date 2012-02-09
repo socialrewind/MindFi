@@ -264,4 +264,10 @@
   <data name="WhatAreYouThinking" xml:space="preserve">
     <value>¿Qué está pensando?</value>
   </data>
+  <data name="BackupFiles" xml:space="preserve">
+    <value>Archivos comprimidos de respaldo (*.zip)|*.zip</value>
+  </data>
+  <data name="SelectBackupName" xml:space="preserve">
+    <value>Indique el nombre del archivo de respaldo</value>
+  </data>
 </root>

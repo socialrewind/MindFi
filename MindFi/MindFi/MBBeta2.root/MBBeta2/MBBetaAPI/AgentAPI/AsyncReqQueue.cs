@@ -1916,7 +1916,7 @@ namespace MBBetaAPI.AgentAPI
 
     }
 
-    class AsyncWorkArgs
+    public class AsyncWorkArgs
     {
         public int ID;
         public string SNID;

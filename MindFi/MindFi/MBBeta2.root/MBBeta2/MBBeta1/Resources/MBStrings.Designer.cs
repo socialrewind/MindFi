@@ -124,6 +124,24 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connected mode.
+        /// </summary>
+        internal static string Connected {
+            get {
+                return ResourceManager.GetString("Connected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logged in Facebook.
+        /// </summary>
+        internal static string ConnectedFB {
+            get {
+                return ResourceManager.GetString("ConnectedFB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Current View.
         /// </summary>
         internal static string CurrentView {
@@ -138,6 +156,24 @@ namespace MBBeta2.Resources {
         internal static string DisableAdvancedSearch {
             get {
                 return ResourceManager.GetString("DisableAdvancedSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnected mode.
+        /// </summary>
+        internal static string Disconnected {
+            get {
+                return ResourceManager.GetString("Disconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not logged in FB.
+        /// </summary>
+        internal static string DisconnectedFB {
+            get {
+                return ResourceManager.GetString("DisconnectedFB", resourceCulture);
             }
         }
         

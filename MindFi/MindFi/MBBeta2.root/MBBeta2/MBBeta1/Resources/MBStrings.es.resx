@@ -273,4 +273,16 @@
   <data name="BackupFilesAllFiles" xml:space="preserve">
     <value>Archivos comprimidos de respaldo (*.zip)|*.zip|Todos los archivos (*.*)|*.*</value>
   </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Conectado</value>
+  </data>
+  <data name="ConnectedFB" xml:space="preserve">
+    <value>Firmado en Facebook</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Modo desconectado</value>
+  </data>
+  <data name="DisconnectedFB" xml:space="preserve">
+    <value>No firmado en FB</value>
+  </data>
 </root>

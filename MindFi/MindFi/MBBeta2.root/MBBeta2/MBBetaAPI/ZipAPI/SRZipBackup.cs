@@ -11,7 +11,7 @@ namespace MBBetaAPI
     public class SRZipBackup
     {
         public static volatile bool InBackup = false;
-        public static string ErrorMessage;
+        public static string ErrorMessage = "";
 
         /// <summary>
         /// Creates a Zip from a full backup folder
@@ -146,7 +146,16 @@ namespace MBBetaAPI
             // big advantage: this is synchronous
             foreach ( FolderItem x in Sitems )
             {
+                int errorCode1 = Marshal.GetLastWin32Error();
                 DF.CopyHere(x);
+                int errorCode2 = Marshal.GetLastWin32Error();
+                // TODO: create constant for error codes
+                if (errorCode1 != errorCode2 )
+                {
+                    // TODO: Localize
+                    ErrorMessage = "Error unzipping: " + errorCode2;
+                    System.Diagnostics.Debug.WriteLine(ErrorMessage);
+                }
             }
         }
     }

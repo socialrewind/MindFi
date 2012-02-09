@@ -273,4 +273,16 @@
   <data name="BackupFilesAllFiles" xml:space="preserve">
     <value>Compressed backup files (*.zip)|*.zip|All files (*.*)|*.*</value>
   </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Connected mode</value>
+  </data>
+  <data name="ConnectedFB" xml:space="preserve">
+    <value>Logged in Facebook</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Disconnected mode</value>
+  </data>
+  <data name="DisconnectedFB" xml:space="preserve">
+    <value>Not logged in FB</value>
+  </data>
 </root>

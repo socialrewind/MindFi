@@ -110,6 +110,7 @@ namespace MBBeta2
                 SNAccount.UpdateCurrent(first);
             }
 
+            CheckConnection();
         }
 
         #region atributes
@@ -270,6 +271,33 @@ namespace MBBeta2
             }
 
             return tmp;
+        }
+
+
+        private void CheckConnection()
+        {
+            string state;
+            string fbState;
+
+            LocTextExtension loc = new LocTextExtension("MBBeta2:MBStrings:Disconnected");
+            loc.ResolveLocalizedValue(out state);
+            
+            loc = new LocTextExtension("MBBeta2:MBStrings:DisconnectedFB");
+            loc.ResolveLocalizedValue(out fbState);
+
+            // ping SocialRewind Server
+            if (MBBetaAPI.SRAPI.SRConnection.CheckInternetConnection())
+            {
+                loc = new LocTextExtension("MBBeta2:MBStrings:Connected");
+                loc.ResolveLocalizedValue(out state);
+                if (FBLogin.loggedIn)
+                {
+                    loc = new LocTextExtension("MBBeta2:MBStrings:ConnectedFB");
+                    loc.ResolveLocalizedValue(out fbState);
+                }
+            }
+            Connected.Text = state;
+            ConnectedFB.Text = fbState;
         }
 
         #endregion
@@ -941,6 +969,7 @@ namespace MBBeta2
             this.UpdateText.Text = backupState;
             this.UpdateTime.Text = "Updated: " + backupDate;
 
+            CheckConnection();
             this.Cursor = Cursors.Arrow;
         }
 
@@ -985,6 +1014,102 @@ namespace MBBeta2
             SNLoginWindow.Show();
         }
 
+        private void SNLoggedInAndInitialRequests()
+        {
+            FBPerson me = FBLogin.Me;
+            if (SNAccount.CurrentProfile != null)
+            {
+                // TODO: Generalize for other social networks
+                if ((SNAccount.CurrentProfile.Name != me.Name
+                    && SNAccount.CurrentProfile.SNID != me.SNID
+                    && SNAccount.CurrentProfile.URL != me.Link) ||
+                    SNAccount.CurrentProfile.SocialNetwork != SocialNetwork.FACEBOOK
+                    )
+                {
+                    // TODO: Localize
+                    MessageBox.Show("You tried to login with a different account (" + me.Name
+                        + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
+                        + "). Please correct your data; login cancelled.");
+                    return;
+                }
+                firstTime = false;
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                // TODO: Make sure current ID is really 1
+                AsyncReqQueue.NewRequests(150, 1, SNAccount.CurrentProfile.SNID);
+                this.UpdateText.Text = "Getting initial friend data" + animation;
+            }
+        }
+
+        private void SNNextRequests()
+        {
+            if (SNAccount.CurrentProfile != null)
+            {
+                string ErrorMessage;
+                // TODO: Make sure current ID is really 1
+                bool inProgress = AsyncReqQueue.PendingRequests(150, 1, SNAccount.CurrentProfile.SNID, out ErrorMessage);
+                // TODO: Localization
+                switch (AsyncReqQueue.CurrentBackupState)
+                {
+                    case AsyncReqQueue.BACKUPFRIENDSINFO:
+                        this.UpdateText.Text = "Getting friend data (" + AsyncReqQueue.nFriendsProcessed + ")" + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPFRIENDSPROFPIC:
+                        this.UpdateText.Text = "Getting friend profile pictures (" + AsyncReqQueue.nFriendsPictures + ")" + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPMYWALL:
+                        this.UpdateText.Text = "Getting my wall posts (" + AsyncReqQueue.nPosts + ") from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPMYNEWS:
+                        this.UpdateText.Text = "Getting news posts (" + AsyncReqQueue.nPosts + ") from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPMYINBOX:
+                        this.UpdateText.Text = "Getting my inbox (" + AsyncReqQueue.nMessages + ") from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPMYEVENTS:
+                        this.UpdateText.Text = "Getting my events (" + AsyncReqQueue.nEvents + ") from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPMYALBUMS:
+                        this.UpdateText.Text = "Getting my albums (" + AsyncReqQueue.nAlbums + ") from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPMYNOTIFICATIONS:
+                        this.UpdateText.Text = "Getting my notifications from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPFRIENDSWALLS:
+                        this.UpdateText.Text = "Getting friends walls (" + AsyncReqQueue.nFriendsWalls + "/" + AsyncReqQueue.nPosts + " posts) from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPMYPHOTOS:
+                        this.UpdateText.Text = "Getting my photos (" + AsyncReqQueue.nPhotos + " ) from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                }
+                if (!inProgress)
+                {
+                    //MessageBox.Show("Backup finished");
+                    DoRefreshData();
+                    // TODO: Localize
+                    this.UpdateText.Text = "Backup just finished";
+                    this.UpdateTime.Text = DateTime.UtcNow.ToString();
+                    GoOffline();
+                    dispatcherTimer.Stop();
+                }
+            }
+        }
+
         /// <summary>
         /// Processing event for regular timer
         /// </summary>
@@ -996,98 +1121,17 @@ namespace MBBeta2
                 {
                     if (firstTime)
                     {
-                        FBPerson me = FBLogin.Me;
-                        if (SNAccount.CurrentProfile != null)
-                        {
-                            // TODO: Generalize for other social networks
-                            if ((SNAccount.CurrentProfile.Name != me.Name
-                                && SNAccount.CurrentProfile.SNID != me.SNID
-                                && SNAccount.CurrentProfile.URL != me.Link) ||
-                                SNAccount.CurrentProfile.SocialNetwork != SocialNetwork.FACEBOOK
-                                )
-                            {
-                                // TODO: Localize
-                                MessageBox.Show("You tried to login with a different account (" + me.Name
-                                    + ") instead of the selected account (" + SNAccount.CurrentProfile.Name
-                                    + "). Please correct your data; login cancelled.");
-                                return;
-                            }
-                            firstTime = false;
-                            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                            // TODO: Make sure current ID is really 1
-                            AsyncReqQueue.NewRequests(150, 1, SNAccount.CurrentProfile.SNID);
-                            this.UpdateText.Text = "Getting initial friend data" + animation;
-                        }
+                        SNLoggedInAndInitialRequests();
                     }
                     else
                     {
-                        if (SNAccount.CurrentProfile != null)
-                        {
-                            string ErrorMessage;
-                            // TODO: Make sure current ID is really 1
-                            bool inProgress = AsyncReqQueue.PendingRequests(150, 1, SNAccount.CurrentProfile.SNID, out ErrorMessage);
-                            // TODO: Localization
-                            switch ( AsyncReqQueue.CurrentBackupState )
-                            {
-                                case AsyncReqQueue.BACKUPFRIENDSINFO:
-                                    this.UpdateText.Text = "Getting friend data (" + AsyncReqQueue.nFriendsProcessed + ")" + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPFRIENDSPROFPIC:
-                                    this.UpdateText.Text = "Getting friend profile pictures (" + AsyncReqQueue.nFriendsPictures + ")" + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPMYWALL:
-                                    this.UpdateText.Text = "Getting my wall posts (" + AsyncReqQueue.nPosts + ") from " + 
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " + 
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPMYNEWS:
-                                    this.UpdateText.Text = "Getting news posts (" + AsyncReqQueue.nPosts + ") from " +
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPMYINBOX:
-                                    this.UpdateText.Text = "Getting my inbox (" + AsyncReqQueue.nMessages + ") from " +
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPMYEVENTS:
-                                    this.UpdateText.Text = "Getting my events (" + AsyncReqQueue.nEvents + ") from " +
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPMYALBUMS:
-                                    this.UpdateText.Text = "Getting my albums (" + AsyncReqQueue.nAlbums + ") from " +
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPMYNOTIFICATIONS:
-                                    this.UpdateText.Text = "Getting my notifications from " +
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPFRIENDSWALLS:
-                                    this.UpdateText.Text = "Getting friends walls (" + AsyncReqQueue.nFriendsWalls + "/" + AsyncReqQueue.nPosts + " posts) from " +
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                                case AsyncReqQueue.BACKUPMYPHOTOS:
-                                    this.UpdateText.Text = "Getting my photos (" + AsyncReqQueue.nPhotos + " ) from " +
-                                        SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                        SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
-                                    break;
-                            }
-                            if (!inProgress)
-                            {
-                                //MessageBox.Show("Backup finished");
-                                DoRefreshData();
-                                // TODO: Localize
-                                this.UpdateText.Text = "Backup just finished";
-                                this.UpdateTime.Text = DateTime.UtcNow.ToString();
-                                GoOffline();
-                                dispatcherTimer.Stop();
-                            }
-                        }
+                        SNNextRequests();
                     }
+                }
+                else
+                {
+                    CheckConnection();
+                    // some timeout so it is not checking forever...
                 }
                 UpdateAnimation();
                 this.UpdateTime.Text = AsyncReqQueue.nNotifications.ToString() + " news";
@@ -1158,7 +1202,7 @@ namespace MBBeta2
             UpdateAnimation();
             if (!SRZipBackup.InBackup)
             {
-                if (SRZipBackup.ErrorMessage == "")
+                if (SRZipBackup.ErrorMessage == null || SRZipBackup.ErrorMessage == "")
                 {
                     this.UpdateText.Text = ZipOperation + " was completed.";
                 }

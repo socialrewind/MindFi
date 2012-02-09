@@ -10,6 +10,9 @@ namespace MBBetaAPI
 {
     public class SRZipBackup
     {
+        public static volatile bool InBackup = false;
+        public static string ErrorMessage;
+
         /// <summary>
         /// Creates a Zip from a full backup folder
         /// </summary>
@@ -18,6 +21,7 @@ namespace MBBetaAPI
         public static void CreateZipBackup(string SourcePath, string Destination)
         {
             DBLayer.LockDatabaseForCopy();
+            InBackup = true;
             BackgroundWorker bw = new BackgroundWorker();
             bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_ZipFolder);
             AsyncZipArgs temp = new AsyncZipArgs(SourcePath, Destination);
@@ -31,6 +35,7 @@ namespace MBBetaAPI
 
             ShellCompressFolder(temp.Source, temp.Destination);
             // only when finished...
+            InBackup = false;
             DBLayer.UnlockDatabaseForCopy();
         }
 
@@ -42,8 +47,7 @@ namespace MBBetaAPI
             // standard zip header
             File.WriteAllBytes(Dest, new byte[] { 80, 75, 5, 6, 0, 0, 0, 0, 0, 0, 0, 
                                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-
-            string errorMessage;
+            ErrorMessage = "";
             int errorCode1, errorCode2;
 
             try { 
@@ -73,8 +77,9 @@ namespace MBBetaAPI
                         Cancelled = true;
                         tempStream.Close();
                     }
-                    catch ( Exception ex )
+                    catch ( Exception )
                     {
+                        // TODO: create constant for error codes
                         // TODO: check exception is the expected exception, if not, "cancel"
                     }
                     errorCode2 = Marshal.GetLastWin32Error();
@@ -91,16 +96,22 @@ namespace MBBetaAPI
                 }
                 if (Cancelled)
                 {
+                    // TODO: Localize
+                    ErrorMessage = "Zip Backup was cancelled";
                     File.Delete(Dest);
                 }
-                if (errorCode1 != errorCode2)
+                // TODO: create constant for error codes
+                if (errorCode1 != errorCode2 && errorCode2 != 183)
                 {
-                    System.Diagnostics.Debug.WriteLine("Error creating zip " + errorCode2);
+                    // TODO: Localize
+                    ErrorMessage = "Error creating zip " + errorCode2;
+                    System.Diagnostics.Debug.WriteLine(ErrorMessage);
                 }
             }
             catch ( Exception ex )
-            { 
-                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            {
+                ErrorMessage = "Exception creating zip " + ex.ToString();
+                System.Diagnostics.Debug.WriteLine(ErrorMessage);
             } 
         }
  

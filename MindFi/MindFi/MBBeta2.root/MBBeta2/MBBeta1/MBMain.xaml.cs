@@ -1032,26 +1032,31 @@ namespace MBBeta2
                             }
                             if (!inProgress)
                             {
-                                MessageBox.Show("Backup finished");
+                                //MessageBox.Show("Backup finished");
                                 DoRefreshData();
+                                // TODO: Localize
                                 this.UpdateText.Text = "Backup just finished";
                                 this.UpdateTime.Text = DateTime.UtcNow.ToString();
                                 GoOffline();
+                                dispatcherTimer.Stop();
                             }
                         }
                     }
                 }
-                // Get statistics
-                //UpdateStats();
-                if (animation != "...")
-                {
-                    animation += ".";
-                }
-                else
-                {
-                    animation = "";
-                }
+                UpdateAnimation();
                 this.UpdateTime.Text = AsyncReqQueue.nNotifications.ToString() + " news";
+            }
+        }
+
+        private void UpdateAnimation()
+        {
+            if (animation != "...")
+            {
+                animation += ".";
+            }
+            else
+            {
+                animation = "";
             }
         }
 
@@ -1127,10 +1132,35 @@ namespace MBBeta2
             if (result == true)
             {
                 string Destination = dlg.FileName;
-                MessageBox.Show("Would create backup " + Destination + " from compressing the folder " + BasePath);
+                //MessageBox.Show("Would create backup " + Destination + " from compressing the folder " + BasePath);
+                btnZip.IsEnabled = false;
                 SRZipBackup.CreateZipBackup(BasePath, Destination);
-                // TODO: Update interface
+
+                dispatcherTimer.Tick += new EventHandler(backupTimer_Tick);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                dispatcherTimer.Start();
+
             }
         }
+
+        private void backupTimer_Tick(object sender, EventArgs e)
+        {
+            this.UpdateText.Text = "Zipping backup" + animation;
+            UpdateAnimation();
+            if (!SRZipBackup.InBackup)
+            {
+                if (SRZipBackup.ErrorMessage == "")
+                {
+                    this.UpdateText.Text = "Zipping backup was completed.";
+                }
+                else
+                {
+                    this.UpdateText.Text = SRZipBackup.ErrorMessage;
+                }
+                dispatcherTimer.Stop();
+                btnZip.IsEnabled = true;
+            }
+        }
+
     }
 }

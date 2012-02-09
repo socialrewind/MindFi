@@ -344,6 +344,10 @@ namespace MBBetaAPI
                     {
                         BirthYear = tempBirthYear;
                     }
+                    if (currentFriend.SignificantOther != null)
+                    {
+                        SignificantOtherName = currentFriend.SignificantOther.Name;
+                    }
                     // no need to parse, only with internal method
                     //currentFriend.Parsed = true;
                     currentFriend.Save(out errorData);

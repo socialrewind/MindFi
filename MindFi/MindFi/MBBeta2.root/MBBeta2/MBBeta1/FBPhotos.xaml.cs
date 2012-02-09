@@ -288,8 +288,9 @@ namespace MBBeta2
 
                     TagName = new TextBlock();
                     TagName.Foreground = System.Windows.Media.Brushes.Khaki;
-                    //TagName.Text = t.PersonName;
-                    TagName.Text = t.SNPersonID.ToString();
+                    TagName.Text = t.PersonName;
+                    // TODO: remove comment after fix
+                    //TagName.Text = t.SNPersonID.ToString();
                     Canvas.SetLeft(TagName, X);
                     Canvas.SetTop(TagName, Y + YSize);
                     PhotoCanvas.Children.Add(TagName);
@@ -301,8 +302,9 @@ namespace MBBeta2
                     Canvas.SetLeft(rectangle, X);
                     Canvas.SetTop(rectangle, Y);
 
-                    //TagName.Text = t.PersonName;
-                    TagName.Text = t.SNPersonID.ToString();
+                    TagName.Text = t.PersonName;
+                    // TODO: remove comment after fix
+                    //TagName.Text = t.SNPersonID.ToString();
                     Canvas.SetLeft(TagName, X);
                     Canvas.SetTop(TagName, Y + YSize);
 

@@ -42,7 +42,7 @@
 
         <DataTemplate   x:Key="TagsTemplate">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding SNPersonID}"/>
+                <TextBlock Text="{Binding PersonName}"/>
                 <TextBlock Text="   "/>
             </StackPanel>
         </DataTemplate>

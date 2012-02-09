@@ -57,8 +57,10 @@ namespace MBBetaAPI
             {
 
                 //Read Tag
-                //TODO: Complete person name when available in table.
-                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, PersonSNID, PhotoSNID, X, Y, Created from TagData where TagDataID = @ID", conn);
+                //TODO: Complete person name when available in table for efficiency
+                //SQLiteCommand command = new SQLiteCommand("select SocialNetwork, PersonSNID, PhotoSNID, X, Y, Created from TagData where TagDataID = @ID", conn);
+                SQLiteCommand command = new SQLiteCommand("select TagData.SocialNetwork, TagData.PersonSNID, TagData.PhotoSNID, TagData.X, TagData.Y, TagData.Created, ID, Name"
+                                        + " from TagData left outer join PersonData on PersonSNID = PersonData.SNID left outer join Entities on PersonData.PersonID = Entities.ID where TagDataID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -68,7 +70,9 @@ namespace MBBetaAPI
                     //SocialNetwork, PersonSNID, PhotoSNID, X, Y, Created
                     SN = reader.GetInt32(0);
                     if (reader.IsDBNull(1))
+                    {
                         SNPersonID = 0;
+                    }
                     else
                     {
                         var value = reader.GetValue(1);
@@ -79,12 +83,29 @@ namespace MBBetaAPI
                     }
                     var value2 = reader.GetValue(2);
                     SNPhotoID = Convert.ToInt64(value2);
-                    value2 = reader.GetValue(3);
-                    X = Convert.ToInt32(value2);
-                    value2 = reader.GetValue(4);
-                    Y = Convert.ToInt32(value2);
-                    Date = reader.GetDateTime(5);
-
+                    var value3 = reader.GetValue(3);
+                    X = Convert.ToInt32(value3);
+                    var value4 = reader.GetValue(4);
+                    Y = Convert.ToInt32(value4);
+                    var Date = reader.GetDateTime(5);
+                    if (reader.IsDBNull(6))
+                    {
+                        PersonID = -1;
+                    }
+                    else
+                    {
+                        var value6 = reader.GetValue(6);
+                        PersonID = Convert.ToInt32(value6);
+                    }
+                    if (reader.IsDBNull(7))
+                    {
+                        PersonName = "Unknown";
+                    }
+                    else
+                    {
+                        var value7 = reader.GetValue(7);
+                        PersonName = value7.ToString();
+                    }
                 }
 
             }
@@ -94,6 +115,7 @@ namespace MBBetaAPI
                 APIError error = new APIError(this, ex.Message + " ID:  " + ID.ToString(), 1);
             }
 
+            // TODO: Revisit cases that don't have a tag
             if (!GotData)
                 throw new Exception("No data available for the photo");
         }

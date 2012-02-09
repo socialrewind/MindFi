@@ -734,14 +734,17 @@ namespace MBBeta2
 
             if (SearchTB.Text != "")
             {
-                Regex regex = new Regex("(^[0-9a-zA-Z\\s\\*]+$)");
+                // restricted restrictions - probably should only take out spaces...
 
-                if (!regex.IsMatch(SearchTB.Text))
-                {
-                    MessageBox.Show("Please use only letters and numbers");
-                }
-                else  //Perform search
-                {
+                //Regex regex = new Regex("(^[0-9a-zA-Z\\s\\*]+$)");
+
+                //if (!regex.IsMatch(SearchTB.Text))
+                //{
+                //    // TODO: Localize
+                //    MessageBox.Show("Please use only letters and numbers");
+                //}
+                //else  //Perform search
+                //{
                     if (AdvancedSearchSelected)
                     {
                         bool[] searchOps = new bool[5];
@@ -761,7 +764,7 @@ namespace MBBeta2
                     }
 
                     fillSearchResults();
-                }
+                //}
             }
 
             SearchResultsGrid.Visibility = System.Windows.Visibility.Visible;

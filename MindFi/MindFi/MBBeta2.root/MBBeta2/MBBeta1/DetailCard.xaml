@@ -97,7 +97,25 @@
                            Foreground="Red"
                            FontWeight="Bold" HorizontalAlignment="Center"/>
             </StackPanel>
+            <StackPanel Margin="5">
+                <Button x:Name="WallBt" Content="{lex:LocText MBBeta2:DCStrings:ViewWall}"
+                        Style="{StaticResource ButtonLinkStyle}"
+                        Template="{StaticResource ButtonLinkTemplate}"
+                        HorizontalAlignment="Center" Margin="3"
+                        Click="WallBt_Click"/>
+                <Button x:Name="PhotosBt" Content="{lex:LocText MBBeta2:DCStrings:ViewPhotos}"
+                        Style="{StaticResource ButtonLinkStyle}"
+                        Template="{StaticResource ButtonLinkTemplate}"
+                        HorizontalAlignment="Center" Margin="3"
+                        Click="PhotosBt_Click"/>
+                <Button x:Name="MessagesBt" Content="{lex:LocText MBBeta2:DCStrings:ViewMessages}"
+                        Style="{StaticResource ButtonLinkStyle}"
+                        Template="{StaticResource ButtonLinkTemplate}"
+                        HorizontalAlignment="Center" Margin="3"
+                        Click="MessagesBt_Click"/>
+            </StackPanel>
         </StackPanel>
+
 
         <Rectangle Grid.Column="1" Grid.Row="1" 
                    Fill="White" RadiusX="10" RadiusY="10" Margin="0,0,0,10"/>
@@ -148,24 +166,10 @@
                     </ItemsControl>
                 </StackPanel>
 
-                <StackPanel Orientation="Vertical" Margin="0,10,0,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Path=Value.FirstName}"
-                            FontWeight="Bold"/>
-                        <TextBlock Text=" "/>
-                        <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:AndYou}"
-                            FontWeight="Bold"/>
-                    </StackPanel>
-                    <Button x:Name="FriendshipBt" Click="FriendshipBt_Click"
-                        Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
-                        Content="{lex:LocText MBBeta2:DCStrings:SearchDetails}"
-                        Margin="5,5,0,0"/>
-                </StackPanel>
-
-                <StackPanel Margin="0,10,0,0">
+                <!--StackPanel Margin="0,10,0,0">
                     <TextBlock  Text="{lex:LocText MBBeta2:DCStrings:Stats}"
                         FontWeight="Bold"/>
-                </StackPanel>
+                </StackPanel> -->
 
             </StackPanel>
         </ScrollViewer>

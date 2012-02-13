@@ -20,6 +20,7 @@ namespace MBBetaAPI
         {
             ID = IDParam;
             GetFromDB();
+            DisplayName = FirstName + " " + LastName;
             GetSchools();
             GetCompanies();
             //GetSignificantOther();
@@ -36,6 +37,7 @@ namespace MBBetaAPI
         public string FirstName { get; private set; }
         public string MiddleName { get; private set; }
         public string LastName { get; private set; }
+        public string DisplayName { get; private set; }
         public int BirthDay { get; private set; }
         public int BirthMonth { get; private set; }
         public int BirthYear { get; private set; }

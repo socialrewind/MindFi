@@ -2,12 +2,12 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lex="http://schemas.root-project.org/xaml/presentation"
-        xmlns:ribbon="http://schemas.microsoft.com/winfx/2006/xaml/presentation/ribbon"
+        xmlns:ribbon="clr-namespace:Microsoft.Windows.Controls.Ribbon;assembly=RibbonControlsLibrary"
         xmlns:converters="clr-namespace:MBBeta2.Converters"
         xmlns:controls="clr-namespace:MBBeta2.Controls"
         xmlns:local="clr-namespace:MBBeta2"
         Title="Social Rewind Beta 2" MinHeight="600" MinWidth="800" Icon="/MBBeta2;component/Images/rewind.ico">
-    <Window.Resources>
+    <ribbon:RibbonWindow.Resources>
 
         <!--Set tabs to fill available space-->
         <converters:TabSizeConverter x:Key="tabSizeConverter" />
@@ -123,16 +123,24 @@
                             Margin="5,2,2,2"/>
             </StackPanel>
         </DataTemplate>
-        
-    </Window.Resources>
-    
+
+    </ribbon:RibbonWindow.Resources>
+
     <Grid>        
             <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-        <ribbon:Ribbon x:Name="MainRibbon" Background="Silver">
+        <ribbon:Ribbon x:Name="MainRibbon" Background="Silver" WindowIconVisibility="Visible">
+            <ribbon:Ribbon.ApplicationMenu>
+                <ribbon:RibbonApplicationMenu SmallImageSource="Images/logo-socialrewindok.gif" KeyTip="A">
+                    <ribbon:RibbonApplicationMenuItem Header="Open"
+                                                      KeyTip="O"/>
+                    <ribbon:RibbonApplicationMenuItem Header="Exit"
+                                                      KeyTip="X"/>
+                </ribbon:RibbonApplicationMenu>
+            </ribbon:Ribbon.ApplicationMenu>
             <ribbon:RibbonTab Header="Home" KeyTip="H">
                 <ribbon:RibbonGroup x:Name="CurrentUserRG" Header="{lex:LocText MBBeta2:MBStrings:Profile}">
                     <ribbon:RibbonControlGroup>
@@ -178,12 +186,13 @@
                         <ribbon:RibbonControlGroup.ControlSizeDefinition>
                             <ribbon:RibbonControlSizeDefinition ImageSize="Large"/>
                         </ribbon:RibbonControlGroup.ControlSizeDefinition>
-                        <ribbon:RibbonButton x:Name="LoginRBt" 
-                                             Label="{lex:LocText MBBeta2:MBStrings:Login}"
-                                             LargeImageSource="Images/login_icon.png"
-                                             KeyTip="L"
-                                             Click="BackupDataBt_Click"
-                                             />
+                        <ribbon:RibbonToggleButton x:Name="LoginOutRTBt"
+                                                   Label="{lex:LocText MBBeta2:MBStrings:Login}"
+                                                   LargeImageSource="Images/login_icon.png"
+                                                   KeyTip="L"
+                                                   Command="{Binding LoginOutCommand}"
+                                                   Checked="LoginOutRTBt_Checked"
+                                                   Unchecked="LoginOutRTBt_Unchecked"/>
                     </ribbon:RibbonControlGroup>
                 </ribbon:RibbonGroup>
                 <ribbon:RibbonGroup x:Name="BackupRG" Header="{lex:LocText MBBeta2:MBStrings:Backup}">
@@ -194,7 +203,7 @@
                         <ribbon:RibbonButton x:Name="BackupRBt" 
                                              Label="{lex:LocText MBBeta2:MBStrings:Backup}"
                                              LargeImageSource="Images/Blue-backup-icon.png"
-                                             KeyTip="L"
+                                             KeyTip="B"
                                              Click="btnZip_Click"/>
                         <ribbon:RibbonButton x:Name="UnzipRBt" 
                                              Label="{lex:LocText MBBeta2:MBStrings:Unzip}"
@@ -226,10 +235,7 @@
 
             </ribbon:RibbonTab>
         </ribbon:Ribbon>
-        <DockPanel Background="DarkBlue" Grid.Row="1">
-
-            <!--Header-->
-
+        <DockPanel Background="Silver" Grid.Row="1">
         <!--Footer-->
         <Grid DockPanel.Dock="Bottom" Background="DarkBlue">
             <Grid.ColumnDefinitions>

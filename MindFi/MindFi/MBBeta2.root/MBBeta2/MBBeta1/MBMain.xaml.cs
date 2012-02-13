@@ -311,7 +311,7 @@ namespace MBBeta2
         //*********** Controls code **************
         #region Controls Code
 
-        #region General Controls
+        #region RibbonControls
 
         private void OwnerDetailsBt_Click(object sender, RoutedEventArgs e)
         {
@@ -319,7 +319,7 @@ namespace MBBeta2
             {
                 this.Cursor = Cursors.Wait;
 
-                DetailCard DetailCardWindow = new DetailCard();
+                DetailCard DetailCardWindow = new DetailCard(Me, this);
                 PersonWrapper dataContext = new PersonWrapper(Me);
                 DetailCardWindow.DataContext = dataContext;
                 CC.PositionNewWindow(this, DetailCardWindow);
@@ -336,17 +336,9 @@ namespace MBBeta2
             OpenSetupWindow();
         }
 
-        private void OpenSetupWindow()
+        private void RefreshDataBt_Click(object sender, RoutedEventArgs e)
         {
-            var SNSetupWindow = new SNAccountSetup(BasePath);
-
-            //var MBSetupWindow = new MBSetup(BasePath);
-            CC.PositionNewWindow(this, SNSetupWindow);
-            if (SNSetupWindow.accountAdded)
-            {
-                DoRefreshData();
-                GoOnline();
-            }
+            DoRefreshData();
         }
 
         private void Enter_KeyDown(object sender, KeyEventArgs e)
@@ -364,6 +356,20 @@ namespace MBBeta2
                 e.Handled = true;
             }
 
+        }
+
+        private void LoginOutRTBt_Checked(object sender, RoutedEventArgs e)
+        {
+            GoOnline();
+            // TODO: Localize
+            LoginOutRTBt.Label = "Logout";
+        }
+
+        private void LoginOutRTBt_Unchecked(object sender, RoutedEventArgs e)
+        {
+            GoOffline();
+            // TODO: Localize
+            LoginOutRTBt.Label = "Login";
         }
 
         #endregion
@@ -673,7 +679,7 @@ namespace MBBeta2
 
                 Person p = new Person(selectedItem.ID);
 
-                DetailCard DetailCardWindow = new DetailCard();
+                DetailCard DetailCardWindow = new DetailCard(p, this);
                 PersonWrapper dataContext = new PersonWrapper(p);
                 DetailCardWindow.DataContext = dataContext;
                 CC.PositionNewWindow(this, DetailCardWindow);
@@ -931,9 +937,17 @@ namespace MBBeta2
 
         #endregion
 
-        private void RefreshDataBt_Click(object sender, RoutedEventArgs e)
+        private void OpenSetupWindow()
         {
-            DoRefreshData();
+            var SNSetupWindow = new SNAccountSetup(BasePath);
+
+            //var MBSetupWindow = new MBSetup(BasePath);
+            CC.PositionNewWindow(this, SNSetupWindow);
+            if (SNSetupWindow.accountAdded)
+            {
+                DoRefreshData();
+                GoOnline();
+            }
         }
 
         private void DoRefreshData()

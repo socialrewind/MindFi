@@ -61,15 +61,6 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to and you.
-        /// </summary>
-        internal static string AndYou {
-            get {
-                return ResourceManager.GetString("AndYou", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Birthday.
         /// </summary>
         internal static string Birthday {
@@ -151,15 +142,6 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Search Details....
-        /// </summary>
-        internal static string SearchDetails {
-            get {
-                return ResourceManager.GetString("SearchDetails", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Single.
         /// </summary>
         internal static string Single {
@@ -174,6 +156,33 @@ namespace MBBeta2.Resources {
         internal static string Stats {
             get {
                 return ResourceManager.GetString("Stats", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Messages.
+        /// </summary>
+        internal static string ViewMessages {
+            get {
+                return ResourceManager.GetString("ViewMessages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Photos.
+        /// </summary>
+        internal static string ViewPhotos {
+            get {
+                return ResourceManager.GetString("ViewPhotos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wall.
+        /// </summary>
+        internal static string ViewWall {
+            get {
+                return ResourceManager.GetString("ViewWall", resourceCulture);
             }
         }
         

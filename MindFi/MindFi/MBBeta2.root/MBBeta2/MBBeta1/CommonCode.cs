@@ -28,7 +28,7 @@ namespace MBBeta2
         void BlurWindow(Window w)
         {
             System.Windows.Media.Effects.BlurEffect blur = new System.Windows.Media.Effects.BlurEffect();
-            blur.Radius = 4;
+            blur.Radius = 2;
             w.Effect = blur;
         }
 

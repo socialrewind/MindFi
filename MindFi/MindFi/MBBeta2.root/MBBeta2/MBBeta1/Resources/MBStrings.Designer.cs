@@ -70,6 +70,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Backup.
+        /// </summary>
+        internal static string Backup {
+            get {
+                return ResourceManager.GetString("Backup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create a backup of your data.
         /// </summary>
         internal static string BackupData {
@@ -340,6 +349,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Login.
+        /// </summary>
+        internal static string Login {
+            get {
+                return ResourceManager.GetString("Login", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Login to your social network accounts and define your user profiles..
         /// </summary>
         internal static string LoginOptions {
@@ -439,11 +457,20 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Scan your networks for updates.
+        ///   Looks up a localized string similar to Profile.
         /// </summary>
-        internal static string RefreshData {
+        internal static string Profile {
             get {
-                return ResourceManager.GetString("RefreshData", resourceCulture);
+                return ResourceManager.GetString("Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        internal static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
             }
         }
         
@@ -525,6 +552,15 @@ namespace MBBeta2.Resources {
         internal static string TwTweets {
             get {
                 return ResourceManager.GetString("TwTweets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restore a backup from your data.
+        /// </summary>
+        internal static string Unzip {
+            get {
+                return ResourceManager.GetString("Unzip", resourceCulture);
             }
         }
         

@@ -27,13 +27,15 @@ using System.Windows.Threading;
 //Other Projects
 using MBBetaAPI;
 using MBBetaAPI.AgentAPI;
+//Ribbon
+using Microsoft.Windows.Controls.Ribbon;
 
 namespace MBBeta2
 {
     /// <summary>
     /// Interaction logic for MBMain.xaml
     /// </summary>
-    public partial class MBMain : Window
+    public partial class MBMain : RibbonWindow
     {
         private string animation = "...";
         private string BasePath;
@@ -227,7 +229,10 @@ namespace MBBeta2
             //TODO: Change to MeOnFB, MeOnTwitter, MeOnLn when more data is available
             Me = new Person(1);
             //paint owner data
-            OwnerCC.Content = Me;
+            //OwnerCC.Content = Me;
+
+            //Fill Ribbon
+            CurrentUserRG.DataContext = Me;
 
             //Load Friends Data into Info Browser
             LoadFriends();
@@ -333,9 +338,11 @@ namespace MBBeta2
 
         private void OpenSetupWindow()
         {
-            var MBSetupWindow = new MBSetup(BasePath);
-            CC.PositionNewWindow(this, MBSetupWindow);
-            if (MBSetupWindow.accountAdded)
+            var SNSetupWindow = new SNAccountSetup(BasePath);
+
+            //var MBSetupWindow = new MBSetup(BasePath);
+            CC.PositionNewWindow(this, SNSetupWindow);
+            if (SNSetupWindow.accountAdded)
             {
                 DoRefreshData();
                 GoOnline();
@@ -948,7 +955,9 @@ namespace MBBeta2
                 //TODO: Change to MeOnFB, MeOnTwitter, MeOnLn when more data is available
                 Me = new Person(1);
                 //paint owner data
-                OwnerCC.Content = Me;
+                //Fill Ribbon
+                CurrentUserRG.DataContext = Me;
+                //OwnerCC.Content = Me;
 
                 //Load Friends Data into Info Browser
                 LoadFriends();
@@ -1183,8 +1192,10 @@ namespace MBBeta2
             {
                 string Destination = dlg.FileName;
                 //MessageBox.Show("Would create backup " + Destination + " from compressing the folder " + BasePath);
-                btnZip.IsEnabled = false;
-                btnUnzip.IsEnabled = false;
+                //btnZip.IsEnabled = false;
+                //btnUnzip.IsEnabled = false;
+                BackupRBt.IsEnabled = false;
+                UnzipRBt.IsEnabled = false;
                 // TODO: Localize
                 ZipOperation = "Zipping backup";
                 SRZipBackup.CreateZipBackup(BasePath, Destination);
@@ -1211,8 +1222,10 @@ namespace MBBeta2
                     this.UpdateText.Text = SRZipBackup.ErrorMessage;
                 }
                 dispatcherTimer.Stop();
-                btnZip.IsEnabled = true;
-                btnUnzip.IsEnabled = true;
+                //btnZip.IsEnabled = true;
+                //btnUnzip.IsEnabled = true;
+                BackupRBt.IsEnabled = true;
+                UnzipRBt.IsEnabled = true;
                 this.Cursor = Cursors.Arrow;
             }
         }
@@ -1247,8 +1260,10 @@ namespace MBBeta2
                         return;
                     }
                     this.Cursor = Cursors.Wait;
-                    btnZip.IsEnabled = false;
-                    btnUnzip.IsEnabled = false;
+                    //btnZip.IsEnabled = false;
+                    //btnUnzip.IsEnabled = false;
+                    BackupRBt.IsEnabled = false;
+                    UnzipRBt.IsEnabled = false;
                     ZipOperation = "Unzipping backup";
                     //MessageBox.Show("ready to unzip " + dlg.FileName + " to " + dlg2.SelectedPath);
                     SRZipBackup.UnzipBackup(dlg.FileName, dlg2.SelectedPath);

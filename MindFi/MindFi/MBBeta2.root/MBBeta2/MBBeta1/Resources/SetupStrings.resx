@@ -174,4 +174,7 @@
   <data name="WaitingParse" xml:space="preserve">
     <value>... waiting for parse</value>
   </data>
+  <data name="Facebook" xml:space="preserve">
+    <value>Facebook</value>
+  </data>
 </root>

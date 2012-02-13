@@ -43,7 +43,7 @@ namespace MBBetaAPI
         public int Y { get; private set; }
         public DateTime Date;
 
-        private int PersonID;
+        //private int PersonID;
         public string PersonName { get; private set; }
         
         //Tagged Person

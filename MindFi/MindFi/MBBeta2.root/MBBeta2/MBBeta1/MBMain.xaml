@@ -1,7 +1,8 @@
-﻿<Window x:Class="MBBeta2.MBMain"
+﻿<ribbon:RibbonWindow x:Class="MBBeta2.MBMain"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        xmlns:ribbon="http://schemas.microsoft.com/winfx/2006/xaml/presentation/ribbon"
         xmlns:converters="clr-namespace:MBBeta2.Converters"
         xmlns:controls="clr-namespace:MBBeta2.Controls"
         xmlns:local="clr-namespace:MBBeta2"
@@ -125,108 +126,122 @@
         
     </Window.Resources>
     
-    <DockPanel Background="DarkBlue">
-        
-        <!--Header-->
-        <Grid DockPanel.Dock="Top" Height="100">
-            <Grid.Background>
-                <LinearGradientBrush StartPoint="1,0">
-                    <GradientStop Color="Silver" Offset="0.0"/>
-                    <GradientStop Color="DarkBlue" Offset="0.3"/>
-                </LinearGradientBrush>
-            </Grid.Background>
-            
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.25*"/>
-                <ColumnDefinition Width="0.5*"/>
-                <ColumnDefinition Width="0.20*"/>
-            </Grid.ColumnDefinitions>
+    <Grid>        
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.ColumnSpan="1" Grid.RowSpan="3" CornerRadius="10"
-                        Margin="10"
-                        Background="White">
-                <ContentControl x:Name="OwnerCC"
-                                ContentTemplate="{StaticResource OwnerDataTemplate}"/>
-            </Border>
+        <ribbon:Ribbon x:Name="MainRibbon" Background="Silver">
+            <ribbon:RibbonTab Header="Home" KeyTip="H">
+                <ribbon:RibbonGroup x:Name="CurrentUserRG" Header="{lex:LocText MBBeta2:MBStrings:Profile}">
+                    <ribbon:RibbonControlGroup>
+                        <ribbon:RibbonControlGroup.ControlSizeDefinition>
+                            <ribbon:RibbonControlSizeDefinition ImageSize="Large"/>
+                        </ribbon:RibbonControlGroup.ControlSizeDefinition>
 
-            <!--Post new status-->
-            <StackPanel Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch">
-                <TextBox x:Name="PostNewStatusTB"
-                         Text="{lex:LocText MBBeta2:MBStrings:WhatAreYouThinking}" 
-                         VerticalAlignment="Stretch"
-                         Style="{StaticResource BlackTextOnFocusStyle}"
-                         GotFocus="PostNewStatusTB_GotFocus"
-                         LostFocus="PostNewStatusTB_LostFocus"
-                         KeyDown="PostNewStatusTB_KeyDown"/>
-            </StackPanel>
+                        <Image Source="Images/f_logo.jpg" Width="20"/>
+                        <ribbon:RibbonButton  x:Name="ProfileRibbonBt"
+                                              Label="{lex:LocText MBBeta2:MBStrings:ViewDetails}"
+                                              SmallImageSource="{Binding Path=ProfilePic}"
+                                              LargeImageSource="{Binding Path=ProfilePic}"
+                                              KeyTip="D"
+                                              Click="OwnerDetailsBt_Click"
+                                              BorderThickness="0"/>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5">
+                            <TextBlock Text="{Binding Path=FirstName}" 
+                               FontSize="18" FontWeight="Bold" FontFamily="Arial Rounded MT"
+                               HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Path=LastName}"
+                               FontSize="14" FontWeight="Bold" FontFamily="Arial Rounded MT"
+                               HorizontalAlignment="Center"/>
+                        </StackPanel>
 
-            <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,10,0" HorizontalAlignment="Right">
-                <TextBlock x:Name="UpdateTime" Text="{lex:LocText MBBeta2:MBStrings:Never}"
+                        <TextBox x:Name="PostNewStatusTB"
+                             Text="{lex:LocText MBBeta2:MBStrings:WhatAreYouThinking}" 
+                             VerticalAlignment="Center" Width="250" Margin="10"
+                             Style="{StaticResource BlackTextOnFocusStyle}"
+                             GotFocus="PostNewStatusTB_GotFocus"
+                             LostFocus="PostNewStatusTB_LostFocus"
+                             KeyDown="PostNewStatusTB_KeyDown"/>
+
+                        <ribbon:RibbonButton x:Name="RefreshRBt" 
+                                             Label="{lex:LocText MBBeta2:MBStrings:Refresh}"
+                                             LargeImageSource="Images/Refresh-icon.png"
+                                             KeyTip="R"
+                                             Click="RefreshDataBt_Click"/>
+
+                    </ribbon:RibbonControlGroup>
+                </ribbon:RibbonGroup>
+                <ribbon:RibbonGroup x:Name="LoginRG" Header="{lex:LocText MBBeta2:MBStrings:Login}">
+                    <ribbon:RibbonControlGroup>
+                        <ribbon:RibbonControlGroup.ControlSizeDefinition>
+                            <ribbon:RibbonControlSizeDefinition ImageSize="Large"/>
+                        </ribbon:RibbonControlGroup.ControlSizeDefinition>
+                        <ribbon:RibbonButton x:Name="LoginRBt" 
+                                             Label="{lex:LocText MBBeta2:MBStrings:Login}"
+                                             LargeImageSource="Images/login_icon.png"
+                                             KeyTip="L"
+                                             Click="BackupDataBt_Click"
+                                             />
+                    </ribbon:RibbonControlGroup>
+                </ribbon:RibbonGroup>
+                <ribbon:RibbonGroup x:Name="BackupRG" Header="{lex:LocText MBBeta2:MBStrings:Backup}">
+                    <ribbon:RibbonControlGroup>
+                        <ribbon:RibbonControlGroup.ControlSizeDefinition>
+                            <ribbon:RibbonControlSizeDefinition ImageSize="Large"/>
+                        </ribbon:RibbonControlGroup.ControlSizeDefinition>
+                        <ribbon:RibbonButton x:Name="BackupRBt" 
+                                             Label="{lex:LocText MBBeta2:MBStrings:Backup}"
+                                             LargeImageSource="Images/Blue-backup-icon.png"
+                                             KeyTip="L"
+                                             Click="btnZip_Click"/>
+                        <ribbon:RibbonButton x:Name="UnzipRBt" 
+                                             Label="{lex:LocText MBBeta2:MBStrings:Unzip}"
+                                             LargeImageSource="Images/Blue-backup-icon.png"
+                                             KeyTip="U"
+                                             Click="btnUnzip_Click"/>
+                    </ribbon:RibbonControlGroup>
+
+                </ribbon:RibbonGroup>
+            </ribbon:RibbonTab>
+
+            <ribbon:RibbonTab Header="{lex:LocText MBBeta2:MBStrings:Setup}" KeyTip="S">
+                <ribbon:RibbonGroup x:Name="SetupRG" Header="{lex:LocText MBBeta2:MBStrings:Setup}">
+                    <ribbon:RibbonControlGroup>
+                        <ribbon:RibbonControlGroup.ControlSizeDefinition>
+                            <ribbon:RibbonControlSizeDefinition ImageSize="Large"/>
+                        </ribbon:RibbonControlGroup.ControlSizeDefinition>
+                        <ribbon:RibbonButton x:Name="SetupRBt" 
+                                             Label="{lex:LocText MBBeta2:MBStrings:Setup}"
+                                             LargeImageSource="Images/Gear-icon.png"
+                                             KeyTip="S"
+                                             Click="SetupBt_Click"/>
+                        <TextBlock x:Name="Connected" Text="{lex:LocText MBBeta2:MBStrings:Connected}"
                            Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                <Button x:Name="RefreshDataBt" 
-                    HorizontalContentAlignment="Center" HorizontalAlignment="Right"
-                    Width="35" Margin="10,0,0,0"
-                        Click="RefreshDataBt_Click">
-                    <Image Source="Images/Refresh-icon.png" Height="30"/>
-                    <Button.ToolTip>
-                        <TextBlock Text="{lex:LocText MBBeta2:MBStrings:RefreshData}"/>
-                    </Button.ToolTip>
-                </Button>
-            </StackPanel>
-
-            <StackPanel Grid.Column="2" Grid.ColumnSpan="2" Grid.Row ="1" Orientation="Horizontal" Margin="0,0,10,0" HorizontalAlignment="Right">
-                <TextBlock x:Name="Connected" Text="{lex:LocText MBBeta2:MBStrings:Connected}"
+                        <TextBlock x:Name="ConnectedFB" Text="{lex:LocText MBBeta2:MBStrings:ConnectedFB}"
                            Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                <Button x:Name="BackupDataBt" 
-                    HorizontalContentAlignment="Center" HorizontalAlignment="Right"
-                    Width="35" Margin="0,0,10,0"
-                    Click="BackupDataBt_Click">
-                    <Image Source="Images/login_icon.png" Height="30"/>
-                    <Button.ToolTip>
-                        <TextBlock Text="{lex:LocText MBBeta2:MBStrings:LoginOptions}"/>
-                    </Button.ToolTip>
-                </Button>
-            </StackPanel>
+                    </ribbon:RibbonControlGroup>
+                </ribbon:RibbonGroup>
 
-            <StackPanel Grid.Column="2" Grid.ColumnSpan="2" Grid.Row ="2" Orientation="Horizontal" Margin="0,0,10,0" HorizontalAlignment="Right">
-                <TextBlock x:Name="ConnectedFB" Text="{lex:LocText MBBeta2:MBStrings:ConnectedFB}"
-                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                <Button x:Name="SetupBt" Grid.Column="2" Grid.Row="3" 
-                    HorizontalContentAlignment="Center" HorizontalAlignment="Right"
-                    Width="35" Margin="0,0,10,0"
-                    Click="SetupBt_Click">
-                    <Image Source="Images/Gear-icon.png" Height="27"/>
-                    <Button.ToolTip>
-                        <TextBlock Text="{lex:LocText MBBeta2:MBStrings:Setup}" 
-                               DockPanel.Dock="Right" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                    </Button.ToolTip>
-                </Button>
-            </StackPanel>
-            
-            <Button Content="Zip Backup" Grid.Column="1" Height="23" 
-                    HorizontalAlignment="Left" Margin="18,6,0,0" 
-                    Name="btnZip" Click="btnZip_Click" 
-                    VerticalAlignment="Top" />
-            <Button Content="Unzip Backup" Grid.Column="1" Height="23" 
-                    HorizontalAlignment="Left" Margin="108,6,0,0" 
-                    Name="btnUnzip" Click="btnUnzip_Click"
-                    VerticalAlignment="Top" />
-        </Grid>
-        
+            </ribbon:RibbonTab>
+        </ribbon:Ribbon>
+        <DockPanel Background="DarkBlue" Grid.Row="1">
+
+            <!--Header-->
+
         <!--Footer-->
         <Grid DockPanel.Dock="Bottom" Background="DarkBlue">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.0*"/>
-            </Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="1"
                         x:Name="UpdateText" Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
                            Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,200,0"/>
-        </Grid>
+                <TextBlock x:Name="UpdateTime" Text="{lex:LocText MBBeta2:MBStrings:Never}"
+                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </Grid>
         
         <!--Body-->
         <Grid>
@@ -661,6 +676,7 @@
             </TabControl>
         </Grid>
     </DockPanel>
-</Window>
+    </Grid>
+</ribbon:RibbonWindow>
 
     

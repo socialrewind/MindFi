@@ -77,8 +77,23 @@ namespace MBBetaAPI
                         SN = reader.GetInt32(0);
                         var value = reader.GetValue(1);
                         SNID = Convert.ToString(value);
-                        FromID = reader.GetString(2);
-                        FromName = reader.GetString(3);
+                        if (reader.IsDBNull(2))
+                        {
+                            FromID = "1";
+                        }
+                        else
+                        {
+                            FromID = reader.GetString(2);
+                        }
+                        if (reader.IsDBNull(3))
+                        {
+                            // TODO: check this case
+                            FromName = "Yo";
+                        }
+                        else
+                        {
+                            FromName = reader.GetString(3);
+                        }
                         //ToID = reader.GetString(4);
                         if (reader.IsDBNull(5))
                         {

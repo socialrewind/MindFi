@@ -195,8 +195,8 @@
   <data name="OlderPublications" xml:space="preserve">
     <value>Get Older Publications</value>
   </data>
-  <data name="RefreshData" xml:space="preserve">
-    <value>Scan your networks for updates</value>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
   </data>
   <data name="SearchHeader" xml:space="preserve">
     <value>Enter your search term</value>
@@ -264,6 +264,15 @@
   <data name="WhatAreYouThinking" xml:space="preserve">
     <value>What are you thinking?</value>
   </data>
+  <data name="Backup" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
   <data name="BackupFiles" xml:space="preserve">
     <value>Compressed backup files (*.zip)|*.zip</value>
   </data>
@@ -284,5 +293,8 @@
   </data>
   <data name="DisconnectedFB" xml:space="preserve">
     <value>Not logged in FB</value>
+  </data>
+  <data name="Unzip" xml:space="preserve">
+    <value>Restore a backup from your data</value>
   </data>
 </root>

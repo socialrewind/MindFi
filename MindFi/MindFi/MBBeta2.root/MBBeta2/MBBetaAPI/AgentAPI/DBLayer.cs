@@ -1673,11 +1673,21 @@ namespace MBBetaAPI.AgentAPI
                     if (ObjectID != null)
                     {
                         SQLExists += " and ObjectID=?";
-                        SQLExists += " and Adverb=?";
-                        SQLExists += " and IndirectObject=?";
                     }
                     else
+                    {
                         SQLExists += " and ObjectID is null";
+                    }
+                    if (Adverb != null)
+                    {
+                        SQLExists += " and Adverb=?";
+                    }
+                    // NOTE: not forcing to be null for a match
+                    if (IndirectObject != null)
+                    {
+                        SQLExists += " and IndirectObject=?";
+                    }
+                    // NOTE: not forcing to be null for a match
 
                     SQLiteCommand ExistsCmd = new SQLiteCommand(SQLExists, conn);
 
@@ -1694,8 +1704,14 @@ namespace MBBetaAPI.AgentAPI
                     {
                         pOID.Value = ObjectID;
                         ExistsCmd.Parameters.Add(pOID);
+                    }
+                    if ( Adverb != null )
+                    {
                         pAdv.Value = Adverb;
                         ExistsCmd.Parameters.Add(pAdv);
+                    }
+                    if ( IndirectObject != null )
+                    {
                         pOI.Value = IndirectObject;
                         ExistsCmd.Parameters.Add(pOI);
                     }

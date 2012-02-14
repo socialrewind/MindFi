@@ -26,7 +26,7 @@
                     Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}" FontSize="16" FontWeight="Bold"
                     HorizontalAlignment="Center" Margin="5"
                     Content="{lex:LocText MBBeta2:SetupStrings:None}"
-                    Click="FBAccountSetupBt_Click"/>
+                    />
         </StackPanel>
         
         <Border Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="Silver" BorderThickness="1" CornerRadius="1" Margin="0,2,0,2"/>

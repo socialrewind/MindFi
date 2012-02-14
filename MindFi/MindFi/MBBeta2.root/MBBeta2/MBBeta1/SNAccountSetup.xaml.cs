@@ -38,22 +38,30 @@ namespace MBBeta2
             GetSNAccounts();
 
             SaveBt.IsEnabled = false;
-            fillAmmountCB();
-            BackupDateDP.SelectedDate = System.DateTime.Today.AddDays(-30);
+            //fillAmmountCB();
+            if ( SNAccount.CurrentProfile == null )
+            {
+                BackupDateDP.SelectedDate = System.DateTime.Today.AddDays(-30);
+            }
+            else
+            {
+                BackupDateDP.SelectedDate = SNAccount.CurrentProfile.BackupPeriodStart;
+                BackupDateDP.DisplayDateEnd = BackupDateDP.SelectedDate;
+            }                             
         }
 
 
         //******** Private MEthods
         #region PrivateMethods
 
-        void fillAmmountCB()
-        {
-            for (int i = 1; i <= 90; i++)
-            {
-                TimeAmmountCB.Items.Add(i);
-            }
-            TimeAmmountCB.SelectedIndex = 4;
-        }
+        //void fillAmmountCB()
+        //{
+        //    for (int i = 1; i <= 90; i++)
+        //    {
+        //        TimeAmmountCB.Items.Add(i);
+        //    }
+        //    TimeAmmountCB.SelectedIndex = 4;
+        //}
 
 
         void GetSNAccounts()
@@ -93,9 +101,9 @@ namespace MBBeta2
                     lblToAssign.Text = currentProfile.userName;
                 }
                  * */
-                AliasTB.Text = SNAccount.CurrentProfile.Name;
+                //AliasTB.Text = SNAccount.CurrentProfile.Name;
                 SNUrlTB.Text = SNAccount.CurrentProfile.URL;
-                SNIDTB.Text = SNAccount.CurrentProfile.ID.ToString();
+                //SNIDTB.Text = SNAccount.CurrentProfile.ID.ToString();
                 
                 // TODO: Localize
                 switch (SNAccount.CurrentProfile.currentBackupLevel)
@@ -120,23 +128,24 @@ namespace MBBeta2
                 //FBLoggedIn.Text = FBLogin.loggedIn.ToString();
                 // TODO: Review
                 //FBFrequency.Text = SNAccount.CurrentProfile.BackupFrequency.ToString();
-                TimeAmmountCB.SelectedIndex = SNAccount.CurrentProfile.BackupFrequency - 1;
-                switch (SNAccount.CurrentProfile.BackupFrequencyUnit)
-                {
-                    case "Minutes":
-                        TimeUnitsCB.SelectedIndex = 0;
-                        break;
-                    case "Hours":
-                        TimeUnitsCB.SelectedIndex = 0;
-                        break;
-                    case "Days":
-                        TimeUnitsCB.SelectedIndex = 0;
-                        break;
-                    default:
-                        TimeUnitsCB.SelectedIndex = 0;
-                        break;
-                }
-                TimeUnitsCB.SelectedValue = SNAccount.CurrentProfile.BackupFrequencyUnit;
+
+                //TimeAmmountCB.SelectedIndex = SNAccount.CurrentProfile.BackupFrequency - 1;
+                //switch (SNAccount.CurrentProfile.BackupFrequencyUnit)
+                //{
+                //    case "Minutes":
+                //        TimeUnitsCB.SelectedIndex = 0;
+                //        break;
+                //    case "Hours":
+                //        TimeUnitsCB.SelectedIndex = 0;
+                //        break;
+                //    case "Days":
+                //        TimeUnitsCB.SelectedIndex = 0;
+                //        break;
+                //    default:
+                //        TimeUnitsCB.SelectedIndex = 0;
+                //        break;
+                //}
+                //TimeUnitsCB.SelectedValue = SNAccount.CurrentProfile.BackupFrequencyUnit;
             }
         }
 
@@ -226,16 +235,16 @@ namespace MBBeta2
                         this.StatusTB.Text = "Your basic info, profile picture, top " + AsyncReqQueue.nPosts +
                             " wall posts and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
                         me = FBLogin.Me;
-                        if (me.Name != null && me.Name != "")
-                        {
-                            this.AliasTB.Text = me.Name;
-                        }
-                        else
-                        {
-                            this.AliasTB.Text = me.SNID;
-                        }
+                        //if (me.Name != null && me.Name != "")
+                        //{
+                        //    this.AliasTB.Text = me.Name;
+                        //}
+                        //else
+                        //{
+                        //    this.AliasTB.Text = me.SNID;
+                        //}
                         this.SNUrlTB.Text = me.Link;
-                        this.SNIDTB.Text = me.SNID;
+                        //this.SNIDTB.Text = me.SNID;
                         SaveBt.IsEnabled = true;
                         state = 5;
                     }

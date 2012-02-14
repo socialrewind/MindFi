@@ -92,22 +92,22 @@ namespace MBBeta2
         }
         #endregion
 
-        private void FBAccountSetupBt_Click(object sender, RoutedEventArgs e)
-        {
-            var AccountSetupWindow = new MBAccountSetup(SocialNetwork.FACEBOOK);
-            bool? result = AccountSetupWindow.ShowDialog();
-            if (result != null && !(bool)result)
-            {
-                MessageBox.Show("Account was not added");
-                return;
-            }
-            else
-            {
-                accountAdded = true;
-            }
-            // Check if refresh works
-            GetSNAccounts();
-        }
+        //private void FBAccountSetupBt_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var AccountSetupWindow = new MBAccountSetup(SocialNetwork.FACEBOOK);
+        //    bool? result = AccountSetupWindow.ShowDialog();
+        //    if (result != null && !(bool)result)
+        //    {
+        //        MessageBox.Show("Account was not added");
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        accountAdded = true;
+        //    }
+        //    // Check if refresh works
+        //    GetSNAccounts();
+        //}
 
     }
 }

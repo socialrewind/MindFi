@@ -130,9 +130,6 @@
     <Compile Include="InitialSetup.xaml.cs">
       <DependentUpon>InitialSetup.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MBAccountSetup.xaml.cs">
-      <DependentUpon>MBAccountSetup.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MBError.cs" />
     <Compile Include="MBLogin.xaml.cs">
       <DependentUpon>MBLogin.xaml</DependentUpon>
@@ -256,10 +253,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="InitialSetup.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MBAccountSetup.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

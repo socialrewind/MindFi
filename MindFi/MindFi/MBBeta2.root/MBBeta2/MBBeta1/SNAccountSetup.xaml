@@ -23,9 +23,17 @@
                 </TabItem.Header>
                 
                 <StackPanel Orientation="Vertical" Margin="10">
-                    
-                    
-                    
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupStarting}" MinWidth="200"/>
+                        <DatePicker x:Name="BackupDateDP"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupType}" MinWidth="200"/>
+                        <ComboBox x:Name="BackupTypeCB" SelectedIndex="0">
+                            <ComboBoxItem>Basic</ComboBoxItem>
+                            <ComboBoxItem>Extended</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Center">
                         <Button x:Name="SNLoginBt" Content="{lex:LocText MBBeta2:SetupStrings:SNLogin}"
                                 Click="SNLoginBt_Click"
@@ -35,38 +43,8 @@
                                 VerticalAlignment="Center" Margin="10,0,10,0" Width="80"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="Alias" MinWidth="200"/>
-                        <TextBlock x:Name="AliasTB"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="URL" MinWidth="200"/>
                         <TextBlock x:Name="SNUrlTB"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="ID" MinWidth="200"/>
-                        <TextBlock x:Name="SNIDTB"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupType}" MinWidth="200"/>
-                        <ComboBox x:Name="BackupTypeCB" SelectedIndex="0">
-                            <ComboBoxItem>Basic</ComboBoxItem>
-                            <ComboBoxItem>Extended</ComboBoxItem>
-                            <ComboBoxItem>Extreme</ComboBoxItem>
-                        </ComboBox>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupFrequency}" MinWidth="200"/>
-                        <ComboBox x:Name="TimeAmmountCB" Margin="0,0,20,0">
-                        </ComboBox>
-                        <ComboBox x:Name="TimeUnitsCB" SelectedIndex="0">
-                            <ComboBoxItem Content="{lex:LocText MBBeta2:SetupStrings:Minutes}"/>
-                            <ComboBoxItem Content="{lex:LocText MBBeta2:SetupStrings:Hours}"/>
-                            <ComboBoxItem Content="{lex:LocText MBBeta2:SetupStrings:Days}"/>
-                        </ComboBox>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupStarting}" MinWidth="200"/>
-                        <DatePicker x:Name="BackupDateDP"/>
                     </StackPanel>
                     <StackPanel Margin="10,50,10,20" VerticalAlignment="Center">
                         <Button x:Name="SaveBt" Content="{lex:LocText MBBeta2:SetupStrings:Save}"

@@ -134,9 +134,6 @@
     <Compile Include="MBLogin.xaml.cs">
       <DependentUpon>MBLogin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MBSetup.xaml.cs">
-      <DependentUpon>MBSetup.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MBSNLogin.xaml.cs">
       <DependentUpon>MBSNLogin.xaml</DependentUpon>
     </Compile>
@@ -261,10 +258,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MBMain.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MBSetup.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

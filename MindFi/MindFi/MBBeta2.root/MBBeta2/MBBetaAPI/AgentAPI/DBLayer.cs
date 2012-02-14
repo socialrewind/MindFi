@@ -2645,6 +2645,7 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     while (reader.Read())
                     {
+                        // TODO: Localize
                         ErrorMessage = "The account already exists";
                         return false;
                     }
@@ -2683,6 +2684,71 @@ namespace MBBetaAPI.AgentAPI
                     else
                     {
                         ErrorMessage = "0 rows inserted";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = ex.ToString();
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+            } // lock
+            return result;
+        }
+
+        /// <summary>
+        /// Method that updates an account
+        /// </summary>
+        public static bool UpdateAccount(int SocialNetwork, string SNID, 
+            int BackupLevel, DateTime BackupPeriodStart, out string ErrorMessage)
+        {
+            ErrorMessage = "";
+            bool result = false;
+
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    // check duplicates
+                    SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID from SNAccounts where SocialNetwork=? and SNID=?", conn);
+                    SQLiteParameter pSocialNetwork = new SQLiteParameter();
+                    pSocialNetwork.Value = SocialNetwork;
+                    CheckCmd.Parameters.Add(pSocialNetwork);
+                    SQLiteParameter pSNID = new SQLiteParameter();
+                    pSNID.Value = SNID;
+                    CheckCmd.Parameters.Add(pSNID);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    if (!reader.Read())
+                    {
+                        // TODO: Localize
+                        ErrorMessage = "The account does not exists";
+                        return false;
+                    }
+                    reader.Close();
+
+                    string SQL = "update SNAccounts set BackupLevel=?, BackupPeriodStart=? where SocialNetwork=? and SNID=?";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pLevel = new SQLiteParameter();
+                    pLevel.Value = BackupLevel;
+                    UpdateCmd.Parameters.Add(pLevel);
+                    SQLiteParameter pBackupPeriodStart = new SQLiteParameter();
+                    pBackupPeriodStart.Value = BackupPeriodStart;
+                    UpdateCmd.Parameters.Add(pBackupPeriodStart);
+                    UpdateCmd.Parameters.Add(pSocialNetwork);
+                    UpdateCmd.Parameters.Add(pSNID);
+                    int outrows = UpdateCmd.ExecuteNonQuery();
+                    if (outrows > 0)
+                    {
+                        result = true;
+                    }
+                    else
+                    {
+                        ErrorMessage = "0 rows updated";
                     }
                 }
                 catch (Exception ex)

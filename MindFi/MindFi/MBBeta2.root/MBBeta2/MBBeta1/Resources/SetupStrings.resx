@@ -177,4 +177,7 @@
   <data name="Facebook" xml:space="preserve">
     <value>Facebook</value>
   </data>
+  <data name="BackupEnding" xml:space="preserve">
+    <value> backed up to </value>
+  </data>
 </root>

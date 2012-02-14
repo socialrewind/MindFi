@@ -25,11 +25,13 @@
                 <StackPanel Orientation="Vertical" Margin="10">
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupStarting}" MinWidth="200"/>
-                        <DatePicker x:Name="BackupDateDP"/>
+                        <DatePicker x:Name="BackupDateDP" SelectedDateChanged="BackupDateDP_SelectedDateChanged"/>
+                        <TextBlock x:Name="BackupEndTB" Text="{lex:LocText MBBeta2:SetupStrings:BackupEnding}" />
+                        <TextBlock x:Name="endBackupTB" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupType}" MinWidth="200"/>
-                        <ComboBox x:Name="BackupTypeCB" SelectedIndex="0">
+                        <ComboBox x:Name="BackupTypeCB" SelectedIndex="0" SelectionChanged="BackupTypeCB_SelectionChanged">
                             <ComboBoxItem>Basic</ComboBoxItem>
                             <ComboBoxItem>Extended</ComboBoxItem>
                         </ComboBox>

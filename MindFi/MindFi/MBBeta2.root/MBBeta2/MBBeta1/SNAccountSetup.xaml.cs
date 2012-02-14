@@ -38,31 +38,27 @@ namespace MBBeta2
             GetSNAccounts();
 
             SaveBt.IsEnabled = false;
-            //fillAmmountCB();
             if ( SNAccount.CurrentProfile == null )
             {
                 BackupDateDP.SelectedDate = System.DateTime.Today.AddDays(-30);
+                BackupEndTB.Visibility = Visibility.Hidden;
+                endBackupTB.Visibility = Visibility.Hidden;
             }
             else
             {
                 BackupDateDP.SelectedDate = SNAccount.CurrentProfile.BackupPeriodStart;
                 BackupDateDP.DisplayDateEnd = BackupDateDP.SelectedDate;
+
+                BackupEndTB.Visibility = Visibility.Visible;
+                string backupState, backupDate;
+                DBLayer.GetLastBackup(out backupState, out backupDate);
+                endBackupTB.Text = backupDate;
             }                             
         }
 
 
         //******** Private MEthods
         #region PrivateMethods
-
-        //void fillAmmountCB()
-        //{
-        //    for (int i = 1; i <= 90; i++)
-        //    {
-        //        TimeAmmountCB.Items.Add(i);
-        //    }
-        //    TimeAmmountCB.SelectedIndex = 4;
-        //}
-
 
         void GetSNAccounts()
         {
@@ -81,71 +77,24 @@ namespace MBBeta2
                     SNAccount.UpdateCurrent(first);
                 }
 
-                // TODO: create labels to show multiple existing accounts, not just one
-                /*
-                System.Windows.Forms.LinkLabel lblToAssign = null;
-                switch (SNAccount.CurrentProfile.SocialNetwork)
-                {
-                    case SocialNetwork.FACEBOOK:
-                        lblToAssign = linkLabelFB1;
-                        break;
-                    case SocialNetwork.TWITTER:
-                        lblToAssign = linkLabelTw1;
-                        break;
-                    case SocialNetwork.LINKEDIN:
-                        lblToAssign = linkLabelLI1;
-                        break;
-                }
-                if (lblToAssign != null)
-                {
-                    lblToAssign.Text = currentProfile.userName;
-                }
-                 * */
-                //AliasTB.Text = SNAccount.CurrentProfile.Name;
                 SNUrlTB.Text = SNAccount.CurrentProfile.URL;
-                //SNIDTB.Text = SNAccount.CurrentProfile.ID.ToString();
                 
                 // TODO: Localize
                 switch (SNAccount.CurrentProfile.currentBackupLevel)
                 {
                     case SNAccount.BASIC:
                         BackupTypeCB.SelectedIndex = 0;
-                        //FBBackupType.Text = "Basic";
                         break;
                     case SNAccount.EXTENDED:
                         BackupTypeCB.SelectedIndex = 1;
-                        //FBBackupType.Text = "Extended";
                         break;
                     case SNAccount.STALKER:
                         BackupTypeCB.SelectedIndex = 2;
-                        //FBBackupType.Text = "Stalker";
                         break;
                     default:
-                        BackupTypeCB.SelectedValue = "Basic";
-                        //FBBackupType.Text = "";
+                        BackupTypeCB.SelectedIndex = 0;
                         break;
                 }
-                //FBLoggedIn.Text = FBLogin.loggedIn.ToString();
-                // TODO: Review
-                //FBFrequency.Text = SNAccount.CurrentProfile.BackupFrequency.ToString();
-
-                //TimeAmmountCB.SelectedIndex = SNAccount.CurrentProfile.BackupFrequency - 1;
-                //switch (SNAccount.CurrentProfile.BackupFrequencyUnit)
-                //{
-                //    case "Minutes":
-                //        TimeUnitsCB.SelectedIndex = 0;
-                //        break;
-                //    case "Hours":
-                //        TimeUnitsCB.SelectedIndex = 0;
-                //        break;
-                //    case "Days":
-                //        TimeUnitsCB.SelectedIndex = 0;
-                //        break;
-                //    default:
-                //        TimeUnitsCB.SelectedIndex = 0;
-                //        break;
-                //}
-                //TimeUnitsCB.SelectedValue = SNAccount.CurrentProfile.BackupFrequencyUnit;
             }
         }
 
@@ -214,13 +163,26 @@ namespace MBBeta2
                     {
                         state = 2;
                     }
-                    // TODO: Localize
-                    this.StatusTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
-                    // once logged in, just poll for the data
-                    DateTime initialDate;
-                    initialDate = (DateTime)(BackupDateDP.SelectedDate != null ? BackupDateDP.SelectedDate : DateTime.Now);
-                    AsyncReqQueue.GetBasicData(initialDate, DateTime.Today.AddMonths(1), me.ID, me.SNID);
-                    state = 4;
+                    else
+                    {
+                        if (SNAccount.CurrentProfile != null)
+                        {
+                            if (SaveBt != null)
+                            {
+                                SaveBt.IsEnabled = true;
+                            }
+                        }
+                        else
+                        {
+                            // TODO: Localize
+                            this.StatusTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
+                            // once logged in, just poll for the data
+                            DateTime initialDate;
+                            initialDate = (DateTime)(BackupDateDP.SelectedDate != null ? BackupDateDP.SelectedDate : DateTime.Now);
+                            AsyncReqQueue.GetBasicData(initialDate, DateTime.Today.AddMonths(1), me.ID, me.SNID);
+                            state = 4;
+                        }
+                    }
                     break;
                 case 4:
                     AsyncReqQueue.PendingBasics();
@@ -235,23 +197,13 @@ namespace MBBeta2
                         this.StatusTB.Text = "Your basic info, profile picture, top " + AsyncReqQueue.nPosts +
                             " wall posts and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
                         me = FBLogin.Me;
-                        //if (me.Name != null && me.Name != "")
-                        //{
-                        //    this.AliasTB.Text = me.Name;
-                        //}
-                        //else
-                        //{
-                        //    this.AliasTB.Text = me.SNID;
-                        //}
                         this.SNUrlTB.Text = me.Link;
-                        //this.SNIDTB.Text = me.SNID;
                         SaveBt.IsEnabled = true;
                         state = 5;
                     }
                     else if (AsyncReqQueue.FailedRequests)
                     {
                         // TODO: Localize
-                       // 
                         this.StatusTB.Text = "Failed to get basic info. Check you are connected to the network and try again (using login/logout buttons).";
                         state = 5;
                     }
@@ -282,7 +234,7 @@ namespace MBBeta2
             // TODO: support multiple profiles
             // For now, verifying only if there is no currentProfile
             FBPerson me = FBLogin.Me;
-            if (SNAccount.CurrentProfile != null)
+            if (SNAccount.CurrentProfile != null && me != null)
             {
                 if ((SNAccount.CurrentProfile.Name != me.Name
                     && SNAccount.CurrentProfile.SNID != me.SNID
@@ -299,34 +251,42 @@ namespace MBBeta2
             }
 
             string errorData = "";
-            // NO LONGER USED
-            ////For now
-            ////me.Save(out errorData);
-            //if (errorData != "")
-            //{
-            //    if (MessageBox.Show(errorData, "Error while saving your data, cancel Add Account?", MessageBoxButton.YesNo) == System.Windows.MessageBoxResult.Yes)
-            //    {
-            //        Close();
-            //    }
-            //}
             // important: time in both is 0:0:0
             DateTime initialDate = BackupDateDP.SelectedDate.Value;
             DateTime endDate = DateTime.Today.AddMonths(1);
-            SNAccount.UpdateCurrent(new SNAccount(-1, SN, me.SNID, me.Name, me.EMail, me.Link,
-                this.BackupTypeCB.SelectedIndex + 1,
-                initialDate, endDate));
-
-            if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, SN, me.SNID, me.Link,
-                   SNAccount.CurrentProfile.currentBackupLevel,
-                   SNAccount.CurrentProfile.BackupPeriodStart,
-                   SNAccount.CurrentProfile.BackupPeriodEnd,
-                   out errorData))
+            if (SNAccount.CurrentProfile == null)
             {
-                // TODO: Localize
-                MessageBox.Show("Error while saving account:\n" + errorData);
-                return;
+                SNAccount.UpdateCurrent(new SNAccount(-1, SN, me.SNID, me.Name, me.EMail, me.Link,
+                    this.BackupTypeCB.SelectedIndex + 1,
+                    initialDate, endDate));
+
+                if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, SN, me.SNID, me.Link,
+                       SNAccount.CurrentProfile.currentBackupLevel,
+                       SNAccount.CurrentProfile.BackupPeriodStart,
+                       SNAccount.CurrentProfile.BackupPeriodEnd,
+                       out errorData))
+                {
+                    // TODO: Localize
+                    MessageBox.Show("Error while saving account:\n" + errorData);
+                    return;
+                }
+                accountAdded = true;
             }
-            //MessageBox.Show("Data saved correctly");
+            else
+            {
+                SNAccount.CurrentProfile.BackupPeriodStart = initialDate;
+                SNAccount.CurrentProfile.currentBackupLevel = this.BackupTypeCB.SelectedIndex + 1;
+                // make sure it updates existing accounts
+                if (!DBLayer.UpdateAccount(SN, me.SNID,
+                       SNAccount.CurrentProfile.currentBackupLevel,
+                       SNAccount.CurrentProfile.BackupPeriodStart,
+                       out errorData))
+                {
+                    // TODO: Localize
+                    MessageBox.Show("Error while saving account:\n" + errorData);
+                    return;
+                }
+            }
             success = true;
             Close();
         }
@@ -357,5 +317,23 @@ namespace MBBeta2
         }
 
         #endregion
+
+        private void BackupDateDP_SelectedDateChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            // Enable Save
+            if (SNAccount.CurrentProfile != null && SaveBt !=null && FBLogin.Me != null )
+            {
+                SaveBt.IsEnabled = true;
+            }
+        }
+
+        private void BackupTypeCB_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            // Enable Save
+            if (SNAccount.CurrentProfile != null && SaveBt != null && FBLogin.Me != null )
+            {
+                SaveBt.IsEnabled = true;
+            }
+        }
     }
 }

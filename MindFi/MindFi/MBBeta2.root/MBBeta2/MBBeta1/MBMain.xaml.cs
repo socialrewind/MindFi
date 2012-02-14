@@ -67,7 +67,6 @@ namespace MBBeta2
 
             conn = conn_param;
             BasePath = basePathparam;
-            // CreateDBConnection();
 
             //Initialize Common Code
             CC = new CommonCode();
@@ -228,8 +227,6 @@ namespace MBBeta2
             //Load ME: It should always be 1
             //TODO: Change to MeOnFB, MeOnTwitter, MeOnLn when more data is available
             Me = new Person(1);
-            //paint owner data
-            //OwnerCC.Content = Me;
 
             //Fill Ribbon
             CurrentUserRG.DataContext = Me;
@@ -323,8 +320,6 @@ namespace MBBeta2
                 PersonWrapper dataContext = new PersonWrapper(Me);
                 DetailCardWindow.DataContext = dataContext;
                 CC.PositionNewWindow(this, DetailCardWindow);
-                //Tests.AsyncDetailCard DetailCardWindow = new Tests.AsyncDetailCard();
-                //CC.PositionNewWindow(this, DetailCardWindow);
 
                 this.Cursor = Cursors.Arrow;
             }
@@ -378,7 +373,8 @@ namespace MBBeta2
 
         private void PostNewStatusTB_GotFocus(object sender, RoutedEventArgs e)
         {
-            PostNewStatusTB.Text = "";
+            // Not cleaning anymore so it keeps the posted status
+            //PostNewStatusTB.Text = "";
         }
 
 
@@ -396,8 +392,8 @@ namespace MBBeta2
                 UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
 
                 //The code to post an status goes here
-                //MessageBox.Show("Create new post code goes here");
                 FBAPI.UpdateStatus("me", PostNewStatusTB.Text, ProcessStatus );
+                // TODO: Visual indicator that text was posted
 
                 if (keyboardFocus != null)
                 {
@@ -941,12 +937,15 @@ namespace MBBeta2
         {
             var SNSetupWindow = new SNAccountSetup(BasePath);
 
-            //var MBSetupWindow = new MBSetup(BasePath);
             CC.PositionNewWindow(this, SNSetupWindow);
             if (SNSetupWindow.accountAdded)
             {
                 DoRefreshData();
                 GoOnline();
+            }
+            else
+            {
+                DoRefreshInfo();
             }
         }
 
@@ -971,7 +970,6 @@ namespace MBBeta2
                 //paint owner data
                 //Fill Ribbon
                 CurrentUserRG.DataContext = Me;
-                //OwnerCC.Content = Me;
 
                 //Load Friends Data into Info Browser
                 LoadFriends();
@@ -981,22 +979,25 @@ namespace MBBeta2
                 //Load Social Groups
                 LoadSocialGroups();
 
-                //TEst Load
                 PostList = null;
                 FillPosts(NavigateDF.StartDateDP.SelectedDate.Value, NavigateDF.EndDateDP.SelectedDate.Value.AddDays(1));
             }
 
-            // TODO: Localize
-            string backupState, backupDate;
-            DBLayer.GetLastBackup(out backupState, out backupDate);
-            this.UpdateText.Text = backupState;
-            this.UpdateTime.Text = "Updated: " + backupDate;
+            DoRefreshInfo();
 
-            CheckConnection();
             this.Cursor = Cursors.Arrow;
         }
 
+        private void DoRefreshInfo()
+        {
+            string backupState, backupDate;
+            DBLayer.GetLastBackup(out backupState, out backupDate);
+            this.UpdateText.Text = backupState;
+            // TODO: Localize
+            this.UpdateTime.Text = "Updated: " + backupDate;
 
+            CheckConnection();
+        }
 
         #endregion
 
@@ -1205,9 +1206,6 @@ namespace MBBeta2
             if (result == true)
             {
                 string Destination = dlg.FileName;
-                //MessageBox.Show("Would create backup " + Destination + " from compressing the folder " + BasePath);
-                //btnZip.IsEnabled = false;
-                //btnUnzip.IsEnabled = false;
                 BackupRBt.IsEnabled = false;
                 UnzipRBt.IsEnabled = false;
                 // TODO: Localize
@@ -1236,8 +1234,6 @@ namespace MBBeta2
                     this.UpdateText.Text = SRZipBackup.ErrorMessage;
                 }
                 dispatcherTimer.Stop();
-                //btnZip.IsEnabled = true;
-                //btnUnzip.IsEnabled = true;
                 BackupRBt.IsEnabled = true;
                 UnzipRBt.IsEnabled = true;
                 this.Cursor = Cursors.Arrow;
@@ -1274,12 +1270,9 @@ namespace MBBeta2
                         return;
                     }
                     this.Cursor = Cursors.Wait;
-                    //btnZip.IsEnabled = false;
-                    //btnUnzip.IsEnabled = false;
                     BackupRBt.IsEnabled = false;
                     UnzipRBt.IsEnabled = false;
                     ZipOperation = "Unzipping backup";
-                    //MessageBox.Show("ready to unzip " + dlg.FileName + " to " + dlg2.SelectedPath);
                     SRZipBackup.UnzipBackup(dlg.FileName, dlg2.SelectedPath);
 
                     dispatcherTimer.Tick += new EventHandler(backupTimer_Tick);

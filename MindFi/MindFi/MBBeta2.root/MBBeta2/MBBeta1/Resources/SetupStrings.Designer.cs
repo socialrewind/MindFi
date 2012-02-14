@@ -79,6 +79,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to  backed up to .
+        /// </summary>
+        internal static string BackupEnding {
+            get {
+                return ResourceManager.GetString("BackupEnding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Backup Frequency:.
         /// </summary>
         internal static string BackupFrequency {

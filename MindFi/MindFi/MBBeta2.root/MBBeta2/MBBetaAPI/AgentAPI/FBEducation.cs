@@ -57,6 +57,46 @@ namespace MBBetaAPI.AgentAPI
                     YearID, null,
                     out YearPartitionDate, out YearPartitionID,
                     out Saved, out ErrorMessage);
+                // save relation of who studied with
+                if (m_with != null)
+                {
+                    foreach (FBPerson coworker in m_with)
+                    {
+                        string error;
+                        decimal cPartitionDate;
+                        int cPartitionID;
+
+                        coworker.Save(out error);
+                        ErrorMessage += error;
+                        DBLayer.RelationSave(relatedPerson.ID, Verb.STUDIEDWITH, coworker.ID,
+                            "@", this.Name,
+                            null, null,
+                            out cPartitionDate, out cPartitionID,
+                            out Saved, out error);
+
+                        ErrorMessage += error;
+                    }
+                }
+                // save relation of what was studied
+                if (m_concentration != null)
+                {
+                    foreach (FBObject what in m_concentration)
+                    {
+                        string error;
+                        decimal wPartitionDate;
+                        int wPartitionID;
+
+                        what.Save(out error);
+                        ErrorMessage += error;
+                        DBLayer.RelationSave(relatedPerson.ID, Verb.STUDIEDWHAT, what.ID, 
+                            "@", this.Name,
+                            null, null,
+                            out wPartitionDate, out wPartitionID,
+                            out Saved, out error);
+
+                        ErrorMessage += error;
+                    }
+                }
             }
             else
             {

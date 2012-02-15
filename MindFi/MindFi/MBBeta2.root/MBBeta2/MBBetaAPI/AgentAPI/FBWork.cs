@@ -52,10 +52,30 @@ namespace MBBetaAPI.AgentAPI
             {
                 Saved = false;
                 DBLayer.RelationSave(relatedPerson.ID, Verb.WORKAT, this.ID,
-                PositionName, Description,
-                StartDate, EndDate,
-                out OrgPartitionDate, out OrgPartitionID,
-                out Saved, out ErrorMessage);
+                    PositionName, Description,
+                    StartDate, EndDate,
+                    out OrgPartitionDate, out OrgPartitionID,
+                    out Saved, out ErrorMessage);
+                // save relation of who worked with
+                if (m_with != null)
+                {
+                    foreach (FBPerson coworker in m_with)
+                    {
+                        string error;
+                        decimal cPartitionDate;
+                        int cPartitionID;
+
+                        coworker.Save(out error);
+                        ErrorMessage += error;
+                        DBLayer.RelationSave(relatedPerson.ID, Verb.WORKEDWITH, coworker.ID,
+                            "@", this.Name,
+                            null, null,
+                            out cPartitionDate, out cPartitionID,
+                            out Saved, out error);
+
+                        ErrorMessage += error;
+                    }
+                }
             }
         }
 

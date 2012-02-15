@@ -26,6 +26,9 @@ namespace MBBetaAPI.AgentAPI
         public const int NOTATTENDING = 16;
         // TODO: Consider different family relationships
         public const int RELATIVEOF = 17;
+        public const int WORKEDWITH = 18;
+        public const int STUDIEDWITH = 19;
+        public const int STUDIEDWHAT = 20;
 
         // TODO: manage time, language
         // implement a function "verbalize", that applies the pattern as stored in the 

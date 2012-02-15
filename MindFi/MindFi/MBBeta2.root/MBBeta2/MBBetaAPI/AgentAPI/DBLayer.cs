@@ -2945,7 +2945,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Method that gets number of requests per state
+        /// Method that gets a list of friends to request their picture
         /// </summary>
         public static int GetNFriendsWithoutPicture(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
         {
@@ -2994,7 +2994,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Method that gets number of requests per state
+        /// Method that gets a list of friends to request their detailed data
         /// </summary>
         public static int GetNFriendsWithoutData(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
         {
@@ -3022,6 +3022,55 @@ namespace MBBetaAPI.AgentAPI
                         string PersonSNID = tempSNID.ToString();
                         FriendEntityID[nRequests] = PersonID;
                         FriendSNID[nRequests] = PersonSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+        /// <summary>
+        /// Method that gets a list of events to request their detailed data
+        /// </summary>
+        public static int GetNEventsWithoutDetail(int N, out int[] EventEntityID, out string[] EventSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                EventEntityID = new int[N];
+                for (int i = 0; i < N; i++) EventEntityID[i] = -1;
+                EventSNID = new string[N];
+                for (int i = 0; i < N; i++) EventSNID[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select EventID, SNID from EventData where EventRequestID is null limit " + N; ;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int EventID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string eventSNID = tempSNID.ToString();
+                        EventEntityID[nRequests] = EventID;
+                        EventSNID[nRequests] = eventSNID;
                         nRequests++;
                     }
                     reader.Close();
@@ -3291,7 +3340,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Method that updates the picture request ID for a friend
+        /// Method that updates the wall request ID for a friend
         /// </summary>
         public static bool UpdateWallRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
@@ -3299,7 +3348,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Method that updates the picture request ID for a friend
+        /// Method that updates the inbox request ID, usually only for me
         /// </summary>
         public static bool UpdateInboxRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
@@ -3307,7 +3356,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Method that updates the picture request ID for a friend
+        /// Method that updates the list of events request ID for a person
         /// </summary>
         public static bool UpdateEventRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
@@ -3315,7 +3364,7 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Method that updates the picture request ID for a friend
+        /// Method that updates the news request ID, usually only for me
         /// </summary>
         public static bool UpdateNewsRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
@@ -3328,6 +3377,14 @@ namespace MBBetaAPI.AgentAPI
         public static bool UpdatePostRequest(int PostEntityID, long RequestID, out string ErrorMessage)
         {
             return UpdateSomeRequestID("PostData", "PostID", PostEntityID, RequestID, "PostRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
+        /// Method that updates the event request ID for the detail of an event
+        /// </summary>
+        public static bool UpdateEventDetailRequest(int EventEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID("EventData", "EventID", EventEntityID, RequestID, "EventRequestID", out ErrorMessage);
         }
 
         /// <summary>

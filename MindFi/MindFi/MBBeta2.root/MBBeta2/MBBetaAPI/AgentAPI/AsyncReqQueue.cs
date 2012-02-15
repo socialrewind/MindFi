@@ -38,6 +38,22 @@ namespace MBBetaAPI.AgentAPI
 
         public string ErrorMessage;
         public static volatile int CurrentBackupState = 0;
+
+        #region "Controlling what to backup"
+        public static bool BackupMyWall = true;
+        public static bool BackupMyNews = false;
+        public static bool BackupMyInbox = false;
+        public static bool BackupMyEvents = true;
+        public static bool BackupMyNotifications = false;
+        public static bool BackupFriendsInfo = false;
+        public static bool BackupFriendsFamily = false;
+        public static bool BackupFriendsPic = true;
+        public static bool BackupMyAlbums = false;
+        public static bool BackupFriendsWall = false;
+        public static bool BackupMyPhotos = false;
+
+        #endregion
+
         #endregion
 
         #region "Constants"
@@ -514,6 +530,8 @@ namespace MBBetaAPI.AgentAPI
             DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
             apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
             apiReq.QueueAndSend(999);
+            apiReq = FBAPI.Family(SNID, SIZETOGETPERPAGE, ProcessFamily);
+            apiReq.Queue(400);
         }
 
         public static string PendingBasics()
@@ -600,12 +618,11 @@ namespace MBBetaAPI.AgentAPI
                 // Check: initial state, TODO improve / generalize
                 if (isIncremental)
                 {
-                    //CurrentBackupState = BACKUPMYWALL;
-                    CurrentBackupState = BACKUPMYALBUMS;
+                    CurrentBackupState = BACKUPMYEVENTS;
                 }
                 else
                 {
-                    CurrentBackupState = BACKUPFRIENDSINFO;
+                    CurrentBackupState = BACKUPMYWALL;
                 }
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
@@ -628,6 +645,7 @@ namespace MBBetaAPI.AgentAPI
             }
         }
 
+
         private static int GetDataForCurrentState(int ID, string SNID)
         {
             int nReqs = 0;
@@ -635,69 +653,137 @@ namespace MBBetaAPI.AgentAPI
             switch (CurrentBackupState)
             {
                 case BACKUPMYWALL:
-                    if (newPeriod)
+                    if (BackupMyWall)
                     {
-                        apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
-                        apiReq.QueueAndSend(999);
-                        newPeriod = false;
+                        if (newPeriod)
+                        {
+                            apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
+                            apiReq.QueueAndSend(999);
+                            newPeriod = false;
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
                     }
                     break;
                 case BACKUPMYNEWS:
-                    if (newPeriod)
+                    if (BackupMyNews)
                     {
-                        apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessNews, ID, SNID);
-                        apiReq.QueueAndSend(999);
-                        newPeriod = false;
+                        if (newPeriod)
+                        {
+                            apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessNews, ID, SNID);
+                            apiReq.QueueAndSend(999);
+                            newPeriod = false;
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
                     }
                     break;
                 case BACKUPMYINBOX:
-                    if (newPeriod)
+                    if (BackupMyInbox)
                     {
-                        apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                        apiReq.QueueAndSend(999);
-                        //apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                        //apiReq.QueueAndSend(999);                        
-                        newPeriod = false;
+                        if (newPeriod)
+                        {
+                            apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                            apiReq.QueueAndSend(999);
+                            //apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                            //apiReq.QueueAndSend(999);                        
+
+                            newPeriod = false;
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
                     }
                     break;
                 case BACKUPMYEVENTS:
-                    if (newPeriod)
-                    {                    
-                        apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
-                        apiReq.QueueAndSend(500);
-                        newPeriod = false;
+                    if (BackupMyEvents)
+                    {
+                        nReqs = GetNextEventsData();
+                    }
+                    else
+                    {
+                        nReqs = 0;
                     }
                     break;
                 case BACKUPMYNOTIFICATIONS:
-                    if (newPeriod)
+                    if (BackupMyNotifications)
                     {
-                        apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-                        apiReq.QueueAndSend(500);
-                        newPeriod = false;
+                        if (newPeriod)
+                        {
+                            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                            apiReq.QueueAndSend(500);
+                            newPeriod = false;
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
                     }
                     break;
                 case BACKUPFRIENDSINFO:
-                    nReqs = GetNextFriendsData();
-                    break;
-                case BACKUPFRIENDSPROFPIC:
-                    nReqs = GetNextFriendsPics();
-                    break;
-                case BACKUPMYALBUMS:
-                    if (newPeriod)
+                    if (BackupFriendsInfo)
                     {
-                        apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
-                        apiReq.QueueAndSend(500);
-                        newPeriod = false;
+                        nReqs = GetNextFriendsData();
+                    }
+                    else
+                    {
+                        nReqs = 0;
                     }
                     break;
-                case BACKUPFRIENDSWALLS:
-                    if (newPeriod)
+                case BACKUPFRIENDSPROFPIC:
+                    if (BackupFriendsPic)
                     {
-                        nReqs = GetNextFriendsWalls();
+                        nReqs = GetNextFriendsPics();
+                    }
+                    else
+                    {
+                        nReqs = 0;
+                    }
+
+                    break;
+                case BACKUPMYALBUMS:
+                    if (BackupMyAlbums)
+                    {
+                        if (newPeriod)
+                        {
+                            apiReq = FBAPI.PhotoAlbums("me", SIZETOGETPERPAGE, ProcessAlbums);
+                            apiReq.QueueAndSend(500);
+                            newPeriod = false;
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
+                    }
+
+                    break;
+                case BACKUPFRIENDSWALLS:
+                    if (BackupFriendsWall)
+                    {
+                        if (newPeriod)
+                        {
+                            nReqs = GetNextFriendsWalls();
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
                     }
                     break;
                 case BACKUPMYPHOTOS:
-                    nReqs = GetNextAlbumPics();
+                    if (BackupMyPhotos)
+                    {
+                        nReqs = GetNextAlbumPics();
+                    }
+                    else
+                    {
+                        nReqs = 0;
+                    }
                     break;
                 default:
                     nReqs = 0;
@@ -705,6 +791,8 @@ namespace MBBetaAPI.AgentAPI
             }
             return nReqs;
         }
+
+        #region "Methods to get missing data"
 
         private static int GetNextFriendsPics()
         {
@@ -725,6 +813,70 @@ namespace MBBetaAPI.AgentAPI
                         BackgroundWorker bw = new BackgroundWorker();
                         bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendPic);
                         AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
+                        bw.RunWorkerAsync(temp);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
+        private static int GetNextFriendsData()
+        {
+            string errorMessage;
+            // Go over friends, adding requests for them if not yet defined
+            int[] FriendEntityID;
+            string[] FriendSNID;
+
+            int nRequests = DBLayer.GetNFriendsWithoutData(CONCURRENTREQUESTLIMIT, out FriendEntityID, out FriendSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int friendID in FriendEntityID)
+                {
+                    string SNID = FriendSNID[i];
+
+                    if (SNID != null && SNID != "")
+                    {
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendData);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
+                        bw.RunWorkerAsync(temp);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
+        private static int GetNextEventsData()
+        {
+            AsyncReqQueue apiReq;
+            if (newPeriod)
+            {
+                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                apiReq.QueueAndSend(500);
+                newPeriod = false;
+                return 1;
+            }
+            // Find next
+            string errorMessage;
+            // Go over friends, adding requests for them if not yet defined
+            int[] EventEntityID;
+            string[] EventSNID;
+
+            int nRequests = DBLayer.GetNEventsWithoutDetail(CONCURRENTREQUESTLIMIT, out EventEntityID, out EventSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int eventID in EventEntityID)
+                {
+                    string SNID = EventSNID[i];
+                    if ( SNID != null )
+                    {
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetEvent);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(eventID, SNID);
                         bw.RunWorkerAsync(temp);
                     }
                     i++;
@@ -764,33 +916,38 @@ namespace MBBetaAPI.AgentAPI
             return nRequests;
         }
 
-        private static int GetNextFriendsData()
+        private static int GetNextFriendsWalls()
         {
             string errorMessage;
+            AsyncReqQueue apiReq;
             // Go over friends, adding requests for them if not yet defined
             int[] FriendEntityID;
             string[] FriendSNID;
 
-            int nRequests = DBLayer.GetNFriendsWithoutData(CONCURRENTREQUESTLIMIT, out FriendEntityID, out FriendSNID, out errorMessage);
+            // Optimization: only get one friend wall instead of CONCURRENTREQUESTLIMIT
+            int nRequests = DBLayer.GetNFriendsWithoutWall(1, out FriendEntityID, out FriendSNID, out errorMessage);
             if (nRequests > 0)
             {
                 int i = 0;
                 foreach (int friendID in FriendEntityID)
                 {
                     string SNID = FriendSNID[i];
-
                     if (SNID != null && SNID != "")
                     {
-                        BackgroundWorker bw = new BackgroundWorker();
-                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendData);
-                        AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
-                        bw.RunWorkerAsync(temp);
+                        apiReq = FBAPI.Wall(SNID, SIZETOGETPERPAGE, ProcessWall, friendID, SNID);
+                        apiReq.QueueAndSend(999);
+                        DBLayer.UpdateWallRequest(friendID, apiReq.ID, out errorMessage);
+                        nFriendsWalls++;
                     }
                     i++;
                 }
             }
             return nRequests;
         }
+
+        #endregion
+
+        #region "Background processing of methods to get missing data"
 
         private static void bw_GetFriendData(object sender, DoWorkEventArgs e)
         {
@@ -801,6 +958,8 @@ namespace MBBetaAPI.AgentAPI
             AsyncReqQueue apiReq = FBAPI.Profile(temp.SNID, ProcessOneFriend);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateDataRequest(temp.ID, apiReq.ID, out errorMessage);
+            apiReq = FBAPI.Family(temp.SNID, SIZETOGETPERPAGE, ProcessFamily);
+            apiReq.Queue(400);
         }
 
         private static void bw_GetFriendPic(object sender, DoWorkEventArgs e)
@@ -832,34 +991,19 @@ namespace MBBetaAPI.AgentAPI
             //DBLayer.UpdatePictureRequest(temp.ID, apiReq.ID, out errorMessage);
         }
 
-        private static int GetNextFriendsWalls()
+        private static void bw_GetEvent(object sender, DoWorkEventArgs e)
         {
             string errorMessage;
-            AsyncReqQueue apiReq;
-            // Go over friends, adding requests for them if not yet defined
-            int[] FriendEntityID;
-            string[] FriendSNID;
+            BackgroundWorker worker = sender as BackgroundWorker;
+            AsyncWorkArgs temp = (AsyncWorkArgs)e.Argument;
 
-            // Optimization: only get one friend wall instead of CONCURRENTREQUESTLIMIT
-            int nRequests = DBLayer.GetNFriendsWithoutWall(1, out FriendEntityID, out FriendSNID, out errorMessage);
-            if (nRequests > 0)
-            {
-                int i = 0;
-                foreach (int friendID in FriendEntityID)
-                {
-                    string SNID = FriendSNID[i];
-                    if (SNID != null && SNID != "")
-                    {
-                        apiReq = FBAPI.Wall(SNID, SIZETOGETPERPAGE, ProcessWall, friendID, SNID);
-                        apiReq.QueueAndSend(999);
-                        DBLayer.UpdateWallRequest(friendID, apiReq.ID, out errorMessage);
-                        nFriendsWalls++;
-                    }
-                    i++;
-                }
-            }
-            return nRequests;
+            AsyncReqQueue apiReq = FBAPI.Event(temp.SNID, ProcessOneEvent);
+            apiReq.QueueAndSend(200);
+            DBLayer.UpdateEventDetailRequest(temp.ID, apiReq.ID, out errorMessage);
         }
+
+        #endregion
+
 
         private static void ExitPendingWithError(string ErrorMessage)
         {

@@ -40,10 +40,11 @@ namespace MBBetaAPI.AgentAPI
         public static volatile int CurrentBackupState = 0;
 
         #region "Controlling what to backup"
+        // Review CurrentBackupState about line 615 every time these are changed
         public static bool BackupMyWall = true;
         public static bool BackupMyNews = false;
-        public static bool BackupMyInbox = false;
-        public static bool BackupMyEvents = true;
+        public static bool BackupMyInbox = true;
+        public static bool BackupMyEvents = false;
         public static bool BackupMyNotifications = false;
         public static bool BackupFriendsInfo = false;
         public static bool BackupFriendsFamily = false;
@@ -69,7 +70,7 @@ namespace MBBetaAPI.AgentAPI
         public const int PROCESSED = 6;
         public const int TODELETE = 7;
         public const int FAILED = 8;
-        // Backup process states
+        // Backup process states: Review CurrentBackupState about line 615 every time these are changed
         public const int NEWBACKUP = 0;
         public const int BACKUPMYWALL = 1;
         public const int BACKUPMYNEWS = 2;
@@ -618,7 +619,7 @@ namespace MBBetaAPI.AgentAPI
                 // Check: initial state, TODO improve / generalize
                 if (isIncremental)
                 {
-                    CurrentBackupState = BACKUPMYEVENTS;
+                    CurrentBackupState = BACKUPMYINBOX;
                 }
                 else
                 {
@@ -685,15 +686,7 @@ namespace MBBetaAPI.AgentAPI
                 case BACKUPMYINBOX:
                     if (BackupMyInbox)
                     {
-                        if (newPeriod)
-                        {
-                            apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-                            apiReq.QueueAndSend(999);
-                            //apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
-                            //apiReq.QueueAndSend(999);                        
-
-                            newPeriod = false;
-                        }
+                        nReqs = GetNextMessageData();
                     }
                     else
                     {
@@ -885,6 +878,45 @@ namespace MBBetaAPI.AgentAPI
             return nRequests;
         }
 
+        private static int GetNextMessageData()
+        {
+            AsyncReqQueue apiReq;
+            if (newPeriod)
+            {
+                apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                apiReq.QueueAndSend(999);
+                //apiReq = FBAPI.Notes("me", SIZETOGETPERPAGE, ProcessNotes);
+                //apiReq.QueueAndSend(999);                        
+
+                newPeriod = false;
+                return 1;
+            }
+            // Find next
+            string errorMessage;
+            // Go over friends, adding requests for them if not yet defined
+            int[] MessageEntityID;
+            string[] MessageSNID;
+
+            int nRequests = DBLayer.GetNMessagesWithoutThread(CONCURRENTREQUESTLIMIT, out MessageEntityID, out MessageSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int MessageID in MessageEntityID)
+                {
+                    string SNID = MessageSNID[i];
+                    if (SNID != null)
+                    {
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetMessage);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(MessageID, SNID);
+                        bw.RunWorkerAsync(temp);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
         private static int GetNextAlbumPics()
         {
             string errorMessage;
@@ -1000,6 +1032,17 @@ namespace MBBetaAPI.AgentAPI
             AsyncReqQueue apiReq = FBAPI.Event(temp.SNID, ProcessOneEvent);
             apiReq.QueueAndSend(200);
             DBLayer.UpdateEventDetailRequest(temp.ID, apiReq.ID, out errorMessage);
+        }
+
+        private static void bw_GetMessage(object sender, DoWorkEventArgs e)
+        {
+            string errorMessage;
+            BackgroundWorker worker = sender as BackgroundWorker;
+            AsyncWorkArgs temp = (AsyncWorkArgs)e.Argument;
+
+            AsyncReqQueue apiReq = FBAPI.Thread(temp.SNID, ProcessInbox);
+            apiReq.Queue(200);
+            DBLayer.UpdateThreadRequest(temp.ID, apiReq.ID, out errorMessage);
         }
 
         #endregion
@@ -1634,14 +1677,6 @@ namespace MBBetaAPI.AgentAPI
                 nEvents += events.CurrentNumber;
                 nInSaveRequests--;
 
-                //foreach (FBEvent anEvent in events.items)
-                //{
-
-                //    AsyncReqQueue apiReq;
-                //    apiReq = FBAPI.Event(anEvent.SNID, ProcessOneEvent);
-                //    apiReq.Queue(400);
-                //}
-
                 if (errorData == "") return true;
                 // corrected bug: return an error without mark as failed
                 return false;
@@ -1825,16 +1860,6 @@ namespace MBBetaAPI.AgentAPI
                     //System.Windows.Forms.MessageBox.Show("Error saving photos " + error);
                     return false;
                 }
-
-                //foreach (FBPhoto photo in photos.items)
-                //{
-                //    AsyncReqQueue apiReq = FBAPI.DownloadPhoto(photo.Source,
-                //        AlbumDestinationDir + parentSNID + "\\" + photo.SNID + ".jpg",
-                //        ProcessPhoto, photo.ID, photo.SNID);
-                //    apiReq.Queue(200);
-                //    //apiReq = FBAPI.Likes(photo.SNID, SIZETOGETPERPAGE, ProcessLikes, photo.ID);
-                //    //apiReq.Queue(150);
-                //}
 
                 // Next is not null, but it should since we get all accepted photos on the first round... 
                 // TODO: Analyze how to use Next appropriately

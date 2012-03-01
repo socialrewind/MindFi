@@ -3092,6 +3092,55 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
+        /// Method that gets a list of messages to request their threads
+        /// </summary>
+        public static int GetNMessagesWithoutThread(int N, out int[] MessageEntityID, out string[] MessageSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                MessageEntityID = new int[N];
+                for (int i = 0; i < N; i++) MessageEntityID[i] = -1;
+                MessageSNID = new string[N];
+                for (int i = 0; i < N; i++) MessageSNID[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select MessageID, SNID from MessageData where ThreadRequestID is null limit " + N; ;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int MessageID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string messageSNID = tempSNID.ToString();
+                        MessageEntityID[nRequests] = MessageID;
+                        MessageSNID[nRequests] = messageSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+        /// <summary>
         /// Method that gets a set of photos to request
         /// </summary>
         public static int GetNPhotosToDownload(int N, out string[] PhotoSource, out string[] AlbumSNID, out int[] PhotoEntityID, out string[] PhotoSNID, out string ErrorMessage)
@@ -3385,6 +3434,14 @@ namespace MBBetaAPI.AgentAPI
         public static bool UpdateEventDetailRequest(int EventEntityID, long RequestID, out string ErrorMessage)
         {
             return UpdateSomeRequestID("EventData", "EventID", EventEntityID, RequestID, "EventRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
+        /// Method that updates the thread request ID for a message in the inbox
+        /// </summary>
+        public static bool UpdateThreadRequest(int MessageEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID("MessageData", "MessageID", MessageEntityID, RequestID, "ThreadRequestID", out ErrorMessage);
         }
 
         /// <summary>

@@ -13,6 +13,11 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MBBetaAPI;
 
+//Localization
+using WPFLocalizeExtension.Engine;
+using WPFLocalizeExtension.Extensions;
+using System.Globalization;
+
 namespace MBBeta2.Controls
 {
     /// <summary>
@@ -23,7 +28,11 @@ namespace MBBeta2.Controls
         public WallPostStructureControl()
         {
             InitializeComponent();
+
         }
+
+
+        WallPostStructure CurrentWPS;
 
 
         public static DependencyProperty ParentPostDP = DependencyProperty.Register("ParentPost", typeof(WallPost), typeof(WallPostStructureControl));
@@ -84,6 +93,65 @@ namespace MBBeta2.Controls
             {
                 MessageBox.Show("Error openning link");
             }
+        }
+
+        private void LikeBt_Click(object sender, RoutedEventArgs e)
+        {
+
+            WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
+
+            MessageBox.Show("Comment on " + wps.ParentPost.SNID);
+
+
+        }
+
+        private void CommentBt_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentWPS = WallPostStructureListIC.SelectedItem as WallPostStructure;
+            CommentsPopUp.IsOpen = true;
+            Keyboard.Focus(AddCommentTB);
+        }
+
+        private void AddCommentTB_GotFocus(object sender, RoutedEventArgs e)
+        {
+            AddCommentTB.Text = "";
+        }
+
+        private void AddCommentTB_LostFocus(object sender, RoutedEventArgs e)
+        {
+            LocTextExtension loc = new LocTextExtension("MBBeta2:WPStrings:WriteAComment");
+            loc.SetBinding(AddCommentTB, TextBox.TextProperty);
+            CommentsPopUp.IsOpen = false;
+        }
+
+        private void AddCommentTB_KeyDown(object sender, KeyEventArgs e)
+        {
+
+            WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
+
+            if (e.Key == Key.Enter)
+            {
+                
+
+                //The code to post an status goes here
+                
+
+                MessageBox.Show("Post a comment code goes here... Post#: " + CurrentWPS.ParentPost.SNID);
+
+                CommentsPopUp.IsOpen = false;
+
+                e.Handled = true;
+            }
+            if (e.Key == Key.Escape)
+            {
+                CommentsPopUp.IsOpen = false;
+                e.Handled = true;
+            }
+        }
+
+        private void CloseCommentBt_Click(object sender, RoutedEventArgs e)
+        {
+            CommentsPopUp.IsOpen = false;
         }
     }
 }

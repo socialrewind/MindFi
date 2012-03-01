@@ -24,16 +24,37 @@ namespace MBBeta2
         Person CurrentPerson;
         CommonCode CC;
         Window MainWindow;
+
+        //BackupOptions
+        bool BackupWallOption;
+        bool BackupEventsOption;
+        bool BackupPhotosOption;
+
         #endregion
 
         #region Control Methods
 
-        public DetailCard(Person PersonParam, Window MainPaam)
+        public DetailCard(Person PersonParam, Window MainParam)
         {
             InitializeComponent();
             CurrentPerson = PersonParam;
             CC = new CommonCode();
-            MainWindow = MainPaam;
+            MainWindow = MainParam;
+
+            if (CurrentPerson.ID == 1) 
+                //Don't show backup options
+            {
+                BackupOptionsSP.Visibility= System.Windows.Visibility.Hidden;
+            }
+            else
+                //Track changes to backup options
+            {
+                BackupWallOption = CurrentPerson.BackupWall;
+                BackupEventsOption = CurrentPerson.BackupEvents;
+                BackupPhotosOption = CurrentPerson.BackupPhotos;
+            }
+
+            
         }
 
         private void CloseBt_Click(object sender, RoutedEventArgs e)
@@ -87,6 +108,35 @@ namespace MBBeta2
         }
 
         #endregion
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (CurrentPerson.ID != 1)
+            {
+                MessageBox.Show("Save backup options here");
+
+                if (WallCB.IsChecked != BackupWallOption)
+                {
+                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Wall, !BackupWallOption);
+                }
+
+                if (EventsCB.IsChecked != BackupEventsOption)
+                {
+                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Events, !BackupEventsOption);
+                }
+
+                if (PhotoAlbumsCB.IsChecked != BackupPhotosOption)
+                {
+                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Photos, !BackupPhotosOption);
+                }
+
+                
+            }
+        }
+
+        
+
+        
 
     }
 }

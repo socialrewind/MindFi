@@ -7,7 +7,8 @@
 	  Title="DetailCard"
       WindowStyle="None" AllowsTransparency="True" BorderBrush="Black" BorderThickness="1"
         DataContextChanged="Window_DataContextChanged"
-      WindowStartupLocation="CenterOwner">
+      WindowStartupLocation="CenterOwner"
+        Closing="Window_Closing">
 
     <Window.Resources>
 
@@ -113,6 +114,16 @@
                         Template="{StaticResource ButtonLinkTemplate}"
                         HorizontalAlignment="Center" Margin="3"
                         Click="MessagesBt_Click"/>
+            </StackPanel>
+            <StackPanel x:Name="BackupOptionsSP"  Margin="5">
+                <TextBlock Text="{lex:LocText MBBeta2:DCStrings:BackupOptions}"
+                           FontWeight="Bold" HorizontalAlignment="Center"/>
+                <CheckBox x:Name="WallCB" Content="{lex:LocText MBBeta2:DCStrings:ViewWall}" 
+                          IsChecked="{Binding Path=Value.BackupWall}"/>
+                <CheckBox x:Name="EventsCB" Content="{lex:LocText MBBeta2:DCStrings:Events}"
+                          IsChecked="{Binding Value.BackupEvents}"/>
+                <CheckBox x:Name="PhotoAlbumsCB" Content="{lex:LocText MBBeta2:DCStrings:PhotoAlbums}"
+                          IsChecked="{Binding Value.BackupPhotos}"/>
             </StackPanel>
         </StackPanel>
 

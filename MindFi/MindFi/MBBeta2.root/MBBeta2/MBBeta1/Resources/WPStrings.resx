@@ -120,16 +120,31 @@
   <data name="AddedPhoto" xml:space="preserve">
     <value>added a photo</value>
   </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comment</value>
+  </data>
   <data name="Commented" xml:space="preserve">
     <value>commented the publication</value>
   </data>
   <data name="FBWall" xml:space="preserve">
     <value>Facebook Wall</value>
   </data>
+  <data name="Like" xml:space="preserve">
+    <value>Like</value>
+  </data>
+  <data name="Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
   <data name="SharedLink" xml:space="preserve">
     <value>shared a link</value>
   </data>
   <data name="SharedVideo" xml:space="preserve">
     <value>shared a video</value>
+  </data>
+  <data name="Using" xml:space="preserve">
+    <value>using</value>
+  </data>
+  <data name="WriteAComment" xml:space="preserve">
+    <value>Write a comment...</value>
   </data>
 </root>

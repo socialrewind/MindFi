@@ -4,11 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+             xmlns:local="clr-namespace:MBBeta2"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              x:Name="FBLikeCtrl">
 
     <UserControl.Resources>
+        
+        <local:LikePluralConverter x:Key="likePluralConverter"/>
 
         <Style x:Key="NullStackPanel" TargetType="StackPanel">
             <Style.Triggers>
@@ -21,7 +24,10 @@
 
         <Style x:Key="PluralTextBlock" TargetType="TextBlock">
             <Style.Triggers>
-                <DataTrigger Binding="{Binding ElementName=FBLikeCtrl, Path=NumberOfLikes}" Value="1">
+                <DataTrigger Binding="{Binding ElementName=FBLikeCtrl, Path=NumberOfLikes, Converter={StaticResource likePluralConverter}}" Value="true">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta2:MBStrings:PersonsLikeThis}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=FBLikeCtrl, Path=NumberOfLikes, Converter={StaticResource likePluralConverter}}" Value="false">
                     <Setter Property="Text" Value="{lex:LocText MBBeta2:MBStrings:PersonLikeThis}"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -29,17 +35,34 @@
 
         <DataTemplate x:Key="NamesListTemplate">
             <StackPanel Orientation="Vertical" Background="White">
-                <TextBlock Text="{Binding FromName}" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding FromName}" HorizontalAlignment="Left" Foreground="Black"/>
             </StackPanel>
         </DataTemplate>
 
     </UserControl.Resources>
 
     <Grid>
+        
+        <Popup  x:Name="NamesListPopUp" MaxWidth="410">
+            <Border BorderBrush="Silver" CornerRadius="2" BorderThickness="1" Margin="2" >
+                <StackPanel Orientation="Vertical">
+                    <ItemsControl ItemsSource="{Binding ElementName=FBLikeCtrl, Path=LikesList}"
+                                ItemTemplate="{StaticResource NamesListTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" ItemWidth="200" ItemHeight="30" Background="White"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </Popup>
+        
+        
         <StackPanel Orientation="Horizontal" 
                     VerticalAlignment="Center"
                     Style="{StaticResource NullStackPanel}"
-                    Background="WhiteSmoke">
+                    Background="Lavender">
             <Image Source="Images/like.png"
                    Width="30" Height="30"/>
             <Button x:Name="LikesBt" Click="LikesBt_Click" Background="White"
@@ -54,27 +77,13 @@
                     <TextBlock  Text=" " 
                                 VerticalAlignment="Center"/>
                     <TextBlock  x:Name="VerbTB"
-                                Text="{lex:LocText MBBeta2:MBStrings:PersonsLikeThis}"
                                 VerticalAlignment="Center"
                                 Style="{StaticResource PluralTextBlock}"/>
                 </StackPanel>
             </Button>
 
         </StackPanel>
-        <Popup  x:Name="NamesListPopUp" MaxWidth="370">
-            <Border BorderBrush="Silver" CornerRadius="5" BorderThickness="1" Margin="2" >
-                <StackPanel Orientation="Vertical">
-                    <ItemsControl ItemsSource="{Binding ElementName=FBLikeCtrl, Path=LikesList}"
-                                ItemTemplate="{StaticResource NamesListTemplate}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" ItemWidth="120" ItemHeight="30" Background="White"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
-        </Popup>
+        
 
     </Grid>
 </UserControl>

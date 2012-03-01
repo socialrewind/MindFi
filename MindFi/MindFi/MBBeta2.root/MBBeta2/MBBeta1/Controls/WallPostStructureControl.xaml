@@ -10,18 +10,38 @@
     
     <UserControl.Resources>
 
+        <Style  TargetType="ListBoxItem">
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="IsSelected" Value="True"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
+
+        <Style x:Key="WhiteListBoxStyle">
+            <Style.Resources>
+                <!-- Background of selected item when focussed -->
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="White" />
+            </Style.Resources>
+        </Style>
+
+
         <DataTemplate x:Key="ChildPostTemplate">
             <StackPanel Orientation="Horizontal" Background="Lavender" Margin="0,2,0,0">
                 <Image  VerticalAlignment="Top" 
                         Height="30" Width="30"  
                         Source="{Binding Path=FromPhotoPath}"/>
                 <StackPanel Orientation="Vertical" Margin="5,0,0,0">
-                    <TextBlock FontWeight="Bold" Text="{Binding Path=Story}" />
-                    <TextBlock FontWeight="Bold" Text="{Binding Path=WallName}" />
+                    <!--<TextBlock FontWeight="Bold" Text="{Binding Path=Story}" />-->
+                    <TextBlock FontWeight="Bold" Text="{Binding Path=WallName}" 
+                               Foreground="Black"/>
                     <TextBlock  Text="{Binding Path=Message}"
-                               MaxWidth="250" TextWrapping="Wrap"/>
+                               MaxWidth="350" TextWrapping="Wrap" Foreground="Black"/>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock VerticalAlignment="Center" Text="{Binding Path=Date, StringFormat={}{0:MMM/dd/yyyy hh:mm:ss tt zzz}}"/>
+                        <TextBlock VerticalAlignment="Center" Text="{Binding Path=Date, StringFormat={}{0:MMM/dd/yyyy hh:mm:ss tt zzz}}"
+                                   Foreground="Black"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -69,66 +89,135 @@
             </Style.Triggers>
         </Style>
 
+        
+        <!--Change text to black on focus-->
+        <Style x:Key="BlackTextOnFocusStyle" TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="False">
+                    <Setter Property="Foreground" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
 
         <DataTemplate x:Key="WallPostStructureTemplate">
             
             <StackPanel Orientation="Horizontal"
                         Margin="10">
-                <Image Height="40" Width="40"  
-                       VerticalAlignment="Top"
+                <Image Height="40"
+                       VerticalAlignment="Top" Margin="10"
                        Source="{Binding Path=ParentPost.FromPhotoPath}"/>
-                <StackPanel Orientation="Vertical" Margin="3,0,0,0">
+                <StackPanel Orientation="Vertical" Margin="10,5,10,5">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Path=ParentPost.WallName}" 
-                               FontWeight="Bold" Foreground="CadetBlue"/>
+                               FontWeight="Bold" Foreground="Navy"
+                                   Margin="0,0,3,0"/>
                         <TextBlock Style="{StaticResource StatusTitleStyle}"
-                                   Margin="5,0,0,0"/>
+                                   Foreground="Black"/>
                     </StackPanel>
-
-                    <TextBlock Text="{Binding Path=ParentPost.Message}"
-                               Width="400"
-                               TextWrapping="Wrap" TextAlignment="Left"/>
-
-                    <ContentControl>
-                        <StackPanel Orientation="Horizontal">
+                    
+                    <StackPanel Margin="0,5,0,0">
+                        <TextBlock Text="{Binding Path=ParentPost.Message}"
+                                   Width="400" MaxWidth="400"
+                                   TextWrapping="Wrap" TextAlignment="Justify"
+                                   Foreground="Black"/>
+                    </StackPanel>
+                    
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                             
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="{Binding ParentPost.Title}"
-                                           Style="{StaticResource NullTextBlock}" FontWeight="Bold"
-                                           TextWrapping="Wrap" MaxWidth="350"/>
-                                <TextBlock Text="{Binding ParentPost.Description}"
-                                           Style="{StaticResource NullTextBlock}"
-                                           TextWrapping="Wrap" MaxWidth="350"/>
-                                <TextBlock MaxWidth="350">
-                                    <Hyperlink x:Name="PostHyperLink" 
-                                               NavigateUri="{Binding ParentPost.Link}"
-                                               Click="PostHyperLink_Click" BaselineAlignment="Baseline">
-                                        <TextBlock Text="{Binding ParentPost.Link}"
-                                                   Style="{StaticResource NullTextBlock}"/>
-                                    </Hyperlink>
-                                </TextBlock>
-                            </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding ParentPost.Title}"
+                                        Style="{StaticResource NullTextBlock}" FontWeight="Bold"
+                                        TextWrapping="Wrap" MaxWidth="350"
+                                       Foreground="Black"/>
+                            <TextBlock Text="{Binding ParentPost.Description}"
+                                        Style="{StaticResource NullTextBlock}"
+                                        TextWrapping="Wrap" MaxWidth="350"
+                                       Foreground="Black"/>
+                            <TextBlock MaxWidth="350">
+                                <Hyperlink x:Name="PostHyperLink" 
+                                            NavigateUri="{Binding ParentPost.Link}"
+                                            Click="PostHyperLink_Click" BaselineAlignment="Baseline">
+                                    <TextBlock Text="{Binding ParentPost.Link}"
+                                                Style="{StaticResource NullTextBlock}"
+                                               Foreground="Black"/>
+                                </Hyperlink>
+                            </TextBlock>
                         </StackPanel>
-                    </ContentControl>
-                    <controls:FBLikeControl x:Name="PostLikesControl" Margin="0,5,0,0"
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button x:Name="LikeBt" Content="{lex:LocText MBBeta2:WPStrings:Like}"
+                                Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
+                                Margin="0,0,10,0"
+                                Click="LikeBt_Click"/>
+                        <TextBlock Text="-"
+                                   VerticalAlignment="Center" Margin="0,0,10,0" Foreground="Black"/>
+                        <Button x:Name="CommentBt" Content="{lex:LocText MBBeta2:WPStrings:Comment}"
+                                Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
+                                Margin="0,0,10,0"
+                                Click="CommentBt_Click"/>
+                        <TextBlock Text="-"
+                                   VerticalAlignment="Center" Margin="0,0,10,0" Foreground="Black"/>
+                        <TextBlock VerticalAlignment="Center" 
+                                   Text="{Binding Path=ParentPost.Date, StringFormat={}{0:MMM/dd/yyyy hh:mm:ss tt zzz}}"
+                                   Margin="0,0,5,0" Foreground="Black"/>
+                        <TextBlock Text="{lex:LocText MBBeta2:WPStrings:Using}"
+                                   VerticalAlignment="Center" Margin="0,0,5,0" Foreground="Black"/>
+                        <TextBlock Text="{Binding Path=ParentPost.ApplicationName}"
+                                   VerticalAlignment="Center" Foreground="Black"/>
+                    </StackPanel>
+                    
+                    <controls:FBLikeControl x:Name="PostLikesControl" Margin="0,10,0,0"
                                             NumberOfLikes="{Binding Path=ParentPost.NumberOfLikes}"
                                             LikesList="{Binding Path=ParentPost.LikesList}"/>
-                    <TextBlock VerticalAlignment="Center" Text="{Binding Path=ParentPost.Date, StringFormat={}{0:MMM/dd/yyyy hh:mm:ss tt zzz}}"/>
+                    
                     <ItemsControl Margin ="40,5,0,0" ItemsSource="{Binding Path=ChildPosts}"
                                   ItemTemplate="{StaticResource ChildPostTemplate}"/>
+                    
+                    <StackPanel Background="Lavender">
+                        
+                    </StackPanel>
+
                 </StackPanel>
                 
             </StackPanel>
 
         </DataTemplate>
         
+        
+        
     </UserControl.Resources>
     
     <Grid>
-        <ItemsControl x:Name="WallPostStructureListIC"
-                      ItemTemplate="{StaticResource WallPostStructureTemplate}">
+        
+        <Popup x:Name="CommentsPopUp" StaysOpen="True" Placement="Mouse"
+               Width="300" Height="100" >
+            <Grid Background="White">
+                <StackPanel Orientation="Vertical" Background="White" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+                        <TextBlock Text="{lex:LocText MBBeta2:WPStrings:WriteAComment}"/>
+                        <Button x:Name="CloseCommentBt" Content="X" Click="CloseCommentBt_Click"
+                                HorizontalAlignment="Right"/>
+                    </StackPanel>
+                    <TextBox x:Name="AddCommentTB" Text="{lex:LocText MBBeta2:WPStrings:WriteAComment}"
+                             Style="{StaticResource BlackTextOnFocusStyle}"
+                             HorizontalAlignment="Stretch" Margin="0,10,0,10"
+                             GotFocus="AddCommentTB_GotFocus"
+                             LostFocus="AddCommentTB_LostFocus"
+                             KeyDown="AddCommentTB_KeyDown"/>
+                </StackPanel>
+            </Grid>
+        </Popup>
+        
+        <ListBox x:Name="WallPostStructureListIC"
+                ItemTemplate="{StaticResource WallPostStructureTemplate}" BorderThickness="0"
+                 Style="{StaticResource WhiteListBoxStyle}">
             
-        </ItemsControl>
+        </ListBox>
     </Grid>
 </UserControl>

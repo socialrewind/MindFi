@@ -61,6 +61,11 @@ namespace MBBetaAPI
         public string SignificantOtherName { get; private set; }
         public PersonLight SignificantOther { get; private set; }
 
+        //Backup Options
+        public bool BackupWall { get; set; }
+        public bool BackupEvents { get; set; }
+        public bool BackupPhotos { get; set; }
+        public enum BackupOptions { Wall, Events, Photos };
         #endregion
 
         //**************** Methods
@@ -84,6 +89,27 @@ namespace MBBetaAPI
             SignificantOther = GetSignificantOtherFromDB();
         }
 
+        public void SetBackupOptions(int Option, bool val)
+        {
+            //TODO BackupOptions Persist Code here
+
+            switch (Option)
+            {
+                case (int)Person.BackupOptions.Wall:
+                    //SaveBackupOptions()...
+                    break;
+                case (int)Person.BackupOptions.Events:
+                    //Backup  here
+                    break;
+                case (int)Person.BackupOptions.Photos:
+                    //Backup code here
+                    break;
+
+            }
+
+        }
+
+        // TODO: Return appropriately the options
         #endregion
     }
 }

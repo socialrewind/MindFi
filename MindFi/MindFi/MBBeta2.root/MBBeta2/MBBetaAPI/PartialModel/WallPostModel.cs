@@ -63,7 +63,7 @@ namespace MBBetaAPI
             {
                 //Read Post
                 // TODO: Clean unused fields
-                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, SNID, FromID, FromName, ToID, ToName, Message, Picture, Link, Caption, Description, PostData.Created, PostData.Updated, CommentCount, LikesCount, PostData.ParentID, PostType, PostRequestID, State, RequestType, ResponseValue, Story from PostData left outer join RequestsQueue on PostRequestID= RequestsQueue.ID where PostID = @ID", conn);
+                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, SNID, FromID, FromName, ToID, ToName, Message, Picture, Link, Caption, Description, PostData.Created, PostData.Updated, CommentCount, LikesCount, PostData.ParentID, PostType, PostRequestID, State, RequestType, ResponseValue, Story, ApplicationName from PostData left outer join RequestsQueue on PostRequestID= RequestsQueue.ID where PostID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -193,6 +193,12 @@ namespace MBBetaAPI
                         else
                         {
                             Story = reader.GetString(21);
+                        }
+                        if (reader.IsDBNull(22))
+                            ApplicationName = "Facebook";
+                        else
+                        {
+                            ApplicationName = reader.GetString(22);
                         }
                         WallName = FromName;
                         if (ToName != "" && ToName != FromName )

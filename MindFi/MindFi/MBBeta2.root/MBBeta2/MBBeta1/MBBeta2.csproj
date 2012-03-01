@@ -114,6 +114,7 @@
     <Compile Include="Controls\WallPostStructureControl.xaml.cs">
       <DependentUpon>WallPostStructureControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\LikePluralConverter.cs" />
     <Compile Include="Converters\MonthConverter.cs" />
     <Compile Include="FBEvents.xaml.cs">
       <DependentUpon>FBEvents.xaml</DependentUpon>
@@ -266,8 +267,8 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SNAccountSetup.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SNMessages.xaml">
       <SubType>Designer</SubType>
@@ -326,6 +327,7 @@
     <EmbeddedResource Include="Resources\DCStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DCStrings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\LoginStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -348,6 +350,7 @@
     <EmbeddedResource Include="Resources\WPStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>WPStrings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
     <Content Include="Template.db">

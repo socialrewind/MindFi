@@ -242,6 +242,9 @@ namespace MBBetaAPI
                         {
                             SignificantOtherName = reader2.GetString(19);
                         }
+
+                    //TODO: BackupOptions Read fields here.
+
                 }
 
                 reader2.Close();

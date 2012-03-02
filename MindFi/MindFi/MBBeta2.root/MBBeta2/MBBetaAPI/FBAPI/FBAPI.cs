@@ -435,6 +435,7 @@ namespace MBBetaAPI.AgentAPI
             // TODO: Use the who
             bool result;
 
+            // TODO: Verify logged in
             result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + Who + "/feed", 1, resultCall, Status, 0, null, "", true, false);
 
             return null;
@@ -452,6 +453,8 @@ namespace MBBetaAPI.AgentAPI
             // TODO: Use the who
             bool result;
 
+            // TODO: Verify logged in
+
             result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + SNID + "/comments", 1, resultCall, Comment, 0, null, "", true, false);
 
             return null;
@@ -468,6 +471,7 @@ namespace MBBetaAPI.AgentAPI
             // TODO: Use the who
             bool result;
 
+            // TODO: Verify logged in
             result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + SNID + "/likes", 1, resultCall, "", 0, null, "", true, false);
 
             return null;

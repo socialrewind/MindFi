@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MBBetaAPI;
+using MBBetaAPI.AgentAPI;
 
 //Localization
 using WPFLocalizeExtension.Engine;
@@ -91,7 +92,8 @@ namespace MBBeta2.Controls
             }
             catch
             {
-                MessageBox.Show("Error openning link");
+                // TODO: Localize
+                MessageBox.Show("Error opening link");
             }
         }
 
@@ -100,9 +102,9 @@ namespace MBBeta2.Controls
 
             WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
 
-            MessageBox.Show("Comment on " + wps.ParentPost.SNID);
-
-
+            // TODO: save to the queue
+            //MessageBox.Show("Like on " + wps.ParentPost.SNID);
+            FBAPI.UpdateLike(wps.ParentPost.SNID, ProcessUpdateLike);
         }
 
         private void CommentBt_Click(object sender, RoutedEventArgs e)
@@ -131,12 +133,10 @@ namespace MBBeta2.Controls
 
             if (e.Key == Key.Enter)
             {
-                
 
-                //The code to post an status goes here
-                
-
-                MessageBox.Show("Post a comment code goes here... Post#: " + CurrentWPS.ParentPost.SNID);
+                // TODO: save to the queue
+                //MessageBox.Show("Post a comment code goes here... Post#: " + CurrentWPS.ParentPost.SNID);
+                FBAPI.AddComment(CurrentWPS.ParentPost.SNID, AddCommentTB.Text, ProcessUpdateLike);
 
                 CommentsPopUp.IsOpen = false;
 
@@ -153,5 +153,40 @@ namespace MBBeta2.Controls
         {
             CommentsPopUp.IsOpen = false;
         }
+
+        /// <summary>
+        /// process update status response
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public bool ProcessUpdateLike(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                //FBPost statusObj = new FBPost(response);
+                //statusObj.Parse();
+                //statusObj.Message = this.PostNewStatusTB.Text;
+                //statusObj.PostType = "status";
+                //statusObj.ApplicationName = "Social Rewind";
+                //string errorData;
+                //statusObj.Save(out errorData);
+                //if (errorData != "")
+                //{
+                //    ErrorMessage = errorData;
+                //}
+                /*
+                FBAPI.UpdateLike(statusObj.SNID, ProcessNull);
+                FBAPI.AddComment(statusObj.SNID, "test of a comment", ProcessNull);
+                 */
+
+                return true;
+            }
+            return false;
+        }
+
     }
 }

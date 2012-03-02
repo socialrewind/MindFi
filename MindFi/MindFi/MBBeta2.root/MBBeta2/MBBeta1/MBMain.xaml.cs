@@ -89,6 +89,7 @@ namespace MBBeta2
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
             if (error != "")
             {
+                // TODO: Localize
                 MessageBox.Show("Error getting accounts from the database:\n" + error);
             }
 
@@ -958,6 +959,7 @@ namespace MBBeta2
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
             if (error != "")
             {
+                // TODO: Localize
                 MessageBox.Show("Error getting accounts from the database:\n" + error);
             }
             // TODO: Review how it can be empty and not null
@@ -1266,6 +1268,7 @@ namespace MBBeta2
                 {
                     if ( dlg2.SelectedPath == BasePath || BasePath.Contains(dlg2.SelectedPath) )
                     {
+                        // TODO: Localize
                         MessageBox.Show("Cannot unzip to the currently used database folder (or a parent folder). Please use a different folder.");
                         return;
                     }

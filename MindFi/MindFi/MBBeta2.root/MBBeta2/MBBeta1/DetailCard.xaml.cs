@@ -113,6 +113,7 @@ namespace MBBeta2
         {
             if (CurrentPerson.ID != 1)
             {
+                // TODO: save to database
                 MessageBox.Show("Save backup options here");
 
                 if (WallCB.IsChecked != BackupWallOption)

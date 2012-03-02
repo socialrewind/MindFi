@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MBBetaAPI;
 
+// TODO: Eliminate test form
 namespace MBBeta2.Tests
 {
     /// <summary>
@@ -48,11 +49,13 @@ namespace MBBeta2.Tests
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error getting person: " + ex.ToString() );
+                    // TODO: Localize
+                    MessageBox.Show("Error getting person: " + ex.ToString());
                 }
             }
             else
             {
+                // TODO: Localize
                 MessageBox.Show("Please write a numeric ID");
                 MyID.Text = "";
             }

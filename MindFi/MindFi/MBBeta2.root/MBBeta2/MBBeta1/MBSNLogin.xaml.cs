@@ -45,6 +45,7 @@ namespace MBBeta2
             else if (FBLogin.CheckErrorPage(this.LoginBrowser.Document.Url.ToString()))
             {
                 // TODO: Error message
+                // TODO: Localize
                 MessageBox.Show("Login failed, please try again");
             }
         }

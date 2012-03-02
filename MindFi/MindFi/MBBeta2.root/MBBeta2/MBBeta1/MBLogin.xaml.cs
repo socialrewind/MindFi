@@ -159,6 +159,7 @@ namespace MBBeta2
                         case MessageBoxResult.No:
                             break;
                         default:
+                            // TODO: gt a local error, find how this can be possible or clean
                             MessageBox.Show("default");
                             break;
 

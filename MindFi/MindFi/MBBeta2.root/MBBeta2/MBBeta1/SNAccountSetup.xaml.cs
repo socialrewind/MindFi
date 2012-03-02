@@ -66,6 +66,7 @@ namespace MBBeta2
             ArrayList currentAccounts = DBLayer.GetAccounts(out error);
             if (error != "")
             {
+                // TODO: Localize
                 MessageBox.Show("Error getting accounts:\n" + error);
             }
             // TODO: Review how it can be empty and not null

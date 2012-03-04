@@ -40,7 +40,8 @@ namespace MBBetaAPI.AgentAPI
         public static volatile int CurrentBackupState = 0;
 
         #region "Controlling what to backup"
-        // Review CurrentBackupState about line 615 every time these are changed
+        // TODO: REVIEW before closing beta, useful now for testing
+        // Review CurrentBackupState about line 615 every time these are changed, also before CurrentBackupState is incremented about line 1100+
         public static bool BackupMyWall = true;
         public static bool BackupMyNews = false;
         public static bool BackupMyInbox = true;
@@ -50,8 +51,10 @@ namespace MBBetaAPI.AgentAPI
         public static bool BackupFriendsFamily = false;
         public static bool BackupFriendsPic = true;
         public static bool BackupMyAlbums = false;
-        public static bool BackupFriendsWall = false;
         public static bool BackupMyPhotos = false;
+        public static bool BackupFriendsWall = true; // default, control instead by each person
+        public static bool BackupFriendsEvents = true; // default, control instead by each person
+        public static bool BackupFriendsAlbums = false; // default, control instead by each person
 
         #endregion
 
@@ -80,8 +83,10 @@ namespace MBBetaAPI.AgentAPI
         public const int BACKUPFRIENDSINFO = 6;
         public const int BACKUPFRIENDSPROFPIC = 7;
         public const int BACKUPMYALBUMS = 8;
-        public const int BACKUPFRIENDSWALLS = 9;
-        public const int BACKUPMYPHOTOS = 10;
+        public const int BACKUPMYPHOTOS = 9;
+        public const int BACKUPFRIENDSWALLS = 10;
+        public const int BACKUPFRIENDSEVENTS = 11;
+        public const int BACKUPFRIENDSALBUMS = 12;
         #endregion
 
         #region "Statistics"
@@ -757,6 +762,16 @@ namespace MBBetaAPI.AgentAPI
                     }
 
                     break;
+                case BACKUPMYPHOTOS:
+                    if (BackupMyPhotos)
+                    {
+                        nReqs = GetNextAlbumPics();
+                    }
+                    else
+                    {
+                        nReqs = 0;
+                    }
+                    break;
                 case BACKUPFRIENDSWALLS:
                     if (BackupFriendsWall)
                     {
@@ -770,16 +785,8 @@ namespace MBBetaAPI.AgentAPI
                         nReqs = 0;
                     }
                     break;
-                case BACKUPMYPHOTOS:
-                    if (BackupMyPhotos)
-                    {
-                        nReqs = GetNextAlbumPics();
-                    }
-                    else
-                    {
-                        nReqs = 0;
-                    }
-                    break;
+                case BACKUPFRIENDSEVENTS:
+                case BACKUPFRIENDSALBUMS:
                 default:
                     nReqs = 0;
                     break;
@@ -1125,9 +1132,10 @@ namespace MBBetaAPI.AgentAPI
                         // if no pending data, then check backup time progress and infligh requests
                         if (nReqs == 0)
                         {
-                            if (CurrentBackupState < BACKUPFRIENDSPROFPIC || 
-                                (CurrentBackupState < BACKUPMYPHOTOS && SNAccount.CurrentProfile.currentBackupLevel >= SNAccount.EXTENDED) )
-                            {
+                            // TODO: Confirm elimination of "Extended"
+                            // if (CurrentBackupState < BACKUPFRIENDSPROFPIC || (CurrentBackupState < BACKUPFRIENDSALBUMS && SNAccount.CurrentProfile.currentBackupLevel >= SNAccount.EXTENDED) )
+                            if (CurrentBackupState < BACKUPFRIENDSALBUMS )
+                                {
                                 CurrentBackupState++;
                                 DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
                                 nReqs = 1;

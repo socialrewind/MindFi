@@ -1112,13 +1112,24 @@ namespace MBBeta2
                             SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                             SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                         break;
+                    case AsyncReqQueue.BACKUPMYPHOTOS:
+                        this.UpdateText.Text = "Getting my photos (" + AsyncReqQueue.nPhotos + " ) from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
                     case AsyncReqQueue.BACKUPFRIENDSWALLS:
                         this.UpdateText.Text = "Getting friends walls (" + AsyncReqQueue.nFriendsWalls + "/" + AsyncReqQueue.nPosts + " posts) from " +
                             SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                             SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                         break;
-                    case AsyncReqQueue.BACKUPMYPHOTOS:
-                        this.UpdateText.Text = "Getting my photos (" + AsyncReqQueue.nPhotos + " ) from " +
+                        // TODO: Statistics for these states
+                    case AsyncReqQueue.BACKUPFRIENDSEVENTS:
+                        this.UpdateText.Text = "Getting friends events from " +
+                            SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
+                            SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                        break;
+                    case AsyncReqQueue.BACKUPFRIENDSALBUMS:
+                        this.UpdateText.Text = "Getting friends photos from " +
                             SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                             SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                         break;

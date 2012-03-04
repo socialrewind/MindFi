@@ -3217,7 +3217,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "select PersonID, SNID from PersonData where WallRequestID is null and Distance<2 limit " + N; ;
+                    string SQL = "select PersonID, SNID from PersonData where WallRequestID is null and BackupWall and Distance<2 limit " + N; ;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     nRequests = 0;

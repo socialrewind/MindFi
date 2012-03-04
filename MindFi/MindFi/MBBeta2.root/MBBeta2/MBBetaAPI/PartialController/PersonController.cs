@@ -91,20 +91,17 @@ namespace MBBetaAPI
 
         public void SetBackupOptions(int Option, bool val)
         {
-            //TODO BackupOptions Persist Code here
-
             switch (Option)
             {
                 case (int)Person.BackupOptions.Wall:
-                    //SaveBackupOptions()...
+                    BackupWall = val;
                     break;
                 case (int)Person.BackupOptions.Events:
-                    //Backup  here
+                    BackupEvents = val;
                     break;
                 case (int)Person.BackupOptions.Photos:
-                    //Backup code here
+                    BackupPhotos = val;
                     break;
-
             }
 
         }

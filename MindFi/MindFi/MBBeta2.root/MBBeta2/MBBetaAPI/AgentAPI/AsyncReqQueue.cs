@@ -529,11 +529,13 @@ namespace MBBetaAPI.AgentAPI
             apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
-            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-            apiReq.QueueAndSend(999);
             apiReq = FBAPI.Family(SNID, SIZETOGETPERPAGE, ProcessFamily);
             apiReq.Queue(400);
+            DBLayer.UpdateFamilyRequest(ID, apiReq.ID, out errorMessage);
+            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+            apiReq.QueueAndSend(999);
         }
+
 
         public static string PendingBasics()
         {
@@ -990,8 +992,10 @@ namespace MBBetaAPI.AgentAPI
             AsyncReqQueue apiReq = FBAPI.Profile(temp.SNID, ProcessOneFriend);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateDataRequest(temp.ID, apiReq.ID, out errorMessage);
+            // TODO: Separate process for missing family vs. missing data?
             apiReq = FBAPI.Family(temp.SNID, SIZETOGETPERPAGE, ProcessFamily);
             apiReq.Queue(400);
+            DBLayer.UpdateFamilyRequest(temp.ID, apiReq.ID, out errorMessage);
         }
 
         private static void bw_GetFriendPic(object sender, DoWorkEventArgs e)

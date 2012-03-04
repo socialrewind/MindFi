@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MBBetaAPI;
+using MBBetaAPI.AgentAPI;
 
 namespace MBBeta2
 {
@@ -64,7 +65,7 @@ namespace MBBeta2
 
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            // Refresh
+            // TODO: Localize
             this.ErrorMessage2.Text = "Information was updated " + DateTime.Now.ToShortTimeString();            
         }
 
@@ -113,25 +114,31 @@ namespace MBBeta2
         {
             if (CurrentPerson.ID != 1)
             {
-                // TODO: save to database
-                MessageBox.Show("Save backup options here");
-
                 if (WallCB.IsChecked != BackupWallOption)
                 {
-                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Wall, !BackupWallOption);
+                    BackupWallOption = WallCB.IsChecked.Value;
+                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Wall, BackupWallOption);
                 }
 
                 if (EventsCB.IsChecked != BackupEventsOption)
                 {
-                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Events, !BackupEventsOption);
+                    BackupEventsOption = EventsCB.IsChecked.Value;
+                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Events, BackupEventsOption);
                 }
 
                 if (PhotoAlbumsCB.IsChecked != BackupPhotosOption)
                 {
-                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Photos, !BackupPhotosOption);
+                    BackupPhotosOption = PhotoAlbumsCB.IsChecked.Value;
+                    CurrentPerson.SetBackupOptions((int)Person.BackupOptions.Photos, BackupPhotosOption);
                 }
 
-                
+                string error = "";
+                DBLayer.UpdateBackupOptions(CurrentPerson.ID, BackupWallOption, BackupEventsOption, BackupPhotosOption, out error);
+                if (error != "")
+                {
+                    // TODO: Localize
+                    this.ErrorMessage2.Text = "Error updating backup options: " + error;
+                }
             }
         }
 

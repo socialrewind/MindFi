@@ -78,7 +78,7 @@ namespace MBBetaAPI
                 reader.Close();
 
                 //Read Person
-                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance, DataRequestID, State, RequestType, ResponseValue, SignificantOther from PersonData left outer join RequestsQueue on DataRequestID= RequestsQueue.ID where PersonID = @ID", conn);
+                command = new SQLiteCommand("select SocialNetwork, SNID, ProfilePic, Link, FirstName, MiddleName, LastName, BirthDay, BirthMonth, BirthYear, About, Bio, Quotes, RelationshipStatus, Distance, DataRequestID, State, RequestType, ResponseValue, SignificantOther, BackupWall, BackupEvents, BackupAlbums from PersonData left outer join RequestsQueue on DataRequestID= RequestsQueue.ID where PersonID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader2 = command.ExecuteReader();
@@ -243,8 +243,30 @@ namespace MBBetaAPI
                             SignificantOtherName = reader2.GetString(19);
                         }
 
-                    //TODO: BackupOptions Read fields here.
-
+                        if (reader2.IsDBNull(20))
+                        {
+                            BackupWall = false;
+                        }
+                        else
+                        {
+                            BackupWall = reader2.GetBoolean(20);
+                        }
+                        if (reader2.IsDBNull(21))
+                        {
+                            BackupEvents = false;
+                        }
+                        else
+                        {
+                            BackupEvents = reader2.GetBoolean(21);
+                        }
+                        if (reader2.IsDBNull(22))
+                        {
+                            BackupPhotos = false;
+                        }
+                        else
+                        {
+                            BackupPhotos = reader2.GetBoolean(22);
+                        }
                 }
 
                 reader2.Close();

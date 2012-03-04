@@ -3421,6 +3421,14 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
+        /// Method that updates family data request ID for a person
+        /// </summary>
+        public static bool UpdateFamilyRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "FamilyRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
         /// Method that updates post Requests
         /// </summary>
         public static bool UpdatePostRequest(int PostEntityID, long RequestID, out string ErrorMessage)
@@ -3443,6 +3451,47 @@ namespace MBBetaAPI.AgentAPI
         {
             return UpdateSomeRequestID("MessageData", "MessageID", MessageEntityID, RequestID, "ThreadRequestID", out ErrorMessage);
         }
+
+        public static bool UpdateBackupOptions(int PersonID, bool BackupWallOption, bool BackupEventsOption, bool BackupPhotosOption, out string ErrorMessage)
+        {
+            lock (obj)
+            {
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "update PersonData set BackupWall=?, BackupEvents=?, BackupAlbums=? where PersonID=?";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pWall = new SQLiteParameter();
+                    pWall.Value = BackupWallOption;
+                    UpdateCmd.Parameters.Add(pWall);
+                    SQLiteParameter pEvents = new SQLiteParameter();
+                    pEvents.Value = BackupEventsOption;
+                    UpdateCmd.Parameters.Add(pEvents);
+                    SQLiteParameter pPhotos = new SQLiteParameter();
+                    pPhotos.Value = BackupPhotosOption;
+                    UpdateCmd.Parameters.Add(pPhotos);
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = PersonID;
+                    UpdateCmd.Parameters.Add(pID);
+                    UpdateCmd.ExecuteNonQuery();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error updating backup options in the database\n" + ex.ToString();
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return true;
+        }
+
 
         /// <summary>
         /// Record the start of a backup

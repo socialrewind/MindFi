@@ -45,7 +45,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool BackupMyWall = true;
         public static bool BackupMyNews = false;
         public static bool BackupMyInbox = true;
-        public static bool BackupMyEvents = false;
+        public static bool BackupMyEvents = true;
         public static bool BackupMyNotifications = false;
         public static bool BackupFriendsInfo = false;
         public static bool BackupFriendsFamily = false;
@@ -533,7 +533,8 @@ namespace MBBetaAPI.AgentAPI
             apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateInboxRequest(ID, apiReq.ID, out errorMessage);
-            apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+            // TODO: make sure "me" is always 1 and CurrentProfile is applicable
+            apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents, 1, SNAccount.CurrentProfile.SNID);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
             apiReq = FBAPI.Family(SNID, SIZETOGETPERPAGE, ProcessFamily);
@@ -794,6 +795,10 @@ namespace MBBetaAPI.AgentAPI
                         {
                             nReqs = GetNextFriendsEvents();
                         }
+                        if (nReqs == 0)
+                        {
+                            nReqs = GetNextEventsDetail();
+                        }
                     }
                     else
                     {
@@ -882,11 +887,17 @@ namespace MBBetaAPI.AgentAPI
             AsyncReqQueue apiReq;
             if (newPeriod)
             {
-                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents);
+                // TODO: make sure "me" is always 1 and CurrentProfile is applicable
+                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents, 1, SNAccount.CurrentProfile.SNID );
                 apiReq.QueueAndSend(500);
                 newPeriod = false;
                 return 1;
             }
+            GetNextEventsDetail();
+        }
+
+        private static int GetNextEventsDetail()
+        {
             // Find next
             string errorMessage;
             // Go over friends, adding requests for them if not yet defined
@@ -1036,7 +1047,7 @@ namespace MBBetaAPI.AgentAPI
                         // TODO: Improve logic to manage time
                         // TODO: Make async
                         FBAPI.SetTimeRange(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd);
-                        apiReq = FBAPI.Events(SNID, SIZETOGETPERPAGE, ProcessEvents);
+                        apiReq = FBAPI.Events(SNID, SIZETOGETPERPAGE, ProcessEvents, friendID, SNID);
                         apiReq.QueueAndSend(999);
                         DBLayer.UpdateEventRequest(friendID, apiReq.ID, out errorMessage);
                         nFriendsEvents++;
@@ -2123,6 +2134,7 @@ namespace MBBetaAPI.AgentAPI
                 anEvent.Save(out errorData);
                 nInSaveRequests--;
 
+                // TODO: Accept other parents / owners, not only the primary account...
                 if (anEvent.OwnerID == SNAccount.CurrentProfile.SNID)
                 {
                     AsyncReqQueue apiReq;

@@ -548,7 +548,8 @@ namespace MBBetaAPI.AgentAPI
                     {
                         GetConn();
 
-                        SQLiteCommand command = new SQLiteCommand("select A.EventID from EventData A, ActionData B WHERE B.WhoSNID=@IDAttending AND B.ActionID in(14,15,16) AND B.WhatSNID=A.SNID AND A.StartTime>=@start and A.StartTime<@end", conn);
+                        // Updated to show events associated to the user, separate of attending status
+                        SQLiteCommand command = new SQLiteCommand("select distinct A.EventID from EventData A, ActionData B WHERE (A.ParentID=@IDAttending or (B.WhoSNID=@IDAttending AND B.ActionID in(14,15,16) AND B.WhatSNID=A.SNID)) AND A.StartTime>=@start and A.StartTime<@end", conn);
                         command.Parameters.Add(new SQLiteParameter("IDAttending", SelectedPeople[i].SNID));
                         command.Parameters.Add(new SQLiteParameter("start", start));
                         command.Parameters.Add(new SQLiteParameter("end", end));

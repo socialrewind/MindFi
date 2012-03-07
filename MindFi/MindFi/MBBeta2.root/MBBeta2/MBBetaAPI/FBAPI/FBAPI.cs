@@ -209,11 +209,11 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="Limit">How many JSON records should be returned, max</param>
         /// <param name="resultCall">Function that is called once the wall records are parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Success/Failure</returns>
-        public static AsyncReqQueue Events(string Who, int Limit, CallBack resultCall)
+        public static AsyncReqQueue Events(string Who, int Limit, CallBack resultCall, long parentID, string parentSNID = "")
         {
             AsyncReqQueue me = new AsyncReqQueue("FBEvents",
                 FBGraphAPIURL + Who + "/events",
-                Limit, resultCall, true, true);
+                Limit, resultCall, true, true, parentID, parentSNID);
             return me;
         }
 

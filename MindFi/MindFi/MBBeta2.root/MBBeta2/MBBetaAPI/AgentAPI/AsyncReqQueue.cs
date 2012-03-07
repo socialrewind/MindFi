@@ -893,7 +893,8 @@ namespace MBBetaAPI.AgentAPI
                 newPeriod = false;
                 return 1;
             }
-            GetNextEventsDetail();
+            int nRequests = GetNextEventsDetail();
+            return nRequests;
         }
 
         private static int GetNextEventsDetail()

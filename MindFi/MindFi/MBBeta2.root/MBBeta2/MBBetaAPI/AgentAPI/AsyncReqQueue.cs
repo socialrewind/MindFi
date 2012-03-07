@@ -94,6 +94,8 @@ namespace MBBetaAPI.AgentAPI
         public static volatile int nFriendsProcessed = 0;
         public static volatile int nFriendsPictures = 0;
         public static volatile int nFriendsWalls = 0;
+        public static volatile int nFriendsEvents = 0;
+        public static volatile int nFriendsAlbums = 0;
         public static volatile int nPosts = 0;
         public static volatile int nEvents = 0;
         public static volatile int nMessages = 0;
@@ -786,7 +788,31 @@ namespace MBBetaAPI.AgentAPI
                     }
                     break;
                 case BACKUPFRIENDSEVENTS:
+                    if (BackupFriendsEvents)
+                    {
+                        if (newPeriod)
+                        {
+                            nReqs = GetNextFriendsEvents();
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
+                    }
+                    break;
                 case BACKUPFRIENDSALBUMS:
+                    if (BackupFriendsAlbums)
+                    {
+                        if (newPeriod)
+                        {
+                            nReqs = GetNextFriendsAlbums();
+                        }
+                    }
+                    else
+                    {
+                        nReqs = 0;
+                    }
+                    break;
                 default:
                     nReqs = 0;
                     break;
@@ -975,10 +1001,78 @@ namespace MBBetaAPI.AgentAPI
                     string SNID = FriendSNID[i];
                     if (SNID != null && SNID != "")
                     {
+                        // TODO: Improve logic to manage time
+                        // TODO: Make async
+                        FBAPI.SetTimeRange(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd);
                         apiReq = FBAPI.Wall(SNID, SIZETOGETPERPAGE, ProcessWall, friendID, SNID);
                         apiReq.QueueAndSend(999);
                         DBLayer.UpdateWallRequest(friendID, apiReq.ID, out errorMessage);
                         nFriendsWalls++;
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
+        private static int GetNextFriendsEvents()
+        {
+            string errorMessage;
+            AsyncReqQueue apiReq;
+            // Go over friends, adding requests for them if not yet defined
+            int[] FriendEntityID;
+            string[] FriendSNID;
+
+            // Optimization: only get one friend wall instead of CONCURRENTREQUESTLIMIT
+            int nRequests = DBLayer.GetNFriendsWithoutEvents(1, out FriendEntityID, out FriendSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int friendID in FriendEntityID)
+                {
+                    string SNID = FriendSNID[i];
+                    if (SNID != null && SNID != "")
+                    {
+                        // TODO: Improve logic to manage time
+                        // TODO: Make async
+                        FBAPI.SetTimeRange(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd);
+                        apiReq = FBAPI.Events(SNID, SIZETOGETPERPAGE, ProcessEvents);
+                        apiReq.QueueAndSend(999);
+                        DBLayer.UpdateEventRequest(friendID, apiReq.ID, out errorMessage);
+                        nFriendsEvents++;
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
+        }
+
+        private static int GetNextFriendsAlbums()
+        {
+            string errorMessage;
+            AsyncReqQueue apiReq;
+            // Go over friends, adding requests for them if not yet defined
+            int[] FriendEntityID;
+            string[] FriendSNID;
+
+            // Optimization: only get one by one friend album list instead of CONCURRENTREQUESTLIMIT
+            int nRequests = DBLayer.GetNFriendsWithoutEvents(1, out FriendEntityID, out FriendSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int friendID in FriendEntityID)
+                {
+                    string SNID = FriendSNID[i];
+                    if (SNID != null && SNID != "")
+                    {
+                        // TODO: Improve logic to manage time
+                        // TODO: Make async
+                        FBAPI.SetTimeRange(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd);
+                        apiReq = FBAPI.PhotoAlbums(SNID, SIZETOGETPERPAGE, ProcessAlbums);
+                        apiReq.QueueAndSend(999);
+                        // TODO: Album requests
+                        // DBLayer.UpdateAlbumRequest(friendID, apiReq.ID, out errorMessage);
+                        nFriendsAlbums++;
                     }
                     i++;
                 }
@@ -1450,12 +1544,12 @@ namespace MBBetaAPI.AgentAPI
             //        }
             //    }
 
-
-                //if (wall.Next != null)
-                //{
-                //    AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
-                //    apiReq.Queue(minPriorityGlobal);
-                //}
+                // TODO: Review to make sure it does not go further than the appropriate timeframe
+                if (wall.Next != null)
+                {
+                    AsyncReqQueue apiReq = FBAPI.MoreData("FBWall", wall.Next, SIZETOGETPERPAGE, ProcessWall);
+                    apiReq.Queue(minPriorityGlobal);
+                }
             }
             return GenericProcess(hwnd, result, response, wall, true);
         }

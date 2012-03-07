@@ -3198,9 +3198,8 @@ namespace MBBetaAPI.AgentAPI
             return nRequests;
         }
 
-
         /// <summary>
-        /// Method that gets number of requests per state
+        /// Method that gets friends that need wall requests
         /// </summary>
         public static int GetNFriendsWithoutWall(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
         {
@@ -3218,6 +3217,55 @@ namespace MBBetaAPI.AgentAPI
                     DatabaseInUse = true;
                     GetConn();
                     string SQL = "select PersonID, SNID from PersonData where WallRequestID is null and BackupWall and Distance<2 limit " + N; ;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int PersonID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string PersonSNID = tempSNID.ToString();
+                        FriendEntityID[nRequests] = PersonID;
+                        FriendSNID[nRequests] = PersonSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+        /// <summary>
+        /// Method that gets friends that need event requests
+        /// </summary>
+        public static int GetNFriendsWithoutEvents(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                FriendEntityID = new int[N];
+                for (int i = 0; i < N; i++) FriendEntityID[i] = -1;
+                FriendSNID = new string[N];
+                for (int i = 0; i < N; i++) FriendSNID[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select PersonID, SNID from PersonData where EventRequestID is null and BackupEvents limit " + N;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     nRequests = 0;

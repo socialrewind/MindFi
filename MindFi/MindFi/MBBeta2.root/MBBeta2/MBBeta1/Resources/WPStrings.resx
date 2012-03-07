@@ -120,6 +120,9 @@
   <data name="AddedPhoto" xml:space="preserve">
     <value>added a photo</value>
   </data>
+  <data name="Checkin" xml:space="preserve">
+    <value>checked in @</value>
+  </data>
   <data name="Comment" xml:space="preserve">
     <value>Comment</value>
   </data>

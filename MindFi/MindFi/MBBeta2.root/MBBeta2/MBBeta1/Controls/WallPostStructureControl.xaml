@@ -86,6 +86,12 @@
                 <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="video">
                     <Setter Property="Text" Value="{lex:LocText MBBeta2:WPStrings:SharedVideo}"/>
                 </DataTrigger>
+                <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="user">
+                    <Setter Property="Text" Value=""/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="checkin">
+                    <Setter Property="Text" Value="{lex:LocText MBBeta2:WPStrings:Checkin}"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 

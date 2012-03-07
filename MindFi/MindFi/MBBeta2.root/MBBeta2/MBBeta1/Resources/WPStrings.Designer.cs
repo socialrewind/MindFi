@@ -70,6 +70,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to checked in @.
+        /// </summary>
+        internal static string Checkin {
+            get {
+                return ResourceManager.GetString("Checkin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Comment.
         /// </summary>
         internal static string Comment {

@@ -159,6 +159,7 @@ namespace MBBetaAPI.AgentAPI
         private bool addToken = true;
         private bool addDateRange = false;
         private bool Saved = false;
+        private string PostData = "";
         private static volatile Object obj = new Object();
         private static bool DatabaseInUse = false;
         private static bool newPeriod = false;
@@ -177,7 +178,7 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="AddDateRange">Indicates if the URL requires the date limit parameter</param>
         /// <param name="parentID">Database ID for the parent object to which the result needs to be associated</param>
         /// <param name="parentSNID">Social Network ID for the parent object to which the result needs to be associated</param>
-        public AsyncReqQueue(string type, string URL, int limit, CallBack resultCall, bool AddToken = true, bool AddDateRange = false, long? parentID = null, string parentSNID = "")
+        public AsyncReqQueue(string type, string URL, int limit, CallBack resultCall, bool AddToken = true, bool AddDateRange = false, long? parentID = null, string parentSNID = "", string postData = "")
         {
             lock (obj)
             {
@@ -205,6 +206,7 @@ namespace MBBetaAPI.AgentAPI
             methodToCall = resultCall;
             addToken = AddToken;
             addDateRange = AddDateRange;
+            PostData = postData;
             InitArray();
             Save();
         }
@@ -259,7 +261,8 @@ namespace MBBetaAPI.AgentAPI
             // Call layer to get data
             InitArray();
             if (DBLayer.GetAsyncReq(id, out ReqType, out Priority, out Parent, out ParentSNID,
-                out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out errorMessage))
+                out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out PostData,
+                out errorMessage))
             {
                 ID = id;
                 SetCallBackFunction();
@@ -366,6 +369,15 @@ namespace MBBetaAPI.AgentAPI
                 case "FBNotifications":
                     methodToCall = ProcessNotifications;
                     break;
+                case "PostStatus":
+                    methodToCall = ProcessStatus;
+                    break;
+                case "PostComment":
+                    methodToCall = ProcessStatus;
+                    break;
+                case "PostLike":
+                    methodToCall = ProcessNull;
+                    break;
                 default:
                     //System.Windows.Forms.MessageBox.Show("Unsupported request type: " + ReqType);
                     break;
@@ -437,7 +449,18 @@ namespace MBBetaAPI.AgentAPI
                 bool result = false;
                 if (FileName == "")
                 {
-                    result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken, addDateRange);
+                    switch ( ReqType )
+                    {
+                            // review state, should not be resending...
+                        case "PostStatus":
+                        case "PostComment":
+                        case "PostLike":
+                            result = FBAPI.CallGraphAPIPost(ReqURL, Limit, methodToCall, PostData, 0, Parent, ParentSNID, true, false);
+                            break;
+                        default:
+                            result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken, addDateRange);
+                            break;
+                    }
                 }
                 else
                 {
@@ -481,7 +504,7 @@ namespace MBBetaAPI.AgentAPI
             // TODO: Save limit, update when response comes back...
             DateTime? start = ((SNAccount.CurrentProfile == null) ? (DateTime?)null : SNAccount.CurrentProfile.CurrentPeriodStart);
             DateTime? end = ((SNAccount.CurrentProfile == null) ? (DateTime?)null : SNAccount.CurrentProfile.CurrentPeriodEnd);
-            Saved = DBLayer.ReqQueueSave(ID, ReqType, Priority, Parent, ParentSNID, Created, Updated, ReqURL, State, FileName, addToken, addDateRange, 
+            Saved = DBLayer.ReqQueueSave(ID, ReqType, Priority, Parent, ParentSNID, Created, Updated, ReqURL, State, FileName, addToken, addDateRange, PostData, 
                 start, end, Saved, out ErrorMessage);
             if (!Saved)
             {
@@ -534,7 +557,7 @@ namespace MBBetaAPI.AgentAPI
             apiReq.QueueAndSend(999);
             DBLayer.UpdateInboxRequest(ID, apiReq.ID, out errorMessage);
             // TODO: make sure "me" is always 1 and CurrentProfile is applicable
-            apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents, 1, SNAccount.CurrentProfile.SNID);
+            apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents, 1, SNID);
             apiReq.QueueAndSend(999);
             DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
             apiReq = FBAPI.Family(SNID, SIZETOGETPERPAGE, ProcessFamily);
@@ -2195,6 +2218,42 @@ namespace MBBetaAPI.AgentAPI
                 return false; 
             }
             nFailedRequests++;
+            return false;
+        }
+
+        /// <summary>
+        /// process update status response
+        /// </summary>
+        /// <param name="hwnd">who is calling the callback</param>
+        /// <param name="result">was the request successful?</param>
+        /// <param name="response">JSON person data</param>
+        /// <param name="parent">CHECK: Reference to the user ID</param>
+        /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
+        /// <returns>Request vas processed true/false</returns>
+        public bool ProcessStatus(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                FBPost statusObj = new FBPost(response);
+                statusObj.Parse();
+                // TODO: Find the parentID / parentSNID in the database, once it is saved
+                bool Saved;
+                string error;
+                DBLayer.PostDataUpdateSNID(parent.Value, statusObj.SNID, out Saved, out error);
+                return Saved;
+            }
+            return false;
+        }
+
+        public bool ProcessNull(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        {
+            if (result)
+            {
+                // TODO: Find the parentSNID in the database, once it is saved, just to update SNID to the one generated by the SN
+                FBPost statusObj = new FBPost(response);
+                statusObj.Parse();
+                return true;
+            }
             return false;
         }
 

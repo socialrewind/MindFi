@@ -11,7 +11,7 @@ namespace MBBetaAPI.AgentAPI
     public class FBLogin
     {
         private static volatile Object obj = new Object();
-        private const string APPID = "131706850230259";
+        public const string APPID = "131706850230259";
         private const string AuthURL = "https://www.facebook.com/dialog/oauth?client_id=";
         private const string RedirURL = "http://www.socialrewind.com/socialrewind/FBlogin_success.aspx";
         private const string ErrorURL = "http://www.socialrewind.com/socialrewind/login_failure.html";

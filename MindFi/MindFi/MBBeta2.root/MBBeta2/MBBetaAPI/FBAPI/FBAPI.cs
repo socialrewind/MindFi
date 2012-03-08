@@ -432,13 +432,32 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Nothing - no Async Request record neeed</returns>
         public static AsyncReqQueue UpdateStatus(string Who, string Status, CallBack resultCall)
         {
-            // TODO: Use the who
-            bool result;
+            // TODO: Modularize better, reduce dependencies...
+            if (SNAccount.CurrentProfile == null)
+            {
+                return null;
+            }
 
-            // TODO: Verify logged in
-            result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + Who + "/feed", 1, resultCall, Status, 0, null, "", true, false);
+            string error;
+            AsyncReqQueue me = null;
 
-            return null;
+            FBPost status = new FBPost("");
+            status.FromID = status.ToID = SNAccount.CurrentProfile.SNID;
+            status.FromName = status.ToName = SNAccount.CurrentProfile.Name;
+            status.SNID = "Pending";
+            status.Message = Status;
+            // TODO: Review constants
+            status.ApplicationID = FBLogin.APPID;
+            status.ApplicationName = "Social Rewind";
+            status.PostType = "status";
+            status.Save(out error);
+            if (error == "")
+            {
+                me = new AsyncReqQueue("PostStatus", FBGraphAPIURL + Who + "/feed", 1, resultCall, true, false, status.ID, status.SNID, Status);
+                me.Priority = 999;
+                me.Queue();
+            }
+            return me;
         }
 
         /// <summary>
@@ -450,14 +469,37 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Nothing - no Async Request record neeed</returns>
         public static AsyncReqQueue AddComment(string SNID, string Comment, CallBack resultCall)
         {
-            // TODO: Use the who
-            bool result;
+            // TODO: Modularize better, reduce dependencies...
+            if (SNAccount.CurrentProfile == null)
+            {
+                return null;
+            }
 
-            // TODO: Verify logged in
+            string error;
+            AsyncReqQueue me = null;
 
-            result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + SNID + "/comments", 1, resultCall, Comment, 0, null, "", true, false);
-
-            return null;
+            FBPost status = new FBPost("");
+            status.FromID = status.ToID = SNAccount.CurrentProfile.SNID;
+            status.FromName = status.ToName = SNAccount.CurrentProfile.Name;
+            status.SNID = "Pending";
+            status.Message = Comment;
+            // TODO: Review constants
+            status.ApplicationID = FBLogin.APPID;
+            status.ApplicationName = "Social Rewind";
+            status.PostType = "comment";
+            status.Save(out error);
+            if (error == "")
+            {
+                bool saved;
+                DBLayer.PostDataUpdateParentSNID(status.ID, SNID, out saved, out error);
+                if (saved)
+                {
+                    me = new AsyncReqQueue("PostComment", FBGraphAPIURL + SNID + "/comments", 1, resultCall, true, false, status.ID, SNID, Comment);
+                    me.Priority = 999;
+                    me.Queue();
+                }
+            }
+            return me;
         }
 
         /// <summary>
@@ -468,13 +510,23 @@ namespace MBBetaAPI.AgentAPI
         /// <returns>Nothing - no Async Request record neeed</returns>
         public static AsyncReqQueue UpdateLike(string SNID, CallBack resultCall)
         {
-            // TODO: Use the who
-            bool result;
-
-            // TODO: Verify logged in
-            result = FBAPI.CallGraphAPIPost(FBGraphAPIURL + SNID + "/likes", 1, resultCall, "", 0, null, "", true, false);
-
-            return null;
+            // TODO: Modularize better, reduce dependencies...
+            if (SNAccount.CurrentProfile == null)
+            {
+                return null;
+            }
+            // TODO: Remove from the database if LIKE was already there...
+            bool Saved;
+            string error;
+            DBLayer.ActionDataSave(SNAccount.CurrentProfile.SNID, SNID, Verb.LIKE, out Saved, out error);
+            AsyncReqQueue me = null;
+            if (Saved)
+            {
+                me = new AsyncReqQueue("PostLike", FBGraphAPIURL + SNID + "/likes", 1, resultCall, true, false, null, SNID, "");
+                me.Priority = 999;
+                me.Queue();
+            }
+            return me;
         }
         #endregion
 
@@ -640,6 +692,7 @@ namespace MBBetaAPI.AgentAPI
                 request.Method = "POST";
                 request.ContentType = "application/x-www-form-urlencoded";
 
+                // TODO: Preprocess postData to change Unicode to the form \u0000
                 ASCIIEncoding encoding = new ASCIIEncoding();
                 byte[] byte1 = encoding.GetBytes(postData);
                 request.ContentLength = byte1.Length;

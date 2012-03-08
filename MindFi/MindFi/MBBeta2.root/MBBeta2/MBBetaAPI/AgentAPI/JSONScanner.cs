@@ -410,23 +410,22 @@ Top:
                         previous = current;
                         current = NextInput();
                         if (current == backslash)
-			{
-			    //System.Windows.Forms.MessageBox.Show("Entering Quote case");
-			    previous = current; // keep same exit condition
+                        {
+                            previous = current; // keep same exit condition
                             current = ProcessUnicode(out tempToken);
-			    if ( current == backslash )
-			    { 
-				scannerOutput = tempToken.ToString();
-                    		m_lastToken = scannerOutput;
-                    		m_lastTokenId = JSONScannerTokens.ERROR;
-            			return m_lastTokenId;
-			    }
+                            if (current == backslash)
+                            {
+                                scannerOutput = tempToken.ToString();
+                                m_lastToken = scannerOutput;
+                                m_lastTokenId = JSONScannerTokens.ERROR;
+                                return m_lastTokenId;
+                            }
                             token.Append(current);
-			    //System.Windows.Forms.MessageBox.Show("Token on quote case:" + token);
-			} else 
-			{
-			    token.Append(current);
-			}
+                        }
+                        else
+                        {
+                            token.Append(current);
+                        }
                     } while (
                         ( current != startLiteral || ( previous == backslash && current == startLiteral ) )
                         && table(current) != EOF );

@@ -219,10 +219,11 @@ namespace MBBetaAPI.AgentAPI
             }
         }
 
+        // TODO: Review startDateRange and endDateRange usage
         public static bool ReqQueueSave(long ID, string ReqType, int Priority,
             long? ParentID, string ParentSNID,
             DateTime Created, DateTime Updated, string ReqURL,
-            int State, string Filename, bool AddToken, bool AddDateRange,
+            int State, string Filename, bool AddToken, bool AddDateRange, string PostData,
             DateTime? startDateRange, DateTime? endDateRange, 
             bool Saved, out string ErrorMessage)
         {
@@ -240,7 +241,7 @@ namespace MBBetaAPI.AgentAPI
                         // insert
                         SQLiteCommand InsertCmd = new SQLiteCommand(
                         "insert into RequestsQueue(ID,RequestType,Priority,ParentID,ParentSNID,Created," +
-                        "RequestString,StartDate,EndDate,State,Filename,AddToken, AddDateRange) values (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                        "RequestString,StartDate,EndDate,State,Filename,AddToken, AddDateRange, PostData) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                         , conn);
                         SQLiteParameter pId = new SQLiteParameter();
                         pId.Value = ID;
@@ -281,6 +282,9 @@ namespace MBBetaAPI.AgentAPI
                         SQLiteParameter pDateR = new SQLiteParameter();
                         pDateR.Value = AddDateRange;
                         InsertCmd.Parameters.Add(pDateR);
+                        SQLiteParameter pPost = new SQLiteParameter();
+                        pPost.Value = PostData;
+                        InsertCmd.Parameters.Add(pPost);
                         InsertCmd.ExecuteNonQuery();
                         Saved = true;
                     }
@@ -289,7 +293,7 @@ namespace MBBetaAPI.AgentAPI
                         // update
                         SQLiteCommand UpdateCmd = new SQLiteCommand(
                             "Update RequestsQueue set RequestType=?,Priority=?,ParentID=?,ParentSNID=?," +
-                            "Updated=?,RequestString=?,StartDate=?,EndDate=?,State=?,Filename=?,AddToken=?,AddDateRange=? where ID=?"
+                            "Updated=?,RequestString=?,StartDate=?,EndDate=?,State=?,Filename=?,AddToken=?,AddDateRange=?,PostData=? where ID=?"
                         , conn);
                         SQLiteParameter pUType = new SQLiteParameter();
                         pUType.Value = ReqType;
@@ -327,6 +331,9 @@ namespace MBBetaAPI.AgentAPI
                         SQLiteParameter pUDateR = new SQLiteParameter();
                         pUDateR.Value = AddDateRange;
                         UpdateCmd.Parameters.Add(pUDateR);
+                        SQLiteParameter pUPost = new SQLiteParameter();
+                        pUPost.Value = PostData;
+                        UpdateCmd.Parameters.Add(pUPost);
                         SQLiteParameter pUId = new SQLiteParameter();
                         pUId.Value = ID;
                         UpdateCmd.Parameters.Add(pUId);
@@ -1277,6 +1284,110 @@ namespace MBBetaAPI.AgentAPI
                                 }
                             }
                         }
+                    }
+                    ErrorMessage = "";
+                } // try
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error saving Post\n" + ex.ToString();
+                    // MessageBox.Show(ErrorMessage);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return;
+        }
+
+        public static void PostDataUpdateSNID(long PostID, string SNID, out bool Saved, out string ErrorMessage)
+        {
+            ErrorMessage = "";
+            Saved = false;
+
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    // update
+                    string SQL = "Update PostData set SNID=? where PostID=?";
+                    SQLiteParameter pSNID = new SQLiteParameter();
+                    pSNID.Value = SNID;
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = PostID;
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+
+                    UpdateCmd.Parameters.Add(pSNID);
+                    UpdateCmd.Parameters.Add(pID);
+
+                    int outrows = UpdateCmd.ExecuteNonQuery();
+                    if (outrows > 0)
+                    {
+                        Saved = true;
+
+                        // update status of the associated request
+                        SQL = "update RequestsQueue set State=5 where ID=(select PostRequestID from PostData where PostID=?)";
+                        SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
+                        UpdateCmd2.Parameters.Add(pID);
+                        int outrows2 = UpdateCmd2.ExecuteNonQuery();
+                        if (outrows2 > 0)
+                        {
+                            // Adding FTS records
+                            SQL = "insert into FTSPostData (PostID,Message,Description,Created) select PostID,Message, Description, Created from PostData where PostID=?;";
+                            SQLiteCommand FTSCmd = new SQLiteCommand(SQL, conn);
+                            FTSCmd.Parameters.Add(pID);
+                            outrows = FTSCmd.ExecuteNonQuery();
+                            if (outrows == 0)
+                            {
+                                //System.Windows.Forms.MessageBox.Show("error inserting FTS PostData");
+                            }
+                        }
+                    }
+                    ErrorMessage = "";
+                } // try
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error saving Post\n" + ex.ToString();
+                    // MessageBox.Show(ErrorMessage);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return;
+        }
+
+        public static void PostDataUpdateParentSNID(long PostID, string ParentSNID, out bool Saved, out string ErrorMessage)
+        {
+            ErrorMessage = "";
+            Saved = false;
+
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    // update
+                    string SQL = "Update PostData set ParentID=(select PostID from PostData where SNID=?) where PostID=?";
+                    SQLiteParameter pSNID = new SQLiteParameter();
+                    pSNID.Value = ParentSNID;
+                    SQLiteParameter pID = new SQLiteParameter();
+                    pID.Value = PostID;
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+
+                    UpdateCmd.Parameters.Add(pSNID);
+                    UpdateCmd.Parameters.Add(pID);
+
+                    int outrows = UpdateCmd.ExecuteNonQuery();
+                    if (outrows > 0)
+                    {
+                        Saved = true;
                     }
                     ErrorMessage = "";
                 } // try
@@ -2787,7 +2898,7 @@ namespace MBBetaAPI.AgentAPI
             out long? ParentID, out string ParentSNID,
             out DateTime Created, out DateTime Updated,
             out string ReqURL, out int State, out string Filename,
-            out bool AddToken, out bool AddDateRange,
+            out bool AddToken, out bool AddDateRange, out string PostData,
             out string ErrorMessage)
         {
             ErrorMessage = "";
@@ -2802,6 +2913,7 @@ namespace MBBetaAPI.AgentAPI
             State = 0;
             AddToken = false;
             AddDateRange = false;
+            PostData = "";
 
             lock (obj)
             {
@@ -2810,7 +2922,7 @@ namespace MBBetaAPI.AgentAPI
                     DatabaseInUse = true;
                     GetConn();
                     // try to read
-                    SQLiteCommand CheckCmd = new SQLiteCommand("select RequestType, RequestString, Priority, ParentID, ParentSNID, Created, Updated, State, Filename, AddToken, AddDateRange from RequestsQueue where ID=?", conn);
+                    SQLiteCommand CheckCmd = new SQLiteCommand("select RequestType, RequestString, Priority, ParentID, ParentSNID, Created, Updated, State, Filename, AddToken, AddDateRange, PostData from RequestsQueue where ID=?", conn);
                     SQLiteParameter pID = new SQLiteParameter();
                     pID.Value = id;
                     CheckCmd.Parameters.Add(pID);
@@ -2835,6 +2947,7 @@ namespace MBBetaAPI.AgentAPI
                         Filename = reader.GetString(8);
                         AddToken = reader.GetBoolean(9);
                         AddDateRange = reader.GetBoolean(10);
+                        PostData = reader.GetString(11);
                     }
                     reader.Close();
                     ErrorMessage = "";

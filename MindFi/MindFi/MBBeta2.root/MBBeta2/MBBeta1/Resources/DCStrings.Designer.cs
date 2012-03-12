@@ -133,6 +133,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Get it now!.
+        /// </summary>
+        internal static string Now {
+            get {
+                return ResourceManager.GetString("Now", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Personal Data.
         /// </summary>
         internal static string PersonalData {
@@ -183,6 +192,15 @@ namespace MBBeta2.Resources {
         internal static string Stats {
             get {
                 return ResourceManager.GetString("Stats", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Events.
+        /// </summary>
+        internal static string ViewEvents {
+            get {
+                return ResourceManager.GetString("ViewEvents", resourceCulture);
             }
         }
         

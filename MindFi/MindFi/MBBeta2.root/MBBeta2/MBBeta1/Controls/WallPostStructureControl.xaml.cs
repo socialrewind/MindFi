@@ -29,11 +29,12 @@ namespace MBBeta2.Controls
         public WallPostStructureControl()
         {
             InitializeComponent();
-
+            CC = new CommonCode();
         }
 
 
         WallPostStructure CurrentWPS;
+        CommonCode CC;
 
 
         public static DependencyProperty ParentPostDP = DependencyProperty.Register("ParentPost", typeof(WallPost), typeof(WallPostStructureControl));
@@ -186,6 +187,23 @@ namespace MBBeta2.Controls
                 return true;
             }
             return false;
+        }
+
+        private void PersonBt_Click(object sender, RoutedEventArgs e)
+        {
+            this.Cursor = Cursors.Wait;
+
+            WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
+            Person p = new Person(wps.ParentPost.InternalFromID);
+            Window mainWindow = System.Windows.Window.GetWindow(this);
+
+
+            DetailCard DetailCardWindow = new DetailCard(p,mainWindow);
+            PersonWrapper dataContext = new PersonWrapper(p);
+            DetailCardWindow.DataContext = dataContext;
+            CC.PositionNewWindow(mainWindow, DetailCardWindow);
+
+            this.Cursor = Cursors.Arrow;
         }
 
     }

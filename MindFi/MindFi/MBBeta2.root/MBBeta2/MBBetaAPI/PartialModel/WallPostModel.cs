@@ -154,6 +154,12 @@ namespace MBBetaAPI
                         else
                             PostType = reader.GetString(16);
 
+                        //If Post Type is photo, then set link to be shown
+                        if (PostType == "photo")
+                            PictureLink = "link";
+                        else
+                            PictureLink = "";
+
                         if (reader.IsDBNull(17))
                         {
                             PostRequestID = 0;
@@ -221,21 +227,25 @@ namespace MBBetaAPI
                 }
                 reader.Close();
 
-                command = new SQLiteCommand("select ProfilePic from PersonData where SNID=@ID", conn);
+                command = new SQLiteCommand("select PersonID, ProfilePic from PersonData where SNID=@ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", this.FromID));
                 reader = command.ExecuteReader();
                 bool GotData2 = false;
                 while (reader.Read())
                 {
-                    if (reader.IsDBNull(0))
+                    InternalFromID = reader.GetInt32(0);
+
+                    if (reader.IsDBNull(1))
                         FromPhotoPath = "Images/nophoto.jpg";
                     else
                     {
                         GotData2 = true;
-                        FromPhotoPath = AsyncReqQueue.ProfilePhotoDestinationDir + reader.GetString(0);
+                        FromPhotoPath = AsyncReqQueue.ProfilePhotoDestinationDir + reader.GetString(1);
                     }
                 }
                 reader.Close();
+
+
                 if (!GotData2)
                     FromPhotoPath = "Images/nophoto.jpg";
 

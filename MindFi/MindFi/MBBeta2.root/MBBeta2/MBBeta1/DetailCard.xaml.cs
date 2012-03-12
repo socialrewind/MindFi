@@ -48,11 +48,20 @@ namespace MBBeta2
                 BackupOptionsSP.Visibility= System.Windows.Visibility.Hidden;
             }
             else
-                //Track changes to backup options
+                
             {
+                //Track changes to backup options
                 BackupWallOption = CurrentPerson.BackupWall;
                 BackupEventsOption = CurrentPerson.BackupEvents;
                 BackupPhotosOption = CurrentPerson.BackupPhotos;
+
+                //Enable buttons if option was not taken before
+                if (!BackupWallOption)
+                    GetNowWallBt.Visibility = System.Windows.Visibility.Visible;
+                if (!BackupEventsOption)
+                    GetNowEventsBt.Visibility = System.Windows.Visibility.Visible;
+                if (!BackupPhotosOption)
+                    GetNowPhotosBt.Visibility = System.Windows.Visibility.Visible;
             }
 
             
@@ -108,6 +117,42 @@ namespace MBBeta2
             this.Cursor = Cursors.Arrow;
         }
 
+
+        private void EventsBt_Click(object sender, RoutedEventArgs e)
+        {
+            this.Cursor = Cursors.Wait;
+
+            List<int> SelectedPeople = new List<int>();
+            SelectedPeople.Add(CurrentPerson.ID);
+            var EventsWindow = new FBEvents(SelectedPeople);
+            CC.PositionNewWindow(MainWindow, EventsWindow);
+            //this.Close();
+
+            this.Cursor = Cursors.Arrow;
+        }
+
+        //**** Get now buttons
+
+        private void GetNowWallBt_Click(object sender, RoutedEventArgs e)
+        {
+            WallCB.IsChecked = true;
+            //Code to start downloading goes here
+            MessageBox.Show("Start download here..");
+        }
+
+        private void GetNowEventsBt_Click(object sender, RoutedEventArgs e)
+        {
+            EventsCB.IsChecked = true;
+            //Code to start downloading goes here
+            MessageBox.Show("Start download here..");
+        }
+
+        private void GetNowPhotosBt_Click(object sender, RoutedEventArgs e)
+        {
+            PhotoAlbumsCB.IsChecked = true;
+            MessageBox.Show("Start download here...");
+        }
+
         #endregion
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -144,7 +189,7 @@ namespace MBBeta2
 
         
 
-        
+ 
 
     }
 }

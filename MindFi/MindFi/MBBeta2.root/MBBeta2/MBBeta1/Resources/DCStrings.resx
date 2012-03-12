@@ -141,6 +141,9 @@
   <data name="Married" xml:space="preserve">
     <value>Married with</value>
   </data>
+  <data name="Now" xml:space="preserve">
+    <value>Get it now!</value>
+  </data>
   <data name="PersonalData" xml:space="preserve">
     <value>Personal Data</value>
   </data>
@@ -158,6 +161,9 @@
   </data>
   <data name="Stats" xml:space="preserve">
     <value>Statistics</value>
+  </data>
+  <data name="ViewEvents" xml:space="preserve">
+    <value>Events</value>
   </data>
   <data name="ViewMessages" xml:space="preserve">
     <value>Messages</value>

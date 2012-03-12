@@ -181,7 +181,7 @@
 
                     </ribbon:RibbonControlGroup>
                 </ribbon:RibbonGroup>
-                <ribbon:RibbonGroup x:Name="LoginRG" Header="{lex:LocText MBBeta2:MBStrings:Login}">
+                <ribbon:RibbonGroup x:Name="LoginRG" Header="{lex:LocText MBBeta2:MBStrings:Connection}">
                     <ribbon:RibbonControlGroup>
                         <ribbon:RibbonControlGroup.ControlSizeDefinition>
                             <ribbon:RibbonControlSizeDefinition ImageSize="Large"/>
@@ -193,6 +193,12 @@
                                                    Command="{Binding LoginOutCommand}"
                                                    Checked="LoginOutRTBt_Checked"
                                                    Unchecked="LoginOutRTBt_Unchecked"/>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <TextBlock x:Name="Connected" Text="{lex:LocText MBBeta2:MBStrings:Connected}"
+                               Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ConnectedFB" Text="{lex:LocText MBBeta2:MBStrings:ConnectedFB}"
+                               Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </ribbon:RibbonControlGroup>
                 </ribbon:RibbonGroup>
                 <ribbon:RibbonGroup x:Name="BackupRG" Header="{lex:LocText MBBeta2:MBStrings:Backup}">
@@ -226,10 +232,6 @@
                                              LargeImageSource="Images/Gear-icon.png"
                                              KeyTip="S"
                                              Click="SetupBt_Click"/>
-                        <TextBlock x:Name="Connected" Text="{lex:LocText MBBeta2:MBStrings:Connected}"
-                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                        <TextBlock x:Name="ConnectedFB" Text="{lex:LocText MBBeta2:MBStrings:ConnectedFB}"
-                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </ribbon:RibbonControlGroup>
                 </ribbon:RibbonGroup>
 

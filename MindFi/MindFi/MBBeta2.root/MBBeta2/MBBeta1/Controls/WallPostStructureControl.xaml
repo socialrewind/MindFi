@@ -55,20 +55,33 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="NullImage" TargetType="Image">
-            <Style.Setters>
-                <Setter Property="Height" Value="50"/>
-                <Setter Property="Width" Value="50"/>
-            </Style.Setters>
+        <Style x:Key="NullImageStyle" TargetType="Image">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=ParentPost.PictureLink}" Value="">
                     <Setter Property="Height" Value="1"/>
-                    <Setter Property="Width" Value="1"/>
+                    <Setter Property="Width" Value="0"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
-
+        <Style x:Key="ZeroHeightStyle" TargetType="StackPanel">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=ParentPost.PictureLink}" Value="">
+                    <Setter Property="Height" Value="1"/>
+                    <Setter Property="Width" Value="0"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="NoExpanderStyle" TargetType="Expander">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=ParentPost.CommentsCount}" Value="0">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                    <Setter Property="Height" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
         <Style x:Key="StatusTitleStyle"  TargetType="TextBlock">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=ParentPost.PostType}" Value="status">
@@ -113,9 +126,12 @@
             
             <StackPanel Orientation="Horizontal"
                         Margin="10">
-                <Image Height="40"
-                       VerticalAlignment="Top" Margin="10"
-                       Source="{Binding Path=ParentPost.FromPhotoPath}"/>
+                <Button x:Name="PersonBt" Margin="10"
+                        VerticalAlignment="Top"
+                        Click="PersonBt_Click">
+                    <Image Height="40"
+                           Source="{Binding Path=ParentPost.FromPhotoPath}"/>
+                </Button>
                 <StackPanel Orientation="Vertical" Margin="10,5,10,5">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Path=ParentPost.WallName}" 
@@ -144,6 +160,10 @@
                                         Style="{StaticResource NullTextBlock}"
                                         TextWrapping="Wrap" MaxWidth="350"
                                        Foreground="Black"/>
+                            <TextBlock Text="{Binding ParentPost.Caption}"
+                                        Style="{StaticResource NullTextBlock}"
+                                        TextWrapping="Wrap" MaxWidth="350"
+                                       Foreground="Black"/>
                             <TextBlock MaxWidth="350">
                                 <Hyperlink x:Name="PostHyperLink" 
                                             NavigateUri="{Binding ParentPost.Link}"
@@ -154,6 +174,13 @@
                                 </Hyperlink>
                             </TextBlock>
                         </StackPanel>
+                    </StackPanel>
+                    
+                    <!--Show photo-->
+                    <StackPanel Margin="0,5,0,0" Orientation="Vertical" Style="{StaticResource ZeroHeightStyle}">
+                        <Image Source="{Binding ParentPost.Picture}" Height="150"
+                               HorizontalAlignment="Left">
+                        </Image>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
@@ -181,13 +208,12 @@
                     <controls:FBLikeControl x:Name="PostLikesControl" Margin="0,10,0,0"
                                             NumberOfLikes="{Binding Path=ParentPost.NumberOfLikes}"
                                             LikesList="{Binding Path=ParentPost.LikesList}"/>
-                    
-                    <ItemsControl Margin ="40,5,0,0" ItemsSource="{Binding Path=ChildPosts}"
+
+                    <Expander Header="View comments" IsExpanded="False"
+                              Style="{StaticResource NoExpanderStyle}">
+                        <ItemsControl Margin ="40,5,0,0" ItemsSource="{Binding Path=ChildPosts}"
                                   ItemTemplate="{StaticResource ChildPostTemplate}"/>
-                    
-                    <StackPanel Background="Lavender">
-                        
-                    </StackPanel>
+                    </Expander>
 
                 </StackPanel>
                 

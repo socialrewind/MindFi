@@ -51,7 +51,8 @@ namespace MBBetaAPI
         //Attributes
         public string Title { get; set; }
         public string Message { get; set; }
-        public Uri Picture { get; set; }        
+        public Uri Picture { get; set; }
+        public string PictureLink { get; set; } //used to set style. If picture link is empty, don't show picture.
         public Uri Link { get; set; }
         public string Caption { get; set; }
         public string Story { get; set; }

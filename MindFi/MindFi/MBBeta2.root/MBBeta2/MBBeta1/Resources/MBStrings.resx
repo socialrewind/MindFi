@@ -297,4 +297,7 @@
   <data name="Unzip" xml:space="preserve">
     <value>Restore a backup from your data</value>
   </data>
+  <data name="Connection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
 </root>

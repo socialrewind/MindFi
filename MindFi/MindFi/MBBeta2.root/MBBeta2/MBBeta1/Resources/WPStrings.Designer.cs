@@ -151,6 +151,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to View Comments.
+        /// </summary>
+        internal static string ViewComments {
+            get {
+                return ResourceManager.GetString("ViewComments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Write a comment....
         /// </summary>
         internal static string WriteAComment {

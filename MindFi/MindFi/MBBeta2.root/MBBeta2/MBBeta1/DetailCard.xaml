@@ -114,16 +114,39 @@
                         Template="{StaticResource ButtonLinkTemplate}"
                         HorizontalAlignment="Center" Margin="3"
                         Click="MessagesBt_Click"/>
+                <Button x:Name="EventsBt" Content="{lex:LocText MBBeta2:DCStrings:ViewEvents}"
+                        Style="{StaticResource ButtonLinkStyle}"
+                        Template="{StaticResource ButtonLinkTemplate}"
+                        HorizontalAlignment="Center" Margin="3"
+                        Click="EventsBt_Click"/>
             </StackPanel>
             <StackPanel x:Name="BackupOptionsSP"  Margin="5">
                 <TextBlock Text="{lex:LocText MBBeta2:DCStrings:BackupOptions}"
                            FontWeight="Bold" HorizontalAlignment="Center"/>
-                <CheckBox x:Name="WallCB" Content="{lex:LocText MBBeta2:DCStrings:ViewWall}" 
-                          IsChecked="{Binding Path=Value.BackupWall}"/>
-                <CheckBox x:Name="EventsCB" Content="{lex:LocText MBBeta2:DCStrings:Events}"
-                          IsChecked="{Binding Value.BackupEvents}"/>
-                <CheckBox x:Name="PhotoAlbumsCB" Content="{lex:LocText MBBeta2:DCStrings:PhotoAlbums}"
-                          IsChecked="{Binding Value.BackupPhotos}"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="GetNowWallBt" Content="{lex:LocText MBBeta2:DCStrings:Now}"
+                            Click="GetNowWallBt_Click"
+                            Visibility="Hidden"/>
+                    <CheckBox x:Name="WallCB" Content="{lex:LocText MBBeta2:DCStrings:ViewWall}" 
+                              IsChecked="{Binding Path=Value.BackupWall}"
+                              Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="GetNowEventsBt" Content="{lex:LocText MBBeta2:DCStrings:Now}"
+                            Click="GetNowEventsBt_Click"
+                            Visibility="Hidden"/>
+                    <CheckBox x:Name="EventsCB" Content="{lex:LocText MBBeta2:DCStrings:Events}"
+                              IsChecked="{Binding Value.BackupEvents}"
+                              Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="GetNowPhotosBt" Content="{lex:LocText MBBeta2:DCStrings:Now}"
+                            Click="GetNowPhotosBt_Click"
+                            Visibility="Hidden"/>
+                    <CheckBox x:Name="PhotoAlbumsCB" Content="{lex:LocText MBBeta2:DCStrings:PhotoAlbums}"
+                              IsChecked="{Binding Value.BackupPhotos}"
+                              Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
 

@@ -147,6 +147,9 @@
   <data name="Using" xml:space="preserve">
     <value>using</value>
   </data>
+  <data name="ViewComments" xml:space="preserve">
+    <value>View Comments</value>
+  </data>
   <data name="WriteAComment" xml:space="preserve">
     <value>Write a comment...</value>
   </data>

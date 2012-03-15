@@ -193,6 +193,70 @@ namespace MBBetaAPI
                 throw new Exception("No data available for the person");
         }
 
+        public static List<PersonLight> GetAllFriends()
+        {
+            int ID;
+            string Name;
+            Int64 SNID;
+            string ProfilePic;
+            int SN;
+            List<PersonLight> FriendsList = new List<PersonLight>();
+
+            // TODO: DBLayer modularization
+            // Query
+            lock (DBLayer.obj)
+            {
+                DBLayer.DatabaseInUse = true;
+                try
+                {
+                    DBLayer.GetConn();
+                    SQLiteCommand command = new SQLiteCommand("select A.ID, A.Name, B.SocialNetwork, B.ProfilePic, B.SNID from Entities A, PersonData B where A.Type='MBBetaAPI.AgentAPI.FBPerson' and B.Distance < 2 and A.ID = B.PersonID ", DBLayer.conn);
+                    // iterate over query results
+                    SQLiteDataReader reader2 = command.ExecuteReader();
+                    while (reader2.Read())
+                    {
+                        ID = reader2.GetInt32(0);
+                        if (!reader2.IsDBNull(1))
+                        {
+                            Name = reader2.GetString(1);
+                        }
+                        else
+                        {
+                            // TODO: Localize
+                            Name = "Unknown";// should not be null, double check
+                        }
+                        SN = reader2.GetInt32(2);
+                        if (reader2.IsDBNull(3))
+                        {
+                            ProfilePic = "Images/nophoto.jpg";
+                        }
+                        else
+                        {
+                            ProfilePic = AsyncReqQueue.ProfilePhotoDestinationDir + reader2.GetString(3);
+                        }
+                        if (!reader2.IsDBNull(4))
+                        {
+                            SNID = reader2.GetInt64(4);
+                        }
+                        else
+                        {
+                            SNID = -1; // should not be the normal case
+                        }
+
+                        FriendsList.Add(new PersonLight(ID, Name, SN, ProfilePic, SNID));
+                    }
+                }
+                catch
+                {
+                    APIError error = new APIError(null, "Reading All Friends from DB", 1);
+                }
+                finally
+                {
+                    DBLayer.DatabaseInUse = false;
+                }
+            }
+            return FriendsList;
+        }
 
         #endregion
 

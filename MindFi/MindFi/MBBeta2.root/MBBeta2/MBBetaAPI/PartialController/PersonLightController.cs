@@ -29,7 +29,14 @@ namespace MBBetaAPI
             Selected = true;
         }
         
-
+        public PersonLight(int id, string name, int sn, string profilePic, Int64 snid)
+        {
+            ID = id;
+            Name = name;
+            SN = sn;
+            ProfilePic = profilePic;
+            SNID = snid;
+        }
         #endregion
 
         //**************** Attributes

@@ -165,8 +165,8 @@ namespace MBBeta2
                 GetOlderPublicationsBt.Visibility = System.Windows.Visibility.Visible;
             }
 
-
-
+            // TODO: PERFORMANCE OPTIMIZATION
+            // PostList = WallPostStructure.GetAllPosts(start, end, Offset, Limit);
             List<int> PostIDs = DBLayer.GetPosts(start, end, Offset, Limit);
 
             //PostsListWPSC.WallPostStructureListIC.ItemsSource = PostList;
@@ -180,7 +180,7 @@ namespace MBBeta2
             {
                 PostList.Add(new WallPostStructure(PostID));
             }
-
+            // End TODO
 
             PostsListWPSC.WallPostStructureListIC.ItemsSource = PostList;
 
@@ -189,12 +189,16 @@ namespace MBBeta2
 
         private void LoadFriends()
         {
+            // Performance optimization
+            /*
             List<int> FriendIDs = DBLayer.GetFriendIDs();
             FriendsList = new List<PersonLight>();
             foreach (int ID in FriendIDs)
             {
                 FriendsList.Add(new PersonLight(ID));
             }
+             */
+            FriendsList = PersonLight.GetAllFriends();
 
             FriendsList.Sort(delegate(PersonLight p1, PersonLight p2) { return p1.Name.CompareTo(p2.Name); });
             FriendsListView = CollectionViewSource.GetDefaultView(FriendsList);

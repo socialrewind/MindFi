@@ -187,9 +187,10 @@ namespace MBBetaAPI.AgentAPI
                     {
                         GetConn();
 
-                        string textcommand = "select PostID from PostData where ParentID is NULL and FromID in(";
+                        // TODO: consolidate
+                        string textcommand = "select distinct PostID from PostData where ParentID is NULL and FromID in(";
                         textcommand += IDList;
-                        textcommand += ") and Created>=@start and Created<@end";
+                        textcommand += ") and Created>=@start and Created<@end order by Created desc";
 
                         SQLiteCommand command = new SQLiteCommand(textcommand, conn);
                         command.Parameters.Add(new SQLiteParameter("start", start));
@@ -204,7 +205,7 @@ namespace MBBetaAPI.AgentAPI
 
                         //Read posts where person made a comment 
                         List<string> CommentIDs = new List<string>();
-                        textcommand = "select A.PostID from PostData A, PostData B where B.FromID in (";
+                        textcommand = "select distinct A.PostID from PostData A, PostData B where B.FromID in (";
                         textcommand += IDList;
                         textcommand += ") AND B.ParentID IS NOT NULL and B.Created>=@start and B.Created<@end AND B.ParentID = A.SNID";
 

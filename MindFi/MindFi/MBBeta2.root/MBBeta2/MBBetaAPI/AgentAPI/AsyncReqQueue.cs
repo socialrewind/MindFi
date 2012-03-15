@@ -488,7 +488,8 @@ namespace MBBetaAPI.AgentAPI
                 success = Queue();
                 if (success)
                 {
-                    success = Send();
+                    // performance improvement: don't mark as failed when it was successfully queued, since it can be just disconnected - prevents double requests
+                    Send();
                 }
                 currentPriorityGlobal = priority;
             }

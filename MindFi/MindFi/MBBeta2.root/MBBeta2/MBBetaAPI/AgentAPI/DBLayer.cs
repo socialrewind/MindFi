@@ -3700,7 +3700,7 @@ namespace MBBetaAPI.AgentAPI
                     {
                         reader.Close();
                         // check if it will be an incremental or full backup
-                        SQL = "select min(PeriodStartTime), max(PeriodEndTime), max(EndTime) from Backups where Active = 0";
+                        SQL = "select min(PeriodStartTime), max(PeriodEndTime), max(StartTime) from Backups where Active = 0";
                         CheckCmd = new SQLiteCommand(SQL, conn);
                         reader = CheckCmd.ExecuteReader();
                         if (reader.Read())
@@ -3710,14 +3710,18 @@ namespace MBBetaAPI.AgentAPI
                                 DateTime tempPeriodStart = reader.GetDateTime(0);
                                 DateTime tempPeriodEnd = reader.GetDateTime(1);
                                 DateTime tempLastBackupDone = reader.GetDateTime(2);
-                                tempLastBackupDone = tempLastBackupDone.Date;
+                                // Verifying logic
+                                //tempLastBackupDone = tempLastBackupDone.Date;
+
                                 // Logic for incremental: if period start is similar to existing, complete backup, only go forward; else, full backup needed
                                 // if existing backup covers the past, go only forward; else cover the period back first
                                 if (tempPeriodStart <= currentBackupStart)
                                 {
-                                    currentBackupStart = (tempPeriodEnd >= tempLastBackupDone.AddDays(-1)) ? tempLastBackupDone.AddDays(-1) : tempPeriodEnd;
+                                    //currentBackupStart = (tempPeriodEnd >= tempLastBackupDone.AddDays(-1)) ? tempLastBackupDone.AddDays(-1) : tempPeriodEnd;
+                                    currentBackupStart = (tempPeriodEnd >= tempLastBackupDone ) ? tempLastBackupDone : tempPeriodEnd;
                                     currentBackupEnd = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
-                                    if (DateTime.Today.AddMonths(1) > endPeriod)
+                                    //if (DateTime.Today.AddMonths(1) > endPeriod)
+                                    if (DateTime.Today.AddMonths(1) > currentBackupEnd)
                                     {
                                         currentBackupEnd = DateTime.Today.AddMonths(1);
                                     }

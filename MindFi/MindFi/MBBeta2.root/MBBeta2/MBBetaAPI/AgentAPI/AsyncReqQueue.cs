@@ -43,18 +43,18 @@ namespace MBBetaAPI.AgentAPI
         // TODO: REVIEW before closing beta, useful now for testing
         // Review CurrentBackupState about line 615 every time these are changed, also before CurrentBackupState is incremented about line 1100+
         public static bool BackupMyWall = true;
-        public static bool BackupMyNews = false;
+        public static bool BackupMyNews = true;
         public static bool BackupMyInbox = true;
         public static bool BackupMyEvents = true;
-        public static bool BackupMyNotifications = false;
-        public static bool BackupFriendsInfo = false;
-        public static bool BackupFriendsFamily = false;
+        public static bool BackupMyNotifications = true;
+        public static bool BackupFriendsInfo = true;
+        public static bool BackupFriendsFamily = true;
         public static bool BackupFriendsPic = true;
-        public static bool BackupMyAlbums = false;
-        public static bool BackupMyPhotos = false;
+        public static bool BackupMyAlbums = true;
+        public static bool BackupMyPhotos = true;
         public static bool BackupFriendsWall = true; // default, control instead by each person
         public static bool BackupFriendsEvents = true; // default, control instead by each person
-        public static bool BackupFriendsAlbums = false; // default, control instead by each person
+        public static bool BackupFriendsAlbums = true; // default, control instead by each person
 
         #endregion
 
@@ -651,14 +651,16 @@ namespace MBBetaAPI.AgentAPI
                 currentBackupNumber = currentBackup;
                 newPeriod = true;
                 // Check: initial state, TODO improve / generalize
+                /*
                 if (isIncremental)
                 {
                     CurrentBackupState = BACKUPMYINBOX;
                 }
                 else
                 {
+                 */
                     CurrentBackupState = BACKUPMYWALL;
-                }
+                //}
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
@@ -694,6 +696,7 @@ namespace MBBetaAPI.AgentAPI
                         {
                             apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
                             apiReq.QueueAndSend(999);
+                            nReqs = 1;
                             newPeriod = false;
                         }
                     }
@@ -709,6 +712,7 @@ namespace MBBetaAPI.AgentAPI
                         {
                             apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessNews, ID, SNID);
                             apiReq.QueueAndSend(999);
+                            nReqs = 1;
                             newPeriod = false;
                         }
                     }
@@ -962,6 +966,9 @@ namespace MBBetaAPI.AgentAPI
                 newPeriod = false;
                 return 1;
             }
+
+            /* TODO: Verify usage of Threads
+
             // Find next
             string errorMessage;
             // Go over friends, adding requests for them if not yet defined
@@ -986,6 +993,8 @@ namespace MBBetaAPI.AgentAPI
                 }
             }
             return nRequests;
+             */
+            return 0;
         }
 
         private static int GetNextAlbumPics()

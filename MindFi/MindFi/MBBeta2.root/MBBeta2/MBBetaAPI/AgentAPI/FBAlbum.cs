@@ -60,7 +60,7 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Cover Photo
         /// </summary>
-        private string CoverPicture;
+        public string CoverPicture;
         /// <summary>
         /// Album Type
         /// </summary>

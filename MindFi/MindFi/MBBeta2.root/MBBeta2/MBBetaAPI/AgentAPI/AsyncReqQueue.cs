@@ -51,10 +51,10 @@ namespace MBBetaAPI.AgentAPI
         public static bool BackupFriendsFamily = true;
         public static bool BackupFriendsPic = true;
         public static bool BackupMyAlbums = true;
-        public static bool BackupMyPhotos = true;
+        public static bool BackupMyPhotos = false;
         public static bool BackupFriendsWall = true; // default, control instead by each person
         public static bool BackupFriendsEvents = true; // default, control instead by each person
-        public static bool BackupFriendsAlbums = true; // default, control instead by each person
+        public static bool BackupFriendsAlbums = false; // default, control instead by each person
 
         #endregion
 
@@ -83,10 +83,11 @@ namespace MBBetaAPI.AgentAPI
         public const int BACKUPFRIENDSINFO = 6;
         public const int BACKUPFRIENDSPROFPIC = 7;
         public const int BACKUPMYALBUMS = 8;
-        public const int BACKUPMYPHOTOS = 9;
-        public const int BACKUPFRIENDSWALLS = 10;
-        public const int BACKUPFRIENDSEVENTS = 11;
-        public const int BACKUPFRIENDSALBUMS = 12;
+        public const int BACKUPALBUMCOVER = 9;
+        public const int BACKUPMYPHOTOS = 10;
+        public const int BACKUPFRIENDSWALLS = 11;
+        public const int BACKUPFRIENDSEVENTS = 12;
+        public const int BACKUPFRIENDSALBUMS = 13;
         #endregion
 
         #region "Statistics"
@@ -793,6 +794,16 @@ namespace MBBetaAPI.AgentAPI
                     }
 
                     break;
+                case BACKUPALBUMCOVER:
+                    if (BackupMyAlbums)
+                    {
+                        nReqs = GetPendingAlbumCoverPics();
+                    }
+                    else
+                    {
+                        nReqs = 0;
+                    }
+                    break;
                 case BACKUPMYPHOTOS:
                     if (BackupMyPhotos)
                     {
@@ -995,6 +1006,37 @@ namespace MBBetaAPI.AgentAPI
             return nRequests;
              */
             return 0;
+        }
+
+        private static int GetPendingAlbumCoverPics()
+        {
+            string errorMessage;
+            // Go over friends, adding requests for them if not yet defined
+            string[] PhotoSource;
+            int[] PhotoEntityID;
+            string[] PhotoSNID;
+            string[] AlbumSNID;
+
+            int nRequests = DBLayer.GetCoverPicturesToDownload(CONCURRENTREQUESTLIMIT, out PhotoSource, out AlbumSNID, out PhotoEntityID, out PhotoSNID, out errorMessage);
+            if (nRequests > 0)
+            {
+                int i = 0;
+                foreach (int photoID in PhotoEntityID)
+                {
+                    string source = PhotoSource[i];
+                    string parent = AlbumSNID[i];
+                    string SNID = PhotoSNID[i];
+                    if (source != null && SNID != null && source != "" && SNID != "")
+                    {
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetAlbumPic);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(photoID, SNID, source, parent);
+                        bw.RunWorkerAsync(temp);
+                    }
+                    i++;
+                }
+            }
+            return nRequests;
         }
 
         private static int GetNextAlbumPics()

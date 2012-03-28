@@ -8,6 +8,10 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
 
+        <!--Boolean to Visibility Converter-->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+ 
+               
         <Style x:Key="AlbumListStyle" TargetType="ListBoxItem">
             <Style.Resources>
                 <!--SelectedItem with focus-->
@@ -44,6 +48,10 @@
                         <Label Content="{Binding NumberOfPhotos}"/>
                         <Label Content="{lex:LocText MBBeta2:FBPhotoStrings:photos}"/>
                     </StackPanel>
+                    <Button x:Name="DownloadPhotosBt" Content="{lex:LocText MBBeta2:FBPhotoStrings:DownloadAlbum}"
+                            Click="DownloadPhotosBt_Click"
+                            Style="{StaticResource ButtonLinkStyle}" Template="{StaticResource ButtonLinkTemplate}"
+                            Visibility="{Binding PhotosToDownlad, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </StackPanel>
                 <ItemsControl    Margin="50,0,0,0" ItemsSource="{Binding PhotoRibbon}"
                             ItemTemplate="{StaticResource RibbonTemplate}">

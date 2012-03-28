@@ -146,7 +146,7 @@ namespace MBBeta2
             SelectedAlbum = new SNPhotoAlbum();
             SelectedAlbum = (SNPhotoAlbum)FBAlbumsLC.AlbumListBox.SelectedItem;
 
-            if (SelectedAlbum != null)
+            if (SelectedAlbum != null && SelectedAlbum.AllPhotosDownloaded == true)
             {
                 FBAlbumControl.PhotoAlbumView.ItemsSource = SelectedAlbum.Photos;
                 FBAlbumControl.AlbumCommentsItemsControl.ItemsSource = SelectedAlbum.CommentsList;

@@ -29,6 +29,47 @@
                         <TextBlock x:Name="BackupEndTB" Text="{lex:LocText MBBeta2:SetupStrings:BackupEnding}" />
                         <TextBlock x:Name="endBackupTB" />
                     </StackPanel>
+                    <StackPanel Orientation="Vertical" Margin="5">
+                        <TextBlock Text="Backup Options"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.3*"/>
+                                <ColumnDefinition Width="0.1*"/>
+                                <ColumnDefinition Width="0.1*"/>
+                                <ColumnDefinition Width="0.1*"/>
+                                <ColumnDefinition Width="0.1*"/>
+                                <ColumnDefinition Width="0.1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.4*"/>
+                                <RowDefinition Height="0.3*"/>
+                                <RowDefinition Height="0.3*"/>
+                            </Grid.RowDefinitions>
+                            <!--Headers-->
+                            <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:Wall}" Grid.Column="1" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:News}" Grid.Column="2" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:Inbox}" Grid.Column="3" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:Events}" Grid.Column="4" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:Photos}" Grid.Column="5" HorizontalAlignment="Center"/>
+                            
+                            <!--Level-->
+                            <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:Me}" 
+                                       Grid.Row="1"/>
+                            <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:Friends}"
+                                       Grid.Row="2"/>
+                            
+                            <!--Selected Options-->
+                            <CheckBox x:Name="MeWallCB" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="MeNewsCB" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="MeInboxCB" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="MeEventsCB" Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="MePhotosCB" Grid.Column="5" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="FriendsWallCB" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="FriendsEventsCB" Grid.Column="4" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="FriendsPhotosCB" Grid.Column="5" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupType}" MinWidth="200"/>
                         <ComboBox x:Name="BackupTypeCB" SelectedIndex="0" SelectionChanged="BackupTypeCB_SelectionChanged">

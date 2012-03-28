@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Threading;
 using System.IO;
@@ -54,6 +55,17 @@ namespace MBBeta2
                 DBLayer.GetLastBackup(out backupState, out backupDate);
                 endBackupTB.Text = backupDate;
             }                             
+
+            //BackupOptions
+            MeWallCB.IsChecked = AsyncReqQueue.BackupMyWall;
+            MeNewsCB.IsChecked = AsyncReqQueue.BackupMyNews;
+            MeInboxCB.IsChecked = AsyncReqQueue.BackupMyInbox;
+            MeEventsCB.IsChecked = AsyncReqQueue.BackupMyEvents;
+            MePhotosCB.IsChecked = AsyncReqQueue.BackupMyPhotos;
+            FriendsEventsCB.IsChecked = AsyncReqQueue.BackupFriendsEvents;
+            FriendsPhotosCB.IsChecked = AsyncReqQueue.BackupFriendsAlbums;
+            FriendsWallCB.IsChecked = AsyncReqQueue.BackupFriendsWall;
+
         }
 
 
@@ -288,6 +300,18 @@ namespace MBBeta2
                     return;
                 }
             }
+
+            //Store Backup Options
+            AsyncReqQueue.BackupMyWall = (bool)MeWallCB.IsChecked;
+            AsyncReqQueue.BackupMyNews = (bool)MeNewsCB.IsChecked;
+            AsyncReqQueue.BackupMyInbox = (bool)MeInboxCB.IsChecked;
+            AsyncReqQueue.BackupMyEvents = (bool)MeEventsCB.IsChecked;
+            AsyncReqQueue.BackupMyPhotos = (bool)MePhotosCB.IsChecked;
+            AsyncReqQueue.BackupFriendsEvents = (bool)FriendsEventsCB.IsChecked;
+            AsyncReqQueue.BackupFriendsAlbums = (bool)FriendsPhotosCB.IsChecked;
+            AsyncReqQueue.BackupFriendsWall = (bool)FriendsWallCB.IsChecked;
+            //TODO: Persist Options
+
             success = true;
             Close();
         }

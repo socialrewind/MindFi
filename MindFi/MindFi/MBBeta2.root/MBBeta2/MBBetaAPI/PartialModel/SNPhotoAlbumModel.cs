@@ -55,7 +55,7 @@ namespace MBBetaAPI
             {
 
                 //Read Photo Album
-                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, SNID, FromID, FromName, Description, Link, PhotoCount, Created, Updated, Path, CoverPicture, AlbumType from AlbumData where AlbumID = @ID", conn);
+                SQLiteCommand command = new SQLiteCommand("select SocialNetwork, SNID, FromID, FromName, Description, Link, PhotoCount, Created, Updated, Path, CoverPicture, AlbumType, AllPhotosDownloaded from AlbumData where AlbumID = @ID", conn);
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -87,6 +87,13 @@ namespace MBBetaAPI
                         CoverPicture = Convert.ToInt64(value);
                     }
                     AlbumType = reader.GetString(11);
+                    //AllPhotosDownloaded
+                    if (reader.IsDBNull(12))
+                        AllPhotosDownloaded = false;
+                    else
+                        AllPhotosDownloaded = reader.GetBoolean(12);
+
+                    PhotosToDownlad = !AllPhotosDownloaded;
                 }
                 reader.Close();
 
@@ -150,22 +157,14 @@ namespace MBBetaAPI
             }
 
 
-            int i = 0;
             foreach(int PhotoID in PhotoIDs)
             {
 
                 TmpPhoto = new SNPhoto(PhotoID);
-                //tmp.PhotoPath = AlbumPath + "\\" + tmp.ID.ToString() + ".jpg";
-
-                if (i < 5)
+                if (TmpPhoto.SNID == CoverPicture)
                 {
                     PhotoRibbon.Add(TmpPhoto);
-                    Photos.Add(TmpPhoto);
                 }
-                else
-                    Photos.Add(TmpPhoto);
-
-                i++;
 
              }
 

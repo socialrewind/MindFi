@@ -57,6 +57,8 @@ namespace MBBetaAPI
         public int NumberOfPhotos { get; set; }
         public Int64 CoverPicture { get; private set; }
         public DateTime Date { get; private set; }
+        public bool AllPhotosDownloaded { get; set; }
+        public bool PhotosToDownlad { get; set; }
 
         //Photos
         public List<SNPhoto> PhotoRibbon { get; set; }

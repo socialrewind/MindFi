@@ -24,6 +24,11 @@ namespace MBBeta2.Controls
             InitializeComponent();
         }
 
+        private void DownloadPhotosBt_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Download Photos here");
+        }
+
         
     }
 }

@@ -147,4 +147,7 @@
   <data name="AlbumComments" xml:space="preserve">
     <value>Album Comments</value>
   </data>
+  <data name="DownloadAlbum" xml:space="preserve">
+    <value>Download Album</value>
+  </data>
 </root>

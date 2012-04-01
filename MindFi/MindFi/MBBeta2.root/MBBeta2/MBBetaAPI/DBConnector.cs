@@ -505,7 +505,9 @@ namespace MBBetaAPI.AgentAPI
                 {
                     GetConn();
 
-                    SQLiteCommand command = new SQLiteCommand("select ActionDataID from ActionData where SocialNetwork='1' AND WhatSNID=@SNID", conn);
+                    // TODO: Generalize, not only Facebook
+                    // Bug fix: only action 10, which is likes
+                    SQLiteCommand command = new SQLiteCommand("select ActionDataID from ActionData where SocialNetwork='1' AND WhatSNID=@SNID AND ActionID=10", conn);
                     command.Parameters.Add(new SQLiteParameter("SNID", SNID));
                     SQLiteDataReader reader = command.ExecuteReader();
 

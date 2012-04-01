@@ -172,21 +172,19 @@ namespace MBBetaAPI.AgentAPI
                         }
                     }
                     // TODO: Check when this has to be saved
-                    /*
-                                        if (m_to != null && m_to.Count > 0 )
-                                        {
-                                foreach (FBPerson dest in m_to)
-                                            {
-                                                string error;
-                                    // save likes relationship
-                                    dest.Distance = 2;
-                                    DBLayer.ActionDataSave( dest.SNID, SNID, Verb.SENTTO, out Saved, out error);
-                                    ErrorMessage += error;
-                                    dest.Save(out error);
-                                    ErrorMessage += error;
-                                            }
-                                        }
-                    */
+                    if (m_to != null && m_to.Count > 0)
+                    {
+                        foreach (FBPerson dest in m_to)
+                        {
+                            string error;
+                            // save likes relationship
+                            dest.Distance = 2;
+                            DBLayer.ActionDataSave(dest.SNID, SNID, Verb.SENTTO, out Saved, out error);
+                            ErrorMessage += error;
+                            dest.Save(out error);
+                            ErrorMessage += error;
+                        }
+                    }
                 }
                 // TODO: Change parser to generate likes as user list, then save corresponding relationship	
             }

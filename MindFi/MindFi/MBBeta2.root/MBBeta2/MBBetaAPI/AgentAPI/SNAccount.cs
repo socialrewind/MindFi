@@ -10,9 +10,9 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Backup levels
         /// </summary>
-        public const int BASIC = 1;
-        public const int EXTENDED = 2;
-        public const int STALKER = 3;
+        //public const int BASIC = 1;
+        //public const int EXTENDED = 2;
+        //public const int STALKER = 3;
 
         /// <summary>
         /// Identifier for the social network account in the database
@@ -41,7 +41,22 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Backup Level = default for how much information to backup
         /// </summary>
-        public int currentBackupLevel { get; set; }
+        //public int currentBackupLevel { get; set; }
+
+        public bool BackupMyWall;
+        public bool BackupMyNews;
+        public bool BackupMyInbox;
+        public bool BackupMyEvents;
+        public bool BackupMyNotifications;
+        public bool BackupFriendsInfo;
+        public bool BackupFriendsFamily;
+        public bool BackupFriendsPic;
+        public bool BackupMyAlbums;
+        public bool BackupMyPhotos;
+        public bool BackupFriendsWall;
+        public bool BackupFriendsEvents;
+        public bool BackupFriendsAlbums;
+
         /// <summary>
         /// Date the execution of the account backup starts
         /// </summary>
@@ -91,7 +106,16 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="email"></param>
         /// <param name="url"></param>
         /// <param name="level"></param>
-        public SNAccount(int id, int sn, string snid, string name, string email, string url, int level, DateTime backupPeriodStart, DateTime backupPeriodEnd )
+        public SNAccount(int id, int sn, string snid, string name, string email, string url, 
+                    bool bMyWall,
+                    bool bMyNews,
+                    bool bMyInbox,
+                    bool bMyEvents,
+                    bool bMyPhotos,
+                    bool bFriendsEvents,
+                    bool bFriendsAlbums,
+                    bool bFriendsWall,
+                    DateTime backupPeriodStart, DateTime backupPeriodEnd )
         {
             ID = id;
             SocialNetwork = sn;
@@ -99,13 +123,37 @@ namespace MBBetaAPI.AgentAPI
             Name = name;
             Email = email;
             URL = url;
-            currentBackupLevel = level;
+            //currentBackupLevel = level;
             BackupPeriodStart = backupPeriodStart;
             BackupPeriodEnd = backupPeriodEnd;
             // make sure they are initialized for preventing bugs
             BackupStartDate = DateTime.Now;
             CurrentPeriodStart = backupPeriodStart;
             CurrentPeriodEnd = backupPeriodEnd;
+            BackupMyWall = bMyWall;
+            BackupMyNews = bMyNews;
+            BackupMyInbox = bMyInbox;
+            BackupMyEvents = bMyEvents;
+            BackupMyNotifications = bMyNews; // TODO: Specific Control
+            BackupFriendsInfo = true; // TODO: Specific Control
+            BackupFriendsFamily = true; // TODO: Specific Control
+            BackupFriendsPic = true;
+            BackupMyAlbums = bMyPhotos;
+            BackupMyPhotos = false; // TODO: distinct control?
+
+            BackupFriendsWall = bFriendsWall;
+            BackupFriendsEvents = bFriendsEvents;
+            BackupFriendsAlbums = bFriendsAlbums;
+            
+            AsyncReqQueue.BackupMyWall = bMyWall;
+            AsyncReqQueue.BackupMyNews = bMyNews;
+            AsyncReqQueue.BackupMyInbox = bMyInbox;
+            AsyncReqQueue.BackupMyEvents = bMyEvents;
+            AsyncReqQueue.BackupMyPhotos = bMyPhotos;
+            AsyncReqQueue.BackupFriendsEvents = bFriendsEvents;
+            AsyncReqQueue.BackupFriendsAlbums = bFriendsAlbums;
+            AsyncReqQueue.BackupFriendsWall = bFriendsWall;
+
         }
 
         /// <summary>

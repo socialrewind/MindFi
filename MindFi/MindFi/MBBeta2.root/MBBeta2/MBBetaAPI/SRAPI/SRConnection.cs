@@ -35,7 +35,7 @@ namespace MBBetaAPI.SRAPI
                 // 5 seconds timeout
                 request.Timeout = 5000;
                 HttpWebResponse resp = (HttpWebResponse)request.GetResponse();
-                // TODO: Check something from the response...
+                // TODO: Check something from the response, making sure it is from Social Rewind
             }
             catch (Exception ex)
             {

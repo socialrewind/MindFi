@@ -70,13 +70,7 @@
                         </Grid>
                         
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <TextBlock Text="{lex:LocText MBBeta2:SetupStrings:BackupType}" MinWidth="200"/>
-                        <ComboBox x:Name="BackupTypeCB" SelectedIndex="0" SelectionChanged="BackupTypeCB_SelectionChanged">
-                            <ComboBoxItem>Basic</ComboBoxItem>
-                            <ComboBoxItem>Extended</ComboBoxItem>
-                        </ComboBox>
-                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5"></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Center">
                         <Button x:Name="SNLoginBt" Content="{lex:LocText MBBeta2:SetupStrings:SNLogin}"
                                 Click="SNLoginBt_Click"

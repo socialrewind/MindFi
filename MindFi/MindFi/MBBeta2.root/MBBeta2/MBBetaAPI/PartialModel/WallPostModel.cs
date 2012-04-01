@@ -284,6 +284,7 @@ namespace MBBetaAPI
                         }
                         break;
                     default:
+                        ErrorMessage = "Unexpected state: " + PostRequestState;
                         break;
                 }
 

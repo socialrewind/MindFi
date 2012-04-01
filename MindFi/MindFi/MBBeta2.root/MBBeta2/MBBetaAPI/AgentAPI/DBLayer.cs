@@ -219,7 +219,6 @@ namespace MBBetaAPI.AgentAPI
             }
         }
 
-        // TODO: Review startDateRange and endDateRange usage
         public static bool ReqQueueSave(long ID, string ReqType, int Priority,
             long? ParentID, string ParentSNID,
             DateTime Created, DateTime Updated, string ReqURL,
@@ -431,7 +430,6 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    // TODO: Update retry to failed
                     SQL = "Update RequestsQueue set State=?, Priority=? where State=? and RetryCount<3 and Updated<?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pUState = new SQLiteParameter();
@@ -449,6 +447,18 @@ namespace MBBetaAPI.AgentAPI
                     UpdateCmd.Parameters.Add(pUpdated);
                     UpdateCmd.ExecuteNonQuery();
                     int outrows = UpdateCmd.ExecuteNonQuery();
+                    if (outrows > 0)
+                    {
+                        // Update retry to failed
+                        SQL = "Update RequestsQueue set State=? where State=? and RetryCount>=3";
+                        SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
+                        SQLiteParameter pUState3 = new SQLiteParameter();
+                        pUState3.Value = AsyncReqQueue.FAILED;
+                        UpdateCmd2.Parameters.Add(pUState3);
+                        UpdateCmd2.Parameters.Add(pUState); // Where it is retry                    
+                        UpdateCmd2.ExecuteNonQuery();
+                        outrows = UpdateCmd.ExecuteNonQuery();                    
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1328,8 +1338,9 @@ namespace MBBetaAPI.AgentAPI
                     {
                         Saved = true;
 
-                        // update status of the associated request
-                        SQL = "update RequestsQueue set State=5 where ID=(select PostRequestID from PostData where PostID=?)";
+                        // update status of the associated request, check why PostRequestID may not be coherent
+                        //SQL = "update RequestsQueue set State=5 where ID=(select PostRequestID from PostData where PostID=?)";
+                        SQL = "update RequestsQueue set State=5 where ParentID=?";
                         SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
                         UpdateCmd2.Parameters.Add(pID);
                         int outrows2 = UpdateCmd2.ExecuteNonQuery();
@@ -2675,14 +2686,16 @@ namespace MBBetaAPI.AgentAPI
                     DatabaseInUse = true;
                     GetConn();
                     // try to read
-                    SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID, SocialNetwork, SNID, Name, Email, URL, BackupLevel, BackupPeriodStart, BackupPeriodEnd from SNAccounts", conn);
+                    SQLiteCommand CheckCmd = new SQLiteCommand("select AccountID, SocialNetwork, SNID, Name, Email, URL, BackupPeriodStart, BackupPeriodEnd, BackupMyWall, BackupMyNews, BackupMyInbox, BackupMyEvents, BackupMyPhotos, BackupFriendsEvents, BackupFriendsAlbums, BackupFriendsWall from SNAccounts", conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     while (reader.Read())
                     {
                         temp.Add(new SNAccount(reader.GetInt32(0), reader.GetInt32(1),
                             reader.GetString(2), reader.GetString(3), reader.GetString(4), 
-                            reader.GetString(5), reader.GetInt16(6),
-                            reader.GetDateTime(7), reader.GetDateTime(8) 
+                            reader.GetString(5),
+                            reader.GetBoolean(8), reader.GetBoolean(9), reader.GetBoolean(10), reader.GetBoolean(11),
+                            reader.GetBoolean(12), reader.GetBoolean(13), reader.GetBoolean(14), reader.GetBoolean(15),                            
+                            reader.GetDateTime(6), reader.GetDateTime(7)
                             ));
                     }
                     reader.Close();
@@ -2750,7 +2763,9 @@ namespace MBBetaAPI.AgentAPI
         /// Method that saves an account
         /// </summary>
         public static bool SaveAccount(int PersonID, string Name, string Email, int SocialNetwork,
-            string SNID, string URL, int BackupLevel, DateTime BackupPeriodStart, DateTime BackupPeriodEnd, out string ErrorMessage)
+            string SNID, string URL,
+            bool bMyWall, bool bMyNews, bool bMyInbox, bool bMyEvents, bool bMyPhotos, bool bFriendsEvents, bool bFriendsAlbums, bool bFriendsWall,
+            DateTime BackupPeriodStart, DateTime BackupPeriodEnd, out string ErrorMessage)
         {
             ErrorMessage = "";
             bool result = false;
@@ -2778,7 +2793,7 @@ namespace MBBetaAPI.AgentAPI
                     }
                     reader.Close();
 
-                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupLevel, BackupPeriodStart, BackupPeriodEnd, PersonID) values (?,?,?,?,?,?,?,?,?)";
+                    string SQL = "insert into SNAccounts (Name, Email, SocialNetwork, SNID, URL, BackupPeriodStart, BackupPeriodEnd, BackupMyWall, BackupMyNews, BackupMyInbox, BackupMyEvents, BackupMyPhotos, BackupFriendsEvents, BackupFriendsAlbums, BackupFriendsWall, PersonID, Active) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 1)";
                     SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pName = new SQLiteParameter();
                     pName.Value = Name;
@@ -2791,15 +2806,36 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pURL = new SQLiteParameter();
                     pURL.Value = URL;
                     InsertCmd.Parameters.Add(pURL);
-                    SQLiteParameter pLevel = new SQLiteParameter();
-                    pLevel.Value = BackupLevel;
-                    InsertCmd.Parameters.Add(pLevel);
                     SQLiteParameter pBackupPeriodStart = new SQLiteParameter();
                     pBackupPeriodStart.Value = BackupPeriodStart;
                     InsertCmd.Parameters.Add(pBackupPeriodStart);
                     SQLiteParameter pBackupPeriodEnd = new SQLiteParameter();
                     pBackupPeriodEnd.Value = BackupPeriodEnd;
                     InsertCmd.Parameters.Add(pBackupPeriodEnd);
+                    SQLiteParameter pbMyWall = new SQLiteParameter();
+                    pbMyWall.Value = bMyWall;
+                    InsertCmd.Parameters.Add(pbMyWall);
+                    SQLiteParameter pbMyNews = new SQLiteParameter();
+                    pbMyNews.Value = bMyNews;
+                    InsertCmd.Parameters.Add(pbMyNews);
+                    SQLiteParameter pbMyInbox = new SQLiteParameter();
+                    pbMyInbox.Value = bMyInbox;
+                    InsertCmd.Parameters.Add(pbMyInbox);
+                    SQLiteParameter pbMyEvents = new SQLiteParameter();
+                    pbMyEvents.Value = bMyEvents;
+                    InsertCmd.Parameters.Add(pbMyEvents);
+                    SQLiteParameter pbMyPhotos = new SQLiteParameter();
+                    pbMyPhotos.Value = bMyPhotos;
+                    InsertCmd.Parameters.Add(pbMyPhotos);
+                    SQLiteParameter pbFriendsEvents = new SQLiteParameter();
+                    pbFriendsEvents.Value = bFriendsEvents;
+                    InsertCmd.Parameters.Add(pbFriendsEvents);
+                    SQLiteParameter pbFriendsAlbums = new SQLiteParameter();
+                    pbFriendsAlbums.Value = bFriendsAlbums;
+                    InsertCmd.Parameters.Add(pbFriendsAlbums);
+                    SQLiteParameter pbFriendsWall = new SQLiteParameter();
+                    pbFriendsWall.Value = bFriendsWall;
+                    InsertCmd.Parameters.Add(pbFriendsWall);
                     SQLiteParameter pID = new SQLiteParameter();
                     pID.Value = PersonID;
                     InsertCmd.Parameters.Add(pID);
@@ -2829,8 +2865,16 @@ namespace MBBetaAPI.AgentAPI
         /// <summary>
         /// Method that updates an account
         /// </summary>
-        public static bool UpdateAccount(int SocialNetwork, string SNID, 
-            int BackupLevel, DateTime BackupPeriodStart, out string ErrorMessage)
+        public static bool UpdateAccount(int SocialNetwork, string SNID,
+                    bool bMyWall,
+                    bool bMyNews,
+                    bool bMyInbox,
+                    bool bMyEvents,
+                    bool bMyPhotos,
+                    bool bFriendsEvents,
+                    bool bFriendsAlbums,
+                    bool bFriendsWall,
+                    DateTime BackupPeriodStart, out string ErrorMessage)
         {
             ErrorMessage = "";
             bool result = false;
@@ -2858,13 +2902,34 @@ namespace MBBetaAPI.AgentAPI
                     }
                     reader.Close();
 
-                    string SQL = "update SNAccounts set BackupLevel=?, BackupPeriodStart=? where SocialNetwork=? and SNID=?";
+                    string SQL = "update SNAccounts set BackupMyWall=?, BackupMyNews=?, BackupMyInbox=?, BackupMyEvents=?, BackupMyPhotos=?, BackupFriendsEvents=?, BackupFriendsAlbums=?, BackupFriendsWall=?, BackupPeriodStart=? where SocialNetwork=? and SNID=?";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
-                    SQLiteParameter pLevel = new SQLiteParameter();
-                    pLevel.Value = BackupLevel;
-                    UpdateCmd.Parameters.Add(pLevel);
                     SQLiteParameter pBackupPeriodStart = new SQLiteParameter();
                     pBackupPeriodStart.Value = BackupPeriodStart;
+                    SQLiteParameter pbMyWall = new SQLiteParameter();
+                    pbMyWall.Value = bMyWall;
+                    UpdateCmd.Parameters.Add(pbMyWall);
+                    SQLiteParameter pbMyNews = new SQLiteParameter();
+                    pbMyNews.Value = bMyNews;
+                    UpdateCmd.Parameters.Add(pbMyNews);
+                    SQLiteParameter pbMyInbox = new SQLiteParameter();
+                    pbMyInbox.Value = bMyInbox;
+                    UpdateCmd.Parameters.Add(pbMyInbox);
+                    SQLiteParameter pbMyEvents = new SQLiteParameter();
+                    pbMyEvents.Value = bMyEvents;
+                    UpdateCmd.Parameters.Add(pbMyEvents);
+                    SQLiteParameter pbMyPhotos = new SQLiteParameter();
+                    pbMyPhotos.Value = bMyPhotos;
+                    UpdateCmd.Parameters.Add(pbMyPhotos);
+                    SQLiteParameter pbFriendsEvents = new SQLiteParameter();
+                    pbFriendsEvents.Value = bFriendsEvents;
+                    UpdateCmd.Parameters.Add(pbFriendsEvents);
+                    SQLiteParameter pbFriendsAlbums = new SQLiteParameter();
+                    pbFriendsAlbums.Value = bFriendsAlbums;
+                    UpdateCmd.Parameters.Add(pbFriendsAlbums);
+                    SQLiteParameter pbFriendsWall = new SQLiteParameter();
+                    pbFriendsWall.Value = bFriendsWall;
+                    UpdateCmd.Parameters.Add(pbFriendsWall);
                     UpdateCmd.Parameters.Add(pBackupPeriodStart);
                     UpdateCmd.Parameters.Add(pSocialNetwork);
                     UpdateCmd.Parameters.Add(pSNID);
@@ -3803,9 +3868,13 @@ namespace MBBetaAPI.AgentAPI
                         SQLiteCommand InsertCmd = new SQLiteCommand(SQL, conn);
                         // Calculation
                         currentPeriodEnd = endPeriod;
-                        // Now go back by a month unless it is the one pointing to the future from now
+                        // Now go back by a month unless it is the one pointing to the future from now and it is an incremental backup
                         DateTime temp1 = DateTime.Today;
                         DateTime temp2 = endPeriod.AddMonths(-1);
+                        if (!isIncremental)
+                        {
+                            temp2 = temp2.AddMonths(-1);
+                        }
                         currentPeriodStart = ( temp1 < temp2 ) ? temp1 : temp2;
                         SQLiteParameter pStart = new SQLiteParameter();
                         pStart.Value = DateTime.Now;

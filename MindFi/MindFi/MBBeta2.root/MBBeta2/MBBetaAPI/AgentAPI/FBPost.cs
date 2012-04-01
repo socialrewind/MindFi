@@ -260,7 +260,6 @@ namespace MBBetaAPI.AgentAPI
                     if (m_to != null && m_to.Count > 0)
                     {
                         // TODO: modularize
-                        //System.Windows.Forms.MessageBox.Show("saving to for message: " + m_to.Count );
                         foreach (FBPerson dest in m_to)
                         {
                             dest.Distance = 2;

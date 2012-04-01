@@ -135,12 +135,8 @@ namespace MBBeta2.Controls
             if (e.Key == Key.Enter)
             {
 
-                // TODO: save to the queue
-                //MessageBox.Show("Post a comment code goes here... Post#: " + CurrentWPS.ParentPost.SNID);
                 FBAPI.AddComment(CurrentWPS.ParentPost.SNID, AddCommentTB.Text, ProcessUpdateLike);
-
                 CommentsPopUp.IsOpen = false;
-
                 e.Handled = true;
             }
             if (e.Key == Key.Escape)

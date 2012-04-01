@@ -42,19 +42,20 @@ namespace MBBetaAPI.AgentAPI
         #region "Controlling what to backup"
         // TODO: REVIEW before closing beta, useful now for testing
         // Review CurrentBackupState about line 615 every time these are changed, also before CurrentBackupState is incremented about line 1100+
-        public static bool BackupMyWall = true;
-        public static bool BackupMyNews = true;
-        public static bool BackupMyInbox = true;
-        public static bool BackupMyEvents = true;
-        public static bool BackupMyNotifications = true;
-        public static bool BackupFriendsInfo = true;
-        public static bool BackupFriendsFamily = true;
-        public static bool BackupFriendsPic = true;
-        public static bool BackupMyAlbums = true;
-        public static bool BackupMyPhotos = false;
-        public static bool BackupFriendsWall = true; // default, control instead by each person
-        public static bool BackupFriendsEvents = true; // default, control instead by each person
-        public static bool BackupFriendsAlbums = false; // default, control instead by each person
+        // TODO: Remove from here, use the one from the Current Account (also to manage distinct social networks separately)
+        public static bool BackupMyWall;
+        public static bool BackupMyNews;
+        public static bool BackupMyInbox;
+        public static bool BackupMyEvents;
+        public static bool BackupMyNotifications = false;
+        public static bool BackupFriendsInfo = false;
+        public static bool BackupFriendsFamily = false;
+        public static bool BackupFriendsPic;
+        public static bool BackupMyAlbums;
+        public static bool BackupMyPhotos;
+        public static bool BackupFriendsWall;
+        public static bool BackupFriendsEvents;
+        public static bool BackupFriendsAlbums;
 
         #endregion
 
@@ -548,25 +549,40 @@ namespace MBBetaAPI.AgentAPI
             apiReq.QueueAndSend(999);
             // TODO: FriendLists request ID
 
-            // Data that could use GetDataForCurrentState
-            apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
-            apiReq.QueueAndSend(999);
-            DBLayer.UpdateWallRequest(ID, apiReq.ID, out errorMessage);
-            apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessNews, ID, SNID);
-            apiReq.QueueAndSend(999);
-            DBLayer.UpdateNewsRequest(ID, apiReq.ID, out errorMessage);
-            apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
-            apiReq.QueueAndSend(999);
-            DBLayer.UpdateInboxRequest(ID, apiReq.ID, out errorMessage);
-            // TODO: make sure "me" is always 1 and CurrentProfile is applicable
-            apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents, 1, SNID);
-            apiReq.QueueAndSend(999);
-            DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
+            if (BackupMyWall)
+            {
+                // Data that could use GetDataForCurrentState
+                apiReq = FBAPI.Wall("me", SIZETOGETPERPAGE, ProcessWall, ID, SNID);
+                apiReq.QueueAndSend(999);
+                DBLayer.UpdateWallRequest(ID, apiReq.ID, out errorMessage);
+            }
+            if (BackupMyNews)
+            {
+                apiReq = FBAPI.News(SIZETOGETPERPAGE, ProcessNews, ID, SNID);
+                apiReq.QueueAndSend(999);
+                DBLayer.UpdateNewsRequest(ID, apiReq.ID, out errorMessage);
+            }
+            if (BackupMyInbox)
+            {
+                apiReq = FBAPI.Inbox("me", SIZETOGETPERPAGE, ProcessInbox);
+                apiReq.QueueAndSend(999);
+                DBLayer.UpdateInboxRequest(ID, apiReq.ID, out errorMessage);
+            }
+            if (BackupMyEvents)
+            {
+                // TODO: make sure "me" is always 1 and CurrentProfile is applicable
+                apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents, 1, SNID);
+                apiReq.QueueAndSend(999);
+                DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
+            }
             apiReq = FBAPI.Family(SNID, SIZETOGETPERPAGE, ProcessFamily);
             apiReq.Queue(400);
             DBLayer.UpdateFamilyRequest(ID, apiReq.ID, out errorMessage);
-            apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
-            apiReq.QueueAndSend(999);
+            if (BackupMyNews)
+            {
+                apiReq = FBAPI.Notifications("me", SIZETOGETPERPAGE, ProcessNotifications);
+                apiReq.QueueAndSend(999);
+            }
         }
 
 
@@ -652,16 +668,7 @@ namespace MBBetaAPI.AgentAPI
                 currentBackupNumber = currentBackup;
                 newPeriod = true;
                 // Check: initial state, TODO improve / generalize
-                /*
-                if (isIncremental)
-                {
-                    CurrentBackupState = BACKUPMYINBOX;
-                }
-                else
-                {
-                 */
-                    CurrentBackupState = BACKUPMYWALL;
-                //}
+                CurrentBackupState = BACKUPMYWALL;
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
@@ -669,7 +676,6 @@ namespace MBBetaAPI.AgentAPI
                 }
                 else
                 {
-                    //firstCase = true;
                     if (currentBackup != 0)
                     {
                         GetDataForCurrentState(ID, SNID);
@@ -1083,18 +1089,17 @@ namespace MBBetaAPI.AgentAPI
             if (nRequests > 0)
             {
                 int i = 0;
+                // TODO: Improve logic to manage time - depends on the friend...
+                FBAPI.SetTimeRange(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd);
                 foreach (int friendID in FriendEntityID)
                 {
                     string SNID = FriendSNID[i];
                     if (SNID != null && SNID != "")
                     {
-                        // TODO: Improve logic to manage time
-                        // TODO: Make async
-                        FBAPI.SetTimeRange(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd);
-                        apiReq = FBAPI.Wall(SNID, SIZETOGETPERPAGE, ProcessWall, friendID, SNID);
-                        apiReq.QueueAndSend(999);
-                        DBLayer.UpdateWallRequest(friendID, apiReq.ID, out errorMessage);
-                        nFriendsWalls++;
+                        BackgroundWorker bw = new BackgroundWorker();
+                        bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendWall);
+                        AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
+                        bw.RunWorkerAsync(temp);
                     }
                     i++;
                 }
@@ -1237,6 +1242,18 @@ namespace MBBetaAPI.AgentAPI
             DBLayer.UpdateThreadRequest(temp.ID, apiReq.ID, out errorMessage);
         }
 
+        private static void bw_GetFriendWall(object sender, DoWorkEventArgs e)
+        {
+            string errorMessage;
+            BackgroundWorker worker = sender as BackgroundWorker;
+            AsyncWorkArgs temp = (AsyncWorkArgs)e.Argument;
+
+            AsyncReqQueue apiReq = FBAPI.Wall(temp.SNID, SIZETOGETPERPAGE, ProcessWall, temp.ID, temp.SNID);
+            apiReq.QueueAndSend(999);
+            DBLayer.UpdateWallRequest(temp.ID, apiReq.ID, out errorMessage);
+            nFriendsWalls++;
+        }
+
         #endregion
 
 
@@ -1313,8 +1330,6 @@ namespace MBBetaAPI.AgentAPI
                         // if no pending data, then check backup time progress and infligh requests
                         if (nReqs == 0)
                         {
-                            // TODO: Confirm elimination of "Extended"
-                            // if (CurrentBackupState < BACKUPFRIENDSPROFPIC || (CurrentBackupState < BACKUPFRIENDSALBUMS && SNAccount.CurrentProfile.currentBackupLevel >= SNAccount.EXTENDED) )
                             if (CurrentBackupState < BACKUPFRIENDSALBUMS )
                                 {
                                 CurrentBackupState++;
@@ -1615,21 +1630,6 @@ namespace MBBetaAPI.AgentAPI
                 wall.Save(out error);
                 nInSaveRequests--;
                 nPosts += wall.CurrentNumber;
-
-                // TODO: Remove commented
-            //    foreach (FBPost post in wall.items)
-            //    {
-            //        if (post.LikesCount > 0)
-            //        {
-            //            AsyncReqQueue apiReq = FBAPI.Likes(post.SNID, SIZETOGETPERPAGE, ProcessLikes, post.ID);
-            //            apiReq.Queue(200);
-            //        }
-            //        if (post.CommentCount > post.Comments.Count)
-            //        {
-            //            AsyncReqQueue apiReq = FBAPI.Post(post.SNID, ProcessOnePost);
-            //            apiReq.Queue(300);
-            //        }
-            //    }
 
                 // TODO: Review to make sure it does not go further than the appropriate timeframe
                 if (wall.Next != null)

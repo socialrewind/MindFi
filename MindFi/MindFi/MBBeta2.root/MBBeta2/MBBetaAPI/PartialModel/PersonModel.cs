@@ -316,6 +316,8 @@ namespace MBBetaAPI
                         }
                         break;
                     default:
+                        // This should be an error, breakpoint to check
+                        ErrorMessage = "Unexpected state " + DataRequestState;
                         break;
                 }
             }
@@ -341,11 +343,13 @@ namespace MBBetaAPI
                     FBPerson currentFriend = new FBPerson(DataResponseValue, Distance, null);
                     currentFriend.Parse();
                     // sync data from currentFriend
-                    // TODO: Double check all fields are used
+                    // SNID = currentFriend.SNID; - different types
+                    SN = SocialNetwork.FACEBOOK;
                     FirstName = currentFriend.FirstName;
                     LastName = currentFriend.LastName;
                     MiddleName = currentFriend.MiddleName;
                     Name = currentFriend.Name;
+                    DisplayName = currentFriend.Name;
                     if (currentFriend.Link != null && currentFriend.Link != "")
                     {
                         SNLink = new Uri(currentFriend.Link);
@@ -353,6 +357,11 @@ namespace MBBetaAPI
                     About = currentFriend.About;
                     Bio = currentFriend.Bio;
                     Quotes = currentFriend.Quotes;
+                    if (currentFriend.ProfilePic != null)
+                    {
+                        ProfilePic = AsyncReqQueue.ProfilePhotoDestinationDir + currentFriend.ProfilePic;
+                    }
+                    Distance = currentFriend.Distance;
                     RelationshipStatus = currentFriend.RelationshipStatus;
                     string tempDay, tempMonth, tempYear;
                     DBLayer.ProcessFullBirthday(currentFriend.FullBirthday, out tempDay, out tempMonth, out tempYear);

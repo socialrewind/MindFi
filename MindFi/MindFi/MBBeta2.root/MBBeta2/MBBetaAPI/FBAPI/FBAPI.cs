@@ -664,11 +664,13 @@ namespace MBBetaAPI.AgentAPI
             try
             {
                 string URLToGet = GraphAPIURL;
-                string postData = "";
 
-                if (PostData != "")
+                // Preprocess postData to allow accents and special characters
+                string EncodedPostData = Uri.EscapeDataString(PostData);                
+
+                if (EncodedPostData != "")
                 {
-                    postData = "message=" + PostData;
+                    EncodedPostData = "message=" + EncodedPostData;
                 }
                 if (addToken)
                 {
@@ -676,25 +678,25 @@ namespace MBBetaAPI.AgentAPI
                     {
                         Limit = DEFAULT_LIMIT;
                     }
-                    postData += "&access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
+                    EncodedPostData += "&access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
                     // TODO: how to add in a more smart way the since / until
                     if (addDateRange)
                     {
                         if (InitialTime == null || EndTime == null)
                         {
-                            // TODo: Find why this is happening
+                            // TODO: Find why this is happening
                             SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
                         }
-                        postData += "&since=" + InitialTime + "&until=" + EndTime;
+                        EncodedPostData += "&since=" + InitialTime + "&until=" + EndTime;
                     }
                 }
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URLToGet);
                 request.Method = "POST";
                 request.ContentType = "application/x-www-form-urlencoded";
-
-                // TODO: Preprocess postData to change Unicode to the form \u0000
+                
+                // normal encoding
                 ASCIIEncoding encoding = new ASCIIEncoding();
-                byte[] byte1 = encoding.GetBytes(postData);
+                byte[] byte1 = encoding.GetBytes(EncodedPostData); //postData);
                 request.ContentLength = byte1.Length;
 
                 Stream newStream = request.GetRequestStream();

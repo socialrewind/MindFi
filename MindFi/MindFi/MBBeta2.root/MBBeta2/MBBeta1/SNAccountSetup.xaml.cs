@@ -90,24 +90,7 @@ namespace MBBeta2
                     SNAccount.UpdateCurrent(first);
                 }
 
-                SNUrlTB.Text = SNAccount.CurrentProfile.URL;
-                
-                // TODO: Localize
-                switch (SNAccount.CurrentProfile.currentBackupLevel)
-                {
-                    case SNAccount.BASIC:
-                        BackupTypeCB.SelectedIndex = 0;
-                        break;
-                    case SNAccount.EXTENDED:
-                        BackupTypeCB.SelectedIndex = 1;
-                        break;
-                    case SNAccount.STALKER:
-                        BackupTypeCB.SelectedIndex = 2;
-                        break;
-                    default:
-                        BackupTypeCB.SelectedIndex = 0;
-                        break;
-                }
+                SNUrlTB.Text = SNAccount.CurrentProfile.URL;                
             }
         }
 
@@ -189,6 +172,15 @@ namespace MBBeta2
                         {
                             // TODO: Localize
                             this.StatusTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
+                            //Store Backup Options
+                            AsyncReqQueue.BackupMyWall = (bool)MeWallCB.IsChecked;
+                            AsyncReqQueue.BackupMyNews = (bool)MeNewsCB.IsChecked;
+                            AsyncReqQueue.BackupMyInbox = (bool)MeInboxCB.IsChecked;
+                            AsyncReqQueue.BackupMyEvents = (bool)MeEventsCB.IsChecked;
+                            AsyncReqQueue.BackupMyPhotos = (bool)MePhotosCB.IsChecked;
+                            AsyncReqQueue.BackupFriendsEvents = (bool)FriendsEventsCB.IsChecked;
+                            AsyncReqQueue.BackupFriendsAlbums = (bool)FriendsPhotosCB.IsChecked;
+                            AsyncReqQueue.BackupFriendsWall = (bool)FriendsWallCB.IsChecked;
                             // once logged in, just poll for the data
                             DateTime initialDate;
                             initialDate = (DateTime)(BackupDateDP.SelectedDate != null ? BackupDateDP.SelectedDate : DateTime.Now);
@@ -201,14 +193,16 @@ namespace MBBeta2
                     AsyncReqQueue.PendingBasics();
                     // TODO: Localize
                     this.StatusTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
-                    if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic && AsyncReqQueue.GotWall
-                            && AsyncReqQueue.GotEvent && AsyncReqQueue.GotInbox && AsyncReqQueue.GotFriendLists)
+                    if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic 
+                            && ( AsyncReqQueue.GotWall || !AsyncReqQueue.BackupMyWall )
+                            && (AsyncReqQueue.GotEvent || !AsyncReqQueue.BackupMyEvents )
+                            && (AsyncReqQueue.GotInbox || !AsyncReqQueue.BackupMyInbox) 
+                            && AsyncReqQueue.GotFriendLists)
                     {
                         dispatcherTimer.Stop();
                         this.StatusTB.Text += ":" + FBLogin.LastError;
                         // TODO: Localize
-                        this.StatusTB.Text = "Your basic info, profile picture, top " + AsyncReqQueue.nPosts +
-                            " wall posts and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
+                        this.StatusTB.Text = "Your basic info, profile picture and friend list (" + AsyncReqQueue.nFriends + ") have been retrieved.";
                         me = FBLogin.Me;
                         this.SNUrlTB.Text = me.Link;
                         SaveBt.IsEnabled = true;
@@ -263,6 +257,16 @@ namespace MBBeta2
                 }
             }
 
+            //Store Backup Options
+            AsyncReqQueue.BackupMyWall = (bool)MeWallCB.IsChecked;
+            AsyncReqQueue.BackupMyNews = (bool)MeNewsCB.IsChecked;
+            AsyncReqQueue.BackupMyInbox = (bool)MeInboxCB.IsChecked;
+            AsyncReqQueue.BackupMyEvents = (bool)MeEventsCB.IsChecked;
+            AsyncReqQueue.BackupMyPhotos = (bool)MePhotosCB.IsChecked;
+            AsyncReqQueue.BackupFriendsEvents = (bool)FriendsEventsCB.IsChecked;
+            AsyncReqQueue.BackupFriendsAlbums = (bool)FriendsPhotosCB.IsChecked;
+            AsyncReqQueue.BackupFriendsWall = (bool)FriendsWallCB.IsChecked;
+
             string errorData = "";
             // important: time in both is 0:0:0
             DateTime initialDate = BackupDateDP.SelectedDate.Value;
@@ -270,11 +274,26 @@ namespace MBBeta2
             if (SNAccount.CurrentProfile == null)
             {
                 SNAccount.UpdateCurrent(new SNAccount(-1, SN, me.SNID, me.Name, me.EMail, me.Link,
-                    this.BackupTypeCB.SelectedIndex + 1,
+                    AsyncReqQueue.BackupMyWall,
+                    AsyncReqQueue.BackupMyNews,
+                    AsyncReqQueue.BackupMyInbox,
+                    AsyncReqQueue.BackupMyEvents,
+                    AsyncReqQueue.BackupMyPhotos,
+                    AsyncReqQueue.BackupFriendsEvents,
+                    AsyncReqQueue.BackupFriendsAlbums,
+                    AsyncReqQueue.BackupFriendsWall,
                     initialDate, endDate));
 
                 if (!DBLayer.SaveAccount(me.ID, me.Name, me.EMail, SN, me.SNID, me.Link,
-                       SNAccount.CurrentProfile.currentBackupLevel,
+                       //SNAccount.CurrentProfile.currentBackupLevel,
+                       AsyncReqQueue.BackupMyWall,
+                       AsyncReqQueue.BackupMyNews,
+                       AsyncReqQueue.BackupMyInbox,
+                       AsyncReqQueue.BackupMyEvents,
+                       AsyncReqQueue.BackupMyPhotos,
+                       AsyncReqQueue.BackupFriendsEvents,
+                       AsyncReqQueue.BackupFriendsAlbums,
+                       AsyncReqQueue.BackupFriendsWall,
                        SNAccount.CurrentProfile.BackupPeriodStart,
                        SNAccount.CurrentProfile.BackupPeriodEnd,
                        out errorData))
@@ -288,10 +307,17 @@ namespace MBBeta2
             else
             {
                 SNAccount.CurrentProfile.BackupPeriodStart = initialDate;
-                SNAccount.CurrentProfile.currentBackupLevel = this.BackupTypeCB.SelectedIndex + 1;
+                //SNAccount.CurrentProfile.currentBackupLevel = this.BackupTypeCB.SelectedIndex + 1;
                 // make sure it updates existing accounts
                 if (!DBLayer.UpdateAccount(SN, me.SNID,
-                       SNAccount.CurrentProfile.currentBackupLevel,
+                       AsyncReqQueue.BackupMyWall,
+                       AsyncReqQueue.BackupMyNews,
+                       AsyncReqQueue.BackupMyInbox,
+                       AsyncReqQueue.BackupMyEvents,
+                       AsyncReqQueue.BackupMyPhotos,
+                       AsyncReqQueue.BackupFriendsEvents,
+                       AsyncReqQueue.BackupFriendsAlbums,
+                       AsyncReqQueue.BackupFriendsWall,
                        SNAccount.CurrentProfile.BackupPeriodStart,
                        out errorData))
                 {
@@ -300,17 +326,6 @@ namespace MBBeta2
                     return;
                 }
             }
-
-            //Store Backup Options
-            AsyncReqQueue.BackupMyWall = (bool)MeWallCB.IsChecked;
-            AsyncReqQueue.BackupMyNews = (bool)MeNewsCB.IsChecked;
-            AsyncReqQueue.BackupMyInbox = (bool)MeInboxCB.IsChecked;
-            AsyncReqQueue.BackupMyEvents = (bool)MeEventsCB.IsChecked;
-            AsyncReqQueue.BackupMyPhotos = (bool)MePhotosCB.IsChecked;
-            AsyncReqQueue.BackupFriendsEvents = (bool)FriendsEventsCB.IsChecked;
-            AsyncReqQueue.BackupFriendsAlbums = (bool)FriendsPhotosCB.IsChecked;
-            AsyncReqQueue.BackupFriendsWall = (bool)FriendsWallCB.IsChecked;
-            //TODO: Persist Options
 
             success = true;
             Close();
@@ -359,6 +374,11 @@ namespace MBBeta2
             {
                 SaveBt.IsEnabled = true;
             }
+        }
+
+        private void MePhotosCB_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

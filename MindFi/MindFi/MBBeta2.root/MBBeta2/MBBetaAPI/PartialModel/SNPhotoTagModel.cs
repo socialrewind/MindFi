@@ -57,12 +57,7 @@ namespace MBBetaAPI
             {
 
                 //Read Tag
-                //TODO: Complete person name when available in table for efficiency
                 SQLiteCommand command = new SQLiteCommand("select SocialNetwork, PersonSNID, PhotoSNID, X, Y, Created, PersonName from TagData where TagDataID = @ID", conn);
-                /*
-                SQLiteCommand command = new SQLiteCommand("select TagData.SocialNetwork, TagData.PersonSNID, TagData.PhotoSNID, TagData.X, TagData.Y, TagData.Created, Name"
-                                        + " from TagData left outer join PersonData on PersonSNID = PersonData.SNID left outer join Entities on PersonData.PersonID = Entities.ID where TagDataID = @ID", conn);
-                 * */
                 command.Parameters.Add(new SQLiteParameter("ID", ID));
 
                 SQLiteDataReader reader = command.ExecuteReader();

@@ -136,8 +136,6 @@ namespace MBBeta2
         private void GetNowWallBt_Click(object sender, RoutedEventArgs e)
         {
             WallCB.IsChecked = true;
-            //Code to start downloading goes here
-            // MessageBox.Show("Start download here..");
 
             string errorMessage = "";
             
@@ -160,8 +158,7 @@ namespace MBBeta2
         private void GetNowEventsBt_Click(object sender, RoutedEventArgs e)
         {
             EventsCB.IsChecked = true;
-            // Code to start downloading goes here
-            //MessageBox.Show("Start download here..");
+
             string errorMessage = "";
             // force all backup timeframe
             AsyncReqQueue apiReq = FBAPI.Events(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, AsyncReqQueue.ProcessEvents, CurrentPerson.ID, CurrentPerson.SNID.ToString());
@@ -181,8 +178,7 @@ namespace MBBeta2
         private void GetNowPhotosBt_Click(object sender, RoutedEventArgs e)
         {
             PhotoAlbumsCB.IsChecked = true;
-            // Code to start downloading goes here
-            //MessageBox.Show("Start download here...");
+
             string errorMessage = "";
             AsyncReqQueue apiReq = FBAPI.PhotoAlbums(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, AsyncReqQueue.ProcessAlbums);
             if (SNAccount.CurrentProfile != null)

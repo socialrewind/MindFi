@@ -275,6 +275,9 @@ namespace MBBetaAPI
                 // Parse process, if needed
                 switch (DataRequestState)
                 {
+                    case AsyncReqQueue.SENT:
+                        // simply waiting for its turn
+                        break;
                     case AsyncReqQueue.RECEIVED:
                         ProcessReceivedRequest();
                         NotifyPropertyChanged("All");

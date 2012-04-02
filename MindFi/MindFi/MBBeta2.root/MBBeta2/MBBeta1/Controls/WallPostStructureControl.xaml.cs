@@ -103,9 +103,8 @@ namespace MBBeta2.Controls
 
             WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
 
-            // TODO: save to the queue
-            //MessageBox.Show("Like on " + wps.ParentPost.SNID);
             FBAPI.UpdateLike(wps.ParentPost.SNID, ProcessUpdateLike);
+            // TODO: Refresh UI to like/unlike
         }
 
         private void CommentBt_Click(object sender, RoutedEventArgs e)

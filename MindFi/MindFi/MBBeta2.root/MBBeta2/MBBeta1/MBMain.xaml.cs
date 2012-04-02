@@ -1174,7 +1174,6 @@ namespace MBBeta2
                 }
                 if (!inProgress)
                 {
-                    //MessageBox.Show("Backup finished");
                     DoRefreshData();
                     // TODO: Localize
                     this.UpdateText.Text = "Backup just finished";

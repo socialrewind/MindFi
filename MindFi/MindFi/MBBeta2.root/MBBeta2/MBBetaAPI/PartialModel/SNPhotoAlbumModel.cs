@@ -137,7 +137,7 @@ namespace MBBetaAPI
                 try
                 {
                     DBLayer.GetConn();
-                    SQLiteCommand command = new SQLiteCommand("select PhotoID from PhotoData where ParentID = @ID", DBLayer.conn);
+                    SQLiteCommand command = new SQLiteCommand("select PhotoID from PhotoData where ParentID = @ID and Path is not null", DBLayer.conn);
                     command.Parameters.Add(new SQLiteParameter("ID", ID));
                     SQLiteDataReader reader = command.ExecuteReader();
 

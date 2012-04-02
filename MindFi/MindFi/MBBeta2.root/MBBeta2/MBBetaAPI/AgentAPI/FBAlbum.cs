@@ -157,13 +157,6 @@ namespace MBBetaAPI.AgentAPI
                 case "name":
                     switch (parentName)
                     {
-                        /*
-                    case null:
-                    case "":
-                        Name = value;
-//MessageBox.Show("Parsing Album Name:" + Name);
-                        break;
-                         */
                         case "from":
                             FromName = value;
                             break;

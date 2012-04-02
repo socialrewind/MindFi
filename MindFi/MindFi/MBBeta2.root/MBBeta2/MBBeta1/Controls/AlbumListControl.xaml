@@ -7,8 +7,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-
-        <!--Boolean to Visibility Converter-->
+        <Style TargetType="ListBoxItem">
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="IsSelected" Value="True"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+            <!--Boolean to Visibility Converter-->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
  
                

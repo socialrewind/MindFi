@@ -3789,7 +3789,7 @@ namespace MBBetaAPI.AgentAPI
 
         public static bool UpdateDownloadedAlbums()
         {
-            string ErrorMessage;
+            string ErrorMessage = "";
             bool Saved = false;
             lock (obj)
             {
@@ -3800,9 +3800,16 @@ namespace MBBetaAPI.AgentAPI
                     // update
                     string SQL = "update AlbumData set AllPhotosDownloaded=1 where exists(select * from PhotoData where ParentID=AlbumID and Path is not null) and not exists(select * from PhotoData where ParentID=AlbumID and Path is null)";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
-                    UpdateCmd.ExecuteNonQuery();
-                    Saved = true;
-                    ErrorMessage = "";
+                    int outRows = UpdateCmd.ExecuteNonQuery();
+                    if (outRows > 0)
+                    {
+                        Saved = true;
+                        ErrorMessage = "";
+                    }
+                    else
+                    {
+                        ErrorMessage = "no rows updated";
+                    }
                 } // try
                 catch (Exception ex)
                 {

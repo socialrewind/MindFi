@@ -1542,7 +1542,11 @@ namespace MBBetaAPI.AgentAPI
                     {
                         //  TODO: Check if can be consolidated with profile pic
                         DBLayer.UpdatePhoto((long)parent, response, out errorData);
-                        if (errorData == "") return true;
+                        if (errorData == "")
+                        {
+                            nPhotos++;
+                            return true;
+                        }
                     }
                 }
                 // corrected bug: return an error without mark as failed
@@ -2054,7 +2058,7 @@ namespace MBBetaAPI.AgentAPI
                 nInParseRequests--;
                 CountPerState[PARSED]++;
                 CountPerState[RECEIVED]--;
-                nPhotos += photos.CurrentNumber;
+                //nPhotos += photos.CurrentNumber;
 
                 string error;
                 nInSaveRequests++;

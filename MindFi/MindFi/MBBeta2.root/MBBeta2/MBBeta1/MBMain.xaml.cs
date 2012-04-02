@@ -1138,10 +1138,10 @@ namespace MBBeta2
                                 SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
-                    case AsyncReqQueue.BACKUPMYPHOTOS:
-                        if (AsyncReqQueue.BackupMyPhotos)
+                    case AsyncReqQueue.BACKUPPHOTOS:
+                        if (AsyncReqQueue.BackupMyPhotos || AsyncReqQueue.BackupFriendsAlbums)
                         {
-                            this.UpdateText.Text = "Getting my photos (" + AsyncReqQueue.nPhotos + " ) from " +
+                            this.UpdateText.Text = "Getting photos (" + AsyncReqQueue.nPhotos + " ) from " +
                                 SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                 SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                         }

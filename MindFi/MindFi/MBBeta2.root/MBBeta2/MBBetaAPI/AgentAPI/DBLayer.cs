@@ -3787,7 +3787,37 @@ namespace MBBetaAPI.AgentAPI
             return true;
         }
 
+        public static bool UpdateDownloadedAlbums()
+        {
+            string ErrorMessage;
+            bool Saved = false;
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    // update
+                    string SQL = "update AlbumData set AllPhotosDownloaded=1 where exists(select * from PhotoData where ParentID=AlbumID and Path is not null) and not exists(select * from PhotoData where ParentID=AlbumID and Path is null)";
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+                    UpdateCmd.ExecuteNonQuery();
+                    Saved = true;
+                    ErrorMessage = "";
+                } // try
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error saving Profile pic\n" + ex.ToString();
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
 
+            } // lock
+            return Saved;
+        }
+
+        #region "Backup table operations"
         /// <summary>
         /// Record the start of a backup
         /// </summary>
@@ -4068,6 +4098,7 @@ namespace MBBetaAPI.AgentAPI
             } // lock
             return true;
         }
+        #endregion
 
         public static void ProcessFullBirthday(string fullBirthday, out string birthDay, out string birthMonth, out string birthYear)
         {

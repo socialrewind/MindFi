@@ -86,11 +86,11 @@ namespace MBBetaAPI.AgentAPI
         public const int BACKUPFRIENDSINFO = 6;
         public const int BACKUPFRIENDSPROFPIC = 7;
         public const int BACKUPMYALBUMS = 8;
-        public const int BACKUPMYPHOTOS = 9;
+        public const int BACKUPFRIENDSALBUMS = 9;
         public const int BACKUPALBUMCOVER = 10;
         public const int BACKUPFRIENDSWALLS = 11;
         public const int BACKUPFRIENDSEVENTS = 12;
-        public const int BACKUPFRIENDSALBUMS = 13;
+        public const int BACKUPPHOTOS = 13;
         #endregion
 
         #region "Statistics"
@@ -808,10 +808,13 @@ namespace MBBetaAPI.AgentAPI
                     }
 
                     break;
-                case BACKUPMYPHOTOS:
-                    if (BackupMyPhotos)
+                case BACKUPFRIENDSALBUMS:
+                    if (BackupFriendsAlbums)
                     {
-                        nReqs = GetNextAlbumPics();
+                        if (newPeriod)
+                        {
+                            nReqs = GetNextFriendsAlbums();
+                        }
                     }
                     else
                     {
@@ -858,12 +861,14 @@ namespace MBBetaAPI.AgentAPI
                         nReqs = 0;
                     }
                     break;
-                case BACKUPFRIENDSALBUMS:
-                    if (BackupFriendsAlbums)
+                case BACKUPPHOTOS:
+                    if (BackupMyPhotos || BackupFriendsAlbums)
                     {
-                        if (newPeriod)
+                        nReqs = GetNextAlbumPics();
+                        if (nReqs == 0)
                         {
-                            nReqs = GetNextFriendsAlbums();
+                            // Mark albums that are fully downloaded
+                            DBLayer.UpdateDownloadedAlbums();
                         }
                     }
                     else
@@ -1337,7 +1342,7 @@ namespace MBBetaAPI.AgentAPI
                         // if no pending data, then check backup time progress and infligh requests
                         if (nReqs == 0)
                         {
-                            if (CurrentBackupState < BACKUPFRIENDSALBUMS )
+                            if (CurrentBackupState < BACKUPPHOTOS)
                                 {
                                 CurrentBackupState++;
                                 DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);

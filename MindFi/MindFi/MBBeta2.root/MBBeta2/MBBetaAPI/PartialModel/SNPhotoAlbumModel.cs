@@ -165,7 +165,8 @@ namespace MBBetaAPI
                 {
                     PhotoRibbon.Add(TmpPhoto);
                 }
-
+                // TODO: performance optimization, maybe later...
+                Photos.Add(TmpPhoto);
              }
 
         }

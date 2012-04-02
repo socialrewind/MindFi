@@ -86,8 +86,8 @@ namespace MBBetaAPI.AgentAPI
         public const int BACKUPFRIENDSINFO = 6;
         public const int BACKUPFRIENDSPROFPIC = 7;
         public const int BACKUPMYALBUMS = 8;
-        public const int BACKUPALBUMCOVER = 9;
-        public const int BACKUPMYPHOTOS = 10;
+        public const int BACKUPMYPHOTOS = 9;
+        public const int BACKUPALBUMCOVER = 10;
         public const int BACKUPFRIENDSWALLS = 11;
         public const int BACKUPFRIENDSEVENTS = 12;
         public const int BACKUPFRIENDSALBUMS = 13;
@@ -808,20 +808,20 @@ namespace MBBetaAPI.AgentAPI
                     }
 
                     break;
-                case BACKUPALBUMCOVER:
-                    if (BackupMyAlbums)
+                case BACKUPMYPHOTOS:
+                    if (BackupMyPhotos)
                     {
-                        nReqs = GetPendingAlbumCoverPics();
+                        nReqs = GetNextAlbumPics();
                     }
                     else
                     {
                         nReqs = 0;
                     }
                     break;
-                case BACKUPMYPHOTOS:
-                    if (BackupMyPhotos)
+                case BACKUPALBUMCOVER:
+                    if (BackupMyAlbums || BackupFriendsAlbums)
                     {
-                        nReqs = GetNextAlbumPics();
+                        nReqs = GetPendingAlbumCoverPics();
                     }
                     else
                     {

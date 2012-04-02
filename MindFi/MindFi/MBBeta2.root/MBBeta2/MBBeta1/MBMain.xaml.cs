@@ -394,8 +394,9 @@ namespace MBBeta2
                 UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
 
                 //The code to post an status goes here
-                FBAPI.UpdateStatus("me", PostNewStatusTB.Text, ProcessStatus );
-                // TODO: Visual indicator that text was posted
+                AsyncReqQueue post = FBAPI.UpdateStatus("me", PostNewStatusTB.Text, ProcessStatus );
+                // ID is in post.Parent 
+                PostList.Insert(0, new WallPostStructure((int)post.Parent.Value));
 
                 if (keyboardFocus != null)
                 {
@@ -1178,7 +1179,7 @@ namespace MBBeta2
                     // TODO: Localize
                     this.UpdateText.Text = "Backup just finished";
                     this.UpdateTime.Text = DateTime.UtcNow.ToString();
-                    GoOffline();
+                    // GoOffline();
                     dispatcherTimer.Stop();
                 }
             }

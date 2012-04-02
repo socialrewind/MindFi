@@ -195,9 +195,9 @@
                                                    Unchecked="LoginOutRTBt_Unchecked"/>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                             <TextBlock x:Name="Connected" Text="{lex:LocText MBBeta2:MBStrings:Connected}"
-                               Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                               FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="ConnectedFB" Text="{lex:LocText MBBeta2:MBStrings:ConnectedFB}"
-                               Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                               FontWeight="Bold" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </ribbon:RibbonControlGroup>
                 </ribbon:RibbonGroup>

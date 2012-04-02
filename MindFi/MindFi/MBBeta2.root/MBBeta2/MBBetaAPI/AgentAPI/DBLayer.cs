@@ -3853,6 +3853,8 @@ namespace MBBetaAPI.AgentAPI
                                 {
                                     //currentBackupStart = (tempPeriodEnd >= tempLastBackupDone.AddDays(-1)) ? tempLastBackupDone.AddDays(-1) : tempPeriodEnd;
                                     currentBackupStart = (tempPeriodEnd >= tempLastBackupDone ) ? tempLastBackupDone : tempPeriodEnd;
+                                    // TEST
+                                    currentBackupStart = tempPeriodStart;
                                     currentBackupEnd = (tempPeriodEnd > endPeriod) ? tempPeriodEnd : endPeriod;
                                     //if (DateTime.Today.AddMonths(1) > endPeriod)
                                     if (DateTime.Today.AddMonths(1) > currentBackupEnd)

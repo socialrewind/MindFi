@@ -151,21 +151,50 @@ namespace MBBeta2
             }
             apiReq.QueueAndSend(999);
             DBLayer.UpdateWallRequest(CurrentPerson.ID, apiReq.ID, out errorMessage);
-
+            if ( errorMessage != "" )
+            {
+                this.ErrorMessage2.Text = errorMessage;
+            }
         }
 
         private void GetNowEventsBt_Click(object sender, RoutedEventArgs e)
         {
             EventsCB.IsChecked = true;
-            // TODO: Code to start downloading goes here
-            MessageBox.Show("Start download here..");
+            // Code to start downloading goes here
+            //MessageBox.Show("Start download here..");
+            string errorMessage = "";
+            // force all backup timeframe
+            AsyncReqQueue apiReq = FBAPI.Events(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, AsyncReqQueue.ProcessEvents, CurrentPerson.ID, CurrentPerson.SNID.ToString());
+            if (SNAccount.CurrentProfile != null)
+            {
+                apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
+                apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
+            }
+            apiReq.QueueAndSend(999);
+            DBLayer.UpdateEventRequest(CurrentPerson.ID, apiReq.ID, out errorMessage);
+            if (errorMessage != "")
+            {
+                this.ErrorMessage2.Text = errorMessage;
+            }
         }
 
         private void GetNowPhotosBt_Click(object sender, RoutedEventArgs e)
         {
             PhotoAlbumsCB.IsChecked = true;
-            // TODO: Code to start downloading goes here
-            MessageBox.Show("Start download here...");
+            // Code to start downloading goes here
+            //MessageBox.Show("Start download here...");
+            string errorMessage = "";
+            AsyncReqQueue apiReq = FBAPI.PhotoAlbums(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, AsyncReqQueue.ProcessAlbums);
+            if (SNAccount.CurrentProfile != null)
+            {
+                apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
+                apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
+            }
+            apiReq.QueueAndSend(999);
+            if (errorMessage != "")
+            {
+                this.ErrorMessage2.Text = errorMessage;
+            }
         }
 
         #endregion

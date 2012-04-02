@@ -3463,7 +3463,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "select PersonID, SNID from PersonData where WallRequestID is null and BackupWall and Distance<2 limit " + N; ;
+                    string SQL = "select PersonID, SNID from PersonData where WallRequestID is null and BackupWall=1 and Distance<2 limit " + N; ;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     nRequests = 0;
@@ -3512,7 +3512,56 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "select PersonID, SNID from PersonData where EventRequestID is null and BackupEvents limit " + N;
+                    string SQL = "select PersonID, SNID from PersonData where EventRequestID is null and BackupEvents=1 limit " + N;
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    nRequests = 0;
+                    while (reader.Read() && nRequests < N)
+                    {
+                        int PersonID = reader.GetInt32(0);
+                        object tempSNID = reader.GetValue(1);
+                        string PersonSNID = tempSNID.ToString();
+                        FriendEntityID[nRequests] = PersonID;
+                        FriendSNID[nRequests] = PersonSNID;
+                        nRequests++;
+                    }
+                    reader.Close();
+                    ErrorMessage = "";
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error getting requests from the database\n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return 0;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return nRequests;
+        }
+
+        /// <summary>
+        /// Method that gets friends that need event requests
+        /// </summary>
+        public static int GetNFriendsWithoutAlbums(int N, out int[] FriendEntityID, out string[] FriendSNID, out string ErrorMessage)
+        {
+            int nRequests;
+            lock (obj)
+            {
+                FriendEntityID = new int[N];
+                for (int i = 0; i < N; i++) FriendEntityID[i] = -1;
+                FriendSNID = new string[N];
+                for (int i = 0; i < N; i++) FriendSNID[i] = "";
+
+                ErrorMessage = "";
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select PersonID, SNID from PersonData where AlbumRequestID is null and BackupAlbums=1 limit " + N;
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     nRequests = 0;
@@ -3705,6 +3754,14 @@ namespace MBBetaAPI.AgentAPI
         public static bool UpdateEventRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
         {
             return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "EventRequestID", out ErrorMessage);
+        }
+
+        /// <summary>
+        /// Method that updates the list of events request ID for a person
+        /// </summary>
+        public static bool UpdateAlbumRequest(int FriendEntityID, long RequestID, out string ErrorMessage)
+        {
+            return UpdateSomeRequestID("PersonData", "PersonID", FriendEntityID, RequestID, "AlbumRequestID", out ErrorMessage);
         }
 
         /// <summary>

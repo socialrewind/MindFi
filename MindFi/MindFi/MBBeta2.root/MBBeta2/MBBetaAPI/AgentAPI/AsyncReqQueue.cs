@@ -25,6 +25,8 @@ namespace MBBetaAPI.AgentAPI
         public long? Parent;
         public string ParentSNID;
         public CallBack methodToCall;
+        public DateTime startDate;
+        public DateTime endDate;
 
         public static string ProfilePhotoDestinationDir;
         public static string AlbumDestinationDir;
@@ -208,6 +210,9 @@ namespace MBBetaAPI.AgentAPI
             methodToCall = resultCall;
             addToken = AddToken;
             addDateRange = AddDateRange;
+            // TODO: Check defaults for dates
+            startDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(-1) : SNAccount.CurrentProfile.CurrentPeriodStart);
+            endDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(1) : SNAccount.CurrentProfile.CurrentPeriodEnd);
             PostData = postData;
             InitArray();
             Save();
@@ -249,6 +254,9 @@ namespace MBBetaAPI.AgentAPI
             methodToCall = resultCall;
             Parent = parentID;
             ParentSNID = parentSNID;
+            // TODO: Check defaults for dates
+            startDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(-1) : SNAccount.CurrentProfile.CurrentPeriodStart);
+            endDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(1) : SNAccount.CurrentProfile.CurrentPeriodEnd);
             InitArray();
             Save();
         }
@@ -263,7 +271,9 @@ namespace MBBetaAPI.AgentAPI
             // Call layer to get data
             InitArray();
             if (DBLayer.GetAsyncReq(id, out ReqType, out Priority, out Parent, out ParentSNID,
-                out Created, out Updated, out ReqURL, out State, out FileName, out addToken, out addDateRange, out PostData,
+                out Created, out Updated, 
+                out startDate, out endDate,
+                out ReqURL, out State, out FileName, out addToken, out addDateRange, out PostData,
                 out errorMessage))
             {
                 ID = id;
@@ -460,6 +470,7 @@ namespace MBBetaAPI.AgentAPI
                             result = FBAPI.CallGraphAPIPost(ReqURL, Limit, methodToCall, PostData, 0, Parent, ParentSNID, true, false);
                             break;
                         default:
+                            FBAPI.SetTimeRange(startDate, endDate);
                             result = FBAPI.CallGraphAPI(ReqURL, Limit, methodToCall, ID, Parent, ParentSNID, addToken, addDateRange);
                             break;
                     }
@@ -504,11 +515,8 @@ namespace MBBetaAPI.AgentAPI
         public void Save()
         {
             Updated = DateTime.Now;
-            // TODO: Save limit, update when response comes back...
-            DateTime? start = ((SNAccount.CurrentProfile == null) ? (DateTime?)null : SNAccount.CurrentProfile.CurrentPeriodStart);
-            DateTime? end = ((SNAccount.CurrentProfile == null) ? (DateTime?)null : SNAccount.CurrentProfile.CurrentPeriodEnd);
             Saved = DBLayer.ReqQueueSave(ID, ReqType, Priority, Parent, ParentSNID, Created, Updated, ReqURL, State, FileName, addToken, addDateRange, PostData, 
-                start, end, Saved, out ErrorMessage);
+                startDate, endDate, Saved, out ErrorMessage);
             if (!Saved)
             {
                 // TODO: Error management
@@ -1079,7 +1087,6 @@ namespace MBBetaAPI.AgentAPI
         private static int GetNextFriendsWalls()
         {
             string errorMessage;
-            AsyncReqQueue apiReq;
             // Go over friends, adding requests for them if not yet defined
             int[] FriendEntityID;
             string[] FriendSNID;

@@ -223,7 +223,7 @@ namespace MBBetaAPI.AgentAPI
             long? ParentID, string ParentSNID,
             DateTime Created, DateTime Updated, string ReqURL,
             int State, string Filename, bool AddToken, bool AddDateRange, string PostData,
-            DateTime? startDateRange, DateTime? endDateRange, 
+            DateTime startDateRange, DateTime endDateRange, 
             bool Saved, out string ErrorMessage)
         {
 
@@ -2962,6 +2962,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool GetAsyncReq(int id, out string ReqType, out int Priority,
             out long? ParentID, out string ParentSNID,
             out DateTime Created, out DateTime Updated,
+            out DateTime StartDate, out DateTime EndDate,
             out string ReqURL, out int State, out string Filename,
             out bool AddToken, out bool AddDateRange, out string PostData,
             out string ErrorMessage)
@@ -2979,6 +2980,8 @@ namespace MBBetaAPI.AgentAPI
             AddToken = false;
             AddDateRange = false;
             PostData = "";
+            StartDate = DateTime.Now.AddMonths(-1);
+            EndDate = DateTime.Now.AddMonths(+1);
 
             lock (obj)
             {
@@ -2987,7 +2990,7 @@ namespace MBBetaAPI.AgentAPI
                     DatabaseInUse = true;
                     GetConn();
                     // try to read
-                    SQLiteCommand CheckCmd = new SQLiteCommand("select RequestType, RequestString, Priority, ParentID, ParentSNID, Created, Updated, State, Filename, AddToken, AddDateRange, PostData from RequestsQueue where ID=?", conn);
+                    SQLiteCommand CheckCmd = new SQLiteCommand("select RequestType, RequestString, Priority, ParentID, ParentSNID, Created, Updated, State, Filename, AddToken, AddDateRange, PostData, StartDate, EndDate from RequestsQueue where ID=?", conn);
                     SQLiteParameter pID = new SQLiteParameter();
                     pID.Value = id;
                     CheckCmd.Parameters.Add(pID);
@@ -3013,6 +3016,14 @@ namespace MBBetaAPI.AgentAPI
                         AddToken = reader.GetBoolean(9);
                         AddDateRange = reader.GetBoolean(10);
                         PostData = reader.GetString(11);
+                        if (!reader.IsDBNull(12))
+                        {
+                            StartDate = (DateTime) reader.GetDateTime(12);
+                        }
+                        if (!reader.IsDBNull(13))
+                        {
+                            EndDate = (DateTime) reader.GetDateTime(13);
+                        }
                     }
                     reader.Close();
                     ErrorMessage = "";

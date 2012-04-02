@@ -137,19 +137,34 @@ namespace MBBeta2
         {
             WallCB.IsChecked = true;
             //Code to start downloading goes here
-            MessageBox.Show("Start download here..");
+            // MessageBox.Show("Start download here..");
+
+            string errorMessage = "";
+            
+            AsyncReqQueue apiReq = FBAPI.Wall(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, 
+                    AsyncReqQueue.ProcessWall, CurrentPerson.ID, CurrentPerson.SNID.ToString());
+            // force all backup timeframe
+            if (SNAccount.CurrentProfile != null)
+            {
+                apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
+                apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
+            }
+            apiReq.QueueAndSend(999);
+            DBLayer.UpdateWallRequest(CurrentPerson.ID, apiReq.ID, out errorMessage);
+
         }
 
         private void GetNowEventsBt_Click(object sender, RoutedEventArgs e)
         {
             EventsCB.IsChecked = true;
-            //Code to start downloading goes here
+            // TODO: Code to start downloading goes here
             MessageBox.Show("Start download here..");
         }
 
         private void GetNowPhotosBt_Click(object sender, RoutedEventArgs e)
         {
             PhotoAlbumsCB.IsChecked = true;
+            // TODO: Code to start downloading goes here
             MessageBox.Show("Start download here...");
         }
 

@@ -20,7 +20,10 @@ namespace MBBetaAPI
             GetFromDB();
 
             if(IsParent)
+            {
+                Me = new PersonLight(1);
                 GetLikes();
+            }
 
             //TODO: Check if Person ID exists. If yes, add Person Light
         }
@@ -68,10 +71,11 @@ namespace MBBetaAPI
         //Likes
         public List<SNLike> LikesList { get; set; }
         public int NumberOfLikes { get; set; }
-
+        public bool ILiked { get; set; }
 
         public PersonLight FromPerson { get; set; }
         public PersonLight ToPerson { get; set; }
+        public PersonLight Me { get; set; }
 
         // Data for async Requests
         public int PostRequestID { get; private set; }
@@ -111,6 +115,16 @@ namespace MBBetaAPI
             LikeStructure Likes = new LikeStructure(SNID.ToString());
             NumberOfLikes = Likes.NumberOfLikes;
             LikesList = Likes.LikesList;
+            ILiked = false;
+            for (int i = 0; i < NumberOfLikes; i++)
+            {
+                //Check if I liked. Me = ID:1
+                if (LikesList[i].SNFromID == Me.SNID)
+                {
+                    ILiked = true;
+                    break; // stop checking more
+                }
+            }
         }
 
         #endregion

@@ -142,6 +142,15 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unlike.
+        /// </summary>
+        internal static string Unlike {
+            get {
+                return ResourceManager.GetString("Unlike", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to using.
         /// </summary>
         internal static string Using {

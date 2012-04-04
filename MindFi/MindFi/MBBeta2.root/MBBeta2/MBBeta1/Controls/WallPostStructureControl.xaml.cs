@@ -100,11 +100,29 @@ namespace MBBeta2.Controls
 
         private void LikeBt_Click(object sender, RoutedEventArgs e)
         {
+            Button LikeBt = sender as Button;
 
             WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
 
+
+            //Going from unlike to like
+            if (wps.ParentPost.ILiked == true)
+            {
+                LocTextExtension loc = new LocTextExtension("MBBeta2:WPStrings:Like");
+                loc.SetBinding(LikeBt, Button.ContentProperty);
+                wps.ParentPost.ILiked = false;
+            }
+            else //Going from Like to Unlike
+            {
+                LocTextExtension loc = new LocTextExtension("MBBeta2:WPStrings:Unlike");
+                loc.SetBinding(LikeBt, Button.ContentProperty);
+                wps.ParentPost.ILiked = true;
+            }
+
+
+            // TODO: Check UI to like/unlike
+            MessageBox.Show("Process like/unlike");
             FBAPI.UpdateLike(wps.ParentPost.SNID, ProcessUpdateLike);
-            // TODO: Refresh UI to like/unlike
         }
 
         private void CommentBt_Click(object sender, RoutedEventArgs e)

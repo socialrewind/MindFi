@@ -1340,8 +1340,9 @@ namespace MBBetaAPI.AgentAPI
 
                         // update status of the associated request, check why PostRequestID may not be coherent
                         //SQL = "update RequestsQueue set State=5 where ID=(select PostRequestID from PostData where PostID=?)";
-                        SQL = "update RequestsQueue set State=5 where ParentID=?";
+                        SQL = "update RequestsQueue set ParentSNID=?, State=5 where ParentID=?";
                         SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
+                        UpdateCmd2.Parameters.Add(pSNID);
                         UpdateCmd2.Parameters.Add(pID);
                         int outrows2 = UpdateCmd2.ExecuteNonQuery();
                         if (outrows2 > 0)
@@ -1401,6 +1402,56 @@ namespace MBBetaAPI.AgentAPI
                         Saved = true;
                     }
                     ErrorMessage = "";
+                } // try
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error saving Post\n" + ex.ToString();
+                    // MessageBox.Show(ErrorMessage);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return;
+        }
+
+        public static void LikeUpdateSNID(string SNID, bool Like)
+        {
+            string ErrorMessage = "";
+            //bool Saved = false;
+
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    // update
+                     // TODO: query to like / unlike
+                    string likeStatus;
+                    if (Like)
+                    {
+                        likeStatus = "PostLike";
+                    }
+                    else
+                    {
+                        likeStatus = "PostUnlike";
+                    }
+                    string SQL = "Update RequestsQueue set State=5 where ParentSNID=? and RequestType='" + likeStatus + "'";
+                    SQLiteParameter pSNID = new SQLiteParameter();
+                    pSNID.Value = SNID;
+                    SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
+
+                    UpdateCmd.Parameters.Add(pSNID);
+
+                    int outrows = UpdateCmd.ExecuteNonQuery();
+                    if (outrows == 0)
+                    {
+                        //Saved = true;
+                        ErrorMessage = "No requests updated";
+                    }
                 } // try
                 catch (Exception ex)
                 {

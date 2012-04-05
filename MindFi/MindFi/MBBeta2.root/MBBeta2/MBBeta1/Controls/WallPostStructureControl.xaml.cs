@@ -105,24 +105,31 @@ namespace MBBeta2.Controls
             WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
 
 
-            //Going from unlike to like
+            //Going from Like to Unlike
             if (wps.ParentPost.ILiked == true)
             {
                 LocTextExtension loc = new LocTextExtension("MBBeta2:WPStrings:Like");
                 loc.SetBinding(LikeBt, Button.ContentProperty);
                 wps.ParentPost.ILiked = false;
             }
-            else //Going from Like to Unlike
+            else 
             {
+                //Going from unlike to like
                 LocTextExtension loc = new LocTextExtension("MBBeta2:WPStrings:Unlike");
                 loc.SetBinding(LikeBt, Button.ContentProperty);
                 wps.ParentPost.ILiked = true;
             }
 
-
-            // TODO: Check UI to like/unlike
-            MessageBox.Show("Process like/unlike");
-            FBAPI.UpdateLike(wps.ParentPost.SNID, ProcessUpdateLike);
+            if (wps.ParentPost.ILiked == true)
+            {
+                //MessageBox.Show("Process like");
+                FBAPI.UpdateLike(wps.ParentPost.SNID, ProcessUpdateLike);
+            }
+            else
+            {
+                //MessageBox.Show("Process unlike");
+                FBAPI.UpdateUnlike(wps.ParentPost.SNID, ProcessUpdateLike);
+            }
         }
 
         private void CommentBt_Click(object sender, RoutedEventArgs e)
@@ -152,7 +159,7 @@ namespace MBBeta2.Controls
             if (e.Key == Key.Enter)
             {
 
-                FBAPI.AddComment(CurrentWPS.ParentPost.SNID, AddCommentTB.Text, ProcessUpdateLike);
+                FBAPI.AddComment(CurrentWPS.ParentPost.SNID, AddCommentTB.Text, ProcessUpdateComment);
                 CommentsPopUp.IsOpen = false;
                 e.Handled = true;
             }
@@ -177,10 +184,16 @@ namespace MBBeta2.Controls
         /// <param name="parent">CHECK: Reference to the user ID</param>
         /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
         /// <returns>Request vas processed true/false</returns>
-        public bool ProcessUpdateLike(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        public bool ProcessUpdateComment(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             if (result)
             {
+                FBPost statusObj = new FBPost(response);
+                statusObj.Parse();
+                // TODO: Find the parentID / parentSNID in the database, once it is saved
+                bool Saved;
+                string error;
+                DBLayer.PostDataUpdateSNID(parent.Value, statusObj.SNID, out Saved, out error);
                 //FBPost statusObj = new FBPost(response);
                 //statusObj.Parse();
                 //statusObj.Message = this.PostNewStatusTB.Text;
@@ -192,10 +205,6 @@ namespace MBBeta2.Controls
                 //{
                 //    ErrorMessage = errorData;
                 //}
-                /*
-                FBAPI.UpdateLike(statusObj.SNID, ProcessNull);
-                FBAPI.AddComment(statusObj.SNID, "test of a comment", ProcessNull);
-                 */
 
                 return true;
             }

@@ -1141,7 +1141,7 @@ namespace MBBeta2
                     case AsyncReqQueue.BACKUPPHOTOS:
                         if (AsyncReqQueue.BackupMyPhotos || AsyncReqQueue.BackupFriendsAlbums)
                         {
-                            this.UpdateText.Text = "Getting photos (" + AsyncReqQueue.nPhotos + " ) from " +
+                            this.UpdateText.Text = "Getting photos (" + AsyncReqQueue.nPhotos + ") from " +
                                 SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
                                 SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
                         }

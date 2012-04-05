@@ -503,9 +503,9 @@ namespace MBBetaAPI.AgentAPI
         }
 
         /// <summary>
-        /// Likes or unlikes and object
+        /// Likes an object
         /// </summary>
-        /// <param name="SNID">Object to like / unlike</param>
+        /// <param name="SNID">Object to like</param>
         /// <param name="resultCall">Function that is called once the user data is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
         /// <returns>Nothing - no Async Request record neeed</returns>
         public static AsyncReqQueue UpdateLike(string SNID, CallBack resultCall)
@@ -526,6 +526,37 @@ namespace MBBetaAPI.AgentAPI
                 me.Priority = 999;
                 me.Queue();
             }
+            return me;
+        }
+
+        /// <summary>
+        /// Unlikes an object
+        /// </summary>
+        /// <param name="SNID">Object to unlike</param>
+        /// <param name="resultCall">Function that is called once the user data is parsed. Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Nothing - no Async Request record neeed</returns>
+        public static AsyncReqQueue UpdateUnlike(string SNID, CallBack resultCall)
+        {
+            // TODO: Modularize better, reduce dependencies...
+            if (SNAccount.CurrentProfile == null)
+            {
+                return null;
+            }
+            // TODO: Remove from the database if LIKE was already there...
+            /*
+            bool Saved;
+            string error;
+            DBLayer.ActionDataSave(SNAccount.CurrentProfile.SNID, SNID, Verb.LIKE, out Saved, out error);
+            if (Saved)
+            {
+             */
+            AsyncReqQueue me = null;
+            me = new AsyncReqQueue("PostUnlike", FBGraphAPIURL + SNID + "/likes", 1, resultCall, true, false, null, SNID, "");
+            me.Priority = 999;
+            me.Queue();
+            /*
+            }
+             * */
             return me;
         }
         #endregion
@@ -694,6 +725,79 @@ namespace MBBetaAPI.AgentAPI
                 request.Method = "POST";
                 request.ContentType = "application/x-www-form-urlencoded";
                 
+                // normal encoding
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] byte1 = encoding.GetBytes(EncodedPostData); //postData);
+                request.ContentLength = byte1.Length;
+
+                Stream newStream = request.GetRequestStream();
+                newStream.Write(byte1, 0, byte1.Length);
+                newStream.Close();
+
+
+
+                JSONResultCallback state = new JSONResultCallback(request, resultCall, AsyncID, parent, parentSNID);
+                // Add request to the list
+                requestList.Queue(request);
+                IAsyncResult res = request.BeginGetResponse(new AsyncCallback(JSONResultCallback.JSONResponseProcess), state);
+                ThreadPool.RegisterWaitForSingleObject(res.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback),
+                    request, DEFAULT_TIMEOUT, true);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Possibly improve Instrumentation
+                System.Diagnostics.Debug.WriteLine("Exception during CallGraphAPI Post: " + ex.ToString());
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// General method that makes the HTTP asynchronous request to start the Facebook Graph API call, when it returns JSON records, using Post method
+        /// </summary>
+        /// <param name="GraphAPIURL">URL for the appropriate Graph API method</param>
+        /// <param name="Limit">How many JSON records should be returned, max</param>
+        /// <param name="resultCall">Reference to the callback method that will process the response asynchronously, following Callback async prototype</param>
+        /// <returns>Success or failure</returns>
+        /// // TODO: consolidate with post
+        public static bool CallGraphAPIDelete(string GraphAPIURL, int Limit, CallBack resultCall,
+            string PostData,
+            long AsyncID, long? parent, string parentSNID,
+            bool addToken, bool addDateRange = false)
+        {
+            try
+            {
+                string URLToGet = GraphAPIURL;
+
+                // Preprocess postData to allow accents and special characters
+                string EncodedPostData = Uri.EscapeDataString(PostData);
+
+                if (EncodedPostData != "")
+                {
+                    EncodedPostData = "message=" + EncodedPostData;
+                }
+                if (addToken)
+                {
+                    if (Limit == 0)
+                    {
+                        Limit = DEFAULT_LIMIT;
+                    }
+                    EncodedPostData += "&access_token=" + FBLogin.token + "&limit=" + Limit.ToString();
+                    // TODO: how to add in a more smart way the since / until
+                    if (addDateRange)
+                    {
+                        if (InitialTime == null || EndTime == null)
+                        {
+                            // TODO: Find why this is happening
+                            SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                        }
+                        EncodedPostData += "&since=" + InitialTime + "&until=" + EndTime;
+                    }
+                }
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URLToGet);
+                request.Method = "DELETE";
+                request.ContentType = "application/x-www-form-urlencoded";
+
                 // normal encoding
                 ASCIIEncoding encoding = new ASCIIEncoding();
                 byte[] byte1 = encoding.GetBytes(EncodedPostData); //postData);

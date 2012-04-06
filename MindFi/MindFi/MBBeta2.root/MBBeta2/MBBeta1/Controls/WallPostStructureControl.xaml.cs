@@ -123,12 +123,12 @@ namespace MBBeta2.Controls
             if (wps.ParentPost.ILiked == true)
             {
                 //MessageBox.Show("Process like");
-                FBAPI.UpdateLike(wps.ParentPost.SNID, ProcessUpdateLike);
+                FBAPI.UpdateLike(wps.ParentPost.SNID, AsyncReqQueue.ProcessLike);
             }
             else
             {
                 //MessageBox.Show("Process unlike");
-                FBAPI.UpdateUnlike(wps.ParentPost.SNID, ProcessUpdateLike);
+                FBAPI.UpdateUnlike(wps.ParentPost.SNID, AsyncReqQueue.ProcessUnlike);
             }
         }
 

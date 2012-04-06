@@ -116,6 +116,7 @@ namespace MBBetaAPI
             NumberOfLikes = Likes.NumberOfLikes;
             LikesList = Likes.LikesList;
             ILiked = false;
+            // TODO: Optimize ILiked
             for (int i = 0; i < NumberOfLikes; i++)
             {
                 //Check if I liked. Me = ID:1

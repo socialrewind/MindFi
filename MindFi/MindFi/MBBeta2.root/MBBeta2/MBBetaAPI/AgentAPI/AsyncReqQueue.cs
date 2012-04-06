@@ -2314,7 +2314,7 @@ namespace MBBetaAPI.AgentAPI
         /// <param name="parent">CHECK: Reference to the user ID</param>
         /// <param name="parentSNID">CHECK: Reference to the user SNID</param>
         /// <returns>Request vas processed true/false</returns>
-        public bool ProcessStatus(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        public static bool ProcessStatus(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             if (result)
             {
@@ -2329,7 +2329,7 @@ namespace MBBetaAPI.AgentAPI
             return false;
         }
 
-        public bool ProcessLike(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        public static bool ProcessLike(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             if (result)
             {
@@ -2348,7 +2348,7 @@ namespace MBBetaAPI.AgentAPI
             return false;
         }
 
-        public bool ProcessUnlike(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
+        public static bool ProcessUnlike(int hwnd, bool result, string response, long? parent = null, string parentSNID = "")
         {
             if (result)
             {

@@ -545,11 +545,12 @@ namespace MBBetaAPI.AgentAPI
             // TODO: Remove from the database if LIKE was already there...
             /*
             bool Saved;
-            string error;
             DBLayer.ActionDataSave(SNAccount.CurrentProfile.SNID, SNID, Verb.LIKE, out Saved, out error);
             if (Saved)
             {
              */
+            string error;
+            DBLayer.UnlikeDBUpdate(SNID, out error);
             AsyncReqQueue me = null;
             me = new AsyncReqQueue("PostUnlike", FBGraphAPIURL + SNID + "/likes", 1, resultCall, true, false, null, SNID, "");
             me.Priority = 999;

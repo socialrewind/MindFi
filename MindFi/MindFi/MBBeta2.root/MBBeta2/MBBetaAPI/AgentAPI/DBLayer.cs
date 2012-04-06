@@ -1420,7 +1420,7 @@ namespace MBBetaAPI.AgentAPI
         public static void LikeUpdateSNID(string SNID, bool Like)
         {
             string ErrorMessage = "";
-            //bool Saved = false;
+            bool Saved = false;
 
             lock (obj)
             {
@@ -1449,8 +1449,57 @@ namespace MBBetaAPI.AgentAPI
                     int outrows = UpdateCmd.ExecuteNonQuery();
                     if (outrows == 0)
                     {
-                        //Saved = true;
                         ErrorMessage = "No requests updated";
+                    }
+                    Saved = true;
+                    // Check actions
+                    if (SNAccount.CurrentProfile != null)
+                    {
+                        if (Like)
+                        {
+                            ActionDataSave(SNAccount.CurrentProfile.SNID, SNID, Verb.LIKE, out Saved, out ErrorMessage);
+                        }
+                        else
+                        {
+                            UnlikeDBUpdate(SNID, out ErrorMessage);
+                        }
+                    }
+                } // try
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Error saving Post\n" + ex.ToString();
+                    // MessageBox.Show(ErrorMessage);
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+
+            } // lock
+            return;
+        }
+
+        public static void UnlikeDBUpdate(string SNID, out string ErrorMessage)
+        {
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    ErrorMessage = "";
+                    string SQL = "delete from ActionData where SocialNetwork='1' AND WhoSNID=? AND WhatSNID=? AND ActionID=10";
+                    SQLiteCommand UpdateCmd2 = new SQLiteCommand(SQL, conn);
+                    SQLiteParameter pMe = new SQLiteParameter();
+                    pMe.Value = SNAccount.CurrentProfile.SNID;
+                    SQLiteParameter pSNID = new SQLiteParameter();
+                    pSNID.Value = SNID;
+                    UpdateCmd2.Parameters.Add(pMe);
+                    UpdateCmd2.Parameters.Add(pSNID);
+                    int outrows2 = UpdateCmd2.ExecuteNonQuery();
+                    if (outrows2 == 0)
+                    {
+                        ErrorMessage = "No likes deleted";
                     }
                 } // try
                 catch (Exception ex)
@@ -2628,6 +2677,7 @@ namespace MBBetaAPI.AgentAPI
                         FreeIDCmd.Parameters.Add(pRefTable);
                         FreeIDCmd.ExecuteNonQuery();
 
+                        // TODO: Add if not exists
                         SQL = "Insert into ActionData (SocialNetwork, WhoSNID, WhatSNID, ActionID, Adverb, Active, "
                             + "LastUpdate, PartitionDate, PartitionID)"
                             + " values (?,?,?,?,?,1,?,?,?)";

@@ -226,7 +226,7 @@
 
                     <Expander Header="View comments" IsExpanded="False"
                               Style="{StaticResource NoExpanderStyle}">
-                        <ItemsControl Margin ="40,5,0,0" ItemsSource="{Binding Path=ChildPosts}"
+                        <ItemsControl x:Name="ChildPostIC" Margin ="40,5,0,0" ItemsSource="{Binding Path=ChildPosts}"
                                   ItemTemplate="{StaticResource ChildPostTemplate}"/>
                     </Expander>
 

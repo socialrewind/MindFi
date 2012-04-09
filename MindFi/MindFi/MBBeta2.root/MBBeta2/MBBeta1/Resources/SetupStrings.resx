@@ -180,4 +180,28 @@
   <data name="BackupEnding" xml:space="preserve">
     <value> backed up to </value>
   </data>
+  <data name="BackupOptions" xml:space="preserve">
+    <value>Backup Options</value>
+  </data>
+  <data name="Events" xml:space="preserve">
+    <value>Events</value>
+  </data>
+  <data name="Friends" xml:space="preserve">
+    <value>Friends</value>
+  </data>
+  <data name="Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Me" xml:space="preserve">
+    <value>Me</value>
+  </data>
+  <data name="News" xml:space="preserve">
+    <value>News</value>
+  </data>
+  <data name="Photos" xml:space="preserve">
+    <value>Photos</value>
+  </data>
+  <data name="Wall" xml:space="preserve">
+    <value>Wall</value>
+  </data>
 </root>

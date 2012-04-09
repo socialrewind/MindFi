@@ -43,7 +43,22 @@ namespace MBBetaAPI
         public int InternalFromID { get; set; }
         public string FromID { get; set; }
         public string FromName { get; set; }
-        public string FromPhotoPath { get; set; }
+        private string FromPhotoPathValue = "";
+        public string FromPhotoPath
+        {
+            get
+            {
+                return FromPhotoPathValue;
+            }
+            set
+            {
+                if (value != this.FromPhotoPathValue)
+                {
+                    this.FromPhotoPathValue = value;
+                    NotifyPropertyChanged("FromPhotoPath");
+                }
+            }
+        }
 
         ////Recipient
         //public int InternalToID { get; set; }
@@ -66,7 +81,22 @@ namespace MBBetaAPI
 
         public string ApplicationName { get; set; }
 
-        public int CommentsCount { get; set; }
+        private int CommentsCountValue = 0;
+        public int CommentsCount
+        {
+            get
+            {
+                return CommentsCountValue;
+            }
+            set
+            {
+                if (value != this.CommentsCountValue)
+                {
+                    this.CommentsCountValue = value;
+                    NotifyPropertyChanged("CommentsCount");
+                }
+            }
+        }
 
         //Likes
         public List<SNLike> LikesList { get; set; }

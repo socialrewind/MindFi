@@ -146,7 +146,7 @@ namespace MBBetaAPI
 
                 //Read Event
                 //SQLiteCommand command = new SQLiteCommand("select A.FirstName, A.LastName, B.ActionID from PersonData A, ActionData B WHERE B.WhatSNID=@SNID AND B.ActionID IN (14,15,16) AND A.SNID = B.WhoSNID", conn);
-                SQLiteCommand command = new SQLiteCommand("select Name, B.ActionID from Entities, PersonData A, ActionData B WHERE Entities.ID = A.PersonID AND B.WhatSNID=@SNID AND B.ActionID IN (14,15,16) AND A.SNID = B.WhoSNID", conn);
+                SQLiteCommand command = new SQLiteCommand("select Name, B.ActionID from Entities, PersonData A, ActionData B WHERE Entities.ID = A.PersonID AND B.WhatSNID=@SNID AND B.ActionID IN (" + Verb.ATTENDING + "," + Verb.MAYBEATTENDING + "," + Verb.NOTATTENDING + ") AND A.SNID = B.WhoSNID", conn);
                 command.Parameters.Add(new SQLiteParameter("SNID", SNID));
 
                 SQLiteDataReader reader = command.ExecuteReader();

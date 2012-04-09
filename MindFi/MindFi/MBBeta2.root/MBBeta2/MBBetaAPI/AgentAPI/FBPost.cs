@@ -103,6 +103,14 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string Story { get; set; }
         /// <summary>
+        /// Place for check ins: ID
+        /// </summary>
+        public string PlaceSNID { get; set; }
+        /// <summary>
+        /// Place for check ins: Name
+        /// </summary>
+        public string PlaceName { get; set; }
+        /// <summary>
         /// Tags associated to this story
         /// </summary>
         public ArrayList StoryTags
@@ -223,6 +231,7 @@ namespace MBBetaAPI.AgentAPI
                     }
                 }
 
+                // TODO: Save Place and relationship
                 DBLayer.PostDataSave(MyPartitionDate, MyPartitionID,
                     FromID, FromName, ToID, ToName, Message,
                     Picture, Link, Caption, Description, Story,
@@ -323,14 +332,17 @@ namespace MBBetaAPI.AgentAPI
                         case "from":
                             FromID = value;
                             break;
-                            /*
+                        case "place":
+                            PlaceSNID = value;
+                            break;
                         case "to":
                             ToID = value;
                             break;
-                        case "likes":
-                            LikesID += value + ";";
-                            break;
-                             */
+                            /*
+                    case "likes":
+                        LikesID += value + ";";
+                        break;
+                         */
                         case "application":
                             ApplicationID = value;
                             break;
@@ -348,14 +360,17 @@ namespace MBBetaAPI.AgentAPI
                         case "from":
                             FromName = value;
                             break;
-                            /*
+                        case "place":
+                            PlaceName = value;
+                            break;
                         case "to":
                             ToName = value;
                             break;
-                        case "likes":
-                            LikesName += value + ";";
-                            break;
-                             */
+                        /*
+                    case "likes":
+                        LikesName += value + ";";
+                        break;
+                         */
                         case "application":
                             ApplicationName = value;
                             break;

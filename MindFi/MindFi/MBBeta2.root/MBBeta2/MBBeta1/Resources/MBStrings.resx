@@ -300,4 +300,7 @@
   <data name="Connection" xml:space="preserve">
     <value>Connection</value>
   </data>
+  <data name="BackupRange" xml:space="preserve">
+    <value>Backup range</value>
+  </data>
 </root>

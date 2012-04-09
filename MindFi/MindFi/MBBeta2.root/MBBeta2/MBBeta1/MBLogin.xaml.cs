@@ -250,6 +250,7 @@ namespace MBBeta2
                         }
 
                         //Open main with loaded info
+                        this.Hide();
                         MainWindow = new MBMain(CurrentCulture, UserLoginTB.Text, DBPath, conn, result);
                         MainWindow.Show();
                         this.Close();

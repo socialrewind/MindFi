@@ -234,19 +234,48 @@
                                              Click="SetupBt_Click"/>
                     </ribbon:RibbonControlGroup>
                 </ribbon:RibbonGroup>
-
+                <ribbon:RibbonGroup x:Name="TimeBarRB" Header="{lex:LocText MBBeta2:MBStrings:BackupRange}">
+                    <ribbon:RibbonControlGroup>
+                        <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="0.33*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="0.5*"/>
+                            </Grid.RowDefinitions>
+                            <ProgressBar x:Name="BackupStatusPB" Width="300" Height="20"
+                                         Grid.ColumnSpan="3" Value="20">
+                                <ProgressBar.LayoutTransform>
+                                    <RotateTransform Angle="180" />
+                                </ProgressBar.LayoutTransform>
+                            </ProgressBar>
+                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical">
+                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:StartDate}"
+                                           HorizontalAlignment="Right"/>
+                                <TextBlock Text="Fecha"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical">
+                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:EndDate}"/>
+                                <TextBlock Text="Fecha"/>
+                            </StackPanel>
+                        </Grid>
+                    </ribbon:RibbonControlGroup>
+                </ribbon:RibbonGroup>
             </ribbon:RibbonTab>
         </ribbon:Ribbon>
         <DockPanel Background="Silver" Grid.Row="1">
         <!--Footer-->
         <Grid DockPanel.Dock="Bottom" Background="DarkBlue">
             <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.5*"/>
-                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.30*"/>
+                    <ColumnDefinition Width="0.70*"/>
                 </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="1"
                         x:Name="UpdateText" Text="{lex:LocText MBBeta2:MBStrings:LastUpdate}"
-                           Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,200,0"/>
+                        Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,50,0"/>
                 <TextBlock x:Name="UpdateTime" Text="{lex:LocText MBBeta2:MBStrings:Never}"
                            Foreground="White" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
             </Grid>

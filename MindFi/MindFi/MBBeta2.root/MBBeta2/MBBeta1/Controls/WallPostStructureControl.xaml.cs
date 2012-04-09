@@ -151,6 +151,21 @@ namespace MBBeta2.Controls
             CommentsPopUp.IsOpen = false;
         }
 
+        private WallPost BuildFlashPost(string Message)
+        {
+            PersonLight Me = new PersonLight(1);
+
+            WallPost NewPost = new WallPost();
+            NewPost.Date = DateTime.Today;
+            NewPost.Message = Message;
+            NewPost.FromName = Me.Name;
+            NewPost.FromID = Me.SNID.ToString();
+            NewPost.WallName = Me.Name;
+            NewPost.FromPhotoPath = Me.ProfilePic;
+
+            return NewPost;
+        }
+
         private void AddCommentTB_KeyDown(object sender, KeyEventArgs e)
         {
 
@@ -160,6 +175,15 @@ namespace MBBeta2.Controls
             {
 
                 FBAPI.AddComment(CurrentWPS.ParentPost.SNID, AddCommentTB.Text, ProcessUpdateComment);
+                //Build a new in-memory post. Valid only for showing immediately after posting. Next time window is refreshed it should be read from DB
+                CurrentWPS.ChildPosts.Add(BuildFlashPost(AddCommentTB.Text));
+                //Check if it's first post. If it is, enable comments list by setting comments count > 0
+                if (CurrentWPS.ChildPosts.Count() == 1)
+                {
+                    CurrentWPS.ParentPost.CommentsCount = 1;
+                }
+
+                //Close Popup
                 CommentsPopUp.IsOpen = false;
                 e.Handled = true;
             }
@@ -215,15 +239,24 @@ namespace MBBeta2.Controls
         {
             this.Cursor = Cursors.Wait;
 
+            string photo = "";
+            string photo2 = "";
+
             WallPostStructure wps = WallPostStructureListIC.SelectedItem as WallPostStructure;
             Person p = new Person(wps.ParentPost.InternalFromID);
-            Window mainWindow = System.Windows.Window.GetWindow(this);
+            //Check if photo is equal before and after Detail Card is open
+            photo = wps.ParentPost.FromPhotoPath;
 
+            Window mainWindow = System.Windows.Window.GetWindow(this);
 
             DetailCard DetailCardWindow = new DetailCard(p,mainWindow);
             PersonWrapper dataContext = new PersonWrapper(p);
             DetailCardWindow.DataContext = dataContext;
             CC.PositionNewWindow(mainWindow, DetailCardWindow);
+
+            photo2 = p.ProfilePic;
+            if (photo != photo2)
+                wps.ParentPost.FromPhotoPath = p.ProfilePic;
 
             this.Cursor = Cursors.Arrow;
         }

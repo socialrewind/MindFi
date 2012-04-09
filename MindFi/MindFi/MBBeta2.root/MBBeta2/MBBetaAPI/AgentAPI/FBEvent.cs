@@ -92,7 +92,7 @@ namespace MBBetaAPI.AgentAPI
         #endregion
 
         private ArrayList m_comments;
-        private ArrayList m_to;
+        private ArrayList m_owner;
         /// <summary>
         /// Internal member for keeping dates
         /// </summary>
@@ -112,7 +112,7 @@ namespace MBBetaAPI.AgentAPI
         {
             MyDataTable = "EventData";
             AddParser("comments", "FBMessage", ref m_comments);
-            AddParser("owner", "FBPerson", ref m_to);
+            AddParser("owner", "FBPerson", ref m_owner);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace MBBetaAPI.AgentAPI
         {
             MyDataTable = "EventData";
             AddParser("comments", "FBMessage", ref m_comments);
-            AddParser("owner", "FBPerson", ref m_to);
+            AddParser("owner", "FBPerson", ref m_owner);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace MBBetaAPI.AgentAPI
             parent = Parent;
             MyDataTable = "EventData";
             AddParser("comments", "FBMessage", ref m_comments);
-            AddParser("owner", "FBPerson", ref m_to);
+            AddParser("owner", "FBPerson", ref m_owner);
         }
 
         public override void Save(out string ErrorMessage)
@@ -181,20 +181,32 @@ namespace MBBetaAPI.AgentAPI
                         }
                     }
                     // TODO: Check when this has to be saved
-                    if (m_to != null && m_to.Count > 0)
+                    if (m_owner != null && m_owner.Count > 0)
                     {
-                        foreach (FBPerson dest in m_to)
+                        foreach (FBPerson dest in m_owner)
                         {
                             string error;
                             // save likes relationship
                             dest.Distance = 2;
-                            DBLayer.ActionDataSave(dest.SNID, SNID, Verb.SENTTO, out Saved, out error);
+                            DBLayer.ActionDataSave(dest.SNID, SNID, Verb.ISORGANIZEROF, out Saved, out error);
                             ErrorMessage += error;
                             dest.Save(out error);
                             ErrorMessage += error;
                         }
                     }
-                    // TODO: Save Owner of the event!!!
+                    // Save Owner of the event when it is not a child (single organizer?)
+                    if (OwnerID !=null && OwnerName != null
+                       && OwnerID != "" && OwnerName != "")
+                    {
+                        string error;
+                        // TODO: How to keep the name - need to save FBObject?
+                        DBLayer.ActionDataSave(OwnerID, SNID, Verb.ISORGANIZEROF, out Saved, out error);
+                        ErrorMessage += error;
+                        FBObject dest = new FBObject(OwnerID, OwnerName);
+                        dest.Save(out error);
+                        ErrorMessage += error;
+                    }
+
                 }
                 // TODO: Change parser to generate likes as user list, then save corresponding relationship	
             }

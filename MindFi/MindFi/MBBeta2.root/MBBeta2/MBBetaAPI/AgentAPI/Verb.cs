@@ -29,7 +29,8 @@ namespace MBBetaAPI.AgentAPI
         public const int WORKEDWITH = 18;
         public const int STUDIEDWITH = 19;
         public const int STUDIEDWHAT = 20;
-
+        public const int ISORGANIZEROF = 21;
+        
         // TODO: manage time, language
         // implement a function "verbalize", that applies the pattern as stored in the 
         // database. E.g.

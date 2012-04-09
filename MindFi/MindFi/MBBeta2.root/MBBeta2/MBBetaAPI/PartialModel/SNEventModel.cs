@@ -140,13 +140,16 @@ namespace MBBetaAPI
             AttendingNames = new List<string>();
             MayBeAttendingNames = new List<string>();
             NotAttendingNames = new List<string>();
+            UnknownRSVPNames = new List<string>();
+            OrganizerNames = new List<string>();
+            OrganizerText = "";
 
             try
             {
 
                 //Read Event
                 //SQLiteCommand command = new SQLiteCommand("select A.FirstName, A.LastName, B.ActionID from PersonData A, ActionData B WHERE B.WhatSNID=@SNID AND B.ActionID IN (14,15,16) AND A.SNID = B.WhoSNID", conn);
-                SQLiteCommand command = new SQLiteCommand("select Name, B.ActionID from Entities, PersonData A, ActionData B WHERE Entities.ID = A.PersonID AND B.WhatSNID=@SNID AND B.ActionID IN (" + Verb.ATTENDING + "," + Verb.MAYBEATTENDING + "," + Verb.NOTATTENDING + ") AND A.SNID = B.WhoSNID", conn);
+                SQLiteCommand command = new SQLiteCommand("select Name, B.ActionID from Entities, PersonData A, ActionData B WHERE Entities.ID = A.PersonID AND B.WhatSNID=@SNID AND B.ActionID IN (" + Verb.ATTENDING + "," + Verb.MAYBEATTENDING + "," + Verb.NOTATTENDING + "," + Verb.ISORGANIZEROF + ") AND A.SNID = B.WhoSNID", conn);
                 command.Parameters.Add(new SQLiteParameter("SNID", SNID));
 
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -172,6 +175,10 @@ namespace MBBetaAPI
                             break;
                         case Verb.NOTATTENDING:
                             NotAttendingNames.Add(Name);
+                            break;
+                        case Verb.ISORGANIZEROF:
+                            OrganizerNames.Add(Name);
+                            OrganizerText += Name + " ";
                             break;
                         default:
                             UnknownRSVPNames.Add(Name);

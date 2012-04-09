@@ -975,6 +975,8 @@ namespace MBBetaAPI.AgentAPI
                 // TODO: make sure "me" is always 1 and CurrentProfile is applicable
                 apiReq = FBAPI.Events("me", SIZETOGETPERPAGE, ProcessEvents, 1, SNAccount.CurrentProfile.SNID );
                 apiReq.QueueAndSend(500);
+                string errorMessage;
+                DBLayer.UpdateEventRequest(1, apiReq.ID, out errorMessage);
                 newPeriod = false;
                 return 1;
             }

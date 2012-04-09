@@ -49,6 +49,9 @@ namespace MBBetaAPI
         //People NotRSVP
         public List<PersonLight> UnknownRSVP { get; set; }
         public List<string> UnknownRSVPNames { get; set; }
+        //Organizers of the event
+        public string OrganizerText { get; set; }
+        public List<string> OrganizerNames { get; set; }
 
         #endregion
 

@@ -141,6 +141,9 @@
   <data name="NotAttending" xml:space="preserve">
     <value>Not Attending</value>
   </data>
+  <data name="Organizer" xml:space="preserve">
+    <value>Organizer:</value>
+  </data>
   <data name="PersonsAttending" xml:space="preserve">
     <value>Persons Attending</value>
   </data>

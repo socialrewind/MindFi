@@ -46,6 +46,9 @@ namespace MBBetaAPI
         //People NotAttending
         public List<PersonLight> NotAttending { get; set; }
         public List<string> NotAttendingNames { get; set; }
+        //People NotRSVP
+        public List<PersonLight> UnknownRSVP { get; set; }
+        public List<string> UnknownRSVPNames { get; set; }
 
         #endregion
 

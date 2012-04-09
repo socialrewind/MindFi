@@ -31,6 +31,14 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string Next { get; set; }
         /// <summary>
+        /// 
+        /// </summary>
+        public int CollectionParentID { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string CollectionParentSNID { get; set; }
+        /// <summary>
         /// data table associated with the object
         /// </summary>
         protected string MyDataTable { get; set; }
@@ -142,10 +150,24 @@ namespace MBBetaAPI.AgentAPI
             switch (name)
             {
                 case "id":
-                    SNID = value;
+                    if (parentName == null || parentName == "")
+                    {
+                        SNID = value;
+                    }
+                    else
+                    {
+                        error = "Possible bug parsing id: parent " + parentName + " is unexpected";
+                    }
                     break;
                 case "name":
-                    Name = value;
+                    if (parentName == null || parentName == "")
+                    {
+                        Name = value;
+                    }
+                    else
+                    {
+                        error = "Possible bug parsing name: parent " + parentName + " is unexpected";
+                    }
                     break;
                 case "created_time":
                     m_created = DateTimeValue(value, out error);

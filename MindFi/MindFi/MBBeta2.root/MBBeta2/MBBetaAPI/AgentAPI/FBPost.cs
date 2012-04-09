@@ -320,12 +320,6 @@ namespace MBBetaAPI.AgentAPI
                 case "id":
                     switch ( parentName )
                     {
-                            /*
-                        case null:
-                        case "":
-                            SNID = value;
-                            break;
-                             */
                         case "from":
                             FromID = value;
                             break;
@@ -351,12 +345,6 @@ namespace MBBetaAPI.AgentAPI
                 case "name":
                     switch ( parentName )
                     {
-                            /*
-                        case null:
-                        case "":
-                            Name = value;
-                            break;
-                             */
                         case "from":
                             FromName = value;
                             break;

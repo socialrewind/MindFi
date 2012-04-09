@@ -39,6 +39,10 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string Location { get; set; }
         /// <summary>
+        /// Location for the event - Venue ID
+        /// </summary>
+        public string LocationID { get; set; }
+        /// <summary>
         /// Location for the event
         /// </summary>
         public string Privacy { get; set; }
@@ -147,14 +151,19 @@ namespace MBBetaAPI.AgentAPI
                 //System.Windows.Forms.MessageBox.Show("Event Date: " + MyPartitionDate + " ID:" + MyPartitionID);
                 string ParentID = null;
                 FBObject fbParent = parent as FBObject;
+                // TODO: Check if snid or ID is the right "parent" piece of data
                 if (fbParent != null)
                 {
                     ParentID = fbParent.SNID;
                 }
+                else
+                {
+                    ParentID = CollectionParentSNID;
+                }
                 DBLayer.EventDataSave(MyPartitionDate, MyPartitionID,
-                Description, Location, StartTime, EndTime,
-                Created, Updated, ParentID,
-                out Saved, out ErrorMessage);
+                    Description, Location, StartTime, EndTime,
+                    Created, Updated, ParentID,
+                    out Saved, out ErrorMessage);
                 if (!Saved)
                 {
                     //System.Windows.Forms.MessageBox.Show("didnt save event " + ID + " because of\n" + ErrorMessage);
@@ -185,6 +194,7 @@ namespace MBBetaAPI.AgentAPI
                             ErrorMessage += error;
                         }
                     }
+                    // TODO: Save Owner of the event!!!
                 }
                 // TODO: Change parser to generate likes as user list, then save corresponding relationship	
             }
@@ -206,8 +216,11 @@ namespace MBBetaAPI.AgentAPI
                         case "owner":
                             OwnerID = value;
                             break;
+                        case "venue":
+                            LocationID = value;
+                            break;
                         default:
-                            base.AssignValue(name,value);
+                            base.AssignValue(name, value);
                             break;
                     }
                     break;
@@ -216,6 +229,9 @@ namespace MBBetaAPI.AgentAPI
                     {
                         case "owner":
                             OwnerName = value;
+                            break;
+                        case "venue":
+                            Location = value;
                             break;
                         default:
                             base.AssignValue(name, value);

@@ -140,12 +140,6 @@ namespace MBBetaAPI.AgentAPI
                 case "id":
                     switch (parentName)
                     {
-                        /*
-                    case null:
-                    case "":
-                        SNID = value;
-                        break;
-                         */
                         case "from":
                             FromID = value;
                             break;
@@ -233,11 +227,6 @@ namespace MBBetaAPI.AgentAPI
                     switch (parentName)
                     {
                         /*
-                                    case null:
-                                    case "":
-                                        SNID = intValue.ToString();
-                        //MessageBox.Show("Parsing Album SNID:" + SNID);
-                                        break;
                                     case "from":
                                         FromID = intValue.ToString();
                                         break;

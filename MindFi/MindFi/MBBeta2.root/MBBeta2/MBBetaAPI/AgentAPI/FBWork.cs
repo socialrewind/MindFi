@@ -90,6 +90,11 @@ namespace MBBetaAPI.AgentAPI
                         PositionID = value;
                     else if (parentName == "location")
                         LocationID = value;
+                    else
+                    {
+                        // DEBUG CODE
+                        string error = "Possible bug parsing id: parent " + parentName + " is unexpected";
+                    }
                     break;
                 case "name":
                     if (parentName == "employer")
@@ -98,6 +103,11 @@ namespace MBBetaAPI.AgentAPI
                         PositionName = value;
                     else if (parentName == "location")
                         LocationName = value;
+                    else
+                    {
+                        // DEBUG CODE
+                        string error = "Possible bug parsing name: parent " + parentName + " is unexpected";
+                    }
                     break;
                 case "description":
                     Description = value;

@@ -145,31 +145,36 @@ namespace MBBetaAPI
             {
 
                 //Read Event
-                SQLiteCommand command = new SQLiteCommand("select A.FirstName, A.LastName, B.ActionID from PersonData A, ActionData B WHERE B.WhatSNID=@SNID AND B.ActionID IN (14,15,16) AND A.SNID = B.WhoSNID", conn);
+                //SQLiteCommand command = new SQLiteCommand("select A.FirstName, A.LastName, B.ActionID from PersonData A, ActionData B WHERE B.WhatSNID=@SNID AND B.ActionID IN (14,15,16) AND A.SNID = B.WhoSNID", conn);
+                SQLiteCommand command = new SQLiteCommand("select Name, B.ActionID from Entities, PersonData A, ActionData B WHERE Entities.ID = A.PersonID AND B.WhatSNID=@SNID AND B.ActionID IN (14,15,16) AND A.SNID = B.WhoSNID", conn);
                 command.Parameters.Add(new SQLiteParameter("SNID", SNID));
 
                 SQLiteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
-                {
-                    
-                    status = reader.GetInt32(2);
+                {                    
+                    status = reader.GetInt32(1); // it was 2
                     if(reader.IsDBNull(0))
-                        Name = "";
+                        Name = "Unknown"; // DEBUG CODE
                     else
-                        Name = reader.GetString(0); 
+                        Name = reader.GetString(0);
+                    /*
                     Name+= " ";
                     if(!reader.IsDBNull(1))
                         Name+= reader.GetString(1);
+                    */
                     switch (status)
                     {
-                        case 14:
+                        case Verb.ATTENDING:
                             AttendingNames.Add(Name);
                             break;
-                        case 15:
+                        case Verb.MAYBEATTENDING:
                             MayBeAttendingNames.Add(Name);
                             break;
-                        default:
+                        case Verb.NOTATTENDING:
                             NotAttendingNames.Add(Name);
+                            break;
+                        default:
+                            UnknownRSVPNames.Add(Name);
                             break;
                     }
                 }

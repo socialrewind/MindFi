@@ -541,6 +541,7 @@ namespace MBBetaAPI.AgentAPI
             nFriends = 0;
             nPosts = 0;           
             FailedRequests = false;
+            FirstTimeBasics = true;
             GotOneProfilePic = false;
             GotFriendList = false;
             GotWall = false;
@@ -582,6 +583,8 @@ namespace MBBetaAPI.AgentAPI
                 apiReq.QueueAndSend(999);
                 DBLayer.UpdateInboxRequest(ID, apiReq.ID, out errorMessage);
             }
+            // DEBUG: My Events out of basic data
+            /*
             if (BackupMyEvents)
             {
                 // TODO: make sure "me" is always 1 and CurrentProfile is applicable
@@ -589,6 +592,7 @@ namespace MBBetaAPI.AgentAPI
                 apiReq.QueueAndSend(999);
                 DBLayer.UpdateEventRequest(ID, apiReq.ID, out errorMessage);
             }
+             */
             apiReq = FBAPI.Family(SNID, SIZETOGETPERPAGE, ProcessFamily);
             apiReq.Queue(400);
             DBLayer.UpdateFamilyRequest(ID, apiReq.ID, out errorMessage);
@@ -606,8 +610,9 @@ namespace MBBetaAPI.AgentAPI
 
             if (!DatabaseInUse)
             {
-                ArrayList queueReq = DBLayer.GetRequests(CONCURRENTREQUESTLIMIT - FBAPI.InFlight, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
-                if (queueReq.Count == 0 && FBAPI.InFlight==0 && !FirstTimeBasics )
+                int temp = FBAPI.InFlight;
+                ArrayList queueReq = DBLayer.GetRequests(CONCURRENTREQUESTLIMIT - temp, AsyncReqQueue.QUEUED, out errorMessage, minPriorityGlobal);
+                if (queueReq.Count == 0 && temp == 0 && !FirstTimeBasics)
                 {
                     FailedRequests = true;
                 }
@@ -912,6 +917,14 @@ namespace MBBetaAPI.AgentAPI
                         AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
                         bw.RunWorkerAsync(temp);
                     }
+                    else
+                    {
+                        // DEBUG CODE
+                        if (friendID != -1)
+                        {
+                            SNID = "ERROR, check";
+                        }
+                    }
                     i++;
                 }
             }
@@ -939,6 +952,14 @@ namespace MBBetaAPI.AgentAPI
                         bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendData);
                         AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
                         bw.RunWorkerAsync(temp);
+                    }
+                    else
+                    {
+                        // DEBUG CODE
+                        if (friendID != -1)
+                        {
+                            SNID = "ERROR, check";
+                        }
                     }
                     i++;
                 }
@@ -972,16 +993,24 @@ namespace MBBetaAPI.AgentAPI
             int nRequests = DBLayer.GetNEventsWithoutDetail(CONCURRENTREQUESTLIMIT, out EventEntityID, out EventSNID, out errorMessage);
             if (nRequests > 0)
             {
-                int i = 0;
-                foreach (int eventID in EventEntityID)
+                for ( int i = 0; i<nRequests; i++)
                 {
+                    int eventID = EventEntityID[i];
                     string SNID = EventSNID[i];
-                    if ( SNID != null )
+                    if (SNID != null && SNID != "")
                     {
                         BackgroundWorker bw = new BackgroundWorker();
                         bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetEvent);
                         AsyncWorkArgs temp = new AsyncWorkArgs(eventID, SNID);
                         bw.RunWorkerAsync(temp);
+                    }
+                    else
+                    {
+                        // DEBUG CODE
+                        if (eventID != -1)
+                        {
+                            SNID = "ERROR, check";
+                        }
                     }
                     i++;
                 }
@@ -1089,6 +1118,14 @@ namespace MBBetaAPI.AgentAPI
                         AsyncWorkArgs temp = new AsyncWorkArgs(photoID, SNID, source, parent);
                         bw.RunWorkerAsync(temp);
                     }
+                    else
+                    {
+                        // DEBUG CODE
+                        if (photoID != -1)
+                        {
+                            SNID = "ERROR, check";
+                        }
+                    }
                     i++;
                 }
             }
@@ -1116,6 +1153,14 @@ namespace MBBetaAPI.AgentAPI
                         bw.DoWork += new System.ComponentModel.DoWorkEventHandler(bw_GetFriendWall);
                         AsyncWorkArgs temp = new AsyncWorkArgs(friendID, SNID);
                         bw.RunWorkerAsync(temp);
+                    }
+                    else
+                    {
+                        // DEBUG CODE
+                        if (friendID != -1)
+                        {
+                            SNID = "ERROR, check";
+                        }
                     }
                     i++;
                 }
@@ -1153,6 +1198,14 @@ namespace MBBetaAPI.AgentAPI
                         DBLayer.UpdateEventRequest(friendID, apiReq.ID, out errorMessage);
                         nFriendsEvents++;
                     }
+                    else
+                    {
+                        // DEBUG CODE
+                        if (friendID != -1)
+                        {
+                            SNID = "ERROR, check";
+                        }
+                    }
                     i++;
                 }
             }
@@ -1188,6 +1241,14 @@ namespace MBBetaAPI.AgentAPI
                         // TODO: Album requests
                         DBLayer.UpdateAlbumRequest(friendID, apiReq.ID, out errorMessage);
                         nFriendsAlbums++;
+                    }
+                    else
+                    {
+                        // DEBUG CODE
+                        if (friendID != -1)
+                        {
+                            SNID = "ERROR, check";
+                        }
                     }
                     i++;
                 }

@@ -195,7 +195,7 @@ namespace MBBeta2
                     this.StatusTB.Text = "Getting basic data: " + AsyncReqQueue.nFriends + " friends" + animation;
                     if (AsyncReqQueue.GotFriendList && AsyncReqQueue.GotOneProfilePic 
                             && ( AsyncReqQueue.GotWall || !AsyncReqQueue.BackupMyWall )
-                            && (AsyncReqQueue.GotEvent || !AsyncReqQueue.BackupMyEvents )
+                            // && (AsyncReqQueue.GotEvent || !AsyncReqQueue.BackupMyEvents ) // Not required for now
                             && (AsyncReqQueue.GotInbox || !AsyncReqQueue.BackupMyInbox) 
                             && AsyncReqQueue.GotFriendLists)
                     {

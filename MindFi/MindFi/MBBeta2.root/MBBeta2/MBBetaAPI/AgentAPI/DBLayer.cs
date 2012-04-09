@@ -3752,7 +3752,7 @@ namespace MBBetaAPI.AgentAPI
                 {
                     DatabaseInUse = true;
                     GetConn();
-                    string SQL = "update RequestsQueue set Previous=?, Next=? where ID=(select " + Field + " from PeopleData where PersonID=?)";
+                    string SQL = "update RequestsQueue set Previous=?, Next=? where ID=(select " + Field + " from PersonData where PersonID=?)";
                     SQLiteCommand UpdateCmd = new SQLiteCommand(SQL, conn);
                     SQLiteParameter pPrevious = new SQLiteParameter();
                     pPrevious.Value = Previous;
@@ -3763,8 +3763,11 @@ namespace MBBetaAPI.AgentAPI
                     SQLiteParameter pID = new SQLiteParameter();
                     pID.Value = ID;
                     UpdateCmd.Parameters.Add(pID);
-                    UpdateCmd.ExecuteNonQuery();
-                    ErrorMessage = "";
+                    int nRows = UpdateCmd.ExecuteNonQuery();
+                    if ( nRows == 0 )
+                    {
+                        ErrorMessage = "No rows updated";
+                    }
                 }
                 catch (Exception ex)
                 {

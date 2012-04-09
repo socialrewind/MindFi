@@ -126,6 +126,9 @@ namespace MBBetaAPI.AgentAPI
                         foreach (FBObject item in items)
                         {
                             string error2;
+                            // TODO: Check for every type
+                            item.CollectionParentID = ID;
+                            item.CollectionParentSNID = parentSNID;
                             item.Save(out error2);
                             CurrentlySaved++;
                             error += error2;

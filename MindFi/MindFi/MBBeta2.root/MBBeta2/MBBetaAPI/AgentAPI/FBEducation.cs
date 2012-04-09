@@ -117,6 +117,11 @@ namespace MBBetaAPI.AgentAPI
                         DegreeID = value;
                     else if (parentName == "concentration")
                         ConcentrationID += value + ",";
+                    else
+                    {
+                        // DEBUG CODE
+                        string error = "Possible bug parsing id: parent " + parentName + " is unexpected";
+                    }
                     break;
                 case "name":
                     if (parentName == "school")
@@ -127,6 +132,11 @@ namespace MBBetaAPI.AgentAPI
                         DegreeName = value;
                     else if (parentName == "concentration")
                         ConcentrationName += value + ",";
+                    else
+                    {
+                        // DEBUG CODE
+                        string error = "Possible bug parsing name: parent " + parentName + " is unexpected";
+                    }
                     break;
                 case "type":
                     Type = value;

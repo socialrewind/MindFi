@@ -35,6 +35,14 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string ToName { get; set; }
         /// <summary>
+        /// 
+        /// </summary>
+        public string ApplicationID { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ApplicationName { get; set; }
+        /// <summary>
         /// Email of the users to which the Message is sent
         /// </summary>
         public string ToEmail { get; set; }
@@ -158,6 +166,40 @@ namespace MBBetaAPI.AgentAPI
             //System.Windows.Forms.MessageBox.Show("notification assign value: " + name + " value: " + value );
             switch (name)
             {
+                case "id":
+                    switch (parentName)
+                    {
+                        case "from":
+                            FromID = value;
+                            break;
+                        case "to":
+                            ToID = value;
+                            break;
+                        case "application":
+                            ApplicationID = value;
+                            break;
+                        default:
+                            base.AssignValue(name, value);
+                            break;
+                    }
+                    break;
+                case "name":
+                    switch (parentName)
+                    {
+                        case "from":
+                            FromName = value;
+                            break;
+                        case "to":
+                            ToName = value;
+                            break;
+                        case "application":
+                            ApplicationName = value;
+                            break;
+                        default:
+                            base.AssignValue(name, value);
+                            break;
+                    }
+                    break;
                 case "title":
                     Title = value;
                     break;

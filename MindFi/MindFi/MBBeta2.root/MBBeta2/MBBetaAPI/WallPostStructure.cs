@@ -25,8 +25,6 @@ namespace MBBetaAPI
             foreach (int ChildID in ChildPostIDs)
             {
                 tempPost = new WallPost(ChildID, false);
-                // Commented for OPTIMIZATION??? Or it was a bug?
-                // ChildPosts.Add(tempPost);
                 ChildPostsList.Add(tempPost);
             }
 

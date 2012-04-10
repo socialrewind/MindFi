@@ -220,7 +220,41 @@
 
                 </ribbon:RibbonGroup>
             </ribbon:RibbonTab>
-
+                <ribbon:RibbonGroup x:Name="TimeBarRB" Header="{lex:LocText MBBeta2:MBStrings:BackupRange}">
+                    <ribbon:RibbonControlGroup>
+                        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Width="650" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="0.33*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="0.5*"/>
+                            </Grid.RowDefinitions>
+                            <ProgressBar x:Name="BackupStatusPB" Width="600" Height="30"
+                                         Grid.ColumnSpan="3">
+                                <ProgressBar.LayoutTransform>
+                                    <RotateTransform Angle="180" />
+                                </ProgressBar.LayoutTransform>
+                            </ProgressBar>
+                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical">
+                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:EndDate}"
+                                           HorizontalAlignment="Right"/>
+                                <TextBlock x:Name="EndDateTB" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:BackupPeriod}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="CurrentDateTB" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical">
+                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:StartDate}"/>
+                                <TextBlock Text="2004/02/01"/>
+                            </StackPanel>
+                        </Grid>
+                    </ribbon:RibbonControlGroup>
+                </ribbon:RibbonGroup>
             <ribbon:RibbonTab Header="{lex:LocText MBBeta2:MBStrings:Setup}" KeyTip="S">
                 <ribbon:RibbonGroup x:Name="SetupRG" Header="{lex:LocText MBBeta2:MBStrings:Setup}">
                     <ribbon:RibbonControlGroup>
@@ -232,36 +266,6 @@
                                              LargeImageSource="Images/Gear-icon.png"
                                              KeyTip="S"
                                              Click="SetupBt_Click"/>
-                    </ribbon:RibbonControlGroup>
-                </ribbon:RibbonGroup>
-                <ribbon:RibbonGroup x:Name="TimeBarRB" Header="{lex:LocText MBBeta2:MBStrings:BackupRange}">
-                    <ribbon:RibbonControlGroup>
-                        <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="0.33*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="0.5*"/>
-                            </Grid.RowDefinitions>
-                            <ProgressBar x:Name="BackupStatusPB" Width="300" Height="20"
-                                         Grid.ColumnSpan="3" Value="20">
-                                <ProgressBar.LayoutTransform>
-                                    <RotateTransform Angle="180" />
-                                </ProgressBar.LayoutTransform>
-                            </ProgressBar>
-                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical">
-                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:StartDate}"
-                                           HorizontalAlignment="Right"/>
-                                <TextBlock Text="Fecha"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical">
-                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:EndDate}"/>
-                                <TextBlock Text="Fecha"/>
-                            </StackPanel>
-                        </Grid>
                     </ribbon:RibbonControlGroup>
                 </ribbon:RibbonGroup>
             </ribbon:RibbonTab>

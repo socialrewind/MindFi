@@ -113,6 +113,9 @@ namespace MBBeta2
             }
 
             CheckConnection();
+
+            //Fill progress bar dates
+            FillProgressBar();
         }
 
         #region atributes
@@ -302,6 +305,25 @@ namespace MBBeta2
             }
             Connected.Text = state;
             ConnectedFB.Text = fbState;
+        }
+
+        private void FillProgressBar()
+        {
+            DateTime BackupPeriodStart;
+            DateTime BackupPeriodEnd;
+            DBLayer.GetBackupPeriods(out BackupPeriodStart, out BackupPeriodEnd);
+            EndDateTB.Text = BackupPeriodEnd.ToShortDateString();
+            CurrentDateTB.Text = BackupPeriodStart.ToShortDateString();
+
+            //Calculate space of Bar to Fill
+            DateTime StartTime = new DateTime(2004, 02, 01);
+
+            long ToNowTicks = BackupPeriodEnd.Ticks - StartTime.Ticks;
+            long ToBackupTicks = BackupPeriodEnd.Ticks - BackupPeriodStart.Ticks;
+
+            long Progress = ToBackupTicks * 100 / ToNowTicks;
+            BackupStatusPB.Value = Progress;
+
         }
 
         #endregion

@@ -4266,6 +4266,46 @@ namespace MBBetaAPI.AgentAPI
             } // lock
             return true;
         }
+
+        public static bool GetBackupPeriods(out DateTime PeriodStart, out DateTime PeriodEnd)
+        {
+
+            PeriodEnd = DateTime.Today;
+            PeriodStart = DateTime.Today;
+            lock (obj)
+            {
+                try
+                {
+                    DatabaseInUse = true;
+                    GetConn();
+                    string SQL = "select min(PeriodStartTime), max(PeriodEndTime) from Backups where Active = 0";
+                    SQLiteCommand CheckCmd = new SQLiteCommand(SQL, conn);
+                    SQLiteDataReader reader = CheckCmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0) && !reader.IsDBNull(1))
+                        {
+                            DateTime tempPeriodStart = reader.GetDateTime(0);
+                            DateTime tempPeriodEnd = reader.GetDateTime(1);
+                            PeriodStart = tempPeriodStart;
+                            PeriodEnd = tempPeriodEnd;
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    string ErrorMessage = "Error reading Periods \n" + ex.ToString();
+                    //System.Windows.Forms.MessageBox.Show("Error: " + ErrorMessage);
+                    return false;
+                }
+                finally
+                {
+                    DatabaseInUse = false;
+                }
+            } // lock
+            return true;
+        }
         #endregion
 
         public static void ProcessFullBirthday(string fullBirthday, out string birthDay, out string birthMonth, out string birthYear)

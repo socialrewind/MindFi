@@ -106,11 +106,29 @@ namespace MBBeta2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Backup Period Selected.
+        /// </summary>
+        internal static string BackupPeriod {
+            get {
+                return ResourceManager.GetString("BackupPeriod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Backup range.
         /// </summary>
         internal static string BackupRange {
             get {
                 return ResourceManager.GetString("BackupRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup Status.
+        /// </summary>
+        internal static string BackupStatus {
+            get {
+                return ResourceManager.GetString("BackupStatus", resourceCulture);
             }
         }
         

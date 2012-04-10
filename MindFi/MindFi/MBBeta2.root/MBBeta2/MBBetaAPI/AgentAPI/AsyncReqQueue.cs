@@ -52,7 +52,7 @@ namespace MBBetaAPI.AgentAPI
         public static bool BackupMyNotifications = false;
         public static bool BackupFriendsInfo = false;
         public static bool BackupFriendsFamily = false;
-        public static bool BackupFriendsPic;
+        public static bool BackupFriendsPic = true;
         public static bool BackupMyAlbums;
         public static bool BackupMyPhotos;
         public static bool BackupFriendsWall;

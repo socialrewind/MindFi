@@ -27,6 +27,7 @@ using System.Windows.Threading;
 //Other Projects
 using MBBetaAPI;
 using MBBetaAPI.AgentAPI;
+using MBBetaAPI.SRAPI;
 //Ribbon
 using Microsoft.Windows.Controls.Ribbon;
 
@@ -96,7 +97,7 @@ namespace MBBeta2
             // Information about backup data
             // TODO: Localize, maybe modularize
             string backupState, backupDate;
-            DBLayer.GetLastBackup(out backupState, out backupDate);
+            SRBackup.GetLastBackup(out backupState, out backupDate);
             this.UpdateText.Text = backupState;
             this.UpdateTime.Text = "Updated: " + backupDate;
 
@@ -311,7 +312,7 @@ namespace MBBeta2
         {
             DateTime BackupPeriodStart;
             DateTime BackupPeriodEnd;
-            DBLayer.GetBackupPeriods(out BackupPeriodStart, out BackupPeriodEnd);
+            SRBackup.GetBackupPeriods(out BackupPeriodStart, out BackupPeriodEnd);
             EndDateTB.Text = BackupPeriodEnd.ToShortDateString();
             CurrentDateTB.Text = BackupPeriodStart.ToShortDateString();
 
@@ -1017,7 +1018,7 @@ namespace MBBeta2
         private void DoRefreshInfo()
         {
             string backupState, backupDate;
-            DBLayer.GetLastBackup(out backupState, out backupDate);
+            SRBackup.GetLastBackup(out backupState, out backupDate);
             this.UpdateText.Text = backupState;
             // TODO: Localize
             this.UpdateTime.Text = "Updated: " + backupDate;

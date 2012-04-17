@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Data.SQLite;
 using System.ComponentModel;
+using MBBetaAPI.SRAPI;
 
 namespace MBBetaAPI.AgentAPI
 {
@@ -674,7 +675,7 @@ namespace MBBetaAPI.AgentAPI
                 DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
                 bool isIncremental;
 
-                DBLayer.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
+                SRBackup.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
                         out currentBackupStart, out currentBackupEnd,
                         out currentBackup, out currentPeriodStart, out currentPeriodEnd, 
                         out isIncremental, out currentState);
@@ -1424,7 +1425,7 @@ namespace MBBetaAPI.AgentAPI
                             if (CurrentBackupState < BACKUPPHOTOS)
                                 {
                                 CurrentBackupState++;
-                                DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
+                                SRBackup.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
                                 nReqs = 1;
                                 newPeriod = true;
                             }
@@ -1439,7 +1440,7 @@ namespace MBBetaAPI.AgentAPI
                                 && FBAPI.InFlight <= 0
                                 )
                             {
-                                DBLayer.EndBackup();
+                                SRBackup.EndBackup();
                                 //int backedPosts;
                                 // DBLayer.BackupStatistics(out backedPosts);
                                 backupInProgress = false;
@@ -1460,7 +1461,7 @@ namespace MBBetaAPI.AgentAPI
                                     // return state to all data that is associated to time range
                                     //CurrentBackupState = BACKUPMYWALL;
                                     CurrentBackupState = BACKUPMYALBUMS;
-                                    DBLayer.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
+                                    SRBackup.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
                                     nReqs = GetDataForCurrentState(ID, SNID);
                                 }
                                 else

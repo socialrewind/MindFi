@@ -7,6 +7,7 @@ using System.IO;
 //Internal API
 using MBBetaAPI;
 using MBBetaAPI.AgentAPI;
+using MBBetaAPI.SRAPI;
 //Localization
 using WPFLocalizeExtension.Engine;
 using WPFLocalizeExtension.Extensions;
@@ -52,7 +53,7 @@ namespace MBBeta2
 
                 BackupEndTB.Visibility = Visibility.Visible;
                 string backupState, backupDate;
-                DBLayer.GetLastBackup(out backupState, out backupDate);
+                SRBackup.GetLastBackup(out backupState, out backupDate);
                 endBackupTB.Text = backupDate;
             }                             
 

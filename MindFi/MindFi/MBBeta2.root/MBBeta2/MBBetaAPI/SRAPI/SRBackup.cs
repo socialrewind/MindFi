@@ -10,27 +10,35 @@ namespace MBBetaAPI.SRAPI
         /// <summary>
         /// Initial date that is selected for backup
         /// </summary>
-        public DateTime BackupPeriodSelectedStartDate { get; set; }
+        public static DateTime BackupPeriodSelectedStartDate { get; set; }
         /// <summary>
         /// End date that is selected for backup
         /// </summary>
-        public DateTime BackupPeriodSelectedEndDate { get; set; }
+        public static DateTime BackupPeriodSelectedEndDate { get; set; }
         /// <summary>
         /// Initial date that is completed for backup
         /// </summary>
-        public DateTime BackupCompletedStart { get; set; }
+        public static DateTime BackupCompletedStart { get; set; }
         /// <summary>
         /// End date date that is completed for backup
         /// </summary>
-        public DateTime BackupCompletedEnd { get; set; }
+        public static DateTime BackupCompletedEnd { get; set; }
         /// <summary>
         /// Initial date for the period in progress
         /// </summary>
-        public DateTime CurrentPeriodStart { get; set; }
+        public static DateTime CurrentPeriodStart { get; set; }
         /// <summary>
         /// End date for the period in progress
         /// </summary>
-        public DateTime CurrentPeriodEnd { get; set; }
+        public static DateTime CurrentPeriodEnd { get; set; }
+        /// <summary>
+        /// Indicates if there is at least a backup completed
+        /// </summary>
+        public static bool FirstBackupCompleted { get; set; }
+        /// <summary>
+        /// Indicates if backup is still in process
+        /// </summary>
+        public static bool BackupInProgress { get; set; }
 
         #region "Backup table operations"
         /// <summary>
@@ -51,7 +59,17 @@ namespace MBBetaAPI.SRAPI
             currentPeriodEnd = currentPeriodStart;
             currentBackupStart = startPeriod;
             currentBackupEnd = endPeriod;
-            currentState = AsyncReqQueue.BACKUPFRIENDSINFO;
+            currentState = AsyncReqQueue.BACKUPMYWALL;
+
+            // TODO: Verify all possibilities for setting up start date
+            if (BackupPeriodSelectedStartDate > startPeriod || BackupPeriodSelectedStartDate == DateTime.MinValue )
+            {
+                BackupPeriodSelectedStartDate = startPeriod;
+            }
+            if (BackupPeriodSelectedEndDate < endPeriod)
+            {
+                BackupPeriodSelectedEndDate = endPeriod;
+            }
 
             lock (DBLayer.obj)
             {
@@ -65,6 +83,7 @@ namespace MBBetaAPI.SRAPI
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     if (reader.Read())
                     {
+                        FirstBackupCompleted = true;
                         BackupNo = reader.GetInt32(0);
                         currentPeriodStart = reader.GetDateTime(1);
                         currentPeriodEnd = reader.GetDateTime(2);
@@ -86,12 +105,14 @@ namespace MBBetaAPI.SRAPI
                         {
                             if (!reader.IsDBNull(0) && !reader.IsDBNull(1) && !reader.IsDBNull(2))
                             {
+                                FirstBackupCompleted = true;
                                 DateTime tempPeriodStart = reader.GetDateTime(0);
                                 DateTime tempPeriodEnd = reader.GetDateTime(1);
                                 DateTime tempLastBackupDone = reader.GetDateTime(2);
                                 // Verifying logic
                                 //tempLastBackupDone = tempLastBackupDone.Date;
-
+                                BackupCompletedStart = tempPeriodStart;
+                                BackupCompletedEnd = tempPeriodEnd;
                                 // Logic for incremental: if period start is similar to existing, complete backup, only go forward; else, full backup needed
                                 // if existing backup covers the past, go only forward; else cover the period back first
                                 if (tempPeriodStart <= currentBackupStart)
@@ -160,6 +181,7 @@ namespace MBBetaAPI.SRAPI
                         if (reader.Read())
                         {
                             BackupNo = reader.GetInt32(0);
+                            BackupInProgress = true;
                         }
                         reader.Close();
                     }
@@ -172,6 +194,16 @@ namespace MBBetaAPI.SRAPI
                 }
                 finally
                 {
+                    if (BackupPeriodSelectedStartDate > currentPeriodStart)
+                    {
+                        BackupPeriodSelectedStartDate = currentPeriodStart;
+                    }
+                    if (BackupPeriodSelectedEndDate < currentPeriodEnd)
+                    {
+                        BackupPeriodSelectedEndDate = currentPeriodEnd;
+                    }
+                    CurrentPeriodStart = currentPeriodStart;
+                    CurrentPeriodEnd = currentPeriodEnd;
                     DBLayer.DatabaseInUse = false;
                 }
             } // lock
@@ -189,12 +221,13 @@ namespace MBBetaAPI.SRAPI
                 {
                     DBLayer.DatabaseInUse = true;
                     DBLayer.GetConn();
-                    // check first if there is an active Backup
-                    string SQL = "select StartTime, EndTime, Active from Backups";
+                    // get the last backup, actives are first
+                    string SQL = "select StartTime, EndTime, Active from Backups order by Active desc, EndTime desc";
                     SQLiteCommand CheckCmd = new SQLiteCommand(SQL, DBLayer.conn);
                     SQLiteDataReader reader = CheckCmd.ExecuteReader();
                     if (reader.Read())
                     {
+                        FirstBackupCompleted = true;
                         DateTime currentPeriodStart = reader.GetDateTime(0);
                         DateTime? currentPeriodEnd = null;
                         if (!reader.IsDBNull(1))
@@ -275,6 +308,8 @@ namespace MBBetaAPI.SRAPI
                 }
                 finally
                 {
+                    CurrentPeriodStart = currentStart;
+                    CurrentPeriodEnd = currentEnd;
                     DBLayer.DatabaseInUse = false;
                 }
             } // lock
@@ -308,6 +343,8 @@ namespace MBBetaAPI.SRAPI
                 }
                 finally
                 {
+                    FirstBackupCompleted = true;
+                    BackupInProgress = false;
                     DBLayer.DatabaseInUse = false;
                 }
             } // lock
@@ -332,10 +369,11 @@ namespace MBBetaAPI.SRAPI
                     {
                         if (!reader.IsDBNull(0) && !reader.IsDBNull(1))
                         {
+                            FirstBackupCompleted = true;
                             DateTime tempPeriodStart = reader.GetDateTime(0);
                             DateTime tempPeriodEnd = reader.GetDateTime(1);
-                            PeriodStart = tempPeriodStart;
-                            PeriodEnd = tempPeriodEnd;
+                            BackupCompletedStart = PeriodStart = tempPeriodStart;
+                            BackupCompletedEnd = PeriodEnd = tempPeriodEnd;
                         }
                     }
 

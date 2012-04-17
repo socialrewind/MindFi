@@ -687,8 +687,6 @@ namespace MBBetaAPI.AgentAPI
                 CurrentBackupState = currentState;
                 currentBackupNumber = currentBackup;
                 newPeriod = true;
-                // Check: initial state, TODO improve / generalize
-                CurrentBackupState = BACKUPMYWALL;
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
@@ -1422,7 +1420,7 @@ namespace MBBetaAPI.AgentAPI
                         // if no pending data, then check backup time progress and infligh requests
                         if (nReqs == 0)
                         {
-                            if (CurrentBackupState < BACKUPPHOTOS)
+                            if (CurrentBackupState <= BACKUPPHOTOS)
                                 {
                                 CurrentBackupState++;
                                 SRBackup.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);

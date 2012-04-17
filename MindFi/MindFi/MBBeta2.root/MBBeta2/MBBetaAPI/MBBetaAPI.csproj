@@ -113,6 +113,7 @@
     <Compile Include="PartialModel\WallPostModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SNMessageStructure.cs" />
+    <Compile Include="SRAPI\SRBackup.cs" />
     <Compile Include="SRAPI\SRConnection.cs" />
     <Compile Include="WallPostStructure.cs" />
     <Compile Include="ZipAPI\SRZipBackup.cs" />

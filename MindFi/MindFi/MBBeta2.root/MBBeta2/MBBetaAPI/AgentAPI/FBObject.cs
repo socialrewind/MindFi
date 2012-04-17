@@ -156,6 +156,7 @@ namespace MBBetaAPI.AgentAPI
                     }
                     else
                     {
+                        // DEBUG CODE
                         error = "Possible bug parsing id: parent " + parentName + " is unexpected";
                     }
                     break;
@@ -166,6 +167,7 @@ namespace MBBetaAPI.AgentAPI
                     }
                     else
                     {
+                        // DEBUG CODE
                         error = "Possible bug parsing name: parent " + parentName + " is unexpected";
                     }
                     break;

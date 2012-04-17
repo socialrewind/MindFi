@@ -45,6 +45,14 @@ namespace MBBetaAPI.AgentAPI
         /// </summary>
         public string Path { get; set; }
         /// <summary>
+        /// Place for locating the photo: ID
+        /// </summary>
+        public string PlaceSNID { get; set; }
+        /// <summary>
+        /// Place for locating the photo: Name
+        /// </summary>
+        public string PlaceName { get; set; }
+        /// <summary>
         /// Tags associated to this photo
         /// </summary>
         public ArrayList Tags
@@ -164,14 +172,11 @@ namespace MBBetaAPI.AgentAPI
                 case "id":
                     switch (parentName)
                     {
-                            /*
-                        case null:
-                        case "":
-                            SNID = value;
-                            break;
-                             */
                         case "from":
                             FromID = value;
+                            break;
+                        case "place":
+                            PlaceSNID = value;
                             break;
                         default:
                             base.AssignValue(name, value);
@@ -181,14 +186,11 @@ namespace MBBetaAPI.AgentAPI
                 case "name":
                     switch (parentName)
                     {
-                            /*
-                        case null:
-                        case "":
-                            Name = value;
-                            break;
-                             * */
                         case "from":
                             FromName = value;
+                            break;
+                        case "place":
+                            PlaceName = value;
                             break;
                         default:
                             base.AssignValue(name, value);

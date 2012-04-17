@@ -166,6 +166,19 @@ namespace MBBetaAPI.AgentAPI
                             ErrorMessage += error;
                         }
                     }
+                    // save To field as a relationship if needed
+                    if (ToID != null && ToName != null
+                        && ToID != "" && ToName != "")
+                    {
+                        string error;
+                        // TODO: How to keep the name - need to save FBObject?
+                        DBLayer.ActionDataSave(ToID, SNID, Verb.SENTTO, out Saved, out error);
+                        ErrorMessage += error;
+                        FBObject dest = new FBObject(ToID, ToName);
+                        dest.Save(out error);
+                        ErrorMessage += error;
+                    }
+
                 }
                 // TODO: Change parser to generate likes as user list, then save corresponding relationship	
             }
@@ -186,6 +199,9 @@ namespace MBBetaAPI.AgentAPI
                         case "from":
                             FromID = value;
                             break;
+                        case "to":
+                            ToID = value;
+                            break;
                         default:
                             base.AssignValue(name, value);
                             break;
@@ -196,6 +212,9 @@ namespace MBBetaAPI.AgentAPI
                     {
                         case "from":
                             FromName = value;
+                            break;
+                        case "to":
+                            ToName = value;
                             break;
                         default:
                             base.AssignValue(name, value);

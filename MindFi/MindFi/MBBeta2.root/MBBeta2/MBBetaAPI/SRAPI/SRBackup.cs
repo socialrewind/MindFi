@@ -39,11 +39,16 @@ namespace MBBetaAPI.SRAPI
         /// Indicates if backup is still in process
         /// </summary>
         public static bool BackupInProgress { get; set; }
+        /// <summary>
+        /// keeps the ID for the backup record
+        /// </summary>
+        public static volatile int currentBackupNumber = 0;
 
         #region "Backup table operations"
         /// <summary>
         /// Record the start of a backup
         /// </summary>
+        /// TODO: Optimize parameters
         public static bool StartBackup(DateTime startPeriod, DateTime endPeriod,
             out DateTime currentBackupStart, out DateTime currentBackupEnd,
             out int BackupNo,
@@ -180,7 +185,7 @@ namespace MBBetaAPI.SRAPI
                         reader = CheckCmd.ExecuteReader();
                         if (reader.Read())
                         {
-                            BackupNo = reader.GetInt32(0);
+                            currentBackupNumber = BackupNo = reader.GetInt32(0);
                             BackupInProgress = true;
                         }
                         reader.Close();
@@ -314,6 +319,29 @@ namespace MBBetaAPI.SRAPI
                 }
             } // lock
             return true;
+        }
+
+        public static bool NextPeriod(int State)
+        {
+            bool newPeriod = false;
+
+            // Depends on the state... is it doing full backup? Is it backing up everything more recent than last backup? or is it extending to the past
+            // Default case: going backwards on full backup
+            if ( CurrentPeriodStart > BackupPeriodSelectedStartDate )
+            {
+                newPeriod = true;
+                // Go to the previous week
+                CurrentPeriodEnd = CurrentPeriodStart;
+                CurrentPeriodStart = CurrentPeriodStart.AddDays(-30);
+                if (CurrentPeriodStart < BackupPeriodSelectedStartDate)
+                {
+                    CurrentPeriodStart = BackupPeriodSelectedStartDate;
+                }
+                FBAPI.SetTimeRange(CurrentPeriodStart, CurrentPeriodEnd);
+                UpdateBackup(currentBackupNumber, CurrentPeriodStart, CurrentPeriodEnd, State);
+            }
+
+            return newPeriod;
         }
 
         /// <summary>

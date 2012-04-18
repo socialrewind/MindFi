@@ -57,6 +57,7 @@ namespace MBBetaAPI.AgentAPI
         public bool BackupFriendsEvents;
         public bool BackupFriendsAlbums;
 
+        /*
         /// <summary>
         /// Date the execution of the account backup starts
         /// </summary>
@@ -86,6 +87,8 @@ namespace MBBetaAPI.AgentAPI
         /// How often is incremental backup to be launched? (Units)
         /// </summary>
         public string BackupFrequencyUnit { get; set; }
+        */
+
 
         /// <summary>
         /// Lock variable
@@ -115,6 +118,7 @@ namespace MBBetaAPI.AgentAPI
                     bool bFriendsEvents,
                     bool bFriendsAlbums,
                     bool bFriendsWall,
+            // TODO: Remove unused parameters
                     DateTime backupPeriodStart, DateTime backupPeriodEnd )
         {
             ID = id;
@@ -123,6 +127,8 @@ namespace MBBetaAPI.AgentAPI
             Name = name;
             Email = email;
             URL = url;
+            // TODO: Remove comments
+            /*
             //currentBackupLevel = level;
             BackupPeriodStart = backupPeriodStart;
             BackupPeriodEnd = backupPeriodEnd;
@@ -130,6 +136,9 @@ namespace MBBetaAPI.AgentAPI
             BackupStartDate = DateTime.Now;
             CurrentPeriodStart = backupPeriodStart;
             CurrentPeriodEnd = backupPeriodEnd;
+             */
+            SRAPI.SRBackup.BackupPeriodSelectedStartDate = backupPeriodStart;
+            SRAPI.SRBackup.BackupPeriodSelectedEndDate = backupPeriodEnd;
             BackupMyWall = bMyWall;
             BackupMyNews = bMyNews;
             BackupMyInbox = bMyInbox;

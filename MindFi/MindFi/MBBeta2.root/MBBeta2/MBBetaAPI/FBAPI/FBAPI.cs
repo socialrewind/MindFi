@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Text;
+using MBBetaAPI.SRAPI;
 
 namespace MBBetaAPI.AgentAPI
 {
@@ -597,7 +598,8 @@ namespace MBBetaAPI.AgentAPI
                         if ( InitialTime == null || EndTime == null )
                         {
                             // TODO: Find why this is happening
-                            SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                            //SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                            SetTimeRange(SRBackup.CurrentPeriodStart, SRBackup.CurrentPeriodEnd);
                         }
                         URLToGet += "&since=" + InitialTime + "&until=" + EndTime;
                     }
@@ -717,7 +719,7 @@ namespace MBBetaAPI.AgentAPI
                         if (InitialTime == null || EndTime == null)
                         {
                             // TODO: Find why this is happening
-                            SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                            SetTimeRange(SRBackup.CurrentPeriodStart, SRBackup.CurrentPeriodEnd);
                         }
                         EncodedPostData += "&since=" + InitialTime + "&until=" + EndTime;
                     }
@@ -790,7 +792,7 @@ namespace MBBetaAPI.AgentAPI
                         if (InitialTime == null || EndTime == null)
                         {
                             // TODO: Find why this is happening
-                            SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                            SetTimeRange(SRBackup.CurrentPeriodStart, SRBackup.CurrentPeriodEnd);
                         }
                         EncodedPostData += "&since=" + InitialTime + "&until=" + EndTime;
                     }

@@ -48,7 +48,7 @@ namespace MBBeta2
             }
             else
             {
-                BackupDateDP.SelectedDate = SNAccount.CurrentProfile.BackupPeriodStart;
+                BackupDateDP.SelectedDate = SRBackup.BackupPeriodSelectedStartDate; // SNAccount.CurrentProfile.BackupPeriodStart;
                 BackupDateDP.DisplayDateEnd = BackupDateDP.SelectedDate;
 
                 BackupEndTB.Visibility = Visibility.Visible;
@@ -295,8 +295,8 @@ namespace MBBeta2
                        AsyncReqQueue.BackupFriendsEvents,
                        AsyncReqQueue.BackupFriendsAlbums,
                        AsyncReqQueue.BackupFriendsWall,
-                       SNAccount.CurrentProfile.BackupPeriodStart,
-                       SNAccount.CurrentProfile.BackupPeriodEnd,
+                       initialDate,
+                       endDate,
                        out errorData))
                 {
                     // TODO: Localize
@@ -307,7 +307,8 @@ namespace MBBeta2
             }
             else
             {
-                SNAccount.CurrentProfile.BackupPeriodStart = initialDate;
+                SRBackup.BackupPeriodSelectedStartDate = initialDate;
+                // SNAccount.CurrentProfile.BackupPeriodStart = initialDate;
                 //SNAccount.CurrentProfile.currentBackupLevel = this.BackupTypeCB.SelectedIndex + 1;
                 // make sure it updates existing accounts
                 if (!DBLayer.UpdateAccount(SN, me.SNID,
@@ -319,7 +320,7 @@ namespace MBBeta2
                        AsyncReqQueue.BackupFriendsEvents,
                        AsyncReqQueue.BackupFriendsAlbums,
                        AsyncReqQueue.BackupFriendsWall,
-                       SNAccount.CurrentProfile.BackupPeriodStart,
+                       initialDate,
                        out errorData))
                 {
                     // TODO: Localize

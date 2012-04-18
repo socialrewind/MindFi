@@ -1117,64 +1117,64 @@ namespace MBBeta2
                         if (AsyncReqQueue.BackupMyWall)
                         {
                             this.UpdateText.Text = "Getting my wall posts (" + AsyncReqQueue.nPosts + ") from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPMYNEWS:
                         if (AsyncReqQueue.BackupMyNews)
                         {
                             this.UpdateText.Text = "Getting news posts (" + AsyncReqQueue.nPosts + ") from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPMYINBOX:
                         if (AsyncReqQueue.BackupMyInbox)
                         {
                             this.UpdateText.Text = "Getting my inbox (" + AsyncReqQueue.nMessages + ") from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPMYEVENTS:
                         if (AsyncReqQueue.BackupMyEvents)
                         {
                             this.UpdateText.Text = "Getting my events (" + AsyncReqQueue.nEvents + ") from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPMYALBUMS:
                         if (AsyncReqQueue.BackupMyAlbums)
                         {
                             this.UpdateText.Text = "Getting my albums (" + AsyncReqQueue.nAlbums + ") from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPMYNOTIFICATIONS:
                         if (AsyncReqQueue.BackupMyNews)
                         {
                             this.UpdateText.Text = "Getting my notifications from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPPHOTOS:
                         if (AsyncReqQueue.BackupMyPhotos || AsyncReqQueue.BackupFriendsAlbums)
                         {
                             this.UpdateText.Text = "Getting photos (" + AsyncReqQueue.nPhotos + ") from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPFRIENDSWALLS:
                         if (AsyncReqQueue.BackupFriendsWall)
                         {
                             this.UpdateText.Text = "Getting friends walls (" + AsyncReqQueue.nFriendsWalls + "/" + AsyncReqQueue.nPosts + " posts) from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                         // TODO: Statistics for these states
@@ -1182,16 +1182,16 @@ namespace MBBeta2
                         if (AsyncReqQueue.BackupFriendsEvents)
                         {
                             this.UpdateText.Text = "Getting friends events from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                     case AsyncReqQueue.BACKUPFRIENDSALBUMS:
                         if (AsyncReqQueue.BackupFriendsAlbums)
                         {
                             this.UpdateText.Text = "Getting friends albums from " +
-                                SNAccount.CurrentProfile.CurrentPeriodStart.ToShortDateString() + " to " +
-                                SNAccount.CurrentProfile.CurrentPeriodEnd.ToShortDateString() + animation;
+                                SRBackup.CurrentPeriodStart.ToShortDateString() + " to " +
+                                SRBackup.CurrentPeriodEnd.ToShortDateString() + animation;
                         }
                         break;
                 }

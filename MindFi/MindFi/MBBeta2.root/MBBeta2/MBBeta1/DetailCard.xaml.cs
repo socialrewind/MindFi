@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MBBetaAPI;
 using MBBetaAPI.AgentAPI;
+using MBBetaAPI.SRAPI;
 
 namespace MBBeta2
 {
@@ -139,14 +140,19 @@ namespace MBBeta2
 
             string errorMessage = "";
             
+            // TODO: Encapsulate in AsyncReqQueue
             AsyncReqQueue apiReq = FBAPI.Wall(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, 
                     AsyncReqQueue.ProcessWall, CurrentPerson.ID, CurrentPerson.SNID.ToString());
             // force all backup timeframe
+            /*
             if (SNAccount.CurrentProfile != null)
             {
                 apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
                 apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
             }
+             */
+            apiReq.startDate = SRBackup.BackupPeriodSelectedStartDate;
+            apiReq.endDate = SRBackup.BackupPeriodSelectedEndDate;
             apiReq.QueueAndSend(999);
             DBLayer.UpdateWallRequest(CurrentPerson.ID, apiReq.ID, out errorMessage);
             if ( errorMessage != "" )
@@ -160,13 +166,18 @@ namespace MBBeta2
             EventsCB.IsChecked = true;
 
             string errorMessage = "";
+            // TODO: Encapsulate in AsyncReqQueue
             // force all backup timeframe
             AsyncReqQueue apiReq = FBAPI.Events(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, AsyncReqQueue.ProcessEvents, CurrentPerson.ID, CurrentPerson.SNID.ToString());
+            /*
             if (SNAccount.CurrentProfile != null)
             {
                 apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
                 apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
             }
+             */
+            apiReq.startDate = SRBackup.BackupPeriodSelectedStartDate;
+            apiReq.endDate = SRBackup.BackupPeriodSelectedEndDate;
             apiReq.QueueAndSend(999);
             DBLayer.UpdateEventRequest(CurrentPerson.ID, apiReq.ID, out errorMessage);
             if (errorMessage != "")
@@ -180,12 +191,17 @@ namespace MBBeta2
             PhotoAlbumsCB.IsChecked = true;
 
             string errorMessage = "";
+            // TODO: Encapsulate
             AsyncReqQueue apiReq = FBAPI.PhotoAlbums(CurrentPerson.SNID.ToString(), AsyncReqQueue.SIZETOGETPERPAGE, AsyncReqQueue.ProcessAlbums);
+            /*
             if (SNAccount.CurrentProfile != null)
             {
                 apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
                 apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
             }
+             */
+            apiReq.startDate = SRBackup.BackupPeriodSelectedStartDate;
+            apiReq.endDate = SRBackup.BackupPeriodSelectedEndDate;
             apiReq.QueueAndSend(999);
             if (errorMessage != "")
             {

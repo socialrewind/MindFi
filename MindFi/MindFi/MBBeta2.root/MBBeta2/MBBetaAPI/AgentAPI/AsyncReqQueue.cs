@@ -211,9 +211,7 @@ namespace MBBetaAPI.AgentAPI
             methodToCall = resultCall;
             addToken = AddToken;
             addDateRange = AddDateRange;
-            // TODO: Check defaults for dates
-            startDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(-1) : SNAccount.CurrentProfile.CurrentPeriodStart);
-            endDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(1) : SNAccount.CurrentProfile.CurrentPeriodEnd);
+            InitDates();
             PostData = postData;
             InitArray();
             Save();
@@ -255,9 +253,7 @@ namespace MBBetaAPI.AgentAPI
             methodToCall = resultCall;
             Parent = parentID;
             ParentSNID = parentSNID;
-            // TODO: Check defaults for dates
-            startDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(-1) : SNAccount.CurrentProfile.CurrentPeriodStart);
-            endDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(1) : SNAccount.CurrentProfile.CurrentPeriodEnd);
+            InitDates();
             InitArray();
             Save();
         }
@@ -270,6 +266,7 @@ namespace MBBetaAPI.AgentAPI
         {
             string errorMessage;
             // Call layer to get data
+            InitDates();
             InitArray();
             if (DBLayer.GetAsyncReq(id, out ReqType, out Priority, out Parent, out ParentSNID,
                 out Created, out Updated, 
@@ -304,6 +301,23 @@ namespace MBBetaAPI.AgentAPI
                     CountPerState = new int[AsyncReqQueue.TODELETE + 1];
                     for (int i = 0; i < AsyncReqQueue.TODELETE + 1; i++) CountPerState[i] = 0;
                 }
+            }
+        }
+
+        private void InitDates()
+        {
+            // TODO: Check defaults for dates
+            //startDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(-1) : SNAccount.CurrentProfile.CurrentPeriodStart);
+            //endDate = ((SNAccount.CurrentProfile == null) ? DateTime.Now.AddMonths(1) : SNAccount.CurrentProfile.CurrentPeriodEnd);
+            if (SRBackup.BackupInProgress)
+            {
+                startDate = SRBackup.CurrentPeriodStart;
+                endDate = SRBackup.CurrentPeriodEnd;
+            }
+            else
+            {
+                startDate = ((SRBackup.BackupPeriodSelectedStartDate == DateTime.MinValue) ? DateTime.Now.AddMonths(-1) : SRBackup.BackupPeriodSelectedStartDate);
+                endDate = ((SRBackup.BackupPeriodSelectedEndDate == DateTime.MinValue) ? DateTime.Now.AddMonths(1) : SRBackup.BackupPeriodSelectedEndDate);
             }
         }
 
@@ -675,15 +689,20 @@ namespace MBBetaAPI.AgentAPI
                 DateTime currentPeriodStart, currentPeriodEnd, currentBackupStart, currentBackupEnd;
                 bool isIncremental;
 
-                SRBackup.StartBackup(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd,
+                SRBackup.StartBackup(
+                    SRBackup.BackupPeriodSelectedStartDate, SRBackup.BackupPeriodSelectedEndDate,
                         out currentBackupStart, out currentBackupEnd,
                         out currentBackup, out currentPeriodStart, out currentPeriodEnd, 
                         out isIncremental, out currentState);
+                /*
                 SNAccount.CurrentProfile.CurrentPeriodStart = currentPeriodStart;
                 SNAccount.CurrentProfile.CurrentPeriodEnd = currentPeriodEnd;
                 SNAccount.CurrentProfile.BackupPeriodStart = currentBackupStart;
                 SNAccount.CurrentProfile.BackupPeriodEnd = currentBackupEnd;
-                FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                 * */
+                // TODO: Modify dates
+                //FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
+                FBAPI.SetTimeRange(SRBackup.CurrentPeriodStart, SRBackup.CurrentPeriodEnd);
                 CurrentBackupState = currentState;
                 currentBackupNumber = currentBackup;
                 newPeriod = true;
@@ -1188,13 +1207,10 @@ namespace MBBetaAPI.AgentAPI
                     if (SNID != null && SNID != "")
                     {
                         // TODO: Make async
-                        FBAPI.SetTimeRange(SNAccount.CurrentProfile.BackupPeriodStart, SNAccount.CurrentProfile.BackupPeriodEnd);
+                        FBAPI.SetTimeRange(SRBackup.CurrentPeriodStart, SRBackup.CurrentPeriodEnd);
                         apiReq = FBAPI.Events(SNID, SIZETOGETPERPAGE, ProcessEvents, friendID, SNID);
-                        if (SNAccount.CurrentProfile != null)
-                        {
-                            apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
-                            apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
-                        }
+                        apiReq.startDate = SRBackup.CurrentPeriodStart;
+                        apiReq.endDate = SRBackup.CurrentPeriodEnd;
                         apiReq.QueueAndSend(999);
                         DBLayer.UpdateEventRequest(friendID, apiReq.ID, out errorMessage);
                         nFriendsEvents++;
@@ -1233,11 +1249,8 @@ namespace MBBetaAPI.AgentAPI
                     {
                         // TODO: Make async
                         apiReq = FBAPI.PhotoAlbums(SNID, SIZETOGETPERPAGE, ProcessAlbums);
-                        if (SNAccount.CurrentProfile != null)
-                        {
-                            apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
-                            apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
-                        }
+                        apiReq.startDate = SRBackup.CurrentPeriodStart;
+                        apiReq.endDate = SRBackup.CurrentPeriodEnd;
                         apiReq.QueueAndSend(999);
                         // TODO: Album requests
                         DBLayer.UpdateAlbumRequest(friendID, apiReq.ID, out errorMessage);
@@ -1334,11 +1347,8 @@ namespace MBBetaAPI.AgentAPI
             AsyncWorkArgs temp = (AsyncWorkArgs)e.Argument;
 
             AsyncReqQueue apiReq = FBAPI.Wall(temp.SNID, SIZETOGETPERPAGE, ProcessWall, temp.ID, temp.SNID);
-            if (SNAccount.CurrentProfile != null)
-            {
-                apiReq.startDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodStart;
-                apiReq.endDate = (DateTime)SNAccount.CurrentProfile.BackupPeriodEnd;
-            }
+            apiReq.startDate = SRBackup.CurrentPeriodStart;
+            apiReq.endDate = SRBackup.CurrentPeriodEnd;
             apiReq.QueueAndSend(999);
             DBLayer.UpdateWallRequest(temp.ID, apiReq.ID, out errorMessage);
             nFriendsWalls++;
@@ -1423,7 +1433,7 @@ namespace MBBetaAPI.AgentAPI
                             if (CurrentBackupState <= BACKUPPHOTOS)
                                 {
                                 CurrentBackupState++;
-                                SRBackup.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
+                                SRBackup.UpdateBackup(currentBackupNumber, SRBackup.CurrentPeriodStart, SRBackup.CurrentPeriodEnd, CurrentBackupState);
                                 nReqs = 1;
                                 newPeriod = true;
                             }
@@ -1431,8 +1441,8 @@ namespace MBBetaAPI.AgentAPI
 
                         if (nReqs == 0)
                         {
-                            
-                            if ((SNAccount.CurrentProfile.CurrentPeriodStart <= SNAccount.CurrentProfile.BackupPeriodStart)
+                            // TODO: Encapsulate function in SRBackup that indicates if the current period is done... - use BackupInProgress?
+                            if ((SRBackup.CurrentPeriodStart <= SRBackup.BackupPeriodSelectedStartDate )
                                 && nInParseRequests <= 0
                                 && nInSaveRequests <= 0
                                 && FBAPI.InFlight <= 0
@@ -1445,25 +1455,16 @@ namespace MBBetaAPI.AgentAPI
                             }
                             else
                             {
-                                if ((SNAccount.CurrentProfile.CurrentPeriodStart > SNAccount.CurrentProfile.BackupPeriodStart))
+                                if (SRBackup.BackupInProgress)
                                 {
-                                    newPeriod = true;
-                                    // Go to the previous week
-                                    SNAccount.CurrentProfile.CurrentPeriodEnd = SNAccount.CurrentProfile.CurrentPeriodStart;
-                                    SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.CurrentPeriodStart.AddDays(-30);
-                                    if (SNAccount.CurrentProfile.CurrentPeriodStart < SNAccount.CurrentProfile.BackupPeriodStart)
-                                    {
-                                        SNAccount.CurrentProfile.CurrentPeriodStart = SNAccount.CurrentProfile.BackupPeriodStart;
-                                    }
-                                    FBAPI.SetTimeRange(SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd);
-                                    // return state to all data that is associated to time range
-                                    //CurrentBackupState = BACKUPMYWALL;
-                                    CurrentBackupState = BACKUPMYALBUMS;
-                                    SRBackup.UpdateBackup(currentBackupNumber, SNAccount.CurrentProfile.CurrentPeriodStart, SNAccount.CurrentProfile.CurrentPeriodEnd, CurrentBackupState);
+                                    CurrentBackupState = BACKUPMYWALL;
+                                    newPeriod = SRBackup.NextPeriod(CurrentBackupState);
+                                    // REVIEW STATE
                                     nReqs = GetDataForCurrentState(ID, SNID);
                                 }
                                 else
                                 {
+                                    // TODO: Count how many times, create "timeout" to fail the backup
                                     // TODO: Allow to show this information, probably a different state
                                     // TODO: Localize
                                     ErrorMessage += "only waiting for last requests in flight to complete backup";

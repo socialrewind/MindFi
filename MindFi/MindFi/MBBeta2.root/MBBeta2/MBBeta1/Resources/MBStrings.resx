@@ -303,10 +303,16 @@
   <data name="BackupRange" xml:space="preserve">
     <value>Backup range</value>
   </data>
-  <data name="BackupPeriod" xml:space="preserve">
-    <value>Backup Period Selected</value>
+  <data name="BackupPeriodSelected" xml:space="preserve">
+    <value>Selected Backup Period</value>
   </data>
   <data name="BackupStatus" xml:space="preserve">
     <value>Backup Status</value>
+  </data>
+  <data name="BackupPeriodCompleted" xml:space="preserve">
+    <value>Completed Backup Period</value>
+  </data>
+  <data name="BackupPeriodCurrent" xml:space="preserve">
+    <value>Current Backup Period</value>
   </data>
 </root>

@@ -129,6 +129,7 @@
     <Grid>        
             <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -217,44 +218,9 @@
                                              KeyTip="U"
                                              Click="btnUnzip_Click"/>
                     </ribbon:RibbonControlGroup>
-
                 </ribbon:RibbonGroup>
             </ribbon:RibbonTab>
-                <ribbon:RibbonGroup x:Name="TimeBarRB" Header="{lex:LocText MBBeta2:MBStrings:BackupRange}">
-                    <ribbon:RibbonControlGroup>
-                        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Width="650" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="0.33*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="0.5*"/>
-                            </Grid.RowDefinitions>
-                            <ProgressBar x:Name="BackupStatusPB" Width="600" Height="30"
-                                         Grid.ColumnSpan="3">
-                                <ProgressBar.LayoutTransform>
-                                    <RotateTransform Angle="180" />
-                                </ProgressBar.LayoutTransform>
-                            </ProgressBar>
-                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical">
-                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:EndDate}"
-                                           HorizontalAlignment="Right"/>
-                                <TextBlock x:Name="EndDateTB" HorizontalAlignment="Right"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
-                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:BackupPeriod}"
-                                           HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="CurrentDateTB" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical">
-                                <TextBlock Text="{lex:LocText MBBeta2:MBStrings:StartDate}"/>
-                                <TextBlock Text="2004/02/01"/>
-                            </StackPanel>
-                        </Grid>
-                    </ribbon:RibbonControlGroup>
-                </ribbon:RibbonGroup>
+                
             <ribbon:RibbonTab Header="{lex:LocText MBBeta2:MBStrings:Setup}" KeyTip="S">
                 <ribbon:RibbonGroup x:Name="SetupRG" Header="{lex:LocText MBBeta2:MBStrings:Setup}">
                     <ribbon:RibbonControlGroup>
@@ -270,7 +236,74 @@
                 </ribbon:RibbonGroup>
             </ribbon:RibbonTab>
         </ribbon:Ribbon>
-        <DockPanel Background="Silver" Grid.Row="1">
+
+        <!--Time Bar-->
+        <Expander Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Silver" 
+                  Header="{lex:LocText MBBeta2:MBStrings:BackupStatus}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.33*"/>
+                    <ColumnDefinition Width="0.67*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Vertical" Grid.Column="0" Margin="10,2,10,2">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="WhiteSmoke" Width="20" Height="20"/>
+                        <TextBlock Text="{lex:LocText MBBeta2:MBStrings:BackupPeriodSelected}" Margin="5,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="LawnGreen" Width="20" Height="20"/>
+                        <TextBlock Text="{lex:LocText MBBeta2:MBStrings:BackupPeriodCompleted}" Margin="5,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="DarkBlue" Width="20" Height="20"/>
+                        <TextBlock Text="{lex:LocText MBBeta2:MBStrings:BackupPeriodCurrent}" Margin="5,0,0,0"/>
+                    </StackPanel>
+
+                </StackPanel>
+                <Canvas x:Name="ProgressBarCanvas" Grid.Column="1" Margin="0,0,20,20" VerticalAlignment="Center" Width="500">
+                    <Rectangle x:Name="SelectedBackupRectangle"  Fill="WhiteSmoke" Height="20" Width="500">
+                        <Rectangle.ToolTip>
+                            <ToolTip>
+                                <TextBlock x:Name="SelectedDateTB"/>
+                            </ToolTip>
+                        </Rectangle.ToolTip>
+                    </Rectangle>
+                    <Rectangle x:Name="CompletedBackupRectangle" Fill="LawnGreen" Height="20" Width="200">
+                        <Rectangle.ToolTip>
+                            <ToolTip>
+                                <TextBlock x:Name="CompletedDateTB"/>
+                            </ToolTip>
+                        </Rectangle.ToolTip>
+                    </Rectangle>
+                    <Rectangle x:Name="CurrentBackupRectangle" Fill="DarkBlue" Height="20" Width="50">
+                        <Rectangle.ToolTip>
+                            <ToolTip>
+                                <TextBlock x:Name="CurrentDateTB"/>
+                            </ToolTip>
+                        </Rectangle.ToolTip>
+                        <Rectangle.Triggers>
+                            <!-- Animates the rectangle's opacity. -->
+                            <EventTrigger RoutedEvent="Rectangle.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                        Storyboard.TargetName="CurrentBackupRectangle" 
+                                        Storyboard.TargetProperty="Opacity"
+                                        From="0.7" To="0.3" Duration="0:0:2" 
+                                        AutoReverse="True" RepeatBehavior="Forever" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Rectangle.Triggers>
+                    </Rectangle>
+                </Canvas>
+            
+            </Grid>
+        </Expander>
+
+
+        <DockPanel Background="Silver" Grid.Row="2">
         <!--Footer-->
         <Grid DockPanel.Dock="Bottom" Background="DarkBlue">
             <Grid.ColumnDefinitions>

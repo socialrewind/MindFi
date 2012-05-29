@@ -310,20 +310,49 @@ namespace MBBeta2
 
         private void FillProgressBar()
         {
-            DateTime BackupPeriodStart;
-            DateTime BackupPeriodEnd;
-            SRBackup.GetBackupPeriods(out BackupPeriodStart, out BackupPeriodEnd);
-            EndDateTB.Text = BackupPeriodEnd.ToShortDateString();
-            CurrentDateTB.Text = BackupPeriodStart.ToShortDateString();
 
-            //Calculate space of Bar to Fill
-            DateTime StartTime = new DateTime(2004, 02, 01);
+            string tmp;
 
-            long ToNowTicks = BackupPeriodEnd.Ticks - StartTime.Ticks;
-            long ToBackupTicks = BackupPeriodEnd.Ticks - BackupPeriodStart.Ticks;
+            //Fill Selected Period
+            tmp = SRBackup.BackupPeriodSelectedStartDate.ToShortDateString() + " - " + SRBackup.BackupPeriodSelectedEndDate.ToShortDateString();
+            SelectedDateTB.Text = tmp;
+            //Get space occupied by selected date backup rectangle
+            double SelectedWidth = SelectedBackupRectangle.ActualWidth;
+            //Get number of ticks on selected backup period
+            long SelectedTicks = SRBackup.BackupPeriodSelectedEndDate.Ticks - SRBackup.BackupPeriodSelectedStartDate.Ticks;
 
-            long Progress = ToBackupTicks * 100 / ToNowTicks;
-            BackupStatusPB.Value = Progress;
+            //Fill Completed
+            if (SRBackup.BackupCompletedStart.Ticks != 0 && SRBackup.BackupCompletedEnd.Ticks != 0)
+            {
+                tmp = SRBackup.BackupCompletedStart.ToShortDateString() + " - " + SRBackup.BackupCompletedEnd.ToShortDateString();
+                CompletedDateTB.Text = tmp;
+                //Calculate space and position of Completed
+                long CompletedTicks = SRBackup.BackupCompletedEnd.Ticks - SRBackup.BackupCompletedStart.Ticks;
+                CompletedBackupRectangle.Width = CompletedTicks * SelectedWidth / SelectedTicks;
+                Canvas.SetLeft(CompletedBackupRectangle, (SRBackup.BackupCompletedStart.Ticks - SRBackup.BackupPeriodSelectedStartDate.Ticks) * 500 / SelectedTicks);
+            }
+            else
+            {
+                CompletedBackupRectangle.Width = 0;
+            }
+
+
+            //Fill Current
+            if (SRBackup.CurrentPeriodStart.Ticks != 0 && SRBackup.CurrentPeriodEnd.Ticks != 0)
+            {
+                tmp = SRBackup.CurrentPeriodStart.ToShortDateString() + " - " + SRBackup.CurrentPeriodEnd.ToShortDateString();
+                CurrentDateTB.Text = tmp;
+                //Calculate space and position of Completed
+                long CurrentTicks = SRBackup.CurrentPeriodEnd.Ticks - SRBackup.CurrentPeriodStart.Ticks;
+                CurrentBackupRectangle.Width = CurrentTicks * SelectedWidth / SelectedTicks;
+                Canvas.SetLeft(CurrentBackupRectangle, (SRBackup.CurrentPeriodStart.Ticks - SRBackup.BackupPeriodSelectedStartDate.Ticks) * 500 / SelectedTicks);
+            }
+            else
+            {
+                CurrentBackupRectangle.Width = 0;
+            }
+
+ 
 
         }
 
@@ -1098,6 +1127,12 @@ namespace MBBeta2
                 string ErrorMessage;
                 // TODO: Make sure current ID is really 1
                 bool inProgress = AsyncReqQueue.PendingRequests(150, 1, SNAccount.CurrentProfile.SNID, out ErrorMessage);
+
+                //Fill progress bar dates
+                //TODO: Move this method call to the place where dates are calculated
+                FillProgressBar();
+
+
                 // TODO: Localization
                 switch (AsyncReqQueue.CurrentBackupState)
                 {

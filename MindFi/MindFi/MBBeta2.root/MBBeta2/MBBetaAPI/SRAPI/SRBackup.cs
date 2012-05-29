@@ -43,6 +43,13 @@ namespace MBBetaAPI.SRAPI
         /// keeps the ID for the backup record
         /// </summary>
         public static volatile int currentBackupNumber = 0;
+        /// <summary>
+        /// Which stage in backup
+        /// </summary>
+        public static volatile int BackupStage = 0;
+        public const int BACKUPRESENTDATA = 1;
+        public const int COMPLETEBACKUP = 2;
+        public const int OLDERDATABACKUP = 3;
 
         #region "Backup table operations"
         /// <summary>

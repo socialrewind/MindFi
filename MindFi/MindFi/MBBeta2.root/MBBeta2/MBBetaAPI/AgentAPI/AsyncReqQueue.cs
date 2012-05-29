@@ -51,8 +51,8 @@ namespace MBBetaAPI.AgentAPI
         public static bool BackupMyInbox;
         public static bool BackupMyEvents;
         public static bool BackupMyNotifications = false;
-        public static bool BackupFriendsInfo = false;
-        public static bool BackupFriendsFamily = false;
+        public static bool BackupFriendsInfo = true;
+        public static bool BackupFriendsFamily = true;
         public static bool BackupFriendsPic = true;
         public static bool BackupMyAlbums;
         public static bool BackupMyPhotos;
@@ -709,7 +709,7 @@ namespace MBBetaAPI.AgentAPI
 
                 if (CountPerState[QUEUED] + CountPerState[SENT] + CountPerState[RETRY] > 0)
                 {
-                    PendingRequests(MinPriority, ID, SNID, out error);
+                        PendingRequests(MinPriority, ID, SNID, out error);
                 }
                 else
                 {
